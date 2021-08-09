@@ -82,9 +82,11 @@ export default class UserEditItem extends Component {
     // images in the database when we update
     addImages = () => {
         const imgList = [];
+        const oldList = [];
         this.imageIds.map(id => {
             AuthService.getImage(id)
                 .then(response => {
+                    oldList.push(response.data);
                     imgList.push({
                         // format image data to 
                         data_url: Buffer.from(response.data.data_url).toString('utf8'),
@@ -96,9 +98,10 @@ export default class UserEditItem extends Component {
                         cover: response.data.cover
                     });
                     if (response.data.cover) this.setState({ hasCoverImg: true, maxNumber: 5 });
+
                     this.setState({
                         images: imgList,
-                        oldImgList: imgList,
+                        oldImgList: oldList,
                     });
                 })
                 .catch(function (error) {
@@ -522,7 +525,7 @@ export default class UserEditItem extends Component {
                                     <h3>Other images</h3>
                                     {errors && (
                                         <div>
-                                            {errors.maxNumber && <span>Exceeded maximum upload amount ({!this.state.hasCoverImg ? this.state.maxNumber : this.state.maxNumber - 1})!</span>}
+                                            {errors.maxNumber && <span>Exceeded maximum upload amount ({this.state.maxNumber})!</span>}
                                             {errors.acceptType && <span>The selected file type is not allow!</span>}
                                             {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
                                             {errors.resolution && <span>Selected file exceeded allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
