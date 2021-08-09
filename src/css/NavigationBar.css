@@ -1,0 +1,63 @@
+
+.Navbar {
+  border-bottom: 1px solid silver;
+  box-shadow: 5px 3px whitesmoke;
+  margin-bottom: 2em;
+}
+
+.Navbar > .Nav-bar-item {
+  color: black;
+}
+
+.Nav-bar-text {
+  font-weight: bold;
+  color: black;
+}
+
+.Nav-bar-item {
+  width: 9em;
+  justify-content: space-evenly;
+}
+
+.Log-in-out-btn {
+  border-radius: 2em;
+  background-color: black;
+  border: none;
+  width: 7em;
+  height: 2.8em;
+  color: white;
+  font-weight: bold;
+}
+
+.Log-in-out-text {
+  color: white;
+}
+
+.Log-in-out-text:hover {
+  color: white;
+}
+
+.Sign-up-btn {
+  border-radius: 2em;
+  background-color: white;
+  border: 2px solid black;
+  width: 7em;
+  height: 2.8em;
+  font-weight: bold;
+}
+
+.Sign-up-text {
+  color: black;
+}
+
+.Sign-up-text:hover {
+  color: black;
+}
+
+#username-text {
+  color: black;
+}
+
+#username-text:hover {
+  color: black;
+}

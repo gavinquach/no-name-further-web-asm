@@ -1,0 +1,122 @@
+.Flexbox {
+    display: flex;
+    justify-content: center;
+}
+
+.Flexbox-item {
+    width: 40em;
+    height: 15em;
+    margin: auto;
+}
+
+.Button-item {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+}
+
+.Vertical-line {
+    height: 20em;
+    width: 0;
+    border: 1px solid black;
+    /* margin: auto 1em auto 1em; */
+}
+
+.role-table {
+    margin-top: 2em;
+    text-align: left;
+}
+
+.role-table td {
+    padding-bottom: 1em;
+}
+
+.role-table input {
+    margin-left: 8em;
+}
+
+.tableheader {
+    font-weight: bold;
+}
+
+.Redirect-btn {
+    border-radius: 0.5em;
+    background-color: black;
+    border: none;
+    width: 13.2em;
+    height: 3.5em;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    color: white;
+    font-weight: bold;
+}
+
+.danger-zone-container {
+    margin-bottom: 3em;
+}
+
+.danger-text {
+    color: white;
+    font-weight: bold
+}
+
+.danger-zone-btn {
+    width: 100%;
+    background-color: rgb(200, 0, 0);
+    border: none;
+}
+
+.danger-zone-btn:hover {
+  cursor: pointer;
+}
+
+.danger-text-div {
+    padding: 10px;
+    max-height: 100px;
+}
+
+.hide {
+  display: none;
+  opacity: 0;
+}
+
+.show {
+    display: block;
+    opacity: 1;
+}
+
+.delete-button-container {
+  width: 100%;
+  overflow: auto;
+  z-index: 1;
+  border: 2px solid black;
+}
+
+.delete-button {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    background-color: rgb(200, 0, 0);
+    border: none;
+    border-radius: 0.25em;
+    padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin: 10px 10px;
+    text-decoration: none;
+}
+
+.delete-item-button-single {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    background-color: rgb(200, 0, 0);
+    border: none;
+    border-radius: 0.25em;
+    padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-top: 0.5em;
+    text-decoration: none;
+}

@@ -1,0 +1,8 @@
+FIX:
+mongoose.connect(config.DB, { useNewUrlParser: true, useUnifiedTopology: true })
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+
+remove `const bodyParser = require('body-parser');`
