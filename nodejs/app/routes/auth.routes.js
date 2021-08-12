@@ -52,4 +52,10 @@ module.exports = function (app) {
     app.get(API_URL + "view/item/:id", controller.getItem);
     app.post(API_URL + "edit/item/:id", controller.editItem);
     app.get(API_URL + "delete/item/:id", controller.deleteItem);
+    
+    app.get(API_URL + "view/order/:id", controller.getOrder);
+    app.get(API_URL + "view/orders/user/:id", controller.getUserOrders);
+    app.post(API_URL + "edit/order/:id", controller.editOrder);
+    app.post(API_URL + "addorder", controller.createOrder);
+    app.get(API_URL + "delete/order/:id", controller.deleteOrder);
 };
