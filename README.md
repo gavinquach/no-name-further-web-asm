@@ -22,5 +22,13 @@ Ubuntu: Install with sudo and save as development package `sudo npm install node
 
 # Run server
 react: `npm start`
+for database: cd nodejs then `nodemon server`
 
-nodejs: `cd nodejs` then `nodemon server`
+## Cloud database
+--Set up -- ( Ignore if you have done this)
+Install mongoDBshell
+Add your mongosh's download directory /bin to your $PATH variable
+-- Access --
+Paste this to mongoshell to connect: mongosh "mongodb+srv://cluster0.lvi8f.mongodb.net/myFirstDatabase" --username no-name-member 
+enter password: Member0Name
+Url to config within project: mongodb+srv://no-name-member:Member0Name@cluster0.lvi8f.mongodb.net/<OurDatabaseName>
