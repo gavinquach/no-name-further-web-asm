@@ -11,7 +11,7 @@ db.role = require("./role.model");
 db.item = require("./item.model");
 db.itemCategory = require("./item.category.model");
 db.image = require("./image.model");
-db.order = require("./role.model")
+db.transaction = require("./transaction.model")
 
 db.ROLES = [
     "user",

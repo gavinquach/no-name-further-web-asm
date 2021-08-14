@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const Order = mongoose.model(
-    "Order",
+const Transaction = mongoose.model(
+    "Transaction",
     new mongoose.Schema({
         user: [
             {
@@ -15,8 +15,9 @@ const Order = mongoose.model(
                 ref: "Item"
             }
         ],
-        creation_date: Date
+        creation_date: Date,
+        finlization_date: Date
     })
 );
 
-module.exports = Order;
+module.exports = Transaction;

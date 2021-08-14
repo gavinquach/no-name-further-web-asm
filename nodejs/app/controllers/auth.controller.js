@@ -4,7 +4,7 @@ const User = db.user;
 const Role = db.role;
 const Image = db.image;
 const Item = db.item;
-const Order = db.order;
+const Transc = db.transaction;
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -421,23 +421,23 @@ exports.getUserItems = (req, res) => {
 };
 
 
-// ORDERS
+// Transactions
 
 // Get order by Id
-exports.getOrder = (req, res) => {
-    Order.findById({ _id: req.params.id }, function (err, order) {
+exports.getTransc = (req, res) => {
+    Transc.findById({ _id: req.params.id }, function (err, order) {
         if (err) return res.status(500).send({ message: err });
-        if (!order) return res.status(404).send({ message: "Order not found." });
+        if (!order) return res.status(404).send({ message: "Transaction not found." });
         res.json(order);
     });
 }
 
 // Get order by user
 
-exports.getUserOrders = (req, res) => {
-    Order.find(function (err, orders) {
+exports.getUserTransc = (req, res) => {
+    Transc.find(function (err, orders) {
         if (err) return res.status(500).send({ message: err });
-        if (!orders) return res.status(404).send({ message: "Order not found." });
+        if (!orders) return res.status(404).send({ message: "Transaction not found." });
         const userOrders = [];
         orders.map(order => {
             if (order.users == req.params.id) {
@@ -450,10 +450,10 @@ exports.getUserOrders = (req, res) => {
 
 // Get order by item
 
-exports.getItemOrders = (req, res) => {
-    Order.find(function (err, orders) {
+exports.getItemTransc = (req, res) => {
+    Transc.find(function (err, orders) {
         if (err) return res.status(500).send({ message: err });
-        if (!orders) return res.status(404).send({ message: "Order not found." });
+        if (!orders) return res.status(404).send({ message: "Transaction not found." });
         const itemOrders = [];
         orders.map(order => {
             if (order.items == req.params.id) {
@@ -466,29 +466,29 @@ exports.getItemOrders = (req, res) => {
 
 // Post a new order
 
-exports.createOrder = (req, res) => {
+exports.createTransc = (req, res) => {
 
     // find user and item in database to see if it exists
     User.findOne({
         username: req.body.username
     }).exec((err, user) => {
         if (err) return res.status(500).send({ message: err });
-        if (!user) return res.status(404).send({ message: "User not found." });
+        if (!user) return res.status(404).send({ message: "Transaction not found." });
     
     Item.findOne({
         itemname: req.body.name
     }).exec((err, item) => {
         if (err) return res.status(500).send({ message: err });
-        if (!item) return res.status(404).send({ message: "Item not found." });
+        if (!item) return res.status(404).send({ message: "Transaction not found." });
     })
 
         const date = new Date();
-        // create order object from array passed through
+        // create order object 
         const order = new Order({
             user: user._id,
             item: item._id,
-            created_date: date
-            
+            created_date: date,
+            finalization_date: order.finlization_date
         });
     
         // add order to database
@@ -500,7 +500,24 @@ exports.createOrder = (req, res) => {
                 if (err) return res.status(500).send({ message: err });
             });
 
-            res.send({ message: "Order created successfully!" });
+            res.send({ message: "Transaction created successfully!" });
         });
     });
 }
+
+// Delete order
+exports.deleteTransc = (req, res) => {
+    const orderId = req.params.id;
+    Transc.findById(orderId, function (err, order) {
+        if (err) return res.status(500).send({ message: err });
+        if (!order) return res.status(404).send({ message: "Transaction not found." });
+
+                
+        Transc.findByIdAndRemove({
+                    _id: orderId
+                }, function (err, order) {
+                    if (err) return res.status(500).send({ message: err });
+                    res.json('Transaction successfully removed');
+                });
+            });
+        }
