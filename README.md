@@ -25,9 +25,10 @@ react: `npm start`
 for database: cd nodejs then `nodemon server`
 
 ## Cloud database
---Set up -- ( Ignore if you have done this)
-Install mongoDBshell
-Add your mongosh's download directory /bin to your $PATH variable
+--Set up-- ( Ignore if you have done this)
+* Install mongoDBshell
+* Add your mongosh's download directory /bin to your $PATH variable
+-----------------------------------------------------------------
 -- Access --
 Paste this to mongoshell to connect: mongosh "mongodb+srv://cluster0.lvi8f.mongodb.net/myFirstDatabase" --username no-name-member 
 enter password: Member0Name
