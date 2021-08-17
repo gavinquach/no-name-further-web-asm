@@ -421,6 +421,8 @@ exports.getUserItems = (req, res) => {
 };
 
 
+
+
 // Transactions
 
 // Get order by Id
@@ -432,19 +434,35 @@ exports.getTransc = (req, res) => {
     });
 }
 
-// Get order by user
+// Get order by buyer
 
-exports.getUserTransc = (req, res) => {
+exports.getBuyerTransc = (req, res) => {
     Transc.find(function (err, orders) {
         if (err) return res.status(500).send({ message: err });
         if (!orders) return res.status(404).send({ message: "Transaction not found." });
-        const userOrders = [];
+        const buyerOrders = [];
         orders.map(order => {
-            if (order.users == req.params.id) {
-                userOrders.push(order);
+            if (order.user_buyer == req.params.id) {
+                buyerOrders.push(order);
             }
         });
-        res.json(userOrders);
+        res.json(buyerOrders);
+    })
+};
+
+// Get order by seller
+
+exports.getSellerTransc = (req, res) => {
+    Transc.find(function (err, orders) {
+        if (err) return res.status(500).send({ message: err });
+        if (!orders) return res.status(404).send({ message: "Transaction not found." });
+        const sellerOrders = [];
+        orders.map(order => {
+            if (order.user_seller == req.params.id) {
+                sellerOrders.push(order);
+            }
+        });
+        res.json(sellerOrders);
     })
 };
 
@@ -473,21 +491,23 @@ exports.createTransc = (req, res) => {
         username: req.body.username
     }).exec((err, user) => {
         if (err) return res.status(500).send({ message: err });
-        if (!user) return res.status(404).send({ message: "Transaction not found." });
+        if (!user) return res.status(404).send({ message: "User not found." });
     
     Item.findOne({
         itemname: req.body.name
     }).exec((err, item) => {
         if (err) return res.status(500).send({ message: err });
-        if (!item) return res.status(404).send({ message: "Transaction not found." });
+        if (!item) return res.status(404).send({ message: "Item not found." });
     })
 
         const date = new Date();
         // create order object 
         const order = new Order({
-            user: user._id,
+            user_seller: user._id,
+            user_buyer: user._id,
             item: item._id,
             created_date: date,
+            expirational_date: order.expirational_date,
             finalization_date: order.finlization_date
         });
     
@@ -518,6 +538,25 @@ exports.deleteTransc = (req, res) => {
                 }, function (err, order) {
                     if (err) return res.status(500).send({ message: err });
                     res.json('Transaction successfully removed');
-                });
             });
-        }
+        });
+}
+
+// Edit to finalize
+
+exports.editToFinalize = (req, res) => {
+    const date = new Date();
+    Transc.findById(req.params.id, function (err, order) {
+        // create finalized order object from array passed through
+        order.user_buyer = req.body.orderObj.user_buyer;
+        order.finalization_date = date;
+
+        // update item in database
+        item.save(err => {
+            if (err) return res.status(500).send({ message: err });
+            res.send({ message: "Item updated successfully!" });
+        });
+    });
+};
+
+// Edit to expire
