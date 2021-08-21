@@ -11,6 +11,7 @@ import Home from "./Home"
 import Login from "./Login"
 import Signup from "./Signup"
 import NotFound from "./NotFound"
+import ItemDetails from './components/item.details';
 import UserProfile from './components/profile';
 import UserEditPassword from './components/profile.edit.password'
 import UserIndex from './components/user.index';
@@ -32,6 +33,7 @@ const App = () => {
         <Route exact path="/" component={Home} />
         <Route exact path="/signup" component={Signup} />
         <Route exact path="/login" component={Login} />
+        <Route path="/item/:id" component={ItemDetails} />
         <UserProtectedRoute exact path='/user' component={UserProfile} />
         <UserProtectedRoute exact path='/user/password' component={UserEditPassword} />
         <UserProtectedRoute exact path='/user/index' component={UserIndex} />
