@@ -191,6 +191,9 @@ class AuthService {
     editPassword(id, oldpassword, newpassword) {
         return axios.post(API_URL + "user/edit/password/" + id, {
             oldpassword,
+            newpassword
+        });
+    }
 
     addItemToCart(itemid, userid) {
         return axios.post(API_URL + "addtocart", {

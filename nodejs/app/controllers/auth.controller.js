@@ -145,7 +145,7 @@ exports.editUser = (req, res) => {
         user.phone = req.body.phone;
         user.location = req.body.location;
         if (req.body.password) user.password = bcrypt.hashSync(req.body.password);
-        
+
         if (req.body.roles) {
             Role.find({
                 name: {
@@ -182,7 +182,6 @@ exports.editPassword = (req, res) => {
 
         if (!passwordIsValid) {
             return res.status(401).send({
-                accessToken: null,
                 message: "Old password is incorrect!"
             });
         }
@@ -195,12 +194,11 @@ exports.editPassword = (req, res) => {
 
         if (isSamePassword) {
             return res.status(401).send({
-                accessToken: null,
                 message: "New password is the same as old password!"
             });
         }
 
-        if (req.body.newpassword) { 
+        if (req.body.newpassword) {
             user.password = bcrypt.hashSync(req.body.newpassword);
             user.save(err => {
                 if (err) return res.status(500).send({ message: err });
@@ -221,15 +219,15 @@ exports.uploadImage = (req, res) => {
     });
 
     Item.findById(req.body.id)
-    .exec((err, item) => {
-        if (err) return res.status(500).send({ message: err });
-        if (!item) return res.status(404).send({ message: "Item not found." });
-
-        img.save(err => {
+        .exec((err, item) => {
             if (err) return res.status(500).send({ message: err });
-            res.send({ message: "Image uploaded successfully!" });
+            if (!item) return res.status(404).send({ message: "Item not found." });
+
+            img.save(err => {
+                if (err) return res.status(500).send({ message: err });
+                res.send({ message: "Image uploaded successfully!" });
+            });
         });
-    });
 };
 
 exports.deleteImage = (req, res) => {
@@ -377,24 +375,24 @@ exports.deleteItem = (req, res) => {
 
         // get user from item seller id
         User.findById(item.seller)
-        .exec((err, user) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!user) return res.status(404).send({ message: "User not found." });
-
-            // remove item from user items array
-            user.items.splice(user.items.indexOf(item._id), 1);
-            user.save(err => {
+            .exec((err, user) => {
                 if (err) return res.status(500).send({ message: err });
+                if (!user) return res.status(404).send({ message: "User not found." });
 
-                // finally, remove item from database
-                Item.findByIdAndRemove({
-                    _id: itemId
-                }, function (err, item) {
+                // remove item from user items array
+                user.items.splice(user.items.indexOf(item._id), 1);
+                user.save(err => {
                     if (err) return res.status(500).send({ message: err });
-                    res.json('Item successfully removed');
+
+                    // finally, remove item from database
+                    Item.findByIdAndRemove({
+                        _id: itemId
+                    }, function (err, item) {
+                        if (err) return res.status(500).send({ message: err });
+                        res.json('Item successfully removed');
+                    });
                 });
             });
-        });
     });
 };
 
@@ -446,7 +444,7 @@ exports.viewAllTransactions = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!transcs) return res.status(404).send({ message: "Transactions not found." });
         res.json(transcs);
-    }); 
+    });
 };
 
 // Get order by buyer
@@ -500,20 +498,19 @@ exports.getItemTransc = (req, res) => {
 // Post a new order
 
 exports.createTransc = (req, res) => {
-
     // find user and item in database to see if it exists
     User.findOne({
         username: req.body.username
     }).exec((err, user) => {
         if (err) return res.status(500).send({ message: err });
         if (!user) return res.status(404).send({ message: "User not found." });
-    
-    Item.findOne({
-        itemname: req.body.name
-    }).exec((err, item) => {
-        if (err) return res.status(500).send({ message: err });
-        if (!item) return res.status(404).send({ message: "Item not found." });
-    })
+
+        Item.findOne({
+            itemname: req.body.name
+        }).exec((err, item) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!item) return res.status(404).send({ message: "Item not found." });
+        })
 
         const date = new Date();
         // create order object 
@@ -526,12 +523,12 @@ exports.createTransc = (req, res) => {
             finalization_date: transc.finlization_date,
             status: "Pending"
         });
-    
+
         // add order to database
         transc.save(err => {
             if (err) return res.status(500).send({ message: err });
 
-            user.transc.push(transc ._id);
+            user.transc.push(transc._id);
             user.save(err => {
                 if (err) return res.status(500).send({ message: err });
             });
@@ -548,14 +545,13 @@ exports.deleteTransc = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!order) return res.status(404).send({ message: "Transaction not found." });
 
-                
         Transc.findByIdAndRemove({
-                    _id: transcId
-                }, function (err, order) {
-                    if (err) return res.status(500).send({ message: err });
-                    res.json('Transaction successfully removed');
-            });
+            _id: transcId
+        }, function (err, order) {
+            if (err) return res.status(500).send({ message: err });
+            res.json('Transaction successfully removed');
         });
+    });
 }
 
 // Edit to finalize
