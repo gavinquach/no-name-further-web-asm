@@ -29,7 +29,8 @@ const Transaction = mongoose.model(
                 type: mongoose.Schema.Types.Date,
                 preferences: {default: null},
             }
-        ]
+        ],
+        status: String
     })
 );
 
