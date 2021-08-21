@@ -436,10 +436,10 @@ exports.getTransc = (req, res) => {
 
 // Get all transactions
 exports.viewAllTransactions = (req, res) => {
-    Transc.find(function (err, orders) {
+    Transc.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
-        if (!orders) return res.status(404).send({ message: "Transactions not found." });
-        res.json(orders);
+        if (!transcs) return res.status(404).send({ message: "Transactions not found." });
+        res.json(transcs);
     }); 
 };
 

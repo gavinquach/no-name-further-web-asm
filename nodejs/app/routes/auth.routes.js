@@ -30,7 +30,7 @@ module.exports = function (app) {
 
     app.post(API_URL + "login", controller.login);
     
-    app.get(API_URL + " ", controller.viewUsers);
+    app.get(API_URL + "view/users", controller.viewUsers);
     app.get(API_URL + "view/user/:id", controller.viewOneUser);
     
     app.post(API_URL + "edit/user/:id", [
