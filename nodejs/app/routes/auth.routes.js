@@ -61,4 +61,6 @@ module.exports = function (app) {
     // app.post(API_URL + "edit/order/:id", controller.editOrder);
     app.post(API_URL + "addtransc", controller.createTransc);
     app.get(API_URL + "delete/transc/:id", controller.deleteTransc);    
+
+    app.post(API_URL + "addtocart", controller.addItemToCart);
 };
