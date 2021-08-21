@@ -161,7 +161,7 @@ class AuthService {
     }
 
     viewAllItems() {
-        return axios.get(API_URL + "view/items/");
+        return axios.get(API_URL + "view/items");
     }
 
     viewUserItems(userid) {
