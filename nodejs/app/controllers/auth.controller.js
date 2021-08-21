@@ -423,7 +423,7 @@ exports.getUserItems = (req, res) => {
 exports.getAllItems = (req, res) => {
     Item.find(function (err, items) {
         if (err) return res.status(500).send({ message: err });
-        if (!items) return res.status(404).send({ message: "User not found." });
+        if (!items) return res.status(404).send({ message: "Item not found." });
         res.json(items);
     }).populate("images", "-__v");
 };
