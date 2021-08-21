@@ -421,7 +421,7 @@ exports.getUserItems = (req, res) => {
 };
 
 exports.getAllItems = (req, res) => {
-    User.find(function (err, items) {
+    Item.find(function (err, items) {
         if (err) return res.status(500).send({ message: err });
         if (!items) return res.status(404).send({ message: "User not found." });
         res.json(items);
