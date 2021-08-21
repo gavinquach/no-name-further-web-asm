@@ -420,7 +420,13 @@ exports.getUserItems = (req, res) => {
     }).populate("images", "-__v");
 };
 
-
+exports.getAllItems = (req, res) => {
+    User.find(function (err, items) {
+        if (err) return res.status(500).send({ message: err });
+        if (!items) return res.status(404).send({ message: "User not found." });
+        res.json(items);
+    }).populate("images", "-__v");
+};
 
 
 // Transactions

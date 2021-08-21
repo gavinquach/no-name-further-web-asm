@@ -13,7 +13,7 @@ export default class UserViewItem extends Component {
     }
 
     load = () => {
-        AuthService.viewItems(
+        AuthService.viewUserItems(
             AuthService.getCurrentUser().id
         ).then(response => {
             // console.log(response.data);

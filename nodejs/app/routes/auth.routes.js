@@ -48,6 +48,7 @@ module.exports = function (app) {
     app.get(API_URL + "view/img/:id", controller.getImage);
 
     app.post(API_URL + "additem", controller.createItem);
+    app.post(API_URL + "view/items", controller.getAllItems);
     app.get(API_URL + "view/items/user/:id", controller.getUserItems);
     app.get(API_URL + "view/item/:id", controller.getItem);
     app.post(API_URL + "edit/item/:id", controller.editItem);
