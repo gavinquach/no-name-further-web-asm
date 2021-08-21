@@ -7,6 +7,7 @@ var corsOptions = {
     origin: "http://localhost:8081"
 };
 
+
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
 app.use(express.json({limit: '50mb'}));
@@ -32,7 +33,9 @@ const User = db.user;
 
 // Attempt connection to MongoDB server
 db.mongoose
-    .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+    // connect to cloud db ( )
+    .connect(`${dbConfig.CLOUD_DB}`, {
+    // .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         

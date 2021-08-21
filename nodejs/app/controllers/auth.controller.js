@@ -427,23 +427,32 @@ exports.getUserItems = (req, res) => {
 
 // Get order by Id
 exports.getTransc = (req, res) => {
-    Transc.findById({ _id: req.params.id }, function (err, order) {
+    Transc.findById({ _id: req.params.id }, function (err, transc) {
         if (err) return res.status(500).send({ message: err });
-        if (!order) return res.status(404).send({ message: "Transaction not found." });
-        res.json(order);
+        if (!transc) return res.status(404).send({ message: "Transaction not found." });
+        res.json(transc);
     });
 }
+
+// Get all transactions
+exports.viewAllTransactions = (req, res) => {
+    Transc.find(function (err, orders) {
+        if (err) return res.status(500).send({ message: err });
+        if (!orders) return res.status(404).send({ message: "Transactions not found." });
+        res.json(orders);
+    }); 
+};
 
 // Get order by buyer
 
 exports.getBuyerTransc = (req, res) => {
-    Transc.find(function (err, orders) {
+    Transc.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
-        if (!orders) return res.status(404).send({ message: "Transaction not found." });
+        if (!transcs) return res.status(404).send({ message: "Transaction not found." });
         const buyerOrders = [];
-        orders.map(order => {
-            if (order.user_buyer == req.params.id) {
-                buyerOrders.push(order);
+        transcs.map(transc => {
+            if (transc.user_buyer == req.params.id) {
+                buyerOrders.push(transc);
             }
         });
         res.json(buyerOrders);
@@ -453,13 +462,13 @@ exports.getBuyerTransc = (req, res) => {
 // Get order by seller
 
 exports.getSellerTransc = (req, res) => {
-    Transc.find(function (err, orders) {
+    Transc.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
-        if (!orders) return res.status(404).send({ message: "Transaction not found." });
+        if (!transcs) return res.status(404).send({ message: "Transaction not found." });
         const sellerOrders = [];
-        orders.map(order => {
-            if (order.user_seller == req.params.id) {
-                sellerOrders.push(order);
+        transcs.map(transc => {
+            if (transc.user_seller == req.params.id) {
+                sellerOrders.push(transc);
             }
         });
         res.json(sellerOrders);
@@ -469,13 +478,13 @@ exports.getSellerTransc = (req, res) => {
 // Get order by item
 
 exports.getItemTransc = (req, res) => {
-    Transc.find(function (err, orders) {
+    Transc.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
-        if (!orders) return res.status(404).send({ message: "Transaction not found." });
+        if (!transcs) return res.status(404).send({ message: "Transaction not found." });
         const itemOrders = [];
-        orders.map(order => {
-            if (order.items == req.params.id) {
-                itemOrders.push(order);
+        transcs.map(transc => {
+            if (transc.items == req.params.id) {
+                itemOrders.push(transc);
             }
         });
         res.json(itemOrders);
@@ -502,20 +511,21 @@ exports.createTransc = (req, res) => {
 
         const date = new Date();
         // create order object 
-        const order = new Order({
+        const transc = new Transc({
             user_seller: user._id,
             user_buyer: user._id,
             item: item._id,
             created_date: date,
-            expirational_date: order.expirational_date,
-            finalization_date: order.finlization_date
+            expirational_date: transc.expirational_date,
+            finalization_date: transc.finlization_date,
+            status: "Pending"
         });
     
         // add order to database
-        order.save(err => {
+        transc.save(err => {
             if (err) return res.status(500).send({ message: err });
 
-            user.order.push(order._id);
+            user.transc.push(transc ._id);
             user.save(err => {
                 if (err) return res.status(500).send({ message: err });
             });
@@ -527,14 +537,14 @@ exports.createTransc = (req, res) => {
 
 // Delete order
 exports.deleteTransc = (req, res) => {
-    const orderId = req.params.id;
-    Transc.findById(orderId, function (err, order) {
+    const transcId = req.params.id;
+    Transc.findById(transcId, function (err, order) {
         if (err) return res.status(500).send({ message: err });
         if (!order) return res.status(404).send({ message: "Transaction not found." });
 
                 
         Transc.findByIdAndRemove({
-                    _id: orderId
+                    _id: transcId
                 }, function (err, order) {
                     if (err) return res.status(500).send({ message: err });
                     res.json('Transaction successfully removed');
@@ -546,10 +556,11 @@ exports.deleteTransc = (req, res) => {
 
 exports.editToFinalize = (req, res) => {
     const date = new Date();
-    Transc.findById(req.params.id, function (err, order) {
+    Transc.findById(req.params.id, function (err, transc) {
         // create finalized order object from array passed through
-        order.user_buyer = req.body.orderObj.user_buyer;
-        order.finalization_date = date;
+        transc.user_buyer = req.body.transcObj.user_buyer; // Add the buyer to transaction
+        transc.finalization_date = date;
+        transc.status = "Finalized"
 
         // update item in database
         item.save(err => {

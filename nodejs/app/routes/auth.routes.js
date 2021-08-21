@@ -30,7 +30,7 @@ module.exports = function (app) {
 
     app.post(API_URL + "login", controller.login);
     
-    app.get(API_URL + "view/users", controller.viewUsers);
+    app.get(API_URL + " ", controller.viewUsers);
     app.get(API_URL + "view/user/:id", controller.viewOneUser);
     
     app.post(API_URL + "edit/user/:id", [
@@ -53,10 +53,11 @@ module.exports = function (app) {
     app.post(API_URL + "edit/item/:id", controller.editItem);
     app.get(API_URL + "delete/item/:id", controller.deleteItem);
     
+    app.get(API_URL + "view/transc", controller.viewAllTransactions);
     app.get(API_URL + "view/transc/:id", controller.getTransc);
     app.get(API_URL + "view/transc/user/seller/:id", controller.getSellerTransc);
     app.get(API_URL + "view/transc/user/buyer/:id", controller.getBuyerTransc);
     // app.post(API_URL + "edit/order/:id", controller.editOrder);
     app.post(API_URL + "addtransc", controller.createTransc);
-    app.get(API_URL + "delete/transc/:id", controller.deleteTransc);
+    app.get(API_URL + "delete/transc/:id", controller.deleteTransc);    
 };
