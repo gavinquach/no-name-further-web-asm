@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom'
 
-import ViewItemTableRow from './ViewItemTableRow';
+import ItemTableRow from './ViewItemTableRow';
 import NavigationBar from "../NavigationBar"
 
 import AuthService from "../services/auth.service";
@@ -29,7 +29,7 @@ export default class UserViewItem extends Component {
 
     tabRow = () => {
         return this.state.items.map(function (object, index) {
-            return <ViewItemTableRow obj={object} key={index} />
+            return <ItemTableRow obj={object} key={index} />
         });
     }
 

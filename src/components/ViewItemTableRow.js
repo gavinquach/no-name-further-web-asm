@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import AuthService from "../services/auth.service";
 
-export default class AdminTableRow extends Component {
+export default class ItemTableRow extends Component {
     constructor(props) {
         super(props);
         this.delete = this.delete.bind(this);

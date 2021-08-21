@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 
-import ViewAdminTableRow from './ViewAdminTableRow';
+import AdminTableRow from './ViewAdminTableRow';
 import NavigationBar from "../NavigationBar"
 
 import AuthService from "../services/auth.service";
@@ -74,7 +74,7 @@ export default class AdminViewAdmin extends Component {
                 }
             })
             if (!isUser) {
-                return <ViewAdminTableRow obj={object} key={i} />;
+                return <AdminTableRow obj={object} key={i} />;
             }
         });
     }
