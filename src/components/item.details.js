@@ -127,6 +127,32 @@ export default class ItemDetails extends Component {
         );
     }
 
+    makeTransaction = () => {
+        AuthService.createTransaction(
+            this.props.match.params.id, AuthService.getCurrentUser().id
+        ).then(
+            response => {
+                this.setState({
+                    message: response.data.message,
+                    successful: true
+                });
+            },
+            error => {
+                const resMessage =
+                    (error.response &&
+                        error.response.data &&
+                        error.response.data.message) ||
+                    error.message ||
+                    error.toString();
+
+                this.setState({
+                    successful: false,
+                    message: resMessage
+                });
+            }
+        );
+    }
+
     render() {
         return (
             <div>
@@ -197,7 +223,10 @@ export default class ItemDetails extends Component {
                             <br />
                             <br />
 
-                            <button id="addToCart" className="add-to-cart" name="item" onClick={this.addToCart}>Add To Cart</button>
+                            <button id="addToCart" className="add-to-cart" onClick={this.addToCart}>Add To Cart</button>
+                            <br />
+                            <br />
+                            <button id="makeTransaction" className="make-transaction" onClick={this.makeTransaction}>Request trade</button>
                             <br />
                             {this.state.message && (
                                 <div>

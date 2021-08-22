@@ -50,7 +50,23 @@
 .add-to-cart:hover {
   background-color: rgb(49, 49, 49);
 }
-  
+
+.make-transaction {
+  background: green;
+  color: white;
+  border: none;
+  border-radius: 0.25em;
+  padding: 1em 2em;
+  font-size: 1.25em;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
+}
+
+/* make button slightly darker when hovering mouse over */
+.make-transaction:hover {
+  background-color: rgb(14, 95, 0);
+}
+
 .item-image {
     display: none;
 }
