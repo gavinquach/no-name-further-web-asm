@@ -562,27 +562,33 @@ exports.editToFinalize = (req, res) => {
 
 
 exports.addItemToCart = (req, res) => {
-    // find user in database to see if it exists
-    User.findById(req.body.userid)
-        .exec((err, user) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!user) return res.status(404).send({ message: "User not found." });
+    // check if item is in user transactions
+    Transaction.findOne({ user_buyer: req.body.userid, item: req.body.itemid }, function (err, transaction) {
+        if (err) return res.status(500).send({ message: err });
+        if (transaction) return res.status(401).send({ message: "This item is in transactions!" });
 
-            // find item in database to see if it exists
-            Item.findById(req.body.itemid)
-                .exec((err, item) => {
-                    if (err) return res.status(500).send({ message: err });
-                    if (!item) return res.status(404).send({ message: "Item not found." });
-                });
-
-            itemid = req.body.itemid;
-
-            if (user.cart.includes(itemid)) return res.status(401).send({ message: "Item already in cart!" });
-
-            user.cart.push(itemid);
-            user.save(err => {
+        // find user in database to see if it exists
+        User.findById(req.body.userid)
+            .exec((err, user) => {
                 if (err) return res.status(500).send({ message: err });
-                res.send({ message: "Added item to cart successfully!" });
+                if (!user) return res.status(404).send({ message: "User not found." });
+
+                // find item in database to see if it exists
+                Item.findById(req.body.itemid)
+                    .exec((err, item) => {
+                        if (err) return res.status(500).send({ message: err });
+                        if (!item) return res.status(404).send({ message: "Item not found." });
+                    });
+
+                itemid = req.body.itemid;
+
+                if (user.cart.includes(itemid)) return res.status(401).send({ message: "Item already in cart!" });
+
+                user.cart.push(itemid);
+                user.save(err => {
+                    if (err) return res.status(500).send({ message: err });
+                    res.send({ message: "Added item to cart successfully!" });
+                });
             });
-        });
+    })
 }
