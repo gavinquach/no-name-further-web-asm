@@ -32,7 +32,6 @@ const vquantity = value => {
 export default class UserEditItem extends Component {
     constructor(props) {
         super(props);
-        this.imageIds = [];
 
         this.state = {
             acceptImageType: ['jpg', 'jpeg', 'png', 'bmp'],
@@ -59,14 +58,14 @@ export default class UserEditItem extends Component {
     componentDidMount() {
         AuthService.viewOneItem(this.props.match.params.id)
             .then(response => {
-                this.imageIds = response.data.images;
                 this.setState({
                     name: response.data.name,
                     quantity: response.data.quantity,
                     type: response.data.type,
                     forItemName: response.data.forItemName,
                     forItemQty: response.data.forItemQty,
-                    forItemType: response.data.forItemType
+                    forItemType: response.data.forItemType,
+                    oldImgList: response.data.images
                 }, () => this.addImages());
             }, error => {
                 this.props.history.push("/user/items");
@@ -77,36 +76,24 @@ export default class UserEditItem extends Component {
 
     }
 
-    // add images from list of image ids when getting item
-    // and also store into old image list to remove the old
-    // images in the database when we update
     addImages = () => {
         const imgList = [];
-        const oldList = [];
-        this.imageIds.map(id => {
-            AuthService.getImage(id)
-                .then(response => {
-                    oldList.push(response.data);
-                    imgList.push({
-                        // format image data to 
-                        data_url: Buffer.from(response.data.data_url).toString('utf8'),
-                        file: {
-                            name: response.data.name,
-                            size: response.data.size,
-                            type: response.data.type
-                        },
-                        cover: response.data.cover
-                    });
-                    if (response.data.cover) this.setState({ hasCoverImg: true, maxNumber: 5 });
+        this.state.oldImgList.map(image => {
+            imgList.push({
+                // format image data to 
+                data_url: Buffer.from(image.data_url).toString('utf8'),
+                file: {
+                    name: image.name,
+                    size: image.size,
+                    type: image.type
+                },
+                cover: image.cover
+            });
+            if (image.cover) this.setState({ hasCoverImg: true, maxNumber: 5 });
 
-                    this.setState({
-                        images: imgList,
-                        oldImgList: oldList,
-                    });
-                })
-                .catch(function (error) {
-                    console.log(error);
-                })
+            this.setState({
+                images: imgList
+            });
         });
     }
 

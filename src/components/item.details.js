@@ -24,7 +24,6 @@ import '../css/ItemDetails.css'
 export default class ItemDetails extends Component {
     constructor(props) {
         super(props);
-        this.imageIds = [];
 
         this.state = {
             name: "",
@@ -33,6 +32,7 @@ export default class ItemDetails extends Component {
             forItemName: "",
             forItemQty: 0,
             forItemType: "",
+            tempImgList: [],
             images: [],
             successful: false,
             message: ""
@@ -43,20 +43,38 @@ export default class ItemDetails extends Component {
     componentDidMount() {
         AuthService.viewOneItem(this.props.match.params.id)
             .then(response => {
-                this.imageIds = response.data.images;
                 this.setState({
                     name: response.data.name,
                     quantity: response.data.quantity,
                     type: response.data.type,
                     forItemName: response.data.forItemName,
                     forItemQty: response.data.forItemQty,
-                    forItemType: response.data.forItemType
+                    forItemType: response.data.forItemType,
+                    tempImgList: response.data.images
                 }, () => this.addImages());
             })
             .catch(function (error) {
                 console.log(error);
             })
 
+    }
+
+    addImages = () => {
+        const imgList = [];
+        this.state.tempImgList.map(image => {
+            imgList.push({
+                // format image data to 
+                data_url: Buffer.from(image.data_url).toString('utf8'),
+                file: {
+                    name: image.name,
+                    size: image.size,
+                    type: image.type
+                },
+                cover: image.cover
+            });
+
+            this.setState({ images: imgList });
+        })
     }
 
     changeImage = (e) => {
@@ -82,33 +100,6 @@ export default class ItemDetails extends Component {
         }
         // add border to selected preview image
         item.classList.add("image-list-img-border");
-    }
-
-    // add images from list of image ids when getting item
-    // and also store into old image list to remove the old
-    // images in the database when we update
-    addImages = () => {
-        const imgList = [];
-        this.imageIds.map(id => {
-            AuthService.getImage(id)
-                .then(response => {
-                    imgList.push({
-                        // format image data to 
-                        data_url: Buffer.from(response.data.data_url).toString('utf8'),
-                        file: {
-                            name: response.data.name,
-                            size: response.data.size,
-                            type: response.data.type
-                        },
-                        cover: response.data.cover
-                    });
-
-                    this.setState({ images: imgList });
-                })
-                .catch(function (error) {
-                    console.log(error);
-                })
-        });
     }
 
     addToCart = () => {

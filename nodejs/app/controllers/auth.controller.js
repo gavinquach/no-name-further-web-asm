@@ -401,7 +401,7 @@ exports.getItem = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!item) return res.status(404).send({ message: "Item not found." });
         res.json(item);
-    });
+    }).populate("images", "-__v");
 };
 
 exports.getUserItems = (req, res) => {
