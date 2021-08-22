@@ -98,7 +98,7 @@ export default class UserEditItem extends Component {
     }
 
     delete = () => {
-        if (confirm("Are you sure you want to delete this listing?")) {
+        if (window.confirm("Are you sure you want to delete this listing?")) {
             AuthService.deleteItem(this.props.match.params.id)
                 .then(
                     response => {
