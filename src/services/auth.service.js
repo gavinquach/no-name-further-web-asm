@@ -215,6 +215,9 @@ class AuthService {
         });
     }
 
+    deleteTransaction(id) {
+        return axios.get(API_URL + "delete/transaction/" + id);
+    }
     getTransactionsByBuyer(userid) {
         return axios.get(API_URL + "view/transactions/buyer/" + userid);
     }
