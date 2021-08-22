@@ -5,35 +5,35 @@ import AuthService from "./services/auth.service";
 
 import NavigationBar from "./NavigationBar";
 
-export default class Home extends Component {
+export default class Cart extends Component {
     constructor(props) {
         super(props);
-        this.state = { items: [] };
+        this.state = { cart: [] };
     }
 
-    load = () => {
-        AuthService.viewAllItems().then(response => {
-            // console.log(response.data);
-            this.setState({ items: response.data }, () => console.log(this.state.items));
+    componentDidMount() {
+        AuthService.viewOneUser(AuthService.getCurrentUser().id).then(response => {
+            const temp = response.data.cart;
+            const cart = [];
+            temp.map(itemid => {
+                AuthService.viewOneItem(itemid).then(response => {
+                    cart.push(response.data)
+                    this.setState({ cart: cart });
+                });
+            });
         }).catch(function (error) {
             console.log(error);
         })
     }
 
-    componentDidMount() {
-        this.load();
-    }
-
     render() {
+        console.log(this.state.cart);
         return (
             <div>
                 <NavigationBar />
                 <div className="container">
-                    <a href="cart">Cart</a>
-                    <br />
-                    <a href="transactions">Transactions</a>
-                    <h1>All available listings</h1>
-                    {this.state.items.map(item =>
+                    <h1>Cart</h1>
+                    {this.state.cart.map(item =>
                         <a href={"item/" + item._id}>
                             <div className="ItemPanel">
                                 {item.images.map(image =>
@@ -46,7 +46,7 @@ export default class Home extends Component {
                         </a>
                     )}
                 </div>
-            </div >
+            </div>
         );
     }
 }
