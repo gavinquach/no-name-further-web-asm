@@ -426,10 +426,7 @@ exports.getAllItems = (req, res) => {
     }).populate("images", "-__v");
 };
 
-
-// Transactions
-
-// Get order by Id
+// Get transaction by Id
 exports.getTransc = (req, res) => {
     Transaction.findById({ _id: req.params.id }, function (err, transc) {
         if (err) return res.status(500).send({ message: err });
@@ -447,55 +444,55 @@ exports.viewAllTransactions = (req, res) => {
     });
 };
 
-// Get order by buyer
+// Get transaction by buyer
 
 exports.getBuyerTransc = (req, res) => {
     Transaction.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
         if (!transcs) return res.status(404).send({ message: "Transaction not found." });
-        const buyerOrders = [];
+        const buyerTransactions = [];
         transcs.map(transc => {
             if (transc.user_buyer == req.params.id) {
-                buyerOrders.push(transc);
+                buyerTransactions.push(transc);
             }
         });
-        res.json(buyerOrders);
+        res.json(buyerTransactions);
     })
 };
 
-// Get order by seller
+// Get transaction by seller
 
 exports.getSellerTransc = (req, res) => {
     Transaction.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
         if (!transcs) return res.status(404).send({ message: "Transaction not found." });
-        const sellerOrders = [];
+        const sellerTransactions = [];
         transcs.map(transc => {
             if (transc.user_seller == req.params.id) {
-                sellerOrders.push(transc);
+                sellerTransactions.push(transc);
             }
         });
-        res.json(sellerOrders);
+        res.json(sellerTransactions);
     })
 };
 
-// Get order by item
+// Get transaction by item
 
 exports.getItemTransc = (req, res) => {
     Transaction.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
         if (!transcs) return res.status(404).send({ message: "Transaction not found." });
-        const itemOrders = [];
+        const itemTransactions = [];
         transcs.map(transc => {
             if (transc.items == req.params.id) {
-                itemOrders.push(transc);
+                itemTransactions.push(transc);
             }
         });
-        res.json(itemOrders);
+        res.json(itemTransactions);
     })
 };
 
-// Post a new order
+// Post a new transaction
 exports.createTransc = (req, res) => {
     // check if user has made the same transaction already
     Transaction.findOne({
@@ -530,7 +527,7 @@ exports.createTransc = (req, res) => {
                             status: "Pending"
                         });
 
-                        // add order to database
+                        // add transaction to database
                         transc.save(err => {
                             if (err) return res.status(500).send({ message: err });
                             res.send({ message: "Transaction created successfully!" });
@@ -540,16 +537,16 @@ exports.createTransc = (req, res) => {
     });
 }
 
-// Delete order
+// Delete transaction
 exports.deleteTransc = (req, res) => {
     const transcId = req.params.id;
-    Transaction.findById(transcId, function (err, order) {
+    Transaction.findById(transcId, function (err, transaction) {
         if (err) return res.status(500).send({ message: err });
-        if (!order) return res.status(404).send({ message: "Transaction not found." });
+        if (!transaction) return res.status(404).send({ message: "Transaction not found." });
 
         Transaction.findByIdAndRemove({
             _id: transcId
-        }, function (err, order) {
+        }, function (err, transaction) {
             if (err) return res.status(500).send({ message: err });
             res.json('Transaction successfully removed');
         });
@@ -561,7 +558,7 @@ exports.deleteTransc = (req, res) => {
 exports.editToFinalize = (req, res) => {
     const date = new Date();
     Transaction.findById(req.params.id, function (err, transc) {
-        // create finalized order object from array passed through
+        // create finalized transaction object from array passed through
         transc.user_buyer = req.body.transcObj.user_buyer; // Add the buyer to transaction
         transc.finalization_date = date;
         transc.status = "Finalized"
