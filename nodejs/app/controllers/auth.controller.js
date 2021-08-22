@@ -437,59 +437,38 @@ exports.getTransc = (req, res) => {
 
 // Get all transactions
 exports.viewAllTransactions = (req, res) => {
-    Transaction.find(function (err, transcs) {
+    Transaction.find(function (err, transactions) {
         if (err) return res.status(500).send({ message: err });
-        if (!transcs) return res.status(404).send({ message: "Transactions not found." });
-        res.json(transcs);
-    });
+        if (!transactions) return res.status(404).send({ message: "Transactions not found." });
+        res.json(transactions);
+    }).populate("item", "-__v");
 };
 
-// Get transaction by buyer
-
-exports.getBuyerTransc = (req, res) => {
-    Transaction.find(function (err, transcs) {
+// Get transactions by buyer id
+exports.getBuyerTransactions = (req, res) => {
+    Transaction.find({ user_buyer: req.params.id }, function (err, transactions) {
         if (err) return res.status(500).send({ message: err });
-        if (!transcs) return res.status(404).send({ message: "Transaction not found." });
-        const buyerTransactions = [];
-        transcs.map(transc => {
-            if (transc.user_buyer == req.params.id) {
-                buyerTransactions.push(transc);
-            }
-        });
-        res.json(buyerTransactions);
-    })
+        if (!transactions) return res.status(404).send({ message: "Transactions not found." });
+        res.json(transactions);
+    }).populate("item", "-__v");
 };
 
-// Get transaction by seller
-
-exports.getSellerTransc = (req, res) => {
-    Transaction.find(function (err, transcs) {
+// Get transactions by seller id
+exports.getSellerTransactions = (req, res) => {
+    Transaction.find({ user_seller: req.params.id }, function (err, transactions) {
         if (err) return res.status(500).send({ message: err });
-        if (!transcs) return res.status(404).send({ message: "Transaction not found." });
-        const sellerTransactions = [];
-        transcs.map(transc => {
-            if (transc.user_seller == req.params.id) {
-                sellerTransactions.push(transc);
-            }
-        });
-        res.json(sellerTransactions);
-    })
+        if (!transactions) return res.status(404).send({ message: "Transactions not found." });
+        res.json(transactions);
+    }).populate("item", "-__v");
 };
 
-// Get transaction by item
-
-exports.getItemTransc = (req, res) => {
-    Transaction.find(function (err, transcs) {
+// Get transactions by item id
+exports.getItemTransactions = (req, res) => {
+    Transaction.find({ item: req.params.id }, function (err, transactions) {
         if (err) return res.status(500).send({ message: err });
-        if (!transcs) return res.status(404).send({ message: "Transaction not found." });
-        const itemTransactions = [];
-        transcs.map(transc => {
-            if (transc.items == req.params.id) {
-                itemTransactions.push(transc);
-            }
-        });
-        res.json(itemTransactions);
-    })
+        if (!transactions) return res.status(404).send({ message: "Transactions not found." });
+        res.json(transactions);
+    }).populate("item", "-__v");
 };
 
 // Post a new transaction
