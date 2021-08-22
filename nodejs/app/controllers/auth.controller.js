@@ -543,7 +543,11 @@ exports.deleteTransaction = (req, res) => {
 
 // Cancel transaction, set status to cancelled
 exports.cancelTransaction = (req, res) => {
-    Transaction.findOne({ user_buyer: req.body.userid, item: req.body.itemid }, function (err, transaction) {
+    Transaction.findOne({
+        user_buyer: req.body.userid,
+        item: req.body.itemid,
+        status: "Pending"
+    }, function (err, transaction) {
         if (err) return res.status(500).send({ message: err });
         if (!transaction) return res.status(401).send({ message: "Transaction not found." });
 
@@ -577,7 +581,11 @@ exports.editToFinalize = (req, res) => {
 
 exports.addItemToCart = (req, res) => {
     // check if item is in user transactions
-    Transaction.findOne({ user_buyer: req.body.userid, item: req.body.itemid }, function (err, transaction) {
+    Transaction.findOne({
+        user_buyer: req.body.userid,
+        item: req.body.itemid,
+        status: "Pending"
+    }, function (err, transaction) {
         if (err) return res.status(500).send({ message: err });
         if (transaction) return res.status(401).send({ message: "This item is in transactions!" });
 
