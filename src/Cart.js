@@ -10,7 +10,7 @@ export default class Cart extends Component {
         this.state = { cart: [] };
     }
 
-    componentDidMount() {
+    load = () => {
         AuthService.viewOneUser(AuthService.getCurrentUser().id).then(response => {
             const temp = response.data.cart;
             const cart = [];
@@ -24,6 +24,10 @@ export default class Cart extends Component {
             console.log(error);
         })
     }
+
+    componentDidMount() {
+        this.load();
+    }
     
     removeFromCart = (itemid) => {
         if (confirm("Are you sure you want to remove item " + itemid + " from cart?")) {
@@ -32,7 +36,7 @@ export default class Cart extends Component {
                 AuthService.getCurrentUser().id
             ).then(
                 response => {
-                    window.location.reload();
+                    this.load();
                 },
                 error => {
                     const resMessage =
