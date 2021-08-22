@@ -56,8 +56,9 @@ module.exports = function (app) {
     
     app.get(API_URL + "view/transc", controller.viewAllTransactions);
     app.get(API_URL + "view/transc/:id", controller.getTransc);
-    app.get(API_URL + "view/user/transaction/seller/:id", controller.getSellerTransc);
-    app.get(API_URL + "view/user/transaction/buyer/:id", controller.getBuyerTransc);
+    app.get(API_URL + "view/transactions/buyer/:id", controller.getBuyerTransactions);
+    app.get(API_URL + "view/transactions/seller/:id", controller.getSellerTransactions);
+    app.get(API_URL + "view/transactions/item/:id", controller.getItemTransactions);
     // app.post(API_URL + "edit/order/:id", controller.editOrder);
     app.post(API_URL + "addtransc", controller.createTransc);
     app.get(API_URL + "delete/transc/:id", controller.deleteTransc);    
