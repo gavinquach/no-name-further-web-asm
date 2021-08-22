@@ -202,6 +202,12 @@ class AuthService {
         });
     }
 
+    deleteItemFromCart(itemid, userid) {
+        return axios.post(API_URL + "deletefromcart/" + itemid, {
+            userid
+        });
+    }
+
     createTransaction(itemid, userid) {
         return axios.post(API_URL + "addtransc", {
             itemid,

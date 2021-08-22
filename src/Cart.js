@@ -25,6 +25,29 @@ export default class Cart extends Component {
             console.log(error);
         })
     }
+    
+    removeFromCart = (itemid) => {
+        if (confirm("Are you sure you want to remove item " + itemid + " from cart?")) {
+            AuthService.deleteItemFromCart(
+                itemid,
+                AuthService.getCurrentUser().id
+            ).then(
+                response => {
+                    window.location.reload();
+                },
+                error => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
+
+                    // console.log(resMessage);
+                }
+            );
+        }
+    }
 
     render() {
         return (
@@ -33,16 +56,21 @@ export default class Cart extends Component {
                 <div className="container">
                     <h1>Cart</h1>
                     {this.state.cart.map(item =>
-                        <a href={"item/" + item._id}>
-                            <div className="ItemPanel">
-                                {item.images.map(image =>
-                                    image.cover && (
-                                        <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
-                                    )
-                                )}
-                                <h4>{item.name} for {item.forItemName}</h4>
+                        <div>
+                            <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
+                                <a href={"item/" + item._id}>
+                                    <div className="ItemPanel">
+                                        {item.images.map(image =>
+                                            image.cover && (
+                                                <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
+                                            )
+                                        )}
+                                        <h4>{item.name} for {item.forItemName}</h4>
+                                    </div>
+                                </a>
                             </div>
-                        </a>
+                            <button onClick={() => this.removeFromCart(item._id)}>Remove from cart</button>
+                        </div>
                     )}
                 </div>
             </div>

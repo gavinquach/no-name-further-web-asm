@@ -592,3 +592,20 @@ exports.addItemToCart = (req, res) => {
             });
     })
 }
+
+exports.deleteItemFromCart = (req, res) => {
+    User.findById(req.body.userid)
+        .exec((err, user) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!user) return res.status(404).send({ message: "User not found." });
+
+            // if item is found in cart, remove it
+            const itemIndexInCart = user.cart.indexOf(req.params.id);
+            if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
+
+            user.save(err => {
+                if (err) return res.status(500).send({ message: err });
+                res.send({ message: "Item removed from cart successfully!" });
+            });
+        });
+};
