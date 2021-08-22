@@ -139,7 +139,6 @@ export default class AdminEditUser extends Component {
 
     // get user info and assign to input fields
     componentDidMount() {
-        this.getVietnamGeoData();
         AuthService.viewOneUser(this.props.match.params.id)
             .then(response => {
                 let isUser = false;
@@ -153,6 +152,7 @@ export default class AdminEditUser extends Component {
                 }
                 !isUser && this.props.history.push("/admin/index");
 
+                this.getVietnamGeoData();
                 this.setState({
                     username: response.data.username,
                     email: response.data.email,
