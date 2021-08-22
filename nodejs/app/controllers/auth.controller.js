@@ -487,6 +487,14 @@ exports.createTransc = (req, res) => {
                 if (err) return res.status(500).send({ message: err });
                 if (!user) return res.status(404).send({ message: "User not found." });
 
+                // if item is found in cart, remove it
+                const itemIndexInCart = user.cart.indexOf(itemid);
+                if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
+
+                user.save(err => {
+                    if (err) return res.status(500).send({ message: err });
+                });
+
                 Item.findById(req.body.itemid)
                     .exec((err, item) => {
                         if (err) return res.status(500).send({ message: err });
