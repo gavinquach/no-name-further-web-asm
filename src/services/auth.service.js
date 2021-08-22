@@ -201,6 +201,13 @@ class AuthService {
             userid
         });
     }
+
+    createTransaction(itemid, userid) {
+        return axios.post(API_URL + "addtransc", {
+            itemid,
+            userid
+        });
+    }
 }
 
 export default new AuthService();
