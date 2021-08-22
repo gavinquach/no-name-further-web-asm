@@ -5,36 +5,21 @@ import NavigationBar from "../NavigationBar";
 
 import '../css/ItemDetails.css'
 
-const changeImage = (e) => {
-    console.log(e.target);
-    document.getElementById("main-image").src = e.target.src;
-    // get elements from class to remove border from
-    let elements = document.getElementsByClassName("image-item");
-
-    // remove border from all images
-    for (let i = 0; i < elements.length; i++) {
-        let child = elements[i].children[0];
-        child.classList.remove("image-list-img-border");
-    }
-    // add border to selected preview image
-    e.target.classList.add("image-list-img-border");
-}
-
-const updateQty = (id) => {
-    let qtyValue = document.getElementById("qty-value").value;
-    if (!isNaN(qtyValue)) {
-        Math.round(qtyValue);
-        if (id === "decrease-qty") {
-            if (qtyValue > 1) {
-                qtyValue--;
-                document.getElementById("qty-value").value = qtyValue;
-            }
-        } else {
-            qtyValue++;
-            document.getElementById("qty-value").value = qtyValue;
-        }
-    }
-}
+// const updateQty = (id) => {
+//     let qtyValue = document.getElementById("qty-value").value;
+//     if (!isNaN(qtyValue)) {
+//         Math.round(qtyValue);
+//         if (id === "decrease-qty") {
+//             if (qtyValue > 1) {
+//                 qtyValue--;
+//                 document.getElementById("qty-value").value = qtyValue;
+//             }
+//         } else {
+//             qtyValue++;
+//             document.getElementById("qty-value").value = qtyValue;
+//         }
+//     }
+// }
 
 export default class ItemDetails extends Component {
     constructor(props) {
@@ -72,6 +57,31 @@ export default class ItemDetails extends Component {
                 console.log(error);
             })
 
+    }
+
+    changeImage = (e) => {
+        let item;
+        let img;
+        if (e.target.tagName == "LI") {
+            item = e.target;
+            img = e.target.firstChild.src;
+        }
+        else if (e.target.tagName == "IMG") {
+            item = e.target.parentElement;
+            img = e.target.src;
+        }
+
+        document.getElementById("main-image").src = img;
+
+        // get elements from class to remove border from
+        let elements = document.getElementsByClassName("image-item");
+
+        // remove border from all images
+        for (let i = 0; i < elements.length; i++) {
+            elements[i].classList.remove("image-list-img-border");
+        }
+        // add border to selected preview image
+        item.classList.add("image-list-img-border");
     }
 
     // add images from list of image ids when getting item
@@ -159,31 +169,32 @@ export default class ItemDetails extends Component {
                 <NavigationBar />
                 <div className="container">
                     <h1>Item details</h1>
+                    <br />
                     <div className="row">
                         <div className="col-sm-6">
-                            <div>
-                                <div className="item-image">
-                                    {this.state.images.map((image, index) =>
-                                        image.cover && (
-                                            <div key={index} className="item-image">
-                                                <img id="main-image" className="active" src={image.data_url} alt={image.file.name} />
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                                <ul className="image-list">
-                                    {this.state.images.map((image, index) =>
-                                        image.cover && (
-                                            <li key={index} className="image-item" onClick={changeImage}><img src={image.data_url} /></li>
-                                        )
-                                    )}
-                                    {this.state.images.map((image, index) =>
-                                        !image.cover && (
-                                            <li key={index} className="image-item" onClick={changeImage}><img src={image.data_url} /></li>
-                                        )
-                                    )}
-                                </ul>
+                            <div className="item-image">
+                                {this.state.images.map((image, index) =>
+                                    image.cover && (
+                                        <div key={index} className="item-image">
+                                            <img id="main-image" className="active" src={image.data_url} alt={image.file.name} />
+                                        </div>
+                                    )
+                                )}
                             </div>
+                            <ul className="image-list">
+                                {/* show cover first */}
+                                {this.state.images.map((image, index) =>
+                                    image.cover && (
+                                        <li key={index} className="image-item" onClick={this.changeImage}><img src={image.data_url} /></li>
+                                    )
+                                )}
+                                {/* then show other images */}
+                                {this.state.images.map((image, index) =>
+                                    !image.cover && (
+                                        <li key={index} className="image-item" onClick={this.changeImage}><img src={image.data_url} /></li>
+                                    )
+                                )}
+                            </ul>
                         </div>
 
                         <div className="col-sm-6">
@@ -229,7 +240,7 @@ export default class ItemDetails extends Component {
                             <button id="makeTransaction" className="make-transaction" onClick={this.makeTransaction}>Request trade</button>
                             <br />
                             {this.state.message && (
-                                <div>
+                                <div className="statusMsg">
                                     <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
                                         {this.state.message}
                                     </div>
