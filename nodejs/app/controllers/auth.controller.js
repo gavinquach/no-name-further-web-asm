@@ -496,45 +496,47 @@ exports.getItemTransc = (req, res) => {
 };
 
 // Post a new order
-
 exports.createTransc = (req, res) => {
-    // find user and item in database to see if it exists
-    User.findOne({
-        username: req.body.username
-    }).exec((err, user) => {
+    // check if user has made the same transaction already
+    Transaction.findOne({
+        item: req.body.itemid,
+        user_buyer: req.body.userid
+    }).exec((err, transc) => {
         if (err) return res.status(500).send({ message: err });
-        if (!user) return res.status(404).send({ message: "User not found." });
+        if (transc) return res.status(401).send({ message: "Transaction already exists!" });
 
-        Item.findOne({
-            itemname: req.body.name
-        }).exec((err, item) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!item) return res.status(404).send({ message: "Item not found." });
-        })
-
-        const date = new Date();
-        // create order object 
-        const transc = new Transc({
-            user_seller: user._id,
-            user_buyer: user._id,
-            item: item._id,
-            created_date: date,
-            expirational_date: transc.expirational_date,
-            finalization_date: transc.finlization_date,
-            status: "Pending"
-        });
-
-        // add order to database
-        transc.save(err => {
-            if (err) return res.status(500).send({ message: err });
-
-            user.transc.push(transc._id);
-            user.save(err => {
+        // find user and item in database to see if it exists
+        User.findById(req.body.userid)
+            .exec((err, user) => {
                 if (err) return res.status(500).send({ message: err });
-            });
+                if (!user) return res.status(404).send({ message: "User not found." });
 
-            res.send({ message: "Transaction created successfully!" });
-        });
+                Item.findById(req.body.itemid)
+                    .exec((err, item) => {
+                        if (err) return res.status(500).send({ message: err });
+                        if (!item) return res.status(404).send({ message: "Item not found." });
+
+                        const currentDate = new Date();
+                        let datePlus2Weeks = new Date();
+                        datePlus2Weeks.setDate(datePlus2Weeks.getDate() + 2 * 7);   // add 2 weeks to date
+
+                        // create transaction object
+                        const transc = new Transaction({
+                            user_seller: item.seller,
+                            user_buyer: user._id,
+                            item: item._id,
+                            created_date: currentDate,
+                            expirational_date: datePlus2Weeks,
+                            status: "Pending"
+                        });
+
+                        // add order to database
+                        transc.save(err => {
+                            if (err) return res.status(500).send({ message: err });
+                            res.send({ message: "Transaction created successfully!" });
+                        });
+                    });
+            });
     });
 }
 
