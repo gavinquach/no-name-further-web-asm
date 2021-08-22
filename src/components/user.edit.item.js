@@ -475,7 +475,7 @@ export default class UserEditItem extends Component {
                                                 <div key={index} className="container ImagePanels">
                                                     <img src={image.data_url} alt={image.file.name} />
                                                     <button type="button" onClick={() => onImageUpdate(index)}>Update</button>
-                                                    <button type="button" onClick={() => { onImageRemove(index), this.removeCoverImg() }} className="Remove-btn">Remove</button>
+                                                    <button type="button" onClick={() => { onImageRemove(index); this.removeCoverImg();}} className="Remove-btn">Remove</button>
                                                     <p>{image.file.name}</p>
                                                 </div>
                                             ))
