@@ -4,7 +4,7 @@ const User = db.user;
 const Role = db.role;
 const Image = db.image;
 const Item = db.item;
-const Transc = db.transaction;
+const Transaction = db.transaction;
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -431,7 +431,7 @@ exports.getAllItems = (req, res) => {
 
 // Get order by Id
 exports.getTransc = (req, res) => {
-    Transc.findById({ _id: req.params.id }, function (err, transc) {
+    Transaction.findById({ _id: req.params.id }, function (err, transc) {
         if (err) return res.status(500).send({ message: err });
         if (!transc) return res.status(404).send({ message: "Transaction not found." });
         res.json(transc);
@@ -440,7 +440,7 @@ exports.getTransc = (req, res) => {
 
 // Get all transactions
 exports.viewAllTransactions = (req, res) => {
-    Transc.find(function (err, transcs) {
+    Transaction.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
         if (!transcs) return res.status(404).send({ message: "Transactions not found." });
         res.json(transcs);
@@ -450,7 +450,7 @@ exports.viewAllTransactions = (req, res) => {
 // Get order by buyer
 
 exports.getBuyerTransc = (req, res) => {
-    Transc.find(function (err, transcs) {
+    Transaction.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
         if (!transcs) return res.status(404).send({ message: "Transaction not found." });
         const buyerOrders = [];
@@ -466,7 +466,7 @@ exports.getBuyerTransc = (req, res) => {
 // Get order by seller
 
 exports.getSellerTransc = (req, res) => {
-    Transc.find(function (err, transcs) {
+    Transaction.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
         if (!transcs) return res.status(404).send({ message: "Transaction not found." });
         const sellerOrders = [];
@@ -482,7 +482,7 @@ exports.getSellerTransc = (req, res) => {
 // Get order by item
 
 exports.getItemTransc = (req, res) => {
-    Transc.find(function (err, transcs) {
+    Transaction.find(function (err, transcs) {
         if (err) return res.status(500).send({ message: err });
         if (!transcs) return res.status(404).send({ message: "Transaction not found." });
         const itemOrders = [];
@@ -543,11 +543,11 @@ exports.createTransc = (req, res) => {
 // Delete order
 exports.deleteTransc = (req, res) => {
     const transcId = req.params.id;
-    Transc.findById(transcId, function (err, order) {
+    Transaction.findById(transcId, function (err, order) {
         if (err) return res.status(500).send({ message: err });
         if (!order) return res.status(404).send({ message: "Transaction not found." });
 
-        Transc.findByIdAndRemove({
+        Transaction.findByIdAndRemove({
             _id: transcId
         }, function (err, order) {
             if (err) return res.status(500).send({ message: err });
@@ -560,7 +560,7 @@ exports.deleteTransc = (req, res) => {
 
 exports.editToFinalize = (req, res) => {
     const date = new Date();
-    Transc.findById(req.params.id, function (err, transc) {
+    Transaction.findById(req.params.id, function (err, transc) {
         // create finalized order object from array passed through
         transc.user_buyer = req.body.transcObj.user_buyer; // Add the buyer to transaction
         transc.finalization_date = date;
