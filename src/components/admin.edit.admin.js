@@ -109,7 +109,7 @@ export default class AdminEditAdmin extends Component {
     }
 
     delete = () => {
-        if (confirm("Are you sure you want to delete admin " + this.state.username + "?")) {
+        if (window.confirm("Are you sure you want to delete admin " + this.state.username + "?")) {
             AuthService.deleteUser(this.props.match.params.id)
                 .then(
                     response => {

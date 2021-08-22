@@ -15,7 +15,7 @@ export default class ItemTableRow extends Component {
     }
 
     delete = () => {
-        if (confirm("Are you sure you want to delete listing " + this.props.obj.name + "?")) {
+        if (window.confirm("Are you sure you want to delete listing " + this.props.obj.name + "?")) {
             AuthService.deleteItem(this.props.obj._id)
                 .then(
                     response => {

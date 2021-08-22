@@ -31,7 +31,7 @@ export default class Cart extends Component {
     }
     
     removeFromCart = (itemid) => {
-        if (confirm("Are you sure you want to remove item " + itemid + " from cart?")) {
+        if (window.confirm("Are you sure you want to remove item " + itemid + " from cart?")) {
             AuthService.deleteItemFromCart(
                 itemid,
                 AuthService.getCurrentUser().id

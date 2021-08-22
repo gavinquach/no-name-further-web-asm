@@ -23,7 +23,7 @@ export default class UserTableRow extends Component {
             });
             return;
         }
-        if (confirm("Are you sure you want to delete user " + this.props.obj.username + "?")) {
+        if (window.confirm("Are you sure you want to delete user " + this.props.obj.username + "?")) {
             AuthService.deleteUser(this.props.obj._id)
                 .then(
                     response => {

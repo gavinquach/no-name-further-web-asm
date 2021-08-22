@@ -26,7 +26,7 @@ export default class Transactions extends Component {
     }
 
     cancelTransaction = (itemid) => {
-        if (confirm("Are you sure you want to cancel transaction?")) {
+        if (window.confirm("Are you sure you want to cancel transaction?")) {
             AuthService.cancelTransaction(
                 itemid,
                 AuthService.getCurrentUser().id
