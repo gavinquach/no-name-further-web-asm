@@ -146,7 +146,7 @@ class AuthService {
     }
 
     uploadImage(name, size, type, upload_date, data_url, item) {
-        return axios.post(API_URL + "upload/image", {
+        return axios.post(API_URL + "add/image", {
             name,
             size,
             type,
@@ -173,7 +173,7 @@ class AuthService {
     }
 
     createItem(username, itemObj, imgList) {
-        return axios.post(API_URL + "additem", {
+        return axios.post(API_URL + "add/item", {
             username, itemObj, imgList
         });
     }
@@ -209,7 +209,7 @@ class AuthService {
     }
 
     createTransaction(itemid, userid) {
-        return axios.post(API_URL + "addtransc", {
+        return axios.post(API_URL + "add/transaction", {
             itemid,
             userid
         });

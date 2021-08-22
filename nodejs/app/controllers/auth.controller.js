@@ -427,7 +427,7 @@ exports.getAllItems = (req, res) => {
 };
 
 // Get transaction by Id
-exports.getTransc = (req, res) => {
+exports.getTransaction = (req, res) => {
     Transaction.findById({ _id: req.params.id }, function (err, transc) {
         if (err) return res.status(500).send({ message: err });
         if (!transc) return res.status(404).send({ message: "Transaction not found." });
@@ -472,7 +472,7 @@ exports.getItemTransactions = (req, res) => {
 };
 
 // Post a new transaction
-exports.createTransc = (req, res) => {
+exports.createTransaction = (req, res) => {
     // check if user has made the same transaction already
     Transaction.findOne({
         item: req.body.itemid,
@@ -525,7 +525,7 @@ exports.createTransc = (req, res) => {
 }
 
 // Delete transaction
-exports.deleteTransc = (req, res) => {
+exports.deleteTransaction = (req, res) => {
     const transcId = req.params.id;
     Transaction.findById(transcId, function (err, transaction) {
         if (err) return res.status(500).send({ message: err });
