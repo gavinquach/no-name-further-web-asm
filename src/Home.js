@@ -14,7 +14,7 @@ export default class Home extends Component {
     load = () => {
         AuthService.viewAllItems().then(response => {
             // console.log(response.data);
-            this.setState({ items: response.data }, () => console.log(this.state.items));
+            this.setState({ items: response.data });
         }).catch(function (error) {
             console.log(error);
         })
@@ -33,8 +33,9 @@ export default class Home extends Component {
                     <br />
                     <a href="transactions">Transactions</a>
                     <h1>All available listings</h1>
-                    {this.state.items.map(item =>
-                        <a href={"item/" + item._id}>
+                    {this.state.items.map((item, index) =>
+                        item.seller != AuthService.getCurrentUser().id &&
+                        <a key={index} href={"item/" + item._id}>
                             <div className="ItemPanel">
                                 {item.images.map(image =>
                                     image.cover && (
