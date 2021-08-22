@@ -35,9 +35,9 @@ const App = () => {
         <Route exact path="/" component={Home} />
         <Route exact path="/signup" component={Signup} />
         <Route exact path="/login" component={Login} />
-        <Route path="/cart" component={Cart} />
-        <Route path="/transactions" component={Transactions} />
         <Route path="/item/:id" component={ItemDetails} />
+        <UserProtectedRoute path="/cart" component={Cart} />
+        <UserProtectedRoute path="/transactions" component={Transactions} />
         <UserProtectedRoute exact path='/user' component={UserProfile} />
         <UserProtectedRoute exact path='/user/password' component={UserEditPassword} />
         <UserProtectedRoute exact path='/user/index' component={UserIndex} />
