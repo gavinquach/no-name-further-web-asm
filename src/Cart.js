@@ -11,6 +11,7 @@ export default class Cart extends Component {
     }
 
     load = () => {
+        this.setState({ cart: [] });
         AuthService.viewOneUser(AuthService.getCurrentUser().id).then(response => {
             const temp = response.data.cart;
             const cart = [];

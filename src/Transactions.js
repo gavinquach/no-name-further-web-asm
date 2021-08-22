@@ -11,6 +11,7 @@ export default class Transactions extends Component {
     }
 
     load = () => {
+        this.setState({ transactions: [] });
         AuthService.getTransactionsByBuyer(
             AuthService.getCurrentUser().id
         ).then(response => {
