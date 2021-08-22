@@ -215,22 +215,6 @@ export default class AdminEditUser extends Component {
         });
     }
 
-    loadDistricts = () => {
-        console.log('aaa');
-        const districtList = [];
-        this.state.vnLocations.map(location => {
-        console.log(this.state.location);
-        console.log(this.state.district);
-            if (location.city == this.state.location) {
-                console.log('bbb');
-                location.district.map(name => {
-                    districtList.push(name);
-                })
-            }
-        });
-        this.setState({ districts: districtList });
-    }
-
     onChangeUsername = (e) => {
         this.setState({
             username: e.target.value

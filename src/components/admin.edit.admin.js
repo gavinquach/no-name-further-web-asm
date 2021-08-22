@@ -217,22 +217,6 @@ export default class AdminEditAdmin extends Component {
         });
     }
 
-    loadDistricts = () => {
-        console.log('aaa');
-        const districtList = [];
-        this.state.vnLocations.map(location => {
-            console.log(this.state.location);
-            console.log(this.state.district);
-            if (location.city == this.state.location) {
-                console.log('bbb');
-                location.district.map(name => {
-                    districtList.push(name);
-                })
-            }
-        });
-        this.setState({ districts: districtList });
-    }
-
     // enable multiple checkboxes to be checked
     onChangeRoleCheckBox = (position) => {
         const updatedCheckedState = this.state.checkedState.map((item, index) =>
