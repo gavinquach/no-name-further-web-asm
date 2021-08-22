@@ -24,7 +24,7 @@ const Transaction = mongoose.model(
         ],
         creation_date: Date,
         expirational_date: Date,
-        finlization_date: [
+        finalization_date: [
             {
                 type: mongoose.Schema.Types.Date,
                 preferences: {default: null},
