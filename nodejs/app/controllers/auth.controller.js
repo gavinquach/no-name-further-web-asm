@@ -488,7 +488,7 @@ exports.createTransaction = (req, res) => {
                 if (!user) return res.status(404).send({ message: "User not found." });
 
                 // if item is found in cart, remove it
-                const itemIndexInCart = user.cart.indexOf(itemid);
+                const itemIndexInCart = user.cart.indexOf(req.body.itemid);
                 if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
 
                 user.save(err => {
