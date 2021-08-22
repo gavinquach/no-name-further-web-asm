@@ -10,7 +10,7 @@ export default class Transactions extends Component {
         this.state = { transactions: [] };
     }
 
-    componentDidMount() {
+    load = () => {
         AuthService.getTransactionsByBuyer(
             AuthService.getCurrentUser().id
         ).then(response => {
@@ -20,23 +20,78 @@ export default class Transactions extends Component {
         })
     }
 
+    componentDidMount() {
+        this.load();
+    }
+
+    cancelTransaction = (itemid) => {
+        if (confirm("Are you sure you want to cancel transaction?")) {
+            AuthService.cancelTransaction(
+                itemid,
+                AuthService.getCurrentUser().id
+            ).then(
+                response => {
+                    this.load();
+                },
+                error => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
+
+                    // console.log(resMessage);
+                }
+            );
+        }
+    }
+
     render() {
         return (
             <div>
                 <NavigationBar />
                 <div className="container">
                     <h1>Transactions</h1>
+                    <br />
+                    <h2>Ongoing</h2>
                     {this.state.transactions.map((transc, index) =>
-                        <a key={index} href={"item/" + transc.item._id}>
-                            <div className="ItemPanel">
-                                {/* {transc.item.images.map(image =>
+                        transc.status === "Pending" &&
+                        <div>
+                            <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
+                                <a key={index} href={"item/" + transc.item._id}>
+                                    <div className="ItemPanel">
+                                        {/* {transc.item.images.map(image =>
                                     image.cover && (
                                         <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
                                     )
                                 )} */}
-                                <h4>{transc.item.name} for {transc.item.forItemName}</h4>
+                                        <h4>{transc.item.name} for {transc.item.forItemName}</h4>
+                                    </div>
+                                </a>
                             </div>
-                        </a>
+                            <button onClick={() => this.cancelTransaction(transc.item._id)}>Cancel transaction</button>
+                        </div>
+                    )}
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <h2>Cancelled</h2>
+                    {this.state.transactions.map((transc, index) =>
+                        transc.status === "Cancelled" &&
+                        <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
+                            <a key={index} href={"item/" + transc.item._id}>
+                                <div className="ItemPanel">
+                                    {/* {transc.item.images.map(image =>
+                                image.cover && (
+                                    <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
+                                )
+                            )} */}
+                                    <h4>{transc.item.name} for {transc.item.forItemName}</h4>
+                                </div>
+                            </a>
+                        </div>
                     )}
                 </div>
             </div>

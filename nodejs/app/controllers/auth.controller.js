@@ -473,10 +473,11 @@ exports.getItemTransactions = (req, res) => {
 
 // Post a new transaction
 exports.createTransaction = (req, res) => {
-    // check if user has made the same transaction already
+    // check if user same item in transaction and is ongoing
     Transaction.findOne({
         item: req.body.itemid,
-        user_buyer: req.body.userid
+        user_buyer: req.body.userid,
+        status: "Pending"
     }).exec((err, transc) => {
         if (err) return res.status(500).send({ message: err });
         if (transc) return res.status(401).send({ message: "Transaction already exists!" });
@@ -540,8 +541,21 @@ exports.deleteTransaction = (req, res) => {
     });
 }
 
-// Edit to finalize
+// Cancel transaction, set status to cancelled
+exports.cancelTransaction = (req, res) => {
+    Transaction.findOne({ user_buyer: req.body.userid, item: req.body.itemid }, function (err, transaction) {
+        if (err) return res.status(500).send({ message: err });
+        if (!transaction) return res.status(401).send({ message: "Transaction not found." });
 
+        transaction.status = "Cancelled";
+        transaction.save(err => {
+            if (err) return res.status(500).send({ message: err });
+            res.send({ message: "Transaction cancelled successfully!" });
+        })
+    });
+}
+
+// Edit to finalize
 exports.editToFinalize = (req, res) => {
     const date = new Date();
     Transaction.findById(req.params.id, function (err, transc) {

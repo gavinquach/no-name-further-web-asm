@@ -218,6 +218,14 @@ class AuthService {
     deleteTransaction(id) {
         return axios.get(API_URL + "delete/transaction/" + id);
     }
+
+    cancelTransaction(itemid, userid) {
+        return axios.post(API_URL + "cancel/transaction", {
+            itemid,
+            userid
+        });
+    }
+
     getTransactionsByBuyer(userid) {
         return axios.get(API_URL + "view/transactions/buyer/" + userid);
     }
