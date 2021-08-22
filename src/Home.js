@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 
 import AuthService from "./services/auth.service";
 
@@ -11,17 +10,13 @@ export default class Home extends Component {
         this.state = { items: [] };
     }
 
-    load = () => {
+    componentDidMount() {
         AuthService.viewAllItems().then(response => {
             // console.log(response.data);
             this.setState({ items: response.data });
         }).catch(function (error) {
             console.log(error);
         })
-    }
-
-    componentDidMount() {
-        this.load();
     }
 
     render() {
@@ -47,7 +42,7 @@ export default class Home extends Component {
                         </a>
                     )}
                 </div>
-            </div >
+            </div>
         );
     }
 }
