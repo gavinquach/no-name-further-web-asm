@@ -208,6 +208,16 @@ class AuthService {
             userid
         });
     }
+
+    getTransactionsByBuyer(userid) {
+        return axios.get(API_URL + "view/transactions/buyer/" + userid);
+    }
+    getTransactionsBySeller(userid) {
+        return axios.get(API_URL + "view/transactions/seller/" + userid);
+    }
+    getTransactionsByItem(itemid) {
+        return axios.get(API_URL + "view/transactions/item/" + itemid);
+    }
 }
 
 export default new AuthService();
