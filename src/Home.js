@@ -28,8 +28,22 @@ export default class Home extends Component {
                     <br />
                     <a href="transactions">Transactions</a>
                     <h1>All available listings</h1>
-                    {this.state.items.map((item, index) =>
-                        item.seller != AuthService.getCurrentUser().id &&
+                    {/* if is logged in then show listings from other people, hide ones that belong to current user */}
+                    {AuthService.isLoggedIn() && this.state.items.map((item, index) =>
+                        (item.seller != AuthService.getCurrentUser().id) &&
+                        <a key={index} href={"item/" + item._id}>
+                            <div className="ItemPanel">
+                                {item.images.map(image =>
+                                    image.cover && (
+                                        <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
+                                    )
+                                )}
+                                <h4>{item.name} for {item.forItemName}</h4>
+                            </div>
+                        </a>
+                    )}
+                    {/* if not logged in, show all items */}
+                    {!AuthService.isLoggedIn() && this.state.items.map((item, index) =>
                         <a key={index} href={"item/" + item._id}>
                             <div className="ItemPanel">
                                 {item.images.map(image =>
