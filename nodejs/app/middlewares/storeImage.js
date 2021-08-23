@@ -28,11 +28,19 @@ const uploadSingle = multer({
     limits: { fileSize: img.maxSize },
     fileFilter: fileFilter
 }).single("file");
-});
+
+const uploadMultiple = multer({
+    storage: storage,
+    limits: { fileSize: img.maxSize },
+    fileFilter: fileFilter
+}).array("files", img.maxNumFiles);
 
 const single = util.promisify(uploadSingle);
-module.exports = storeImage;const uploadFile = {
+const multiple = util.promisify(uploadMultiple);
+
+const uploadFile = {
     single,
-module.exports = storeImage;};
+    multiple
+};
 
 module.exports = uploadFile;

@@ -52,6 +52,11 @@ module.exports = function (app) {
     ],
     controller.uploadSingle);
 
+    app.post(API_URL + "upload-multiple", [
+        validate.checkUploadPath,
+        uploadFile.multiple
+    ],
+    controller.uploadMultiple);
 
     app.get(API_URL + "files", controller.getListFiles);
 

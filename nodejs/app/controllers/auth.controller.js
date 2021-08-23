@@ -271,6 +271,33 @@ exports.uploadSingle = async (req, res) => {
     }
 };
 
+exports.uploadMultiple = async (req, res) => {
+    try {
+        if (req.files.length <= 0) {
+            return res.send("You must upload at least 1 file.");
+        }
+
+        if (req.files == undefined) {
+            return res.status(400).send({ message: "Incorrect file type or file not found" });
+        }
+
+        res.status(200).send({ message: "Files uploaded successfully." });
+    } catch (err) {
+        if (err.code == "LIMIT_FILE_SIZE") {
+            return res.status(500).send({
+                message: `File size cannot be larger than ${img.maxSize / (1024 * 1024)} MB!`,
+            });
+        }
+        if (err.code === "LIMIT_UNEXPECTED_FILE") {
+            return res.send("Max number of file upload exceeded!");
+        }
+
+        res.status(500).send({
+            message: `Error uploading: ${err}`,
+        });
+    }
+};
+
 exports.getListFiles = (req, res) => {
     const directoryPath = img.path;
 
