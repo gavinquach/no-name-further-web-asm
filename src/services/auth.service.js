@@ -145,20 +145,20 @@ class AuthService {
         });
     }
 
-    uploadImage(name, size, type, upload_date, data_url, item) {
-        return axios.post(API_URL + "add/image", {
-            name,
-            size,
-            type,
-            upload_date,
-            data_url,
-            item
-        });
-    }
+    // uploadImage(name, size, type, upload_date, data_url, item) {
+    //     return axios.post(API_URL + "add/image", {
+    //         name,
+    //         size,
+    //         type,
+    //         upload_date,
+    //         data_url,
+    //         item
+    //     });
+    // }
 
-    getImage(imgId) {
-        return axios.get(API_URL + "view/img/" + imgId);
-    }
+    // getImage(imgId) {
+    //     return axios.get(API_URL + "view/img/" + imgId);
+    // }
 
     viewAllItems() {
         return axios.get(API_URL + "view/items");
