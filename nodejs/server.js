@@ -7,7 +7,6 @@ var corsOptions = {
     origin: "http://localhost:8081"
 };
 
-
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
 app.use(express.json({limit: '50mb'}));
@@ -16,8 +15,9 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // simple route
 app.get("/", (req, res) => {
-    res.json({ message: "Welcome to Gavin's test JWT auth application." });
+    res.json({ message: "Welcome to No Name's JWT auth application." });
 });
+
 // routes
 require('./app/routes/auth.routes')(app);
 require('./app/routes/user.routes')(app);
