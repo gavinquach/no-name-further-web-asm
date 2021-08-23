@@ -97,32 +97,32 @@ export default class UserCreateItem extends Component {
     }
 
     onChangeUploadImage = (imageList) => {
-        const imgList = [];
-
+        const list = [];
         imageList.map(image => {
-            imgList.push({
+            image.file.cover = (typeof image.file.cover === "undefined" || !image.file.cover) ? false : true;
+            list.push({
                 data_url: image.data_url,
-                file: {
-                    name: image.file.name,
-                    size: image.file.size,
-                    type: image.file.type
-                },
-                cover: (typeof image.cover === "undefined" || !image.cover) ? false : true
+                file: image.file
             })
         });
 
-        this.setState({ images: imgList });
+        this.setState({ images: list });
     };
 
     onChangeUploadCoverImage = (imageList, index) => {
+        // has other images in image list
         if (imageList.length > 1) {
+            // index is a value which means user updated cover image
             if (index) {
+                // remove the old cover image
                 imageList.map((image, i) => {
-                    if (image.cover) {
+                    if (image.file.cover) {
                         imageList.splice(i, 1);
                     }
                 });
 
+                // add cover parameter to newly added 
+                // image and set it to true
                 if (index == imageList.length) {
                     imageList[index - 1].cover = true;
                 } else {
@@ -130,46 +130,44 @@ export default class UserCreateItem extends Component {
                 }
             }
 
-            const imgList = [];
+            // re-add all images with proper data
+            const temp = [];
             imageList.map(image => {
-                imgList.push({
+                image.file.cover = (typeof image.file.cover === "undefined" || !image.file.cover) ? false : true;
+                temp.push({
                     data_url: image.data_url,
-                    file: {
-                        name: image.file.name,
-                        size: image.file.size,
-                        type: image.file.type
-                    },
-                    cover: image.cover ? true : false
+                    file: image.file
+                });
+            });
+
+            this.setState({
+                hasCoverImg: true,
+                maxNumber: 5,
+                images: temp,
+            });
+        }
+        // no other images in image list
+        else {
+            const temp = this.state.images;
+            
+            // remove old cover image
+            temp.map((image, index) => {
+                if (image.file.cover) temp.splice(index, 1);
+            });
+
+            // re-add image with proper data
+            imageList.map(image => {
+                image.file.cover = true;
+                temp.push({
+                    data_url: image.data_url,
+                    file: image.file
                 })
             });
 
             this.setState({
                 hasCoverImg: true,
                 maxNumber: 5,
-                images: imgList
-            });
-        } else {
-            const imgList = this.state.images;
-            imgList.map((image, index) => {
-                if (image.cover) imgList.splice(index, 1);
-            });
-            imageList.map(image => {
-                imgList.push({
-                    data_url: image.data_url,
-                    file: {
-                        name: image.file.name,
-                        size: image.file.size,
-                        type: image.file.type
-                    },
-                    cover: true
-                })
-            });
-
-            this.setState({
-                hasCoverImg: true,
-                images: imgList,
-                maxNumber: 5,
-                images: imgList
+                images: temp
             });
         }
     };
@@ -206,22 +204,36 @@ export default class UserCreateItem extends Component {
                 forItemType: this.state.forItemType,
             };
 
-            // add all images to an appropriate array to send
-            const imagesToSubmit = new Array();
+            // to keep track which image is the item cover
+            const coverIndexes = [];
             this.state.images.map((image) => {
-                imagesToSubmit.push([{
-                    name: image.file.name,
-                    size: image.file.size,
-                    type: image.file.type,
-                    data_url: image.data_url,
-                    cover: image.cover
-                }]);
+                coverIndexes.push(
+                    image.file.cover
+                );
             })
 
+            const formData = new FormData();
+            this.state.images.map(image =>
+                formData.append("files", image.file)
+            );
+            formData.append("userid", AuthService.getCurrentUser().id);
+            for (let key in item) {
+                formData.append(key, item[key]);
+            }
+
+            coverIndexes.map(index =>
+                formData.append("coverIndexes", index)
+            );
+    
+            const config = {
+                headers: {
+                    'content-type': 'multipart/form-data'
+                }
+            };
+
             AuthService.createItem(
-                AuthService.getCurrentUser().username,
-                item,
-                imagesToSubmit
+                formData,
+                config
             ).then(
                 response => {
                     // this.setState({
@@ -390,7 +402,7 @@ export default class UserCreateItem extends Component {
                                         {isDragging ? "Drop to upload" : (<div>Click or drop here to upload image</div>)}
                                     </button>
                                     : this.state.images.map((image, index) =>
-                                        image.cover &&
+                                        image.file.cover &&
                                         (
                                             <div key={index} className="container ImagePanels">
                                                 <img src={image.data_url} alt={image.file.name} />
@@ -459,7 +471,7 @@ export default class UserCreateItem extends Component {
                                     // )
                                 }
                                 {this.state.images.map((image, index) =>
-                                    !image.cover &&
+                                    !image.file.cover &&
                                     (
                                         <div key={index} className="container ImagePanels">
                                             <img src={image.data_url} alt={image.file.name} />

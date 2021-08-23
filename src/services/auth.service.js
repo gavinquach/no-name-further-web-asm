@@ -172,10 +172,8 @@ class AuthService {
         return axios.get(API_URL + "view/item/" + itemid);
     }
 
-    createItem(username, itemObj, imgList) {
-        return axios.post(API_URL + "add/item", {
-            username, itemObj, imgList
-        });
+    createItem(files, config) {
+        return axios.post(API_URL + "add/item", files, config);
     }
 
     editItem(itemid, itemObj, oldImgList, newImgList) {

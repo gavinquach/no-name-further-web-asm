@@ -320,43 +320,46 @@ exports.getListFiles = (req, res) => {
 
 exports.createItem = (req, res) => {
     // validate username
-    if (!req.body.username) return res.status(500).send({ message: "Invalid user." });
+    if (!req.body.userid) return res.status(500).send({ message: "Invalid user." });
 
     // find username in database to see if it exists
-    User.findOne({
-        username: req.body.username
-    }).exec((err, user) => {
+    User.findById(req.body.userid).exec((err, user) => {
         if (err) return res.status(500).send({ message: err });
         if (!user) return res.status(404).send({ message: "User not found." });
 
         const date = new Date();
+
         // create item object from array passed through
         const item = new Item({
-            name: req.body.itemObj.name,
-            quantity: req.body.itemObj.quantity,
-            type: req.body.itemObj.type,
+            name: req.body.name,
+            quantity: req.body.quantity,
+            type: req.body.type,
             images: [],
-            forItemName: req.body.itemObj.forItemName,
-            forItemQty: req.body.itemObj.forItemQty,
-            forItemType: req.body.itemObj.forItemType,
+            forItemName: req.body.forItemName,
+            forItemQty: req.body.forItemQty,
+            forItemType: req.body.forItemType,
             seller: user._id,
             upload_date: date
         });
 
+        // validate files
+        if (req.files.length <= 0) {
+            return res.send("You must upload at least 1 file.");
+        }
+        if (req.files == undefined) {
+            return res.status(400).send({ message: "Incorrect file type or file not found" });
+        }
+
         // create list of image objects from the array passed through
         const images = [];
-        req.body.imgList.map(image => {
-            image.map(img => {
-                images.push(new Image({
-                    name: img.name,
-                    size: img.size,
-                    type: img.type,
-                    upload_date: date,
-                    data_url: Buffer.from(img.data_url),
-                    item: item._id,
-                    cover: img.cover
-                }));
-            });
+        req.files.map((image, index) => {
+            images.push(new Image({
+                name: image.filename,
+                size: image.size,
+                type: image.mimetype,
+                item: item._id,
+                cover: req.body.coverIndexes[index]
+            }));
         })
 
         // add images to database

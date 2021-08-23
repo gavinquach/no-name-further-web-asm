@@ -62,7 +62,13 @@ module.exports = function (app) {
 
     app.get(API_URL + "view/img/:id", controller.getImage);
 
-    app.post(API_URL + "add/item", controller.createItem);
+    app.post(API_URL + "add/item", [
+            validate.checkUploadPath,
+            uploadFile.multiple
+        ],
+        controller.createItem
+    );
+    
     app.get(API_URL + "view/items", controller.getAllItems);
     app.get(API_URL + "view/user/items/:id", controller.getUserItems);
     app.get(API_URL + "view/item/:id", controller.getItem);
