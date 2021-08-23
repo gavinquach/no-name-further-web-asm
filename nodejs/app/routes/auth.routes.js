@@ -1,4 +1,5 @@
 const { validate } = require("../middlewares");
+const uploadFile = require("../middlewares/storeImage");
 const controller = require("../controllers/auth.controller");
 
 const API_URL = "/api/auth/";
@@ -46,7 +47,8 @@ module.exports = function (app) {
     app.post(API_URL + "add/image", controller.uploadImage);
 
     app.post(API_URL + "upload-single", [
-        validate.checkUploadPath
+        validate.checkUploadPath,
+        uploadFile.single
     ],
     controller.uploadSingle);
 

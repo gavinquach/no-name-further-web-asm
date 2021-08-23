@@ -11,7 +11,6 @@ const bcrypt = require("bcryptjs");
 
 const img = require("../config/img.config");
 const fs = require("fs");
-const uploadFile = require("../middlewares/storeImage");
 
 // create new User in database (role is user if not specifying role)
 exports.signup = (req, res) => {
@@ -252,8 +251,6 @@ exports.getImage = (req, res) => {
 
 exports.uploadSingle = async (req, res) => {
     try {
-        await uploadFile.single(req, res);
-
         if (req.file == undefined) {
             return res.status(400).send({ message: "Incorrect file type or file not found" });
         }
