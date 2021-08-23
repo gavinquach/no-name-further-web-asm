@@ -34,7 +34,7 @@ export default class UserCreateItem extends Component {
         super(props);
 
         this.state = {
-            acceptImageType: ['jpg', 'jpeg', 'png', 'bmp'],
+            acceptImageType: ['jpg', 'jpeg', 'png'],
             maxNumber: 4,
             maxFileSize: 5000000,
             resolutionType: "less",
@@ -176,6 +176,14 @@ export default class UserCreateItem extends Component {
         e.preventDefault();
 
         this.form.validateAll();
+
+        if (!this.state.hasCoverImg) {
+            this.setState({
+                successful: false,
+                message: "Cover image required"
+            });
+            return;
+        }
 
         if (this.state.images.length == 0) {
             this.setState({
@@ -407,7 +415,7 @@ export default class UserCreateItem extends Component {
                                             <div key={index} className="container ImagePanels">
                                                 <img src={image.data_url} alt={image.file.name} />
                                                 <button type="button" onClick={() => onImageUpdate(index)}>Update</button>
-                                                <button type="button" onClick={() => { onImageRemove(index); this.removeCoverImg();}} className="Remove-btn">Remove</button>
+                                                <button type="button" onClick={() => { onImageRemove(index); this.removeCoverImg(); }} className="Remove-btn">Remove</button>
                                                 <p>{image.file.name}</p>
                                             </div>
                                         ))
