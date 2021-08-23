@@ -13,16 +13,14 @@ module.exports = function (app) {
         next();
     });
 
-    app.post(
-        API_URL + "signup", [
+    app.post(API_URL + "signup", [
             validate.checkDuplicateUsernameOrEmail,
             validate.checkRolesExisted
         ],
         controller.signup
     );
 
-    app.post(
-        API_URL + "signupWithRoles", [
+    app.post(API_URL + "signupWithRoles", [
             validate.checkDuplicateUsernameOrEmail,
             validate.checkRolesExisted
         ],
@@ -47,16 +45,18 @@ module.exports = function (app) {
     app.post(API_URL + "add/image", controller.uploadImage);
 
     app.post(API_URL + "upload-single", [
-        validate.checkUploadPath,
-        uploadFile.single
-    ],
-    controller.uploadSingle);
+            validate.checkUploadPath,
+            uploadFile.single
+        ],
+        controller.uploadSingle
+    );
 
     app.post(API_URL + "upload-multiple", [
-        validate.checkUploadPath,
-        uploadFile.multiple
-    ],
-    controller.uploadMultiple);
+            validate.checkUploadPath,
+            uploadFile.multiple
+        ],
+        controller.uploadMultiple
+    );
 
     app.get(API_URL + "files", controller.getListFiles);
 
