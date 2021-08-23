@@ -6,8 +6,6 @@ const Image = mongoose.model(
         name: String,
         size: String,   // size of image in Btyes
         type: String, // e.g image/png
-        upload_date: Date,   // date the image was uploaded
-        data_url: Buffer,    // base64 URL of image
         item: { // item the image is belonged to
             type: mongoose.Schema.Types.ObjectId,
             ref: "Item"
