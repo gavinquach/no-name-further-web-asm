@@ -2,6 +2,9 @@ const db = require("../models");
 const ROLES = db.ROLES;
 const User = db.user;
 
+const fs = require('fs');
+const img = require("../config/img.config");
+
 checkDuplicateUsernameOrEmail = (req, res, next) => {
     // Username
     User.findOne({
@@ -73,9 +76,25 @@ checkRolesExisted = (req, res, next) => {
     next();
 };
 
+checkUploadPath = (req, res, next) => {
+    if (fs.existsSync(img.path)) {
+        next();
+    }
+    else {
+        fs.mkdir(img.path, function (err) {
+            if (err) {
+                console.log('Error in folder creation');
+                next();
+            }
+            next();
+        })
+    }
+};
+
 const validate = {
     checkDuplicateUsernameOrEmail,
-    checkRolesExisted
+    checkRolesExisted,
+    checkUploadPath
 };
 
 module.exports = validate;

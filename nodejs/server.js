@@ -13,6 +13,9 @@ app.use(express.json({limit: '50mb'}));
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// allow images to be displayed
+app.use("/images", express.static("images"));
+
 // simple route
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to No Name's JWT auth application." });

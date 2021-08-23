@@ -9,6 +9,10 @@ const Transaction = db.transaction;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+const img = require("../config/img.config");
+const fs = require("fs");
+const uploadFile = require("../middlewares/storeImage");
+
 // create new User in database (role is user if not specifying role)
 exports.signup = (req, res) => {
     const user = new User({
@@ -243,6 +247,50 @@ exports.getImage = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!image) return res.status(404).send({ message: "Image not found." });
         res.json(image);
+    });
+};
+
+exports.uploadSingle = async (req, res) => {
+    try {
+        await uploadFile.single(req, res);
+
+        if (req.file == undefined) {
+            return res.status(400).send({ message: "Incorrect file type or file not found" });
+        }
+
+        res.status(200).send({
+            message: "File uploaded successfully: " + req.file.originalname,
+        });
+    } catch (err) {
+        if (err.code == "LIMIT_FILE_SIZE") {
+            return res.status(500).send({
+                message: `File size cannot be larger than ${img.maxSize / (1024 * 1024)} MB!`,
+            });
+        }
+
+        res.status(500).send({
+            message: `Error uploading file. ${err}`,
+        });
+    }
+};
+
+exports.getListFiles = (req, res) => {
+    const directoryPath = img.path;
+
+    fs.readdir(directoryPath, function (err, files) {
+        if (err) return res.status(500).send({ message: "Unable to scan files!", });
+        if (!files) return res.status(404).send({ message: "Files not found." });
+
+        let fileInfos = [];
+
+        files.forEach((file) => {
+            fileInfos.push({
+                name: file,
+                url: req.get('host') + "/images/" + file,
+            });
+        });
+
+        res.status(200).send(fileInfos);
     });
 };
 

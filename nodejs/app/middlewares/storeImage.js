@@ -1,33 +1,38 @@
-const multer = require('multer');   // npm install multer --save
- 
+const util = require("util");
+const multer = require("multer");
+const img = require("../config/img.config");
+
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, '../src/images/items') // where the image will be stored
+    destination: (req, file, callback) => {
+        callback(null, img.path);
     },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now()) // name of file that will be stored
-    }
+    filename: (req, file, callback) => {
+        callback(null, Date.now() + "_" + file.originalname);
+    },
 });
 
-const fileFilter = (req, res, cb) => {
-    // reject file type
-    if (file.mimetype === "image/jpeg"
-    || file.mimetype === "image/jpg"
-    || file.mimetype === "image/png") {
-        cb(null, false);
-    }
-    else {
-        cb(null, true);
+const fileFilter = (req, file, callback) => {
+    // allowed file types
+    const match = ["image/png", "image/jpeg", "image/jpg"];
+
+    if (match.indexOf(file.mimetype) > -1) {
+        callback(null, true);
+    } else {
+        let message = `${file.originalname} is invalid. Only accept png, jpeg, jpg.`;
+        return callback(message, false);
     }
 }
- 
-const storeImage = multer({
+
+const uploadSingle = multer({
     storage: storage,
-    limits: {
-        // limit file size to 10MB
-        fileSize: 1024 * 1024 * 10
-    },
+    limits: { fileSize: img.maxSize },
     fileFilter: fileFilter
+}).single("file");
 });
 
-module.exports = storeImage;
+const single = util.promisify(uploadSingle);
+module.exports = storeImage;const uploadFile = {
+    single,
+module.exports = storeImage;};
+
+module.exports = uploadFile;

@@ -1,4 +1,4 @@
-const { validate, storeImage } = require("../middlewares");
+const { validate } = require("../middlewares");
 const controller = require("../controllers/auth.controller");
 
 const API_URL = "/api/auth/";
@@ -43,7 +43,15 @@ module.exports = function (app) {
 
     app.post(API_URL + "user/edit/password/:id", controller.editPassword);
 
-    app.post(API_URL + "add/image", storeImage.single('image'), controller.uploadImage);
+    app.post(API_URL + "add/image", controller.uploadImage);
+
+    app.post(API_URL + "upload-single", [
+        validate.checkUploadPath
+    ],
+    controller.uploadSingle);
+
+
+    app.get(API_URL + "files", controller.getListFiles);
 
     app.get(API_URL + "view/img/:id", controller.getImage);
 
