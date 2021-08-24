@@ -172,14 +172,24 @@ class AuthService {
         return axios.get(API_URL + "view/item/" + itemid);
     }
 
+    // old code (storing image base64 URL on database)
+    // createItem(username, itemObj, imgList) {
+    //     return axios.post(API_URL + "add/item", {
+    //         username, itemObj, imgList
+    //     });
+    // }
+
+    // editItem(itemid, itemObj, oldImgList, newImgList) {
+    //     return axios.post(API_URL + "edit/item/" + itemid, {
+    //         itemid, itemObj, oldImgList, newImgList
+    //     });
+    // }
+
     createItem(files, config) {
         return axios.post(API_URL + "add/item", files, config);
     }
-
-    editItem(itemid, itemObj, oldImgList, newImgList) {
-        return axios.post(API_URL + "edit/item/" + itemid, {
-            itemid, itemObj, oldImgList, newImgList
-        });
+    editItem(itemid, files, config) {
+        return axios.post(API_URL + "edit/item/" + itemid, files, config);
     }
 
     deleteItem(id) {

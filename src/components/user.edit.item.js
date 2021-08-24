@@ -56,6 +56,10 @@ export default class UserEditItem extends Component {
 
     // get user info and assign to input fields
     componentDidMount() {
+        this.load();
+    }
+
+    load = () => {
         AuthService.viewOneItem(this.props.match.params.id)
             .then(response => {
                 this.setState({
@@ -73,7 +77,6 @@ export default class UserEditItem extends Component {
             .catch(function (error) {
                 console.log(error);
             })
-
     }
 
     addImages = () => {
@@ -81,20 +84,18 @@ export default class UserEditItem extends Component {
         this.state.oldImgList.map(image => {
             imgList.push({
                 // format image data to 
-                data_url: Buffer.from(image.data_url).toString('utf8'),
+                data_url: process.env.REACT_APP_NODEJS_URL.concat("images/", image.name),
                 file: {
                     name: image.name,
                     size: image.size,
-                    type: image.type
-                },
-                cover: image.cover
+                    type: image.type,
+                    cover: image.cover
+                }
             });
             if (image.cover) this.setState({ hasCoverImg: true, maxNumber: 5 });
-
-            this.setState({
-                images: imgList
-            });
         });
+
+        this.setState({ images: imgList });
     }
 
     delete = () => {
@@ -170,79 +171,77 @@ export default class UserEditItem extends Component {
     }
 
     onChangeUploadImage = (imageList) => {
-        const imgList = [];
-
+        const list = [];
         imageList.map(image => {
-            imgList.push({
+            image.file.cover = (typeof image.file.cover === "undefined" || !image.file.cover) ? false : true;
+            list.push({
                 data_url: image.data_url,
-                file: {
-                    name: image.file.name,
-                    size: image.file.size,
-                    type: image.file.type
-                },
-                cover: (typeof image.cover === "undefined" || !image.cover) ? false : true
+                file: image.file
             })
         });
 
-        this.setState({ images: imgList });
+        this.setState({ images: list });
     };
 
     onChangeUploadCoverImage = (imageList, index) => {
+        // has other images in image list
         if (imageList.length > 1) {
+            // index is a value which means user updated cover image
             if (index) {
+                // remove the old cover image
                 imageList.map((image, i) => {
-                    if (image.cover) {
+                    if (image.file.cover) {
                         imageList.splice(i, 1);
                     }
                 });
 
+                // add cover parameter to newly added 
+                // image and set it to true
                 if (index == imageList.length) {
-                    imageList[index - 1].cover = true;
+                    imageList[index - 1].file.cover = true;
                 } else {
-                    imageList[index].cover = true;
+                    imageList[index].file.cover = true;
                 }
             }
 
-            const imgList = [];
+            // re-add all images with proper data
+            const temp = [];
             imageList.map(image => {
-                imgList.push({
+                image.file.cover = (typeof image.file.cover === "undefined" || !image.file.cover) ? false : true;
+                temp.push({
                     data_url: image.data_url,
-                    file: {
-                        name: image.file.name,
-                        size: image.file.size,
-                        type: image.file.type
-                    },
-                    cover: image.cover ? true : false
+                    file: image.file
+                });
+            });
+
+            this.setState({
+                hasCoverImg: true,
+                maxNumber: 5,
+                images: temp,
+            });
+        }
+        // no other images in image list
+        else {
+            const temp = this.state.images;
+
+            // remove old cover image
+            temp.map((image, index) => {
+                if (image.file.cover) temp.splice(index, 1);
+            });
+
+            // re-add image with proper data
+            imageList.map(image => {
+                image.file.cover = true;
+                temp.push({
+                    data_url: image.data_url,
+                    file: image.file
                 })
             });
 
             this.setState({
                 hasCoverImg: true,
                 maxNumber: 5,
-                images: imgList
-            });
-        } else {
-            const imgList = this.state.images;
-            imgList.map((image, index) => {
-                if (image.cover) imgList.splice(index, 1);
-            });
-            imageList.map(image => {
-                imgList.push({
-                    data_url: image.data_url,
-                    file: {
-                        name: image.file.name,
-                        size: image.file.size,
-                        type: image.file.type
-                    },
-                    cover: true
-                })
-            });
-
-            this.setState({
-                hasCoverImg: true,
-                images: imgList,
-                maxNumber: 5,
-                images: imgList
+                images: temp
             });
         }
     };
@@ -298,17 +297,65 @@ export default class UserEditItem extends Component {
                 })
             });
 
+            // to keep track which image is the item cover
+            const coverIndexes = [];
+            this.state.images.map((image) => {
+                if (image.file instanceof File) {
+                    coverIndexes.push(
+                        image.file.cover
+                    );
+                }
+            })
+
+            const oldList = this.state.oldImgList;
+            this.state.images.map((image) => {
+                this.state.oldImgList.map((oldImage, index) => {
+                    if (image.file.name == oldImage.name) {
+                        oldList.splice(index, 1);
+                    }
+                });
+            });
+
+            const formData = new FormData();
+
+            // add new files
+            this.state.images.map(image =>
+                formData.append("files", image.file)
+            );
+
+            // add old images list
+            oldList.map(image => {
+                formData.append("oldImages", JSON.stringify(image))
+            });
+
+            formData.append("userid", AuthService.getCurrentUser().id);
+
+            // add item
+            formData.append("item", JSON.stringify(item));
+
+            // add cover indexes array
+            // coverIndexes.map(index =>
+            //     formData.append("coverIndexes", index)
+            // );
+            formData.append("coverIndexes", JSON.stringify(coverIndexes));
+
+            const config = {
+                headers: {
+                    'content-type': 'multipart/form-data'
+                }
+            };
+
             AuthService.editItem(
                 this.props.match.params.id,
-                item,
-                this.state.oldImgList,
-                newImgList
+                formData,
+                config
             ).then(
                 response => {
                     this.setState({
                         message: response.data.message,
                         successful: true
                     });
+                    this.load();
                 },
                 error => {
                     const resMessage =
@@ -470,12 +517,12 @@ export default class UserEditItem extends Component {
                                             {isDragging ? "Drop to upload" : (<div>Click or drop here to upload image</div>)}
                                         </button>
                                         : this.state.images.map((image, index) =>
-                                            image.cover &&
+                                            image.file.cover &&
                                             (
                                                 <div key={index} className="container ImagePanels">
                                                     <img src={image.data_url} alt={image.file.name} />
                                                     <button type="button" onClick={() => onImageUpdate(index)}>Update</button>
-                                                    <button type="button" onClick={() => { onImageRemove(index); this.removeCoverImg();}} className="Remove-btn">Remove</button>
+                                                    <button type="button" onClick={() => { onImageRemove(index); this.removeCoverImg(); }} className="Remove-btn">Remove</button>
                                                     <p>{image.file.name}</p>
                                                 </div>
                                             ))
@@ -539,7 +586,7 @@ export default class UserEditItem extends Component {
                                         // )
                                     }
                                     {this.state.images.map((image, index) =>
-                                        !image.cover &&
+                                        !image.file.cover &&
                                         (
                                             <div key={index} className="container ImagePanels">
                                                 <img src={image.data_url} alt={image.file.name} />

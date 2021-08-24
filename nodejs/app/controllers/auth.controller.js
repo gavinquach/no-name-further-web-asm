@@ -387,45 +387,89 @@ exports.createItem = (req, res) => {
 
 exports.editItem = (req, res) => {
     Item.findById(req.params.id, function (err, item) {
-        // create item object from array passed through
-        item.name = req.body.itemObj.name;
-        item.quantity = req.body.itemObj.quantity;
-        item.type = req.body.itemObj.type;
-        item.forItemName = req.body.itemObj.forItemName;
-        item.forItemQty = req.body.itemObj.forItemQty;
-        item.forItemType = req.body.itemObj.forItemType;
+        if (err) return res.status(500).send({ message: err });
+        if (!item) return res.status(404).send({ message: "Item not found!" });
 
-        // create list of image objects from the new image array passed through
+        // update item data
+        const itemObj = JSON.parse(req.body.item);
+        item.name = itemObj.name;
+        item.quantity = itemObj.quantity;
+        item.type = itemObj.type;
+        item.forItemName = itemObj.forItemName;
+        item.forItemQty = itemObj.forItemQty;
+        item.forItemType = itemObj.forItemType;
+
+        // validate files
+        if (req.files == undefined) {
+            return res.status(404).send({ message: "Incorrect file type or file not found" });
+        }
+
+
+        // create list of image objects
         const images = [];
-        const date = new Date();
-        req.body.newImgList.map(image => {
+        req.files.map((image, index) => {
             images.push(new Image({
-                name: image.name,
+                name: image.filename,
                 size: image.size,
-                type: image.type,
-                upload_date: date,
-                data_url: Buffer.from(image.data_url),
+                type: image.mimetype,
                 item: item._id,
-                cover: image.cover
+                cover: JSON.parse(req.body.coverIndexes)[index]
             }));
         })
 
-        // remove old images from database from the old image array passed through
-        req.body.oldImgList.map(image => {
-            Image.findByIdAndRemove(image._id, function (err, image) {
-                if (err) return res.status(500).send({ message: err });
-                // if (!image) return res.status(404).send({ message: "Image not found." });
-            });
-        });
+        // remove old images from database and files
+        if (req.body.oldImages) {
+            if (Array.isArray(req.body.oldImages)) {
+                req.body.oldImages.map(oldImage => {
+                    const parsedImage = JSON.parse(oldImage);
+                    
+                    const path = img.path.concat(parsedImage.name)
+                    fs.unlink(path, (err) => {
+                        // if (err) return res.status(500).send({ message: err });
+                    });
+    
+                    // remove images from item database
+                    const imageIndex = item.images.indexOf(parsedImage._id);
+                    if (imageIndex > -1) {
+                        item.images.splice(imageIndex, 1);
+                    }
+                    
+                    Image.deleteOne({ _id: parsedImage._id }, function (err, image) {
+                        // if (err) return res.status(500).send({ message: err });
+                        // if (!image) return res.status(404).send({ message: "Image not found." });
+                    });
+                });
+            } else {
+                const parsedImage = JSON.parse(req.body.oldImages);
+                
+                const path = img.path.concat(parsedImage.name)
+                fs.unlink(path, (err) => {
+                    // if (err) return res.status(500).send({ message: err });
+                })
+
+                // remove images from item database
+                const imageIndex = item.images.indexOf(parsedImage._id);
+                if (imageIndex > -1) {
+                    item.images.splice(imageIndex, 1);
+                }
+                
+                Image.deleteOne({ _id: parsedImage._id }, function (err, image) {
+                    // if (err) return res.status(500).send({ message: err });
+                    // if (!image) return res.status(404).send({ message: "Image not found." });
+                });
+            }
+        }
 
         // add new images to database
         images.map(image => {
             image.save(err => {
-                if (err) return res.status(500).send({ message: err });
+                if (err) {
+                    // return res.status(500).send({ message: err })
+                };
             });
             // add image id to item's list of images
             item.images.push(image._id);
-        })
+        });
 
         // update item in database
         item.save(err => {

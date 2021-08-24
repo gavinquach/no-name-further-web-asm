@@ -60,8 +60,6 @@ module.exports = function (app) {
 
     app.get(API_URL + "files", controller.getListFiles);
 
-    app.get(API_URL + "view/img/:id", controller.getImage);
-
     app.post(API_URL + "add/item", [
             validate.checkUploadPath,
             uploadFile.multiple
@@ -69,10 +67,20 @@ module.exports = function (app) {
         controller.createItem
     );
     
+    app.post(API_URL + "edit/item/:id", [
+            validate.checkUploadPath,
+            uploadFile.multiple
+        ],
+        controller.editItem
+    );
+
+    // old code (storing image base64 URL on database)
+    // app.post(API_URL + "add/item", controller.createItem);
+    // app.post(API_URL + "edit/item/:id", controller.editItem);
+    
     app.get(API_URL + "view/items", controller.getAllItems);
     app.get(API_URL + "view/user/items/:id", controller.getUserItems);
     app.get(API_URL + "view/item/:id", controller.getItem);
-    app.post(API_URL + "edit/item/:id", controller.editItem);
     app.get(API_URL + "delete/item/:id", controller.deleteItem);
     
     app.get(API_URL + "view/transaction", controller.viewAllTransactions);
