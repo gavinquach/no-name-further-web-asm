@@ -42,7 +42,8 @@ module.exports = function (app) {
 
     app.post(API_URL + "user/edit/password/:id", controller.editPassword);
 
-    app.post(API_URL + "add/image", controller.uploadImage);
+    // app.post(API_URL + "add/image", controller.uploadImage);
+    // app.get(API_URL + "view/img/:id", controller.getImage);
 
     app.post(API_URL + "upload-single", [
             validate.checkUploadPath,

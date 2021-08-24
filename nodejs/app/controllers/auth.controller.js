@@ -211,43 +211,43 @@ exports.editPassword = (req, res) => {
     });
 };
 
-exports.uploadImage = (req, res) => {
-    const img = new Image({
-        name: req.body.name,
-        size: req.body.size,
-        type: req.body.type,
-        upload_date: req.body.upload_date,
-        data_url: req.body.data_url,
-        item: req.body.item
-    });
+// exports.uploadImage = (req, res) => {
+//     const img = new Image({
+//         name: req.body.name,
+//         size: req.body.size,
+//         type: req.body.type,
+//         upload_date: req.body.upload_date,
+//         data_url: req.body.data_url,
+//         item: req.body.item
+//     });
 
-    Item.findById(req.body.id)
-        .exec((err, item) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!item) return res.status(404).send({ message: "Item not found." });
+//     Item.findById(req.body.id)
+//         .exec((err, item) => {
+//             if (err) return res.status(500).send({ message: err });
+//             if (!item) return res.status(404).send({ message: "Item not found." });
 
-            img.save(err => {
-                if (err) return res.status(500).send({ message: err });
-                res.send({ message: "Image uploaded successfully!" });
-            });
-        });
-};
+//             img.save(err => {
+//                 if (err) return res.status(500).send({ message: err });
+//                 res.send({ message: "Image uploaded successfully!" });
+//             });
+//         });
+// };
 
-exports.deleteImage = (req, res) => {
-    Image.findByIdAndRemove({ _id: req.params.id }, function (err, image) {
-        if (err) return res.status(500).send({ message: err });
-        if (!image) return res.status(404).send({ message: "Image not found." });
-        res.json('Image successfully removed');
-    });
-};
+// exports.deleteImage = (req, res) => {
+//     Image.findByIdAndRemove({ _id: req.params.id }, function (err, image) {
+//         if (err) return res.status(500).send({ message: err });
+//         if (!image) return res.status(404).send({ message: "Image not found." });
+//         res.json('Image successfully removed');
+//     });
+// };
 
-exports.getImage = (req, res) => {
-    Image.findById({ _id: req.params.id }, function (err, image) {
-        if (err) return res.status(500).send({ message: err });
-        if (!image) return res.status(404).send({ message: "Image not found." });
-        res.json(image);
-    });
-};
+// exports.getImage = (req, res) => {
+//     Image.findById({ _id: req.params.id }, function (err, image) {
+//         if (err) return res.status(500).send({ message: err });
+//         if (!image) return res.status(404).send({ message: "Image not found." });
+//         res.json(image);
+//     });
+// };
 
 exports.uploadSingle = async (req, res) => {
     try {
