@@ -442,9 +442,19 @@ exports.deleteItem = (req, res) => {
         if (!item) return res.status(404).send({ message: "Item not found." });
 
         // remove images related to item
-        item.images.map(image => {
-            Image.findByIdAndRemove({ _id: image._id }, (err, img) => {
-                if (err) return res.status(500).send({ message: err });
+        item.images.map(id => {
+            Image.findById(id, function (err, image) {
+                // if (err) return res.status(500).send({ message: err });
+                // if (!image) return res.status(404).send({ message: "Image not found." });
+
+                fs.unlink(img.path.concat(image.name), (err) => {
+                    // if (err) return res.status(500).send({ message: err });
+                })
+            });
+
+            Image.deleteOne({ _id: id }, (err, deleted) => {
+                // if (err) return res.status(500).send({ message: err });
+                // if (!deleted) return res.status(404).send({ message: "Image not found." });
             });
         });
 
