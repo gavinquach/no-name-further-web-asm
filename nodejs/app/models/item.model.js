@@ -8,7 +8,10 @@ const Item = mongoose.model(
             type: Number,
             min: 1, max: 999
         },
-        type: String,
+        type: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ItemCategory"
+        },
         images: [
             {
                 type: mongoose.Schema.Types.ObjectId,
@@ -20,7 +23,10 @@ const Item = mongoose.model(
             type: Number,
             min: 1, max: 999
         },
-        forItemType: String,
+        forItemType: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ItemCategory"
+        },
         seller: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
