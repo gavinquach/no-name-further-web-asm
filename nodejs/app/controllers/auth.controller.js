@@ -1,10 +1,10 @@
 const config = require("../config/auth.config");
-const db = require("../models");
-const User = db.user;
-const Role = db.role;
-const Image = db.image;
-const Item = db.item;
-const Transaction = db.transaction;
+const model = require("../models");
+const User = model.user;
+const Role = model.role;
+const Image = model.image;
+const Item = model.item;
+const Transaction = model.transaction;
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
