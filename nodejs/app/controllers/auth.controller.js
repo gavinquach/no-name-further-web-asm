@@ -252,7 +252,7 @@ exports.getImage = (req, res) => {
 exports.uploadSingle = async (req, res) => {
     try {
         if (req.file == undefined) {
-            return res.status(400).send({ message: "Incorrect file type or file not found" });
+            return res.status(404).send({ message: "Incorrect file type or file not found" });
         }
 
         res.status(200).send({
@@ -278,7 +278,7 @@ exports.uploadMultiple = async (req, res) => {
         }
 
         if (req.files == undefined) {
-            return res.status(400).send({ message: "Incorrect file type or file not found" });
+            return res.status(404).send({ message: "Incorrect file type or file not found" });
         }
 
         res.status(200).send({ message: "Files uploaded successfully." });
@@ -299,9 +299,7 @@ exports.uploadMultiple = async (req, res) => {
 };
 
 exports.getListFiles = (req, res) => {
-    const directoryPath = img.path;
-
-    fs.readdir(directoryPath, function (err, files) {
+    fs.readdir(img.path, function (err, files) {
         if (err) return res.status(500).send({ message: "Unable to scan files!", });
         if (!files) return res.status(404).send({ message: "Files not found." });
 
@@ -344,10 +342,10 @@ exports.createItem = (req, res) => {
 
         // validate files
         if (req.files.length <= 0) {
-            return res.send("You must upload at least 1 file.");
+            return res.status(401).send("You must upload at least 1 file.");
         }
         if (req.files == undefined) {
-            return res.status(400).send({ message: "Incorrect file type or file not found" });
+            return res.status(404).send({ message: "Incorrect file type or file not found" });
         }
 
         // create list of image objects from the array passed through
