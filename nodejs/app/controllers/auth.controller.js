@@ -447,9 +447,11 @@ exports.deleteItem = (req, res) => {
                 // if (err) return res.status(500).send({ message: err });
                 // if (!image) return res.status(404).send({ message: "Image not found." });
 
-                fs.unlink(img.path.concat(image.name), (err) => {
-                    // if (err) return res.status(500).send({ message: err });
-                })
+                if (image) {
+                    fs.unlink(img.path.concat(image.name), (err) => {
+                        // if (err) return res.status(500).send({ message: err });
+                    });
+                }
             });
 
             Image.deleteOne({ _id: id }, (err, deleted) => {
