@@ -64,7 +64,7 @@ export default class Transactions extends Component {
                                     <div className="ItemPanel">
                                         {/* {transc.item.images.map(image =>
                                     image.cover && (
-                                        <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
+                                        <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} alt={image.name} />
                                     )
                                 )} */}
                                         <h4>{transc.item.name} for {transc.item.forItemName}</h4>

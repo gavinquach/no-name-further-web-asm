@@ -64,7 +64,7 @@ export default class ItemDetails extends Component {
         this.state.tempImgList.map(image => {
             imgList.push({
                 // format image data to 
-                data_url: Buffer.from(image.data_url).toString('utf8'),
+                data_url: process.env.REACT_APP_NODEJS_URL.concat("images/", image.name),
                 file: {
                     name: image.name,
                     size: image.size,
