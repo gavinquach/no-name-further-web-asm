@@ -28,5 +28,15 @@ model.ROLES = [
     "demote_admin"
 ];
 
+model.ITEMCATEGORIES = [
+    "Refrigerated/Processed food",
+    "Seafood/Dried fish",
+    "Vegetables/Fruits",
+    "Instant food",
+    "Spices/Condiments",
+    "Rice/Nuts",
+    "Canned food",
+    "Snack"
+];
 
 module.exports = model;

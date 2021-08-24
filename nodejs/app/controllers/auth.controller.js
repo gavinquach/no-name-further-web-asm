@@ -4,6 +4,7 @@ const User = model.user;
 const Role = model.role;
 const Image = model.image;
 const Item = model.item;
+const ItemCategory = model.itemCategory;
 const Transaction = model.transaction;
 
 const jwt = require("jsonwebtoken");

@@ -55,6 +55,7 @@ model.mongoose
 
 const Role = model.role;
 const User = model.user;
+const ItemCategory = model.itemCategory;
 const bcrypt = require("bcryptjs");
 
 // init database on successful connection
@@ -100,6 +101,25 @@ function initialize() {
                     console.log("error", err);
                 }
                 console.log("Added 'root' to users collection");
+            });
+        }
+    });
+
+
+    // add categories to itemcategories collection
+    ItemCategory.estimatedDocumentCount((err, count) => {
+        if (!err && count === 0) {
+            model.ITEMCATEGORIES.forEach(category => {
+                if (category.toString() !== "root") {
+                    new ItemCategory({
+                        name: category.toString()
+                    }).save(err => {
+                        if (err) {
+                            console.log("error", err);
+                        }
+                        console.log(`Added '${category.toString()}' to itemcategories collection`);
+                    });
+                }
             });
         }
     });
