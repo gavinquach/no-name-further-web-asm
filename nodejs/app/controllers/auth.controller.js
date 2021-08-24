@@ -119,7 +119,10 @@ exports.viewUsers = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!users) return res.status(404).send({ message: "User not found." });
         res.json(users);
-    }).populate("roles", "-__v");   // fix undefined roles
+    })
+    .populate("roles", "-__v")
+    .populate("items", "-__v")
+    .populate("cart", "-__v");
 };
 
 exports.viewOneUser = (req, res) => {
@@ -127,7 +130,10 @@ exports.viewOneUser = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!user) return res.status(404).send({ message: "User not found." });
         res.json(user);
-    }).populate("roles", "-__v");
+    })
+    .populate("roles", "-__v")
+    .populate("items", "-__v")
+    .populate("cart", "-__v");
 };
 
 exports.deleteUser = (req, res) => {
@@ -530,7 +536,11 @@ exports.getItem = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!item) return res.status(404).send({ message: "Item not found." });
         res.json(item);
-    }).populate("images", "-__v");
+    })
+    .populate("type", "-__v")
+    .populate("forItemType", "-__v")
+    .populate("images", "-__v")
+    .populate("seller", "-__v");
 };
 
 exports.getUserItems = (req, res) => {
@@ -544,15 +554,24 @@ exports.getUserItems = (req, res) => {
             }
         });
         res.json(userItems);
-    }).populate("images", "-__v");
+    })
+    .populate("type", "-__v")
+    .populate("forItemType", "-__v")
+    .populate("images", "-__v")
+    .populate("seller", "-__v");
 };
 
 exports.getAllItems = (req, res) => {
-    Item.find(function (err, items) {
+    Item.find()
+    .populate("type", "-__v")
+    .populate("forItemType", "-__v")
+    .populate("images", "-__v")
+    .populate("seller", "-__v")
+    .exec(function (err, items) {
         if (err) return res.status(500).send({ message: err });
         if (!items) return res.status(404).send({ message: "Item not found." });
         res.json(items);
-    }).populate("images", "-__v");
+    });
 };
 
 // Get transaction by Id
@@ -561,7 +580,11 @@ exports.getTransaction = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!transc) return res.status(404).send({ message: "Transaction not found." });
         res.json(transc);
-    });
+    })
+    .populate("user_seller", "-__v")
+    .populate("user_buyer", "-__v")
+    .populate("item", "-__v")
+    .populate("seller", "-__v");
 }
 
 // Get all transactions
@@ -570,7 +593,11 @@ exports.viewAllTransactions = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!transactions) return res.status(404).send({ message: "Transactions not found." });
         res.json(transactions);
-    }).populate("item", "-__v");
+    })
+    .populate("user_seller", "-__v")
+    .populate("user_buyer", "-__v")
+    .populate("item", "-__v")
+    .populate("seller", "-__v");
 };
 
 // Get transactions by buyer id
@@ -579,7 +606,11 @@ exports.getBuyerTransactions = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!transactions) return res.status(404).send({ message: "Transactions not found." });
         res.json(transactions);
-    }).populate("item", "-__v");
+    })
+    .populate("user_seller", "-__v")
+    .populate("user_buyer", "-__v")
+    .populate("item", "-__v")
+    .populate("seller", "-__v");
 };
 
 // Get transactions by seller id
@@ -588,7 +619,11 @@ exports.getSellerTransactions = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!transactions) return res.status(404).send({ message: "Transactions not found." });
         res.json(transactions);
-    }).populate("item", "-__v");
+    })
+    .populate("user_seller", "-__v")
+    .populate("user_buyer", "-__v")
+    .populate("item", "-__v")
+    .populate("seller", "-__v");
 };
 
 // Get transactions by item id
@@ -597,7 +632,11 @@ exports.getItemTransactions = (req, res) => {
         if (err) return res.status(500).send({ message: err });
         if (!transactions) return res.status(404).send({ message: "Transactions not found." });
         res.json(transactions);
-    }).populate("item", "-__v");
+    })
+    .populate("user_seller", "-__v")
+    .populate("user_buyer", "-__v")
+    .populate("item", "-__v")
+    .populate("seller", "-__v");
 };
 
 // Post a new transaction
