@@ -124,9 +124,9 @@ export default class UserCreateItem extends Component {
                 // add cover parameter to newly added 
                 // image and set it to true
                 if (index == imageList.length) {
-                    imageList[index - 1].cover = true;
+                    imageList[index - 1].file.cover = true;
                 } else {
-                    imageList[index].cover = true;
+                    imageList[index].file.cover = true;
                 }
             }
 
