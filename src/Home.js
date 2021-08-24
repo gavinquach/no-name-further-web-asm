@@ -35,7 +35,7 @@ export default class Home extends Component {
                             <div className="ItemPanel">
                                 {item.images.map(image =>
                                     image.cover && (
-                                        <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
+                                        <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} alt={image.name} />
                                     )
                                 )}
                                 <h4>{item.name} for {item.forItemName}</h4>
@@ -48,7 +48,7 @@ export default class Home extends Component {
                             <div className="ItemPanel">
                                 {item.images.map(image =>
                                     image.cover && (
-                                        <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
+                                        <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} alt={image.name} />
                                     )
                                 )}
                                 <h4>{item.name} for {item.forItemName}</h4>
