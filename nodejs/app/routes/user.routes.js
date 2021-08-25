@@ -1,16 +1,27 @@
-const { authJwt } = require("../middlewares");
 const controller = require("../controllers/user.controller");
+const { validate } = require("../middlewares");
+const router = require("../routes");
 
-module.exports = function (app) {
-    app.use(function (req, res, next) {
-        res.header(
-            "Access-Control-Allow-Headers",
-            "x-access-token, Origin, Content-Type, Accept"
-        );
-        next();
-    });
+router.get("/view/users", controller.viewUsers);
+router.get("/view/user/:id", controller.viewOneUser);
 
-    // app.get("/api/test/all", controller.allAccess);
-    // app.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);
-    // app.get("/api/test/admin", [authJwt.verifyToken, authJwt.isAdmin], controller.adminBoard);
-};
+router.post("/edit/user/:id", [
+    validate.validateError,
+    validate.userValidationRules,
+    validate.checkDuplicateUsernameOrEmail
+],
+    controller.editUser
+);
+
+router.get("/delete/user/:id", controller.deleteUser);
+
+router.post("/user/edit/password/:id", controller.editPassword);
+
+router.post("/addtocart", controller.addItemToCart);
+router.post("/deletefromcart/:id", controller.deleteItemFromCart);
+
+// router.get("/api/test/all", controller.allAccess);
+// router.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);
+// router.get("/api/test/admin", [authJwt.verifyToken, authJwt.isAdmin], controller.adminBoard);
+
+module.exports = router;
