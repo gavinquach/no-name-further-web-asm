@@ -1,1 +1,0 @@
-Due to wrong Postman testing, when sending POST data, use x-www-form-urlencoded, not raw
