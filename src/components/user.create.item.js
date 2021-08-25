@@ -177,11 +177,23 @@ export default class UserCreateItem extends Component {
         e.preventDefault();
 
         this.form.validateAll();
+        
+        let count = 0;
+        this.state.images.map((image) => {
+            if (image.file.cover) count++;
+        })
+        if (count > 1) {
+            this.setState({
+                successful: false,
+                message: "Invalid amount of cover images!"
+            });
+            return;
+        }
 
         if (!this.state.hasCoverImg) {
             this.setState({
                 successful: false,
-                message: "Cover image required"
+                message: "Cover image required!"
             });
             return;
         }
@@ -189,7 +201,7 @@ export default class UserCreateItem extends Component {
         if (this.state.images.length == 0) {
             this.setState({
                 successful: false,
-                message: "Please upload at least 1 image."
+                message: "Please upload at least 1 image!"
             });
             return;
         }
