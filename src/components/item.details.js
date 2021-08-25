@@ -46,17 +46,17 @@ export default class ItemDetails extends Component {
                 this.setState({
                     name: response.data.name,
                     quantity: response.data.quantity,
-                    type: response.data.type,
+                    type: response.data.type.name,
                     forItemName: response.data.forItemName,
                     forItemQty: response.data.forItemQty,
-                    forItemType: response.data.forItemType,
-                    tempImgList: response.data.images
+                    forItemType: response.data.forItemType.name,
+                    tempImgList: response.data.images,
+                    seller: response.data.seller,
                 }, () => this.addImages());
             })
             .catch(function (error) {
                 console.log(error);
             })
-
     }
 
     addImages = () => {

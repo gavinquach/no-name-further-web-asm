@@ -13,14 +13,7 @@ export default class Cart extends Component {
     load = () => {
         this.setState({ cart: [] });
         AuthService.viewOneUser(AuthService.getCurrentUser().id).then(response => {
-            const temp = response.data.cart;
-            const cart = [];
-            temp.map(itemid => {
-                AuthService.viewOneItem(itemid).then(response => {
-                    cart.push(response.data)
-                    this.setState({ cart: cart });
-                });
-            });
+            this.setState({ cart: response.data.cart });
         }).catch(function (error) {
             console.log(error);
         })
