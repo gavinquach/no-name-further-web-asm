@@ -18,10 +18,7 @@ const Transaction = mongoose.model(
         },
         creation_date: Date,
         expirational_date: Date,
-        finalization_date: {
-            type: mongoose.Schema.Types.Date,
-            preferences: { default: null },
-        },
+        finalization_date: Date,
         status: String
     })
 );
