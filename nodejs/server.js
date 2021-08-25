@@ -9,7 +9,7 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
-app.use(express.json({limit: '50mb'}));
+app.use(express.json({ limit: '50mb' }));
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -30,23 +30,19 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });
 
-const db = require("./app/models");
-const Role = db.role;
-const User = db.user;
+const model = require("./app/models");
 
 // Attempt connection to MongoDB server
-db.mongoose
-    // connect to cloud db ( )
-    .connect(`${dbConfig.CLOUD_DB}`, {
-    // .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+model.mongoose
+    // connect to cloud database
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        
+
         // This following to remove warning: 
         // (node:52380) DeprecationWarning: Mongoose: `findOneAndUpdate()` and 
         // `findOneAndDelete()` without the `useFindAndModify` option set to false 
         // are deprecated. See: https://mongoosejs.com/docs/deprecations.html#findandmodify
-        useFindAndModify: false 
+        useFindAndModify: false
     })
     .then(() => {
         console.log("Successfully connected to MongoDB.");
@@ -57,86 +53,31 @@ db.mongoose
         process.exit();
     });
 
-
-let bcrypt = require("bcryptjs");
-const root = new Role({ name: "root" });
+const Role = model.role;
+const User = model.user;
+const ItemCategory = model.itemCategory;
+const bcrypt = require("bcryptjs");
 
 // init database on successful connection
 function initialize() {
-    // add all the necessary roles for CRUD
+    // create root role here to add to roles and also assign to user
+    // (do this to have same _id value)
+    const root = new Role({ name: "root" });
+
+    // add all the necessary roles to roles collection
     Role.estimatedDocumentCount((err, count) => {
         if (!err && count === 0) {
-            new Role({
-                name: "user"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
+            model.ROLES.forEach(role => {
+                if (role.toString() !== "root") {
+                    new Role({
+                        name: role.toString()
+                    }).save(err => {
+                        if (err) {
+                            console.log("error", err);
+                        }
+                        console.log(`Added '${role.toString()}' to roles collection`);
+                    });
                 }
-                console.log("Added 'user' to roles collection");
-            });
-            new Role({
-                name: "view_user"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("Added 'view_user' to roles collection");
-            });
-            new Role({
-                name: "create_user"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("Added 'create_user' to roles collection");
-            });
-            new Role({
-                name: "edit_user"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("Added 'edit_user' to roles collection");
-            });
-            new Role({
-                name: "delete_user"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("Added 'delete_user' to roles collection");
-            });
-            new Role({
-                name: "view_admin"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("Added 'view_admin' to roles collection");
-            });
-            new Role({
-                name: "create_admin"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("Added 'create_admin' to roles collection");
-            });
-            new Role({
-                name: "edit_admin"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("Added 'edit_admin' to roles collection");
-            });
-            new Role({
-                name: "delete_admin"
-            }).save(err => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("Added 'delete_admin' to roles collection");
             });
             root.save(err => {
                 if (err) {
@@ -160,6 +101,25 @@ function initialize() {
                     console.log("error", err);
                 }
                 console.log("Added 'root' to users collection");
+            });
+        }
+    });
+
+
+    // add categories to itemcategories collection
+    ItemCategory.estimatedDocumentCount((err, count) => {
+        if (!err && count === 0) {
+            model.ITEMCATEGORIES.forEach(category => {
+                if (category.toString() !== "root") {
+                    new ItemCategory({
+                        name: category.toString()
+                    }).save(err => {
+                        if (err) {
+                            console.log("error", err);
+                        }
+                        console.log(`Added '${category.toString()}' to itemcategories collection`);
+                    });
+                }
             });
         }
     });

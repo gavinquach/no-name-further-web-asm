@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
+import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
 
@@ -65,10 +66,10 @@ export default class UserEditItem extends Component {
                 this.setState({
                     name: response.data.name,
                     quantity: response.data.quantity,
-                    type: response.data.type,
+                    type: response.data.type.name,
                     forItemName: response.data.forItemName,
                     forItemQty: response.data.forItemQty,
-                    forItemType: response.data.forItemType,
+                    forItemType: response.data.forItemType.name,
                     oldImgList: response.data.images
                 }, () => this.addImages());
             }, error => {
@@ -396,17 +397,24 @@ export default class UserEditItem extends Component {
                         />
                         <div className="Flex-row">
                             <div className="Flex-row-item">
-                                <Input
+                                <Select
                                     id="type"
                                     name="type"
                                     className="Input Item-type-input"
-                                    type="text"
-                                    placeholder="Item type"
                                     value={this.state.type}
                                     onChange={this.onChangeType}
                                     validations={[required]}
-                                    style={{ display: "table-cell" }}
-                                />
+                                >
+                                    <option value="">Choose item category</option>
+                                    <option>Refrigerated/Processed food</option>
+                                    <option>Seafood/Dried fish</option>
+                                    <option>Vegetables/Fruits</option>
+                                    <option>Instant food</option>
+                                    <option>Spices/Condiments</option>
+                                    <option>Rice/Nuts</option>
+                                    <option>Canned food</option>
+                                    <option>Snack</option>
+                                </Select>
                             </div>
                             <div className="Flex-row-item">
                                 <Input
@@ -440,7 +448,7 @@ export default class UserEditItem extends Component {
                         </Input>
                         <div className="Flex-row">
                             <div className="Flex-row-item">
-                                <Input
+                                <Select
                                     id="for-item-type"
                                     name="for-item-type"
                                     className="Input Item-type-input Same-row"
@@ -449,7 +457,17 @@ export default class UserEditItem extends Component {
                                     value={this.state.forItemType}
                                     onChange={this.onChangeForItemType}
                                     validations={[required]}
-                                />
+                                >
+                                    <option value="">Choose item category</option>
+                                    <option>Refrigerated/Processed food</option>
+                                    <option>Seafood/Dried fish</option>
+                                    <option>Vegetables/Fruits</option>
+                                    <option>Instant food</option>
+                                    <option>Spices/Condiments</option>
+                                    <option>Rice/Nuts</option>
+                                    <option>Canned food</option>
+                                    <option>Snack</option>
+                                </Select>
                             </div>
                             <div className="Flex-row-item">
                                 <Input

@@ -2,18 +2,18 @@
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
-const db = {};
+const model = {};
 
-db.mongoose = mongoose;
+model.mongoose = mongoose;
 
-db.user = require("./user.model");
-db.role = require("./role.model");
-db.item = require("./item.model");
-db.itemCategory = require("./item.category.model");
-db.image = require("./image.model");
-db.transaction = require("./transaction.model")
+model.user = require("./user.model");
+model.role = require("./role.model");
+model.item = require("./item.model");
+model.itemCategory = require("./item.category.model");
+model.image = require("./image.model");
+model.transaction = require("./transaction.model")
 
-db.ROLES = [
+model.ROLES = [
     "user",
     "view_user",
     "create_user",
@@ -28,4 +28,15 @@ db.ROLES = [
     "demote_admin"
 ];
 
-module.exports = db;
+model.ITEMCATEGORIES = [
+    "Refrigerated/Processed food",
+    "Seafood/Dried fish",
+    "Vegetables/Fruits",
+    "Instant food",
+    "Spices/Condiments",
+    "Rice/Nuts",
+    "Canned food",
+    "Snack"
+];
+
+module.exports = model;
