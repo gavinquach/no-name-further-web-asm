@@ -5,6 +5,8 @@ const User = db.user;
 const fs = require('fs');
 const img = require("../config/img.config");
 
+const { check, validationResult } = require('express-validator');
+
 checkDuplicateUsernameOrEmail = (req, res, next) => {
     // Username
     User.findOne({
@@ -40,7 +42,7 @@ checkDuplicateUsernameOrEmail = (req, res, next) => {
                 return;
             }
 
-        // if it's editing user
+            // if it's editing user
             if (req.params.id) {
                 // check if id is the same as the one currently editing
                 if (user && user._id != req.params.id) {
@@ -91,10 +93,41 @@ checkUploadPath = (req, res, next) => {
     }
 };
 
+// function from express-validator -- Duong edit
+// Register check if email and password meet requirements
+userValidationRules = (req, res, next) => {
+    // // username must be an email
+    check('email').isEmail().withMessage('Email must be a valid email!');
+    // // password must be at least 6 chars long
+    check('password').isLength({ min: 6 }).withMessage('Password must be 6 characters long!');
+    try {
+        validationResult(req).throw();
+        next();
+    } catch (err) {
+        res.status(422).json({ errors: err.mapped() });
+    }
+}
+
+// Check errors
+validateError = (req, res, next) => {
+    const errors = validationResult(req)
+    if (errors.isEmpty()) {
+        return next()
+    }
+    const extractedErrors = []
+    errors.array().map(err => extractedErrors.push({ [err.param]: err.msg }))
+
+    return res.status(422).json({
+        errors: extractedErrors,
+    })
+}
+
 const validate = {
     checkDuplicateUsernameOrEmail,
     checkRolesExisted,
-    checkUploadPath
+    checkUploadPath,
+    userValidationRules,
+    validateError
 };
 
 module.exports = validate;

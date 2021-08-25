@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom'
 
-import ItemTableRow from './ViewItemTableRow';
 import NavigationBar from "../NavigationBar"
 
 import AuthService from "../services/auth.service";
@@ -9,7 +8,12 @@ import AuthService from "../services/auth.service";
 export default class UserViewItem extends Component {
     constructor(props) {
         super(props);
-        this.state = { items: [] };
+
+        this.state = {
+            items: [],
+            successful: false,
+            message: ""
+        }
     }
 
     load = () => {
@@ -27,10 +31,32 @@ export default class UserViewItem extends Component {
         this.load();
     }
 
-    tabRow = () => {
-        return this.state.items.map(function (object, index) {
-            return <ItemTableRow obj={object} key={index} />
-        });
+    delete = (item) => {
+        if (window.confirm("Are you sure you want to delete listing " + item.name + "?")) {
+            AuthService.deleteItem(item._id)
+                .then(
+                    response => {
+                        this.setState({
+                            message: response.data.message,
+                            successful: true
+                        });
+                        window.location.reload();
+                    },
+                    error => {
+                        const resMessage =
+                            (error.response &&
+                                error.response.data &&
+                                error.response.data.message) ||
+                            error.message ||
+                            error.toString();
+
+                        this.setState({
+                            successful: false,
+                            message: resMessage
+                        });
+                    }
+                );
+        }
     }
 
     showListings = () => {
@@ -48,16 +74,28 @@ export default class UserViewItem extends Component {
                     </tr>
                 </thead>
                 <tbody id="table-data">
-                    {this.tabRow()}
+                    {this.state.items.map((object, index) => (
+                        <tr>
+                            <td>{object.name}</td>
+                            <td>{object.quantity}</td>
+                            <td>{object.type.name}</td>
+                            <td>{object.forItemName}</td>
+                            <td>{object.forItemQty}</td>
+                            <td>{object.forItemType.name}</td>
+                            <td>
+                                <Link to={`/user/edit/item/${object._id}`} className="btn btn-primary">Edit</Link>
+                                <span style={{ paddingRight: '1.5em' }} />
+                                <button onClick={() => this.delete(object)} className="btn btn-danger">Delete</button>
+
+                                {this.state.message && (
+                                    <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
+                                        {this.state.message}
+                                    </div>)}
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
-            // this.state.message && (
-            //     <div className="form-group">
-            //         <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
-            //             {this.state.message}
-            //         </div>
-            //     </div>
-            // )
         )
     }
 

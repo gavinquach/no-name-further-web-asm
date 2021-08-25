@@ -21,9 +21,42 @@ app.get("/", (req, res) => {
     res.json({ message: "Welcome to No Name's JWT auth application." });
 });
 
+const rateLimit = require("express-rate-limit");
+const toobusy = require('toobusy-js');
+
+//set limiter
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+
+app.use((req, res, next) => {
+    res.header(
+        "Access-Control-Allow-Headers",
+        "x-access-token, Origin, Content-Type, Accept"
+    );
+
+    if (toobusy()) {
+        // log if you see necessary
+        res.status(503).send("Server too busy.");
+    } else {
+        next();
+    }
+}, limiter);
+
+const API_URL = "/api/auth";
+const authRoutes = require('./app/routes/auth.routes');
+const userRoutes = require('./app/routes/user.routes');
+const itemRoutes = require('./app/routes/item.routes');
+const imageRoutes = require('./app/routes/image.routes');
+const transactionRoutes = require('./app/routes/transaction.routes');
+
 // routes
-require('./app/routes/auth.routes')(app);
-require('./app/routes/user.routes')(app);
+app.use(API_URL, authRoutes);
+app.use(API_URL, userRoutes);
+app.use(API_URL, itemRoutes);
+app.use(API_URL, imageRoutes);
+app.use(API_URL, transactionRoutes);
 
 // set port, listen for requests
 app.listen(PORT, () => {
@@ -35,6 +68,8 @@ const model = require("./app/models");
 // Attempt connection to MongoDB server
 model.mongoose
     // connect to cloud database
+    .connect(`${dbConfig.CLOUD_DB}`, {
+    // .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
 
