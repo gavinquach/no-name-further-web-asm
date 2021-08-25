@@ -32,7 +32,8 @@ const Item = mongoose.model(
             ref: "User"
         },
         expiration_date: Date,
-        upload_date: Date
+        upload_date: Date,
+        last_update: Date
     })
 );
 

@@ -361,7 +361,8 @@ exports.createItem = (req, res) => {
                 forItemQty: req.body.forItemQty,
                 forItemType: forItemType,
                 seller: user._id,
-                upload_date: date
+                upload_date: date,
+                last_update: date
             });
 
             // validate files
@@ -436,6 +437,7 @@ exports.editItem = (req, res) => {
                     return res.status(404).send({ message: "Invalid item category." });
                 }
 
+                const date = new Date();
                 // update item data
                 item.name = itemObj.name;
                 item.quantity = itemObj.quantity;
@@ -443,6 +445,7 @@ exports.editItem = (req, res) => {
                 item.forItemName = itemObj.forItemName;
                 item.forItemQty = itemObj.forItemQty;
                 item.forItemType = forItemType;
+                item.last_update = date;
 
                 // validate files
                 if (req.files == undefined) {
