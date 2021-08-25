@@ -116,25 +116,29 @@ exports.login = (req, res) => {
 };
 
 exports.viewUsers = (req, res) => {
-    User.find(function (err, users) {
-        if (err) return res.status(500).send({ message: err });
-        if (!users) return res.status(404).send({ message: "User not found." });
-        res.json(users);
-    })
-    .populate("roles", "-__v")
-    .populate("items", "-__v")
-    .populate("cart", "-__v");
+    User.find()
+        .populate("roles", "-__v")
+        .populate("items", "-__v")
+        .populate("cart", "-__v")
+        .exec((err, users) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!users) return res.status(404).send({ message: "User not found." });
+            res.json(users);
+        });
 };
 
 exports.viewOneUser = (req, res) => {
-    User.findById({ _id: req.params.id }, function (err, user) {
-        if (err) return res.status(500).send({ message: err });
-        if (!user) return res.status(404).send({ message: "User not found." });
-        res.json(user);
+    User.findById({
+        _id: req.params.id
     })
-    .populate("roles", "-__v")
-    .populate("items", "-__v")
-    .populate("cart", "-__v");
+        .populate("roles", "-__v")
+        .populate("items", "-__v")
+        .populate("cart", "-__v")
+        .exec((err, user) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!user) return res.status(404).send({ message: "User not found." });
+            res.json(user);
+        });
 };
 
 exports.deleteUser = (req, res) => {
@@ -577,111 +581,129 @@ exports.deleteItem = (req, res) => {
 };
 
 exports.getItem = (req, res) => {
-    Item.findById({ _id: req.params.id }, function (err, item) {
-        if (err) return res.status(500).send({ message: err });
-        if (!item) return res.status(404).send({ message: "Item not found." });
-        res.json(item);
+    Item.findById({
+        _id: req.params.id
     })
-    .populate("type", "-__v")
-    .populate("forItemType", "-__v")
-    .populate("images", "-__v")
-    .populate("seller", "-__v");
+        .populate("type", "-__v")
+        .populate("forItemType", "-__v")
+        .populate("images", "-__v")
+        .populate("seller", "-__v")
+        .exec(function (err, item) {
+            if (err) return res.status(500).send({ message: err });
+            if (!item) return res.status(404).send({ message: "Item not found." });
+            res.json(item);
+        });
 };
 
 exports.getUserItems = (req, res) => {
-    Item.find(function (err, items) {
-        if (err) return res.status(500).send({ message: err });
-        if (!items) return res.status(404).send({ message: "Item not found." });
-        const userItems = [];
-        items.map(item => {
-            if (item.seller == req.params.id) {
-                userItems.push(item);
-            }
+    Item.find()
+        .populate("type", "-__v")
+        .populate("forItemType", "-__v")
+        .populate("images", "-__v")
+        .populate("seller", "-__v")
+        .exec((err, items) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!items) return res.status(404).send({ message: "Item not found." });
+
+            const userItems = [];
+            items.map(item => {
+                if (item.seller._id == req.params.id) {
+                    userItems.push(item);
+                }
+            });
+            res.json(userItems);
         });
-        res.json(userItems);
-    })
-    .populate("type", "-__v")
-    .populate("forItemType", "-__v")
-    .populate("images", "-__v")
-    .populate("seller", "-__v");
 };
 
 exports.getAllItems = (req, res) => {
     Item.find()
-    .populate("type", "-__v")
-    .populate("forItemType", "-__v")
-    .populate("images", "-__v")
-    .populate("seller", "-__v")
-    .exec(function (err, items) {
-        if (err) return res.status(500).send({ message: err });
-        if (!items) return res.status(404).send({ message: "Item not found." });
-        res.json(items);
-    });
+        .populate("type", "-__v")
+        .populate("forItemType", "-__v")
+        .populate("images", "-__v")
+        .populate("seller", "-__v")
+        .exec((err, items) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!items) return res.status(404).send({ message: "Item not found." });
+            res.json(items);
+        });
 };
 
 // Get transaction by Id
 exports.getTransaction = (req, res) => {
-    Transaction.findById({ _id: req.params.id }, function (err, transc) {
-        if (err) return res.status(500).send({ message: err });
-        if (!transc) return res.status(404).send({ message: "Transaction not found." });
-        res.json(transc);
+    Transaction.findById({
+        _id: req.params.id
     })
-    .populate("user_seller", "-__v")
-    .populate("user_buyer", "-__v")
-    .populate("item", "-__v")
-    .populate("seller", "-__v");
+        .populate("user_seller", "-__v")
+        .populate("user_buyer", "-__v")
+        .populate("item", "-__v")
+        .populate("seller", "-__v")
+        .exec((err, transaction) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+            res.json(transaction);
+        });
 }
 
 // Get all transactions
 exports.viewAllTransactions = (req, res) => {
-    Transaction.find(function (err, transactions) {
-        if (err) return res.status(500).send({ message: err });
-        if (!transactions) return res.status(404).send({ message: "Transactions not found." });
-        res.json(transactions);
-    })
-    .populate("user_seller", "-__v")
-    .populate("user_buyer", "-__v")
-    .populate("item", "-__v")
-    .populate("seller", "-__v");
+    Transaction.find()
+        .populate("user_seller", "-__v")
+        .populate("user_buyer", "-__v")
+        .populate("item", "-__v")
+        .populate("seller", "-__v")
+        .exec((err, transactions) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!transactions) return res.status(404).send({ message: "Transactions not found." });
+            res.json(transactions);
+        });
 };
 
 // Get transactions by buyer id
 exports.getBuyerTransactions = (req, res) => {
-    Transaction.find({ user_buyer: req.params.id }, function (err, transactions) {
-        if (err) return res.status(500).send({ message: err });
-        if (!transactions) return res.status(404).send({ message: "Transactions not found." });
-        res.json(transactions);
+    Transaction.find({
+        user_buyer: req.params.id
     })
-    .populate("user_seller", "-__v")
-    .populate("user_buyer", "-__v")
-    .populate("item", "-__v")
-    .populate("seller", "-__v");
+        .populate("user_seller", "-__v")
+        .populate("user_buyer", "-__v")
+        .populate("item", "-__v")
+        .populate("seller", "-__v")
+        .exec((err, transactions) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!transactions) return res.status(404).send({ message: "Transactions not found." });
+            res.json(transactions);
+        });
 };
 
 // Get transactions by seller id
 exports.getSellerTransactions = (req, res) => {
-    Transaction.find({ user_seller: req.params.id }, function (err, transactions) {
-        if (err) return res.status(500).send({ message: err });
-        if (!transactions) return res.status(404).send({ message: "Transactions not found." });
-        res.json(transactions);
+    Transaction.find({
+        user_seller: req.params.id
     })
-    .populate("user_seller", "-__v")
-    .populate("user_buyer", "-__v")
-    .populate("item", "-__v")
-    .populate("seller", "-__v");
+        .populate("user_seller", "-__v")
+        .populate("user_buyer", "-__v")
+        .populate("item", "-__v")
+        .populate("seller", "-__v")
+        .exec((err, transactions) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!transactions) return res.status(404).send({ message: "Transactions not found." });
+            res.json(transactions);
+        });
 };
 
 // Get transactions by item id
 exports.getItemTransactions = (req, res) => {
-    Transaction.find({ item: req.params.id }, function (err, transactions) {
-        if (err) return res.status(500).send({ message: err });
-        if (!transactions) return res.status(404).send({ message: "Transactions not found." });
-        res.json(transactions);
+    Transaction.find({
+        item: req.params.id
     })
-    .populate("user_seller", "-__v")
-    .populate("user_buyer", "-__v")
-    .populate("item", "-__v")
-    .populate("seller", "-__v");
+        .populate("user_seller", "-__v")
+        .populate("user_buyer", "-__v")
+        .populate("item", "-__v")
+        .populate("seller", "-__v")
+        .exec((err, transactions) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!transactions) return res.status(404).send({ message: "Transactions not found." });
+            res.json(transactions);
+        });
 };
 
 // Post a new transaction
