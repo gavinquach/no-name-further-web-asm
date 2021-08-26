@@ -2,23 +2,26 @@ const controller = require("../controllers/user.controller");
 const { validate } = require("../middlewares");
 const router = require("../routes");
 
-router.get("/view/users", controller.viewUsers);
-router.get("/view/user/:id", controller.viewOneUser);
+// View all users 
+router.get("/users",controller.viewUsers);
 
-router.post("/edit/user/:id", [
-    validate.validateError,
-    validate.userValidationRules,
-    validate.checkDuplicateUsernameOrEmail
-],
-    controller.editUser
-);
+// CRUD user with id as param
+router
+    .route("/user/:id")
+    .get(controller.viewOneUser)
+    .delete(controller.deleteUser)
+    .put([
+        validate.validateError,
+        validate.userValidationRules,
+        validate.checkDuplicateUsernameOrEmail
+    ], controller.editUser);
 
-router.get("/delete/user/:id", controller.deleteUser);
+// Edit user password 
+router.patch("/user/password/:id", controller.editPassword);
 
-router.post("/user/edit/password/:id", controller.editPassword);
-
-router.post("/addtocart", controller.addItemToCart);
-router.post("/deletefromcart/:id", controller.deleteItemFromCart);
+// add and delete cart item
+router.post("/user/cart", controller.addItemToCart);
+router.put("/user/cart/:id", controller.deleteItemFromCart);
 
 // router.get("/api/test/all", controller.allAccess);
 // router.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);

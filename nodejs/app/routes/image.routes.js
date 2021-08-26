@@ -3,9 +3,6 @@ const { validate } = require("../middlewares");
 const uploadFile = require("../middlewares/storeImage");
 const router = require("../routes");
 
-// router.post("add/image", controller.uploadImage);
-// router.get("view/img/:id", controller.getImage);
-
 router.post("/upload-single", [
     validate.checkUploadPath,
     uploadFile.single
