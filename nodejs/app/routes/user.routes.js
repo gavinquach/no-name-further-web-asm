@@ -31,15 +31,15 @@ router.get("/test/view_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.is
     res.send("View Admin")
 })
 
-router.get("/test/view_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isEditAdmin], (req, res) => {
+router.get("/test/edit_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isEditAdmin], (req, res) => {
     res.send("Edit Admin")
 })
 
-router.get("/test/view_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isDeleteAdmin], (req, res) => {
+router.get("/test/delete_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isDeleteAdmin], (req, res) => {
     res.send("Delete Admin")
 })
 
-router.get("/test/view_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isCreateAdmin], (req, res) => {
+router.get("/test/create_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isCreateAdmin], (req, res) => {
     res.send("Create Admin")
 })
 
