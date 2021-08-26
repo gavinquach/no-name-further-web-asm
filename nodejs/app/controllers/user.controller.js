@@ -186,21 +186,47 @@ exports.editPassword = async (req, res) => {
 };
 
 exports.getUserItems = async (req, res) => {
-    User.findById(req.params.id)
-    .populate("items", "-__v")
-    .exec((err, user) => {
-        if (err) return res.status(500).send({ message: err });
-        res.json(user.items);
-    });
+    Item.find({
+        seller: req.params.id
+    })
+        .populate("type", "-__v")
+        .populate("forItemType", "-__v")
+        .populate("images", "-__v")
+        .populate("seller", "-__v")
+        .exec((err, items) => {
+            if (err) return res.status(500).send({ message: err });
+            res.json(items);
+        });
 };
 
-exports.getUserCart = (req, res) => {
-    User.findById(req.params.id)
-    .populate("cart", "-__v")
-    .exec((err, user) => {
-        if (err) return res.status(500).send({ message: err });
-        res.json(user.cart);
-    });
+exports.getUserCart = async (req, res) => {
+    let user = null;
+    let cart = [];
+    try {
+        user = await User.findById(req.params.id).exec();
+        cart = user.cart;
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found!" });
+
+    const items = [];
+    for (const itemid of user.cart) {
+        try {
+            const item = await Item.findById(itemid)
+                .populate("type", "-__v")
+                .populate("forItemType", "-__v")
+                .populate("images", "-__v")
+                .populate("seller", "-__v")
+                .exec();
+            
+            // add item to items array
+            item !== null && items.push(item);
+        } catch (err) {
+            return res.status(500).send({ message: err });
+        }
+    }
+    res.json(items);
 };
 
 exports.addItemToCart = async (req, res) => {
