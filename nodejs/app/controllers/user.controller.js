@@ -147,12 +147,13 @@ exports.getUserCart = (req, res) => {
     });
 };
 
+exports.addItemToCart = async (req, res) => {
     // check if item is in user transactions
     Transaction.findOne({
         user_buyer: req.body.userid,
         item: req.body.itemid,
         status: "Pending"
-    }, function (err, transaction) {
+    }, (err, transaction) => {
         if (err) return res.status(500).send({ message: err });
         if (transaction) return res.status(401).send({ message: "This item is in transactions!" });
 
