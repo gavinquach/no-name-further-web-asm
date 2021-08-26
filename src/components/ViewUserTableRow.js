@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 
 export default class UserTableRow extends Component {
     constructor(props) {
@@ -24,7 +25,7 @@ export default class UserTableRow extends Component {
             return;
         }
         if (window.confirm("Are you sure you want to delete user " + this.props.obj.username + "?")) {
-            AuthService.deleteUser(this.props.obj._id)
+            UserService.deleteUser(this.props.obj._id)
                 .then(
                     response => {
                         this.setState({

@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import AuthService from "./services/auth.service";
 
 import NavigationBar from "./NavigationBar";
+import TransactionService from "./services/transaction.service";
 
 export default class Transactions extends Component {
     constructor(props) {
@@ -12,7 +13,7 @@ export default class Transactions extends Component {
 
     load = () => {
         this.setState({ transactions: [] });
-        AuthService.getTransactionsByBuyer(
+        TransactionService.getTransactionsByBuyer(
             AuthService.getCurrentUser().id
         ).then(response => {
             this.setState({ transactions: response.data });
@@ -27,7 +28,7 @@ export default class Transactions extends Component {
 
     cancelTransaction = (itemid) => {
         if (window.confirm("Are you sure you want to cancel transaction?")) {
-            AuthService.cancelTransaction(
+            TransactionService.cancelTransaction(
                 itemid,
                 AuthService.getCurrentUser().id
             ).then(

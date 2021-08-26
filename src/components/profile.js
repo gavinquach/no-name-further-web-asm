@@ -5,9 +5,11 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 
-import '../css/Profile.css'
-
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
+
+import '../css/Profile.css';
+
 import NavigationBar from "../NavigationBar";
 import ProfileSideBar from "./ProfileSideBar"
 
@@ -63,7 +65,6 @@ export default class UserProfile extends Component {
         this.onChangeDistrict = this.onChangeDistrict.bind(this);
 
         this.state = {
-            currentUser: AuthService.getCurrentUser(),
             data: [],
             vnLocations: [],
             districts: [],
@@ -79,12 +80,13 @@ export default class UserProfile extends Component {
 
     // get user info and assign to input fields
     componentDidMount() {
+        const currentUser = AuthService.getCurrentUser();
         this.setState({
-            username: this.state.currentUser.username,
-            email: this.state.currentUser.email,
-            phone: this.state.currentUser.phone,
-            location: this.state.currentUser.location[0],
-            district: this.state.currentUser.location[1]
+            username: currentUser.username,
+            email: currentUser.email,
+            phone: currentUser.phone,
+            location: currentUser.location[0],
+            district: currentUser.location[1]
         });
         this.getVietnamGeoData();
     }
@@ -190,7 +192,7 @@ export default class UserProfile extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            AuthService.editUser(
+            UserService.editUser(
                 AuthService.getCurrentUser().id,
                 this.state.username,
                 this.state.email,
@@ -222,7 +224,7 @@ export default class UserProfile extends Component {
     }
 
     render() {
-        const { currentUser } = this.state;
+        // const currentUser = AuthService.getCurrentUser();
         return (
             <div>
                 <NavigationBar />
@@ -240,7 +242,7 @@ export default class UserProfile extends Component {
                             <div>
                                 <span className="row">
                                     <p>
-                                        {currentUser.username}
+                                        {this.state.username}
                                     </p>
                                 </span>
                                 <span className="row">
@@ -314,6 +316,7 @@ export default class UserProfile extends Component {
                         {currentUser.accessToken.substring(0, 20)} ...{" "}
                         {currentUser.accessToken.substr(currentUser.accessToken.length - 20)}
                     </p> 
+                    
                     // show roles for admins only
                     {AuthService.isAdmin() &&
                         <p><strong>Roles: </strong>

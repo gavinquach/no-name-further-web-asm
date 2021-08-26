@@ -5,8 +5,10 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
 
-import NavigationBar from "../NavigationBar"
 import AuthService from "../services/auth.service";
+import ItemService from "../services/item.service";
+
+import NavigationBar from "../NavigationBar"
 
 import '../css/UserPages.css'
 
@@ -252,7 +254,7 @@ export default class UserCreateItem extends Component {
                 }
             };
 
-            AuthService.createItem(
+            ItemService.createItem(
                 formData,
                 config
             ).then(

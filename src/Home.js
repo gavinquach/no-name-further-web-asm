@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 
 import AuthService from "./services/auth.service";
+import ItemService from "./services/item.service";
 
 import NavigationBar from "./NavigationBar";
 
@@ -11,7 +12,7 @@ export default class Home extends Component {
     }
 
     componentDidMount() {
-        AuthService.viewAllItems().then(response => {
+        ItemService.viewAllItems().then(response => {
             // console.log(response.data);
             this.setState({ items: response.data });
         }).catch(function (error) {
