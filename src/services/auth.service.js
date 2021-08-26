@@ -165,6 +165,10 @@ class AuthService {
         });
     }
 
+    viewUserCart(userid) {
+        return axios.get(API_URL + "/user/cart/" + userid);
+    }
+    
     viewUserItems(userid) {
         return axios.get(API_URL + "/user/items/" + userid);
     }

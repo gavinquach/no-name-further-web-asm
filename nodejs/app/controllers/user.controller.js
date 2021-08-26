@@ -138,6 +138,15 @@ exports.getUserItems = async (req, res) => {
     });
 };
 
+exports.getUserCart = (req, res) => {
+    User.findById(req.params.id)
+    .populate("cart", "-__v")
+    .exec((err, user) => {
+        if (err) return res.status(500).send({ message: err });
+        res.json(user.cart);
+    });
+};
+
     // check if item is in user transactions
     Transaction.findOne({
         user_buyer: req.body.userid,
