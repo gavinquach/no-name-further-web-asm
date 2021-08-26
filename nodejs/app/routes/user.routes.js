@@ -2,6 +2,24 @@ const controller = require("../controllers/user.controller");
 const { validate } = require("../middlewares");
 const router = require("../routes");
 
+router.post("/signup", [
+        validate.validateError,
+        validate.userValidationRules,
+        validate.checkDuplicateUsernameOrEmail,
+        validate.checkRolesExisted
+    ],
+    controller.signup
+);
+
+router.post("/signup-with-roles", [
+        validate.validateError,
+        validate.userValidationRules,
+        validate.checkDuplicateUsernameOrEmail,
+        validate.checkRolesExisted
+    ],
+    controller.createUserWithRoles
+);
+
 // View all users 
 router.get("/users",controller.viewUsers);
 

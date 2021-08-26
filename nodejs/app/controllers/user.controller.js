@@ -22,7 +22,62 @@ exports.moderatorBoard = (req, res) => {
     res.status(200).send("Moderator Content.");
 };
 
-exports.viewUsers = async (req, res) => {
+// create new User in database (role is user if not specifying role)
+exports.signup = (req, res) => {
+    const user = new User({
+        username: req.body.username,
+        email: req.body.email,
+        phone: req.body.phone,
+        location: req.body.location,
+        password: bcrypt.hashSync(req.body.password),
+    });
+
+    user.save((err, user) => {
+        if (err) return res.status(500).send({ message: err });
+
+        Role.findOne({ name: "user" }, (err, role) => {
+            if (err) return res.status(500).send({ message: err });
+
+            user.roles = [role._id];
+            user.save(err => {
+                if (err) return res.status(500).send({ message: err });
+                res.send({ message: "User was registered successfully!" });
+            });
+        });
+    });
+};
+
+// create new User in database with roles
+exports.createUserWithRoles = (req, res) => {
+    const user = new User({
+        username: req.body.username,
+        email: req.body.email,
+        phone: req.body.phone,
+        location: req.body.location,
+        password: bcrypt.hashSync(req.body.password),
+        roles: req.body.roles
+    });
+
+    if (req.body.roles) {
+        Role.find({
+            name: { $in: req.body.roles }
+        },
+            (err, roles) => {
+                if (err) return res.status(500).send({ message: err });
+
+                user.roles = roles.map(role => role._id);
+                user.save(err => {
+                    if (err) return res.status(500).send({ message: err });
+                    res.send({ message: "User was registered with roles successfully!" });
+                });
+            }
+        );
+    } else {
+        res.status(500).send({ message: "Roles not found" });
+        return;
+    }
+};
+
     User.find()
         .populate("roles", "-__v")
         .populate("items", "-__v")
