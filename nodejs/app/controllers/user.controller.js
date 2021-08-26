@@ -78,6 +78,7 @@ exports.createUserWithRoles = (req, res) => {
     }
 };
 
+exports.viewUsers = async (req, res) => {
     User.find()
         .populate("roles", "-__v")
         .populate("items", "-__v")
