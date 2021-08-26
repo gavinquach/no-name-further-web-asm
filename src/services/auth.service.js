@@ -165,11 +165,12 @@ class AuthService {
         });
     }
 
+    viewUserItems(userid) {
+        return axios.get(API_URL + "/user/items/" + userid);
+    }
+
     viewAllItems() {
         return axios.get(API_URL + "/items");
-    }
-    viewUserItems(userid) {
-        return axios.get(API_URL + "/items/user/" + userid);
     }
     viewOneItem(itemid) {
         return axios.get(API_URL + "/item/" + itemid);

@@ -18,6 +18,5 @@ router.post("/item", [
 ], controller.createItem);
 
 router.get("/items", controller.getAllItems);
-router.get("/items/user/:id", controller.getUserItems);
 
 module.exports = router;

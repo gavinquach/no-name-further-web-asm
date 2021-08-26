@@ -23,6 +23,8 @@ router.patch("/user/password/:id", controller.editPassword);
 router.post("/user/cart", controller.addItemToCart);
 router.put("/user/cart/:id", controller.deleteItemFromCart);
 
+router.get("/user/items/:id", controller.getUserItems);
+
 // router.get("/api/test/all", controller.allAccess);
 // router.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);
 // router.get("/api/test/admin", [authJwt.verifyToken, authJwt.isAdmin], controller.adminBoard);

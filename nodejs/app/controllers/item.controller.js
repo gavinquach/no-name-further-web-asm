@@ -275,26 +275,6 @@ exports.getItem = async (req, res) => {
         });
 };
 
-exports.getUserItems = async (req, res) => {
-    Item.find()
-        .populate("type", "-__v")
-        .populate("forItemType", "-__v")
-        .populate("images", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, items) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!items) return res.status(404).send({ message: "Item not found." });
-
-            const userItems = [];
-            items.map(item => {
-                if (item.seller._id == req.params.id) {
-                    userItems.push(item);
-                }
-            });
-            res.json(userItems);
-        });
-};
-
 exports.getAllItems = async (req, res) => {
     Item.find()
         .populate("type", "-__v")
