@@ -107,7 +107,12 @@ export default class Signup extends Component {
 
     getVietnamGeoData() {
         try {
-            fetch("http://puu.sh/I27Xh/7c252db895.json")
+            fetch('vn-geo.json', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
                 .then(response => response.json())
                 .then(jsonData => {
                     this.setState({ data: jsonData.data }, () => this.getVietnamLocations());
