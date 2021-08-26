@@ -11,7 +11,7 @@ router.post("/signup", [
     controller.signup
 );
 
-router.post("/signupWithRoles", [
+router.post("/signup-with-roles", [
         validate.validateError,
         validate.userValidationRules,
         validate.checkDuplicateUsernameOrEmail,
