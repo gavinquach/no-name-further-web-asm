@@ -5,10 +5,12 @@ import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 import { Redirect } from 'react-router-dom'
 
+import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
+
 import '../css/UserPages.css'
 
 import NavigationBar from "../NavigationBar"
-import AuthService from "../services/auth.service";
 
 const required = value => {
     if (!value) {
@@ -144,7 +146,7 @@ export default class AdminCreateAdmin extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            AuthService.registerWithRoles(
+            UserService.createUserWithRoles(
                 this.state.username,
                 this.state.email,
                 this.state.password,

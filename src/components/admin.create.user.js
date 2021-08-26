@@ -6,10 +6,12 @@ import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 import { Redirect } from 'react-router-dom'
 
+import AuthService from "../services/auth.service";
+import UserService from '../services/user.service';
+
 import '../css/UserPages.css'
 
 import NavigationBar from "../NavigationBar"
-import AuthService from "../services/auth.service";
 
 const required = value => {
     if (!value) {
@@ -216,7 +218,7 @@ export default class AdminCreateUser extends Component {
                 location: [this.state.location, this.state.district],
                 password: this.state.password
             };
-            AuthService.register(user).then(
+            UserService.register(user).then(
                 response => {
                     this.setState({
                         message: response.data.message,

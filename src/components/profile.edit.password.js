@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
-import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
-import { isEmail } from "validator";
+
+import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 
 import '../css/Profile.css'
 
-import AuthService from "../services/auth.service";
 import NavigationBar from "../NavigationBar";
 import ProfileSideBar from "./ProfileSideBar";
 
@@ -90,11 +90,6 @@ export default class UserEditPassword extends Component {
     handleRegister = (e) => {
         e.preventDefault();
 
-        this.setState({
-            message: "",
-            successful: false
-        });
-
         const oldPass = document.getElementById('oldpassword').value;
         const newPass = document.getElementById('newpassword').value;
         const confirmNewPass = document.getElementById('confirm-new-password').value;
@@ -117,7 +112,7 @@ export default class UserEditPassword extends Component {
         this.setState({ errors: errors });
 
         if (this.checkBtn.context._errors.length === 0 && errors.length == 0) {
-            AuthService.editPassword(
+            UserService.editPassword(
                 this.state.id,
                 this.state.oldpassword,
                 this.state.confirm_new_password

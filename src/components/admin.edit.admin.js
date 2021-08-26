@@ -11,6 +11,7 @@ import { isEmail } from "validator";
 import NavigationBar from "../NavigationBar"
 
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 
 const required = value => {
     if (!value) {
@@ -110,7 +111,7 @@ export default class AdminEditAdmin extends Component {
 
     delete = () => {
         if (window.confirm("Are you sure you want to delete admin " + this.state.username + "?")) {
-            AuthService.deleteUser(this.props.match.params.id)
+            UserService.deleteUser(this.props.match.params.id)
                 .then(
                     response => {
                         this.setState({
@@ -140,7 +141,7 @@ export default class AdminEditAdmin extends Component {
 
     // get admin info and assign to input fields
     componentDidMount() {
-        AuthService.viewOneUser(this.props.match.params.id)
+        UserService.viewOneUser(this.props.match.params.id)
             .then(response => {
                 let isUser = false;
                 const role_names = [];
@@ -345,7 +346,7 @@ export default class AdminEditAdmin extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            AuthService.editUser(
+            UserService.editUser(
                 this.props.match.params.id,
                 this.state.username,
                 this.state.email,
@@ -407,7 +408,7 @@ export default class AdminEditAdmin extends Component {
                             placeholder="Username"
                             value={this.state.username}
                             // onChange={this.onChangeUsername}
-                            // validations={[required, vusername]}
+                            // validations={[vusername]}
                             disabled
                         />
 
@@ -439,7 +440,7 @@ export default class AdminEditAdmin extends Component {
                             className="Input"
                             value={this.state.location}
                             onChange={this.onChangeLocation}
-                            validations={[required]}>
+                        >
                             <option value="">Choose city</option>
                             {
                                 this.state.vnLocations.map(location =>
@@ -454,7 +455,7 @@ export default class AdminEditAdmin extends Component {
                             className="Input"
                             value={this.state.district}
                             onChange={this.onChangeDistrict}
-                            validations={[required]}>
+                        >
                             <option value="">Choose district</option>
                             {
                                 this.state.districts.map(name =>

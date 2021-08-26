@@ -5,8 +5,10 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
 
-import NavigationBar from "../NavigationBar"
 import AuthService from "../services/auth.service";
+import ItemService from "../services/item.service";
+
+import NavigationBar from "../NavigationBar"
 
 import '../css/UserPages.css'
 
@@ -61,7 +63,7 @@ export default class UserEditItem extends Component {
     }
 
     load = () => {
-        AuthService.viewOneItem(this.props.match.params.id)
+        ItemService.viewOneItem(this.props.match.params.id)
             .then(response => {
                 this.setState({
                     name: response.data.name,
@@ -101,7 +103,7 @@ export default class UserEditItem extends Component {
 
     delete = () => {
         if (window.confirm("Are you sure you want to delete this listing?")) {
-            AuthService.deleteItem(this.props.match.params.id)
+            ItemService.deleteItem(this.props.match.params.id)
                 .then(
                     response => {
                         this.setState({
@@ -358,7 +360,7 @@ export default class UserEditItem extends Component {
                 }
             };
 
-            AuthService.editItem(
+            ItemService.editItem(
                 this.props.match.params.id,
                 formData,
                 config

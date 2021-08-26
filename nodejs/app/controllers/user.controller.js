@@ -129,7 +129,24 @@ exports.editPassword = async (req, res) => {
     });
 };
 
-exports.addItemToCart = async (req, res) => {
+exports.getUserItems = async (req, res) => {
+    User.findById(req.params.id)
+    .populate("items", "-__v")
+    .exec((err, user) => {
+        if (err) return res.status(500).send({ message: err });
+        res.json(user.items);
+    });
+};
+
+exports.getUserCart = (req, res) => {
+    User.findById(req.params.id)
+    .populate("cart", "-__v")
+    .exec((err, user) => {
+        if (err) return res.status(500).send({ message: err });
+        res.json(user.cart);
+    });
+};
+
     // check if item is in user transactions
     Transaction.findOne({
         user_buyer: req.body.userid,
