@@ -6,62 +6,6 @@ const Role = model.role;
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// create new User in database (role is user if not specifying role)
-exports.signup = async (req, res) => {
-    const user = new User({
-        username: req.body.username,
-        email: req.body.email,
-        phone: req.body.phone,
-        location: req.body.location,
-        password: bcrypt.hashSync(req.body.password),
-    });
-
-    user.save((err, user) => {
-        if (err) return res.status(500).send({ message: err });
-
-        Role.findOne({ name: "user" }, (err, role) => {
-            if (err) return res.status(500).send({ message: err });
-
-            user.roles = [role._id];
-            user.save(err => {
-                if (err) return res.status(500).send({ message: err });
-                res.send({ message: "User was registered successfully!" });
-            });
-        });
-    });
-};
-
-// create new User in database with roles
-exports.signupWithRoles = async (req, res) => {
-    const user = new User({
-        username: req.body.username,
-        email: req.body.email,
-        phone: req.body.phone,
-        location: req.body.location,
-        password: bcrypt.hashSync(req.body.password),
-        roles: req.body.roles
-    });
-
-    if (req.body.roles) {
-        Role.find({
-            name: { $in: req.body.roles }
-        },
-            (err, roles) => {
-                if (err) return res.status(500).send({ message: err });
-
-                user.roles = roles.map(role => role._id);
-                user.save(err => {
-                    if (err) return res.status(500).send({ message: err });
-                    res.send({ message: "User was registered with roles successfully!" });
-                });
-            }
-        );
-    } else {
-        res.status(500).send({ message: "Roles not found" });
-        return;
-    }
-};
-
 exports.login = async (req, res) => {
     // find username of the request in database, if it exists
     User.findOne({
