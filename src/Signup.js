@@ -7,6 +7,7 @@ import { isEmail } from "validator";
 
 import NavigationBar from "./NavigationBar"
 import AuthService from "./services/auth.service";
+import UserService from "./services/user.service";
 
 const required = value => {
     if (!value) {
@@ -218,28 +219,49 @@ export default class Signup extends Component {
                 location: [this.state.location, this.state.district],
                 password: this.state.password
             };
-            AuthService.register(user).then(
-                response => {
-                    this.setState({
-                        message: response.data.message + "You will be redirected in 3 seconds.",
-                        successful: true
-                    });
-                    setTimeout(() => this.props.history.push('/login'), 3000);
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
+            UserService.register(user)
+                .then(
+                    response => {
+                        this.setState({
+                            message: response.data.message + " You will be logged in 3 seconds.",
+                            successful: true
+                        });
+                        setTimeout(() => {
+                            AuthService.login(this.state.username, this.state.password)
+                                .then(
+                                    () => {
+                                        this.props.history.push("/");
+                                    },
+                                    error => {
+                                        const resMessage =
+                                            (error.response &&
+                                                error.response.data &&
+                                                error.response.data.message) ||
+                                            error.message ||
+                                            error.toString();
 
-                    this.setState({
-                        successful: false,
-                        message: resMessage
-                    });
-                }
-            );
+                                        this.setState({
+                                            loading: false,
+                                            message: resMessage
+                                        });
+                                    }
+                                );
+                        }, 3000);
+                    },
+                    error => {
+                        const resMessage =
+                            (error.response &&
+                                error.response.data &&
+                                error.response.data.message) ||
+                            error.message ||
+                            error.toString();
+
+                        this.setState({
+                            successful: false,
+                            message: resMessage
+                        });
+                    }
+                );
         }
     }
 
