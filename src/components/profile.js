@@ -80,15 +80,21 @@ export default class UserProfile extends Component {
 
     // get user info and assign to input fields
     componentDidMount() {
-        const currentUser = AuthService.getCurrentUser();
-        this.setState({
-            username: currentUser.username,
-            email: currentUser.email,
-            phone: currentUser.phone,
-            location: currentUser.location[0],
-            district: currentUser.location[1]
-        });
-        this.getVietnamGeoData();
+        UserService.viewOneUser(AuthService.getCurrentUser().id)
+            .then(
+                response => {
+                    this.getVietnamGeoData();
+                    this.setState({
+                        username: response.data.username,
+                        email: response.data.email,
+                        phone: response.data.phone,
+                        location: response.data.location[0],
+                        district: response.data.location[1]
+                    });
+                })
+            .catch((error) => {
+                console.log(error);
+            })
     }
 
     getVietnamGeoData = () => {
