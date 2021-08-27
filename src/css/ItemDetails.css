@@ -1,27 +1,45 @@
-.ItemPanel {
-    width: 60em;
-    height: 10em;
-    margin-bottom: 1em;
-    background-color: rgba(100, 100, 100, 0.205);
+.main-section{
+    margin:10px;
 }
 
-.ItemPanel img {
-    text-align: left;
+.dashbord{
+    display: inline-block;  
+    color:black;
+    margin-left:10%;
+    margin-bottom:5%;
+    border-radius: 5%;
+}
+
+.dashbord img{
+    width:200px;
+    height:120px;
+    border-radius: 2%;
+    text-align: center;
     display: inline-block;
-    height: 10em;
-    margin-right: 1em;
+    border: black 10px;
 }
 
-.ItemPanel h4 {
-    text-align: left;
-    display: inline;
-    color: black;
+.dashbord-img{
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
 }
 
-.ItemPanel h4:hover {
+.dashbord p{
+    margin:0px;
+    margin-left:10px;
+    margin-top:5px;
+}
+
+.dashbord .for{
+    /* text-align: center; */
+    color: royalblue;
+}
+
+.dashbord p:hover {
     color: black;
     text-decoration: none;
-}
+} 
+
 
 .ItemImage {
     width: 20em;
@@ -163,4 +181,17 @@
     margin-top: 1em;
     width: 15em;
     text-align: center;
+}
+
+.delete-item-btn{
+    background-color: #fc6969; /* Green */
+    border: none;
+    color: white;
+    padding: 7px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    float: right;
+    font-size: 15px;
+    border-radius: 5%;
 }
