@@ -201,14 +201,12 @@ exports.getUserItems = async (req, res) => {
 
 exports.getUserCart = async (req, res) => {
     let user = null;
-    let cart = [];
     try {
-        user = await User.findById(req.params.id).exec();
-        cart = user.cart;
+        user = await User.findById(req.body.userid).exec();
     } catch (err) {
         return res.status(500).send({ message: err });
     }
-    if (!user) return res.status(404).send({ message: "User not found!" });
+    if (!user) return res.status(404).send({ message: "User not found." });
 
     const items = [];
     for (const itemid of user.cart) {
@@ -219,13 +217,14 @@ exports.getUserCart = async (req, res) => {
                 .populate("images", "-__v")
                 .populate("seller", "-__v")
                 .exec();
-            
+
             // add item to items array
             item !== null && items.push(item);
         } catch (err) {
             return res.status(500).send({ message: err });
         }
     }
+
     res.json(items);
 };
 
