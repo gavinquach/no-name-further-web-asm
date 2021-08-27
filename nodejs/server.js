@@ -68,8 +68,8 @@ const model = require("./app/models");
 // Attempt connection to MongoDB server
 model.mongoose
     // connect to cloud database
-    .connect(`${dbConfig.CLOUD_DB}`, {
-    // .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+    //.connect(`${dbConfig.CLOUD_DB}`, {
+    .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
 
