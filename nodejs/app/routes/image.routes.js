@@ -4,15 +4,13 @@ const uploadFile = require("../middlewares/storeImage");
 const router = require("../routes");
 
 router.post("/upload-single", [
-    validate.checkUploadPath,
-    uploadFile.single
+    validate.checkUploadPath
 ],
     controller.uploadSingle
 );
 
 router.post("/upload-multiple", [
-    validate.checkUploadPath,
-    uploadFile.multiple
+    validate.checkUploadPath
 ],
     controller.uploadMultiple
 );
