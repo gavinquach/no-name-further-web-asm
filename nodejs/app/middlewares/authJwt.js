@@ -50,8 +50,8 @@ isAdmin = (req, res, next) => {
         );
     });
 };
-
-isCreateAdmin = (req, res, next) => {
+function isAdminType(role) {
+    return isOptionalAdmin = (req, res, next) => {
     User.findById(req.userId).exec((err, user) => {
         if (err) {
             res.status(500).send({ message: err });
@@ -69,7 +69,7 @@ isCreateAdmin = (req, res, next) => {
                 }
 
                 for (let i = 0; i < roles.length; i++) {
-                    if (roles[i].name === "create_admin" || roles[i].name === "root") {
+                    if (roles[i].name === role || roles[i].name === "root") {
                         next();
                         return;
                     }
@@ -81,106 +81,11 @@ isCreateAdmin = (req, res, next) => {
         );
     });
 };
-
-isViewAdmin = (req, res, next) => {
-    User.findById(req.userId).exec((err, user) => {
-        if (err) {
-            res.status(500).send({ message: err });
-            return;
-        }
-
-        Role.find(
-            {
-                _id: { $in: user.roles }
-            },
-            (err, roles) => {
-                if (err) {
-                    res.status(500).send({ message: err });
-                    return;
-                }
-
-                for (let i = 0; i < roles.length; i++) {
-                    if (roles[i].name === "view_admin" || roles[i].name === "root") {
-                        next();
-                        return;
-                    }
-                }
-
-                res.status(403).send({ message: "Require View Admin Role!" });
-                return;
-            }
-        );
-    });
-};
-
-isDeleteAdmin = (req, res, next) => {
-    User.findById(req.userId).exec((err, user) => {
-        if (err) {
-            res.status(500).send({ message: err });
-            return;
-        }
-
-        Role.find(
-            {
-                _id: { $in: user.roles }
-            },
-            (err, roles) => {
-                if (err) {
-                    res.status(500).send({ message: err });
-                    return;
-                }
-
-                for (let i = 0; i < roles.length; i++) {
-                    if (roles[i].name === "delete_admin" || roles[i].name === "root") {
-                        next();
-                        return;
-                    }
-                }
-
-                res.status(403).send({ message: "Require Delete Admin Role!" });
-                return;
-            }
-        );
-    });
-};
-
-isEditAdmin = (req, res, next) => {
-    User.findById(req.userId).exec((err, user) => {
-        if (err) {
-            res.status(500).send({ message: err });
-            return;
-        }
-
-        Role.find(
-            {
-                _id: { $in: user.roles }
-            },
-            (err, roles) => {
-                if (err) {
-                    res.status(500).send({ message: err });
-                    return;
-                }
-
-                for (let i = 0; i < roles.length; i++) {
-                    if (roles[i].name === "edit_admin" || roles[i].name === "root") {
-                        next();
-                        return;
-                    }
-                }
-
-                res.status(403).send({ message: "Require Edit Admin Role!" });
-                return;
-            }
-        );
-    });
-};
+}
 
 const authJwt = {
     verifyToken,
     isAdmin,
-    isViewAdmin,
-    isEditAdmin,
-    isDeleteAdmin,
-    isCreateAdmin
+    isAdminType
 };
 module.exports = authJwt;
