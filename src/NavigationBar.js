@@ -1,11 +1,10 @@
+import { React, Component } from 'react';
+import { Navbar, NavDropdown, Nav, Image } from 'react-bootstrap'; // npm install react-bootstrap@next bootstrap@5.0.2=
+
 import logo from './images/lazyslob-logo.png';
 import './css/NavigationBar.css'
 
 import AuthService from "./services/auth.service";
-import AuthVerify from "./common/auth-verify";
-
-import { React, Component } from 'react';
-import { Navbar, NavDropdown, Nav, Image } from 'react-bootstrap'; // npm install react-bootstrap@next bootstrap@5.0.2=
 
 export default class NavigationBar extends Component {
     constructor(props) {
@@ -90,7 +89,6 @@ export default class NavigationBar extends Component {
                         </button>
                     </span>
                 )}
-                <AuthVerify logOut={this.logOut} />
             </Navbar>
         );
     }
