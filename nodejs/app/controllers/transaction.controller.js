@@ -14,7 +14,7 @@ exports.getTransaction = async (req, res) => {
         .populate("item", "-__v")
         .populate("seller", "-__v")
         .exec((err, transaction) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!transaction) return res.status(404).send({ message: "Transaction not found." });
             res.json(transaction);
         });
@@ -28,7 +28,7 @@ exports.viewAllTransactions = async (req, res) => {
         .populate("item", "-__v")
         .populate("seller", "-__v")
         .exec((err, transactions) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!transactions) return res.status(404).send({ message: "Transactions not found." });
             res.json(transactions);
         });
@@ -44,7 +44,7 @@ exports.getBuyerTransactions = async (req, res) => {
         .populate("item", "-__v")
         .populate("seller", "-__v")
         .exec((err, transactions) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!transactions) return res.status(404).send({ message: "Transactions not found." });
             res.json(transactions);
         });
@@ -60,7 +60,7 @@ exports.getSellerTransactions = async (req, res) => {
         .populate("item", "-__v")
         .populate("seller", "-__v")
         .exec((err, transactions) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!transactions) return res.status(404).send({ message: "Transactions not found." });
             res.json(transactions);
         });
@@ -76,7 +76,7 @@ exports.getItemTransactions = async (req, res) => {
         .populate("item", "-__v")
         .populate("seller", "-__v")
         .exec((err, transactions) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!transactions) return res.status(404).send({ message: "Transactions not found." });
             res.json(transactions);
         });
@@ -94,7 +94,7 @@ exports.createTransaction = async (req, res) => {
 
         if (transaction) return res.status(401).send({ message: "Transaction already exists!" });
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 
     // find user and item in database to see if it exists
@@ -103,7 +103,7 @@ exports.createTransaction = async (req, res) => {
         user = await User.findById(req.body.userid)
             .exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
 
@@ -115,14 +115,14 @@ exports.createTransaction = async (req, res) => {
     try {
         await user.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 
     let item = null;
     try {
         item = await Item.findById(req.body.itemid).exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!item) return res.status(404).send({ message: "Item not found." });
 
@@ -144,7 +144,7 @@ exports.createTransaction = async (req, res) => {
     try {
         await transaction.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(200).send({ message: "Transaction created successfully!" });
 }
@@ -154,7 +154,7 @@ exports.deleteTransaction = async (req, res) => {
     Transaction.deleteOne({
         _id: req.params.id
     }, (err, deleted) => {
-        if (err) return res.status(500).send({ message: err });
+        if (err) return res.status(500).send(err);
         if (deleted) res.status(200).send({ message: "Transaction successfully removed" });
     });
 }
@@ -169,7 +169,7 @@ exports.cancelTransaction = async (req, res) => {
             status: "Pending"
         });
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!transaction) return res.status(401).send({ message: "Transaction not found." });
 
@@ -177,7 +177,7 @@ exports.cancelTransaction = async (req, res) => {
     try {
         await transaction.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(200).send({ message: "Transaction cancelled successfully!" });
 }
@@ -188,7 +188,7 @@ exports.completeTransaction = async (req, res) => {
     try {
         transaction = await Transaction.findById(req.params.id);
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!transaction) return res.status(401).send({ message: "Transaction not found." });
     
@@ -198,7 +198,7 @@ exports.completeTransaction = async (req, res) => {
 
     // update item in database
     transaction.save(err => {
-        if (err) return res.status(500).send({ message: err });
+        if (err) return res.status(500).send(err);
         res.status(200).send({ message: "Transaction completed!" });
     });
 };

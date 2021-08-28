@@ -2,6 +2,7 @@ const model = require("../models");
 const Image = model.image;
 const Item = model.item;
 const ItemCategory = model.itemCategory;
+const Transaction = model.transaction;
 const User = model.user;
 
 const img = require("../config/img.config");
@@ -12,7 +13,7 @@ exports.createItem = async (req, res) => {
     try {
         await uploadFile.multiple(req, res);
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 
     // validate username
@@ -24,7 +25,7 @@ exports.createItem = async (req, res) => {
     try {
         user = await User.findById(req.body.userid).exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
 
@@ -32,7 +33,7 @@ exports.createItem = async (req, res) => {
     try {
         categories = await ItemCategory.find().exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!categories) return res.status(404).send({ message: "Item categories not found!" });
 
@@ -114,7 +115,7 @@ exports.createItem = async (req, res) => {
         try {
             image.save();
         } catch (err) {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
         }
 
         // add image id to item's list of images
@@ -125,7 +126,7 @@ exports.createItem = async (req, res) => {
     try {
         item.save();
     } catch (err) {
-        if (err) return res.status(500).send({ message: err });
+        if (err) return res.status(500).send(err);
     }
 
     // add items to user items field
@@ -135,7 +136,7 @@ exports.createItem = async (req, res) => {
     try {
         user.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 
     res.send({ message: "Item created successfully!" });
@@ -145,7 +146,7 @@ exports.editItem = async (req, res) => {
     try {
         await uploadFile.multiple(req, res);
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 
     let item = null;
@@ -155,7 +156,7 @@ exports.editItem = async (req, res) => {
             .populate("forItemType", "-__v")
             .exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!item) return res.status(404).send({ message: "Item not found!" });
 
@@ -163,7 +164,7 @@ exports.editItem = async (req, res) => {
     try {
         categories = await ItemCategory.find().exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (categories.length < 1) return res.status(404).send({ message: "Item categories not found!" });
 
@@ -245,7 +246,7 @@ exports.editItem = async (req, res) => {
     // remove old images from database and files
     parsedRemovedImages.map(image => {
         fs.unlink(img.path.concat(image.name), err => {
-            // if (err) return res.status(500).send({ message: err });
+            // if (err) return res.status(500).send(err);
         });
 
         // remove images from item database
@@ -277,43 +278,75 @@ exports.editItem = async (req, res) => {
     try {
         await item.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(200).send({ message: "Item updated successfully!" });
 };
 
 exports.deleteItem = async (req, res) => {
     const itemId = req.params.id;
-    Item.findById(itemId)
-        .populate("images", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, item) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!item) return res.status(404).send({ message: "Item not found." });
+    let item = null;
+    try {
+        item = await Item.findById(itemId)
+            .populate("images", "-__v")
+            .populate("seller", "-__v")
+            .exec()
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!item) return res.status(404).send({ message: "Item not found." });
 
-            // remove images related to item
-            item.images.map(image => {
-                fs.unlink(img.path.concat(image.name), err => {
-                    // if (err) return res.status(500).send({ message: err });
-                });
-                Image.deleteOne({ _id: img.id });
-            });
-
-            const user = item.seller;
-
-            // remove item from user items array
-            user.items.splice(user.items.indexOf(item._id), 1);
-
-            user.save(err => {
-                if (err) return res.status(500).send({ message: err });
-
-                // finally, remove item from database
-                Item.deleteOne({ _id: itemId }, (err, deleted) => {
-                    if (err) return res.status(500).send({ message: err });
-                    if (deleted) res.status(200).send('Item successfully removed');
-                });
-            });
+    // remove images related to item
+    item.images.map(image => {
+        fs.unlink(img.path.concat(image.name), err => {
+            // if (err) return res.status(500).send(err);
         });
+        Image.deleteOne({ _id: img.id });
+    });
+
+    const user = item.seller;
+
+    // remove item from user items array
+    const index = user.items.indexOf(itemId);
+    if (index > -1) user.items.splice(index, 1);
+
+    // update user on database
+    try {
+        user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // ============= cancel all transactions with item =============
+    let transactions = [];
+    try {
+        transactions = await Transaction.find({
+            item: itemId, status: "Pending"
+        }).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!transactions) return res.status(401).send({ message: "Transaction not found." });
+
+    // set status of all transactions of item to cancelled
+    transactions.map(async transaction => {
+        try {
+            transaction.status = "Cancelled";
+            transaction.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    });
+    
+    // ============= end of cancel all transactions with item =============
+
+    // finally, remove item from database
+    try {
+        await Item.deleteOne({ _id: itemId });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "Item successfully removed" });
 };
 
 exports.getItem = async (req, res) => {
@@ -325,7 +358,7 @@ exports.getItem = async (req, res) => {
         .populate("images", "-__v")
         .populate("seller", "-__v")
         .exec((err, item) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!item) return res.status(404).send({ message: "Item not found." });
             res.json(item);
         });
@@ -338,7 +371,7 @@ exports.getAllItems = async (req, res) => {
         .populate("images", "-__v")
         .populate("seller", "-__v")
         .exec((err, items) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!items) return res.status(404).send({ message: "Item not found." });
             res.json(items);
         });

@@ -38,7 +38,7 @@ exports.signup = async (req, res) => {
     try {
         await user.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(201).send({ message: "Registered successfully!" });
 };
@@ -62,7 +62,7 @@ exports.createUserWithRoles = async (req, res) => {
                 name: { $in: req.body.roles }
             });
         } catch (err) {
-            return res.status(500).send({ message: err });
+            return res.status(500).send(err);
         }
 
         user.roles = roles.map(role => role._id);
@@ -75,7 +75,7 @@ exports.createUserWithRoles = async (req, res) => {
     try {
         await user.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(201).send({ message: "Admin created successfully!" });
 };
@@ -91,7 +91,7 @@ exports.viewUsers = async (req, res) => {
         if (!users) return res.status(404).send({ message: "Users not found." });
         res.json(users);
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 };
 
@@ -106,7 +106,7 @@ exports.viewOneUser = async (req, res) => {
         if (!user) return res.status(404).send({ message: "User not found." });
         res.json(user);
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 };
 
@@ -119,7 +119,7 @@ exports.deleteUser = async (req, res) => {
         if (!user) return res.status(404).send({ message: "User not found." });
         res.status(200).send("User removed successfully!");
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 };
 
@@ -128,7 +128,7 @@ exports.editUser = async (req, res) => {
     try {
         user = await User.findById({ _id: req.params.id });
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!user) return res.status(404).send("User not found.");
 
@@ -152,7 +152,7 @@ exports.editUser = async (req, res) => {
                     name: { $in: req.body.roles }
                 });
             } catch (err) {
-                return res.status(500).send({ message: err });
+                return res.status(500).send(err);
             }
 
             // assign roles to user
@@ -167,7 +167,7 @@ exports.editUser = async (req, res) => {
     try {
         await user.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(200).send({ message: "Updated succesfully!" });
 };
@@ -177,7 +177,7 @@ exports.editPassword = async (req, res) => {
     try {
         user = await User.findById({ _id: req.params.id });
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!user) return res.status(404).send("User not found.");
 
@@ -215,7 +215,7 @@ exports.editPassword = async (req, res) => {
     try {
         await user.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(200).send({ message: "Password updated succesfully!" });
 };
@@ -232,7 +232,7 @@ exports.getUserItems = async (req, res) => {
             .populate("seller", "-__v")
             .exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 
     res.json(items);
@@ -243,7 +243,7 @@ exports.getUserCart = async (req, res) => {
     try {
         user = await User.findById(req.body.userid).exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
 
@@ -260,7 +260,7 @@ exports.getUserCart = async (req, res) => {
             // add item to items array
             item !== null && items.push(item);
         } catch (err) {
-            return res.status(500).send({ message: err });
+            return res.status(500).send(err);
         }
     }
 
@@ -277,7 +277,7 @@ exports.addItemToCart = async (req, res) => {
         });
         if (transaction) return res.status(400).send({ message: "Item already in transactions!" });
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 
     let user = null;
@@ -286,14 +286,14 @@ exports.addItemToCart = async (req, res) => {
     try {
         user = await User.findById(req.body.userid);
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
 
     // find item in database to see if it exists
     Item.findById(req.body.itemid)
         .exec((err, item) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!item) return res.status(404).send({ message: "Item not found." });
         });
 
@@ -305,7 +305,7 @@ exports.addItemToCart = async (req, res) => {
     try {
         await user.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(201).send({ message: "Added item to cart successfully!" });
 }
@@ -315,7 +315,7 @@ exports.deleteItemFromCart = async (req, res) => {
     try {
         user = await User.findById(req.params.id).exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
 
@@ -326,7 +326,7 @@ exports.deleteItemFromCart = async (req, res) => {
     try {
         await user.save();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
     res.status(200).send({ message: "Item removed from cart successfully!" });
 };

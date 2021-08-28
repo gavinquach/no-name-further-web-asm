@@ -16,7 +16,7 @@ exports.login = async (req, res) => {
             .populate("roles", "-__v")
             .exec();
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send(err);
     }
 
     if (!user) return res.status(404).send({ message: "User not found." });
