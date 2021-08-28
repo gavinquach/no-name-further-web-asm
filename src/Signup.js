@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
@@ -266,6 +267,9 @@ export default class Signup extends Component {
     }
 
     render() {
+        if (AuthService.isLoggedIn()) {
+            return <Redirect to="/" />
+        }
         return (
             <div>
                 <NavigationBar />
