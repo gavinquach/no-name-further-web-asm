@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
@@ -7,6 +8,7 @@ import { isEmail } from "validator";
 
 import NavigationBar from "./NavigationBar"
 import AuthService from "./services/auth.service";
+import UserService from "./services/user.service";
 
 const required = value => {
     if (!value) {
@@ -107,7 +109,12 @@ export default class Signup extends Component {
 
     getVietnamGeoData() {
         try {
-            fetch("http://puu.sh/I27Xh/7c252db895.json")
+            fetch('vn-geo.json', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
                 .then(response => response.json())
                 .then(jsonData => {
                     this.setState({ data: jsonData.data }, () => this.getVietnamLocations());
@@ -213,32 +220,56 @@ export default class Signup extends Component {
                 location: [this.state.location, this.state.district],
                 password: this.state.password
             };
-            AuthService.register(user).then(
-                response => {
-                    this.setState({
-                        message: response.data.message + "You will be redirected in 3 seconds.",
-                        successful: true
-                    });
-                    setTimeout(() => this.props.history.push('/login'), 3000);
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
+            UserService.register(user)
+                .then(
+                    response => {
+                        this.setState({
+                            message: response.data.message + " You will be logged in 3 seconds.",
+                            successful: true
+                        });
+                        setTimeout(() => {
+                            AuthService.login(this.state.username, this.state.password)
+                                .then(
+                                    () => {
+                                        this.props.history.push("/");
+                                    },
+                                    error => {
+                                        const resMessage =
+                                            (error.response &&
+                                                error.response.data &&
+                                                error.response.data.message) ||
+                                            error.message ||
+                                            error.toString();
 
-                    this.setState({
-                        successful: false,
-                        message: resMessage
-                    });
-                }
-            );
+                                        this.setState({
+                                            loading: false,
+                                            message: resMessage
+                                        });
+                                    }
+                                );
+                        }, 3000);
+                    },
+                    error => {
+                        const resMessage =
+                            (error.response &&
+                                error.response.data &&
+                                error.response.data.message) ||
+                            error.message ||
+                            error.toString();
+
+                        this.setState({
+                            successful: false,
+                            message: resMessage
+                        });
+                    }
+                );
         }
     }
 
     render() {
+        if (AuthService.isLoggedIn()) {
+            return <Redirect to="/" />
+        }
         return (
             <div>
                 <NavigationBar />

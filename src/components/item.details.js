@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
+import ItemService from "../services/item.service";
+import TransactionService from "../services/transaction.service";
+
 import NavigationBar from "../NavigationBar";
 
 import '../css/ItemDetails.css'
@@ -41,7 +45,7 @@ export default class ItemDetails extends Component {
 
     // get user info and assign to input fields
     componentDidMount() {
-        AuthService.viewOneItem(this.props.match.params.id)
+        ItemService.viewOneItem(this.props.match.params.id)
             .then(response => {
                 this.setState({
                     name: response.data.name,
@@ -103,7 +107,7 @@ export default class ItemDetails extends Component {
     }
 
     addToCart = () => {
-        AuthService.addItemToCart(
+        UserService.addItemToCart(
             this.props.match.params.id, AuthService.getCurrentUser().id
         ).then(
             response => {
@@ -129,7 +133,7 @@ export default class ItemDetails extends Component {
     }
 
     makeTransaction = () => {
-        AuthService.createTransaction(
+        TransactionService.createTransaction(
             this.props.match.params.id, AuthService.getCurrentUser().id
         ).then(
             response => {

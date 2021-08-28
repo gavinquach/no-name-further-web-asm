@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 
 import AuthService from "./services/auth.service";
+import UserService from "./services/user.service";
 
 import NavigationBar from "./NavigationBar";
 
@@ -12,8 +13,8 @@ export default class Cart extends Component {
 
     load = () => {
         this.setState({ cart: [] });
-        AuthService.viewOneUser(AuthService.getCurrentUser().id).then(response => {
-            this.setState({ cart: response.data.cart });
+        UserService.viewUserCart(AuthService.getCurrentUser().id).then(response => {
+            this.setState({ cart: response.data });
         }).catch(function (error) {
             console.log(error);
         })
@@ -25,9 +26,9 @@ export default class Cart extends Component {
     
     removeFromCart = (itemid) => {
         if (window.confirm("Are you sure you want to remove item " + itemid + " from cart?")) {
-            AuthService.deleteItemFromCart(
-                itemid,
-                AuthService.getCurrentUser().id
+            UserService.deleteItemFromCart(
+                AuthService.getCurrentUser().id,
+                itemid
             ).then(
                 response => {
                     this.load();
