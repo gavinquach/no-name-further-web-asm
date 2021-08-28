@@ -6,6 +6,9 @@ const Transaction = model.transaction;
 
 const bcrypt = require("bcryptjs");
 
+const img = require("../config/img.config");
+const fs = require("fs");
+
 exports.allAccess = (req, res) => {
     res.status(200).send("Public Content.");
 };
@@ -111,16 +114,67 @@ exports.viewOneUser = async (req, res) => {
 };
 
 exports.deleteUser = async (req, res) => {
+    let user = null;
     try {
-        const user = await User.findByIdAndRemove({
-            _id: req.params.id
-        }).exec();
-
-        if (!user) return res.status(404).send({ message: "User not found." });
-        res.status(200).send("User removed successfully!");
+        user = await User.findByIdAndRemove(req.params.id).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
+    if (!user) return res.status(404).send({ message: "User not found." });
+    
+    // cancel all user transactions
+    let transactions = [];
+    try {
+        transactions = await Transaction.find({
+            user_seller: req.params.id,
+            status: "Pending"
+        }).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!transactions) return res.status(401).send({ message: "Transactions not found." });
+
+    // set status of all transactions of item to cancelled
+    transactions.map(async transaction => {
+        try {
+            transaction.status = "Cancelled";
+            transaction.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    });
+
+    // remove item images
+    user.items.map(async itemid => {
+        let item = null;
+        try {
+            item = await Item.findById(itemid)
+                .populate("images", "-__v")
+                .populate("seller", "-__v")
+                .exec()
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+        if (!item) return res.status(404).send({ message: "Item not found." });
+
+        // remove images related to item
+        item.images.map(image => {
+            fs.unlink(img.path.concat(image.name), err => {
+                // if (err) return res.status(500).send(err);
+            });
+            Image.deleteOne({ _id: img.id });
+        });
+    });
+
+    try {
+        await Item.deleteMany({
+            seller: req.params.id
+        }).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    res.status(200).send("User removed successfully!");
 };
 
 exports.editUser = async (req, res) => {

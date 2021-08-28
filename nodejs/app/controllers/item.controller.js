@@ -301,7 +301,7 @@ exports.deleteItem = async (req, res) => {
         fs.unlink(img.path.concat(image.name), err => {
             // if (err) return res.status(500).send(err);
         });
-        Image.deleteOne({ _id: img.id });
+        Image.deleteOne({ _id: image.id });
     });
 
     const user = item.seller;
