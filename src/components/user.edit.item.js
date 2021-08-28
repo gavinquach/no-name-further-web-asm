@@ -47,11 +47,11 @@ export default class UserEditItem extends Component {
             quantity: 0,
             type: "",
             oldImgList: [],
-            images: [],
+            coverImage: null,
+            otherImages: [],
             forItemName: "",
             forItemQty: 0,
             forItemType: "",
-            hasCoverImg: false,
             successful: false,
             message: "",
         };
@@ -77,7 +77,7 @@ export default class UserEditItem extends Component {
             }, error => {
                 this.props.history.push("/user/items");
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
             })
     }
@@ -85,20 +85,32 @@ export default class UserEditItem extends Component {
     addImages = () => {
         const imgList = [];
         this.state.oldImgList.map(image => {
-            imgList.push({
-                // format image data to 
-                data_url: process.env.REACT_APP_NODEJS_URL.concat("images/", image.name),
-                file: {
-                    name: image.name,
-                    size: image.size,
-                    type: image.type,
-                    cover: image.cover
-                }
-            });
-            if (image.cover) this.setState({ hasCoverImg: true, maxNumber: 5 });
+            if (image.cover) {
+                this.setState({
+                    coverImage: {
+                        data_url: process.env.REACT_APP_NODEJS_URL.concat("images/", image.name),
+                        file: {
+                            name: image.name,
+                            size: image.size,
+                            type: image.type,
+                            cover: image.cover
+                        }
+                    }
+                });
+            } else {
+                imgList.push({
+                    data_url: process.env.REACT_APP_NODEJS_URL.concat("images/", image.name),
+                    file: {
+                        name: image.name,
+                        size: image.size,
+                        type: image.type,
+                        cover: image.cover
+                    }
+                });
+            }
         });
 
-        this.setState({ images: imgList });
+        this.setState({ otherImages: imgList });
     }
 
     delete = () => {
@@ -128,13 +140,6 @@ export default class UserEditItem extends Component {
                     }
                 );
         }
-    }
-
-    removeCoverImg = () => {
-        this.setState({
-            hasCoverImg: false,
-            maxNumber: 4
-        });
     }
 
     onChangeName = (e) => {
@@ -176,105 +181,63 @@ export default class UserEditItem extends Component {
     onChangeUploadImage = (imageList) => {
         const list = [];
         imageList.map(image => {
-            image.file.cover = (typeof image.file.cover === "undefined" || !image.file.cover) ? false : true;
-            list.push({
-                data_url: image.data_url,
-                file: image.file
-            })
-        });
-
-        this.setState({ images: list });
-    };
-
-    onChangeUploadCoverImage = (imageList, index) => {
-        // has other images in image list
-        if (imageList.length > 1) {
-            // index is a value which means user updated cover image
-            if (index) {
-                // remove the old cover image
-                imageList.map((image, i) => {
-                    if (image.file.cover) {
-                        imageList.splice(i, 1);
-                    }
-                });
-
-                // add cover parameter to newly added 
-                // image and set it to true
-                if (index == imageList.length) {
-                    imageList[index - 1].file.cover = true;
-                } else {
-                    imageList[index].file.cover = true;
-                }
-            }
-
-            // re-add all images with proper data
-            const temp = [];
-            imageList.map(image => {
-                image.file.cover = (typeof image.file.cover === "undefined" || !image.file.cover) ? false : true;
-                temp.push({
-                    data_url: image.data_url,
-                    file: image.file
-                });
-            });
-
-            this.setState({
-                hasCoverImg: true,
-                maxNumber: 5,
-                images: temp,
-            });
-        }
-        // no other images in image list
-        else {
-            const temp = this.state.images;
-
-            // remove old cover image
-            temp.map((image, index) => {
-                if (image.file.cover) temp.splice(index, 1);
-            });
-
-            // re-add image with proper data
-            imageList.map(image => {
-                image.file.cover = true;
-                temp.push({
+            if (!image.file.cover) {
+                image.file.cover = false;
+                list.push({
                     data_url: image.data_url,
                     file: image.file
                 })
-            });
+            }
+        });
 
-            this.setState({
-                hasCoverImg: true,
-                maxNumber: 5,
-                images: temp
+        this.setState({ otherImages: list });
+    };
+
+    onCoverImageRemove = () => {
+        this.setState({ coverImage: null });
+    }
+
+    onChangeUploadCoverImage = (imageList, index) => {
+        // add/update
+        if (index) {
+            imageList.map(image => {
+                image.file.cover = true;
+                this.setState({
+                    coverImage: {
+                        data_url: image.data_url,
+                        file: image.file
+                    }
+                });
             });
         }
-    };
+        // remove
+        if (!index) {
+            this.setState({ coverImage: null });
+        }
+    }
 
     handleRegister = (e) => {
         e.preventDefault();
 
         this.form.validateAll();
-        
-        let count = 0;
-        this.state.images.map((image) => {
-            if (image.file.cover) count++;
-        })
-        if (count > 1) {
+
+        if (!this.state.coverImage) {
             this.setState({
                 successful: false,
-                message: "Invalid amount of cover images!"
+                message: "Please upload at least 1 cover image!"
             });
             return;
         }
 
-        if (this.state.images.length == 0) {
+        if (this.state.otherImages.length < 1) {
             this.setState({
                 successful: false,
-                message: "Please upload at least 1 image!"
+                message: "Please upload at least 1 item image!"
             });
             return;
         }
 
-        if (this.state.images.length > this.state.maxNumber) {
+        if (this.state.otherImages.length > this.state.maxNumber) {
             this.setState({
                 successful: false,
                 message: "Exceeded maximum amount of images allowed (1 cover and 4 other images)!"
@@ -282,10 +245,22 @@ export default class UserEditItem extends Component {
             return;
         }
 
-        if (!this.state.hasCoverImg) {
+        const temp = [];
+        temp.push(this.state.coverImage);
+        this.state.otherImages.map(image => {
+            temp.push(image);
+        });
+
+        // validate amount of cover images
+        let coverCount = 0;
+        temp.map(image => {
+            if (image.file.cover) coverCount++;
+        });
+
+        if (coverCount > 1) {
             this.setState({
                 successful: false,
-                message: "Cover image required."
+                message: "Exceeded maximum amount of images allowed (1 cover and 4 other images)!"
             });
             return;
         }
@@ -301,58 +276,59 @@ export default class UserEditItem extends Component {
                 forItemType: this.state.forItemType,
             };
 
-            const newImgList = [];
-            this.state.images.map(image => {
-                newImgList.push({
-                    data_url: image.data_url,
-                    name: image.file.name,
-                    size: image.file.size,
-                    type: image.file.type,
-                    cover: image.cover
-                })
+            // create list of removed images
+            // by checking if the oldImgList list has the 
+            // current images and remove them, leaving only the old ones
+            const temp = [];
+            temp.push(this.state.coverImage.file.name);
+            this.state.otherImages.map(image => {
+                temp.push(image.file.name);
             });
+            const removedImgList = this.state.oldImgList.filter((image) => !temp.includes(image.name));
 
+            // create list of submitted files' is file cover index
             // to keep track which image is the item cover
             const coverIndexes = [];
-            this.state.images.map((image) => {
+            if (this.state.coverImage.file instanceof File) {
+                coverIndexes.push(this.state.coverImage.file.cover);
+            }
+            this.state.otherImages.map((image) => {
                 if (image.file instanceof File) {
                     coverIndexes.push(
                         image.file.cover
                     );
                 }
-            })
+            });
 
-            const oldList = this.state.oldImgList;
-            this.state.images.map((image) => {
-                this.state.oldImgList.map((oldImage, index) => {
-                    if (image.file.name == oldImage.name) {
-                        oldList.splice(index, 1);
-                    }
-                });
+            // create list of newly uploaded image files
+            const newImgList = [];
+            if (this.state.coverImage.file instanceof File) {
+                newImgList.push(this.state.coverImage.file);
+            }
+            this.state.otherImages.map(image => {
+                if (image.file instanceof File) {
+                    newImgList.push(image.file);
+                }
             });
 
             const formData = new FormData();
 
-            // add new files
-            this.state.images.map(image =>
-                formData.append("files", image.file)
-            );
-
-            // add old images list
-            oldList.map(image => {
-                formData.append("oldImages", JSON.stringify(image))
-            });
-
+            // add user id
             formData.append("userid", AuthService.getCurrentUser().id);
 
             // add item
             formData.append("item", JSON.stringify(item));
 
+            // add old images list
+            formData.append("removedImages", JSON.stringify(removedImgList));
+
             // add cover indexes array
-            // coverIndexes.map(index =>
-            //     formData.append("coverIndexes", index)
-            // );
             formData.append("coverIndexes", JSON.stringify(coverIndexes));
+
+            // add new files
+            newImgList.map(file => {
+                formData.append("files", file);
+            });
 
             const config = {
                 headers: {
@@ -510,7 +486,6 @@ export default class UserEditItem extends Component {
 
                         <br />
                         <ImageUploading
-                            value={this.state.images}
                             maxFileSize={this.state.maxFileSize}
                             onChange={this.onChangeUploadCoverImage}
                             resolutionType={this.state.resolutionType}
@@ -531,14 +506,13 @@ export default class UserEditItem extends Component {
                                     <h3>Cover image</h3>
                                     {errors && (
                                         <div>
-                                            {errors.maxNumber && <span>Exceeded maximum upload amount (1)!</span>}
                                             {errors.acceptType && <span>The selected file type is not allow!</span>}
                                             {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
                                             {errors.resolution && <span>Selected file exceeded allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                             <br />
                                         </div>)}
 
-                                    {!this.state.hasCoverImg ?
+                                    {!this.state.coverImage ?
                                         <button
                                             className="ImageUploadBox"
                                             type="button"
@@ -548,16 +522,15 @@ export default class UserEditItem extends Component {
                                         >
                                             {isDragging ? "Drop to upload" : (<div>Click or drop here to upload image</div>)}
                                         </button>
-                                        : this.state.images.map((image, index) =>
-                                            image.file.cover &&
-                                            (
-                                                <div key={index} className="container ImagePanels">
-                                                    <img src={image.data_url} alt={image.file.name} />
-                                                    <button type="button" onClick={() => onImageUpdate(index)}>Update</button>
-                                                    <button type="button" onClick={() => { onImageRemove(index); this.removeCoverImg(); }} className="Remove-btn">Remove</button>
-                                                    <p>{image.file.name}</p>
-                                                </div>
-                                            ))
+                                        : this.state.coverImage &&
+                                        (
+                                            <div className="container ImagePanels">
+                                                <img src={this.state.coverImage.data_url} alt={this.state.coverImage.file.name} />
+                                                <button type="button" onClick={() => onImageUpdate()}>Update</button>
+                                                <button type="button" onClick={() => { onImageRemove(); this.onCoverImageRemove() }} className="Remove-btn">Remove</button>
+                                                <p>{this.state.coverImage.file.name}</p>
+                                            </div>
+                                        )
                                     }
                                 </div>
                             )}
@@ -567,7 +540,7 @@ export default class UserEditItem extends Component {
 
                         <ImageUploading
                             multiple
-                            value={this.state.images}
+                            value={this.state.otherImages}
                             onChange={this.onChangeUploadImage}
                             maxNumber={this.state.maxNumber}
                             maxFileSize={this.state.maxFileSize}
@@ -598,7 +571,7 @@ export default class UserEditItem extends Component {
                                             <br />
                                         </div>)}
 
-                                    {(this.state.images.length < this.state.maxNumber) && (
+                                    {(this.state.otherImages.length < this.state.maxNumber) && (
                                         <span>
                                             <button
                                                 className="ImageUploadBox"
@@ -617,7 +590,7 @@ export default class UserEditItem extends Component {
                                         //     </button>
                                         // )
                                     }
-                                    {this.state.images.map((image, index) =>
+                                    {this.state.otherImages.map((image, index) =>
                                         !image.file.cover &&
                                         (
                                             <div key={index} className="container ImagePanels">
