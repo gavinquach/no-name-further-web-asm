@@ -23,7 +23,7 @@ exports.moderatorBoard = (req, res) => {
 };
 
 // create new User in database (role is user if not specifying role)
-exports.signup = (req, res) => {
+exports.signup = async (req, res) => {
     const user = new User({
         username: req.body.username,
         email: req.body.email,
@@ -32,23 +32,19 @@ exports.signup = (req, res) => {
         password: bcrypt.hashSync(req.body.password),
     });
 
-    user.save((err, user) => {
-        if (err) return res.status(500).send({ message: err });
+    let role = await Role.findOne({ name: "user" })
+    user.roles = [role._id];
 
-        Role.findOne({ name: "user" }, (err, role) => {
-            if (err) return res.status(500).send({ message: err });
-
-            user.roles = [role._id];
-            user.save(err => {
-                if (err) return res.status(500).send({ message: err });
-                res.send({ message: "User was registered successfully!" });
-            });
-        });
-    });
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    res.status(201).send({ message: "Registered successfully!" });
 };
 
 // create new User in database with roles
-exports.createUserWithRoles = (req, res) => {
+exports.createUserWithRoles = async (req, res) => {
     const user = new User({
         username: req.body.username,
         email: req.body.email,
@@ -58,157 +54,198 @@ exports.createUserWithRoles = (req, res) => {
         roles: req.body.roles
     });
 
-    if (req.body.roles) {
-        Role.find({
-            name: { $in: req.body.roles }
-        },
-            (err, roles) => {
-                if (err) return res.status(500).send({ message: err });
+    // check if the data sent has roles
+    if (req.body.roles.length > 0) {
+        let roles = [];
+        try {
+            roles = await Role.find({
+                name: { $in: req.body.roles }
+            });
+        } catch (err) {
+            return res.status(500).send({ message: err });
+        }
 
-                user.roles = roles.map(role => role._id);
-                user.save(err => {
-                    if (err) return res.status(500).send({ message: err });
-                    res.send({ message: "User was registered with roles successfully!" });
-                });
-            }
-        );
-    } else {
-        res.status(500).send({ message: "Roles not found" });
-        return;
+        user.roles = roles.map(role => role._id);
     }
+    // no roles, return message with 400 Bad Request error
+    else {
+        return res.status(400).send({ message: "Please add at least 1 role!" });
+    }
+
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    res.status(201).send({ message: "Admin created successfully!" });
 };
 
 exports.viewUsers = async (req, res) => {
-    User.find()
-        .populate("roles", "-__v")
-        .populate("items", "-__v")
-        .populate("cart", "-__v")
-        .exec((err, users) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!users) return res.status(404).send({ message: "User not found." });
-            res.json(users);
-        });
+    try {
+        const users = await User.find()
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+
+        if (!users) return res.status(404).send({ message: "Users not found." });
+        res.json(users);
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
 };
 
 exports.viewOneUser = async (req, res) => {
-    User.findById({
-        _id: req.params.id
-    })
-        .populate("roles", "-__v")
-        .populate("items", "-__v")
-        .populate("cart", "-__v")
-        .exec((err, user) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!user) return res.status(404).send({ message: "User not found." });
-            res.json(user);
-        });
+    try {
+        const user = await User.findById({ _id: req.params.id })
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+
+        if (!user) return res.status(404).send({ message: "User not found." });
+        res.json(user);
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
 };
 
 exports.deleteUser = async (req, res) => {
-    User.findByIdAndRemove({ _id: req.params.id }, function (err, user) {
-        if (err) return res.status(500).send({ message: err });
+    try {
+        const user = await User.findByIdAndRemove({
+            _id: req.params.id
+        }).exec();
+
         if (!user) return res.status(404).send({ message: "User not found." });
-        res.json('User successfully removed');
-    });
+        res.status(200).send("User removed successfully!");
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
 };
 
 exports.editUser = async (req, res) => {
-    User.findById({ _id: req.params.id }, function (err, user) {
-        if (err) return res.status(500).send({ message: err });
-        if (!user) return res.status(404).send("User not found");
+    let user = null;
+    try {
+        user = await User.findById({ _id: req.params.id });
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send("User not found.");
 
-        user.username = req.body.username;
-        user.email = req.body.email;
-        user.phone = req.body.phone;
-        user.location = req.body.location;
-        if (req.body.password) user.password = bcrypt.hashSync(req.body.password);
+    user.username = req.body.username;
+    user.email = req.body.email;
+    user.phone = req.body.phone;
+    user.location = req.body.location;
+    if (req.body.password) {
+        user.password = bcrypt.hashSync(req.body.password);
+    }
 
-        if (req.body.roles) {
-            Role.find({
-                name: {
-                    $in: req.body.roles
-                }
-            }, (err, roles) => {
-                if (err) return res.status(500).send({ message: err });
-
-                user.roles = roles.map(role => role._id);
-                user.save(err => {
-                    if (err) return res.status(500).send({ message: err });
-                    res.send({ message: "Updated succesfully!" });
+    // ==============
+    // validate roles
+    // check if user is admin
+    if (user.role !== "user") {
+        // check if the data sent has roles
+        if (req.body.roles.length > 0) {
+            let roles = [];
+            try {
+                roles = await Role.find({
+                    name: { $in: req.body.roles }
                 });
-            });
-        } else {
-            user.save(err => {
-                if (err) return res.status(500).send({ message: err });
-                res.send({ message: "Updated succesfully!" });
-            });
+            } catch (err) {
+                return res.status(500).send({ message: err });
+            }
+
+            // assign roles to user
+            user.roles = roles.map(role => role._id);
         }
-    });
+        // no roles, return message with 400 Bad Request error
+        else {
+            return res.status(400).send({ message: "Please add at least 1 role!" });
+        }
+    }
+
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    res.status(200).send({ message: "Updated succesfully!" });
 };
 
 exports.editPassword = async (req, res) => {
-    User.findById({ _id: req.params.id }, function (err, user) {
-        if (err) return res.status(500).send({ message: err });
-        if (!user) return res.status(404).send("User not found");
+    let user = null;
+    try {
+        user = await User.findById({ _id: req.params.id });
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send("User not found.");
 
-        // compare password with password in database using bcrypt
-        let passwordIsValid = bcrypt.compareSync(
-            req.body.oldpassword,
-            user.password
-        );
+    // compare password with password in database using bcrypt
+    let isValidOldPassword = bcrypt.compareSync(
+        req.body.oldpassword,
+        user.password
+    );
 
-        if (!passwordIsValid) {
-            return res.status(401).send({
-                message: "Old password is incorrect!"
-            });
-        }
+    if (!isValidOldPassword) {
+        return res.status(400).send({
+            message: "Old password is incorrect!"
+        });
+    }
 
-        // compare password with password in database using bcrypt
-        let isSamePassword = bcrypt.compareSync(
-            req.body.newpassword,
-            user.password
-        );
+    if (!req.body.newpassword) {
+        return res.status(400).send({
+            message: "New password required!"
+        });
+    }
 
-        if (isSamePassword) {
-            return res.status(401).send({
-                message: "New password is the same as old password!"
-            });
-        }
+    // compare password with password in database using bcrypt
+    let isSamePassword = bcrypt.compareSync(
+        req.body.newpassword,
+        user.password
+    );
 
-        if (req.body.newpassword) {
-            user.password = bcrypt.hashSync(req.body.newpassword);
-            user.save(err => {
-                if (err) return res.status(500).send({ message: err });
-                res.send({ message: "Updated succesfully!" });
-            });
-        }
-    });
+    if (isSamePassword) {
+        return res.status(400).send({
+            message: "New password is the same as old password!"
+        });
+    }
+
+    user.password = bcrypt.hashSync(req.body.newpassword);
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    res.status(200).send({ message: "Password updated succesfully!" });
 };
 
 exports.getUserItems = async (req, res) => {
-    Item.find({
-        seller: req.params.id
-    })
-        .populate("type", "-__v")
-        .populate("forItemType", "-__v")
-        .populate("images", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, items) => {
-            if (err) return res.status(500).send({ message: err });
-            res.json(items);
-        });
+    let items = [];
+    try {
+        items = await Item.find({
+            seller: req.params.id
+        })
+            .populate("type", "-__v")
+            .populate("forItemType", "-__v")
+            .populate("images", "-__v")
+            .populate("seller", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+
+    res.json(items);
 };
 
 exports.getUserCart = async (req, res) => {
     let user = null;
-    let cart = [];
     try {
-        user = await User.findById(req.params.id).exec();
-        cart = user.cart;
+        user = await User.findById(req.body.userid).exec();
     } catch (err) {
         return res.status(500).send({ message: err });
     }
-    if (!user) return res.status(404).send({ message: "User not found!" });
+    if (!user) return res.status(404).send({ message: "User not found." });
 
     const items = [];
     for (const itemid of user.cart) {
@@ -219,65 +256,77 @@ exports.getUserCart = async (req, res) => {
                 .populate("images", "-__v")
                 .populate("seller", "-__v")
                 .exec();
-            
+
             // add item to items array
             item !== null && items.push(item);
         } catch (err) {
             return res.status(500).send({ message: err });
         }
     }
+
     res.json(items);
 };
 
 exports.addItemToCart = async (req, res) => {
-    // check if item is in user transactions
-    Transaction.findOne({
-        user_buyer: req.body.userid,
-        item: req.body.itemid,
-        status: "Pending"
-    }, (err, transaction) => {
-        if (err) return res.status(500).send({ message: err });
-        if (transaction) return res.status(401).send({ message: "This item is in transactions!" });
+    try {
+        // check if item is in user transactions
+        const transaction = await Transaction.findOne({
+            user_buyer: req.body.userid,
+            item: req.body.itemid,
+            status: "Pending"
+        });
+        if (transaction) return res.status(400).send({ message: "Item already in transactions!" });
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
 
-        // find user in database to see if it exists
-        User.findById(req.body.userid)
-            .exec((err, user) => {
-                if (err) return res.status(500).send({ message: err });
-                if (!user) return res.status(404).send({ message: "User not found." });
+    let user = null;
 
-                // find item in database to see if it exists
-                Item.findById(req.body.itemid)
-                    .exec((err, item) => {
-                        if (err) return res.status(500).send({ message: err });
-                        if (!item) return res.status(404).send({ message: "Item not found." });
-                    });
+    // find user in database to see if it exists
+    try {
+        user = await User.findById(req.body.userid);
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
 
-                itemid = req.body.itemid;
+    // find item in database to see if it exists
+    Item.findById(req.body.itemid)
+        .exec((err, item) => {
+            if (err) return res.status(500).send({ message: err });
+            if (!item) return res.status(404).send({ message: "Item not found." });
+        });
 
-                if (user.cart.includes(itemid)) return res.status(401).send({ message: "Item already in cart!" });
+    if (user.cart.includes(req.body.itemid)) {
+        return res.status(400).send({ message: "Item already in cart!" });
+    }
 
-                user.cart.push(itemid);
-                user.save(err => {
-                    if (err) return res.status(500).send({ message: err });
-                    res.send({ message: "Added item to cart successfully!" });
-                });
-            });
-    })
+    user.cart.push(req.body.itemid);
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    res.status(201).send({ message: "Added item to cart successfully!" });
 }
 
 exports.deleteItemFromCart = async (req, res) => {
-    User.findById(req.body.userid)
-        .exec((err, user) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!user) return res.status(404).send({ message: "User not found." });
+    let user = null;
+    try {
+        user = await User.findById(req.params.id).exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
 
-            // if item is found in cart, remove it
-            const itemIndexInCart = user.cart.indexOf(req.params.id);
-            if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
+    // if item is found in cart, remove it
+    const itemIndexInCart = user.cart.indexOf(req.body.itemid);
+    if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
 
-            user.save(err => {
-                if (err) return res.status(500).send({ message: err });
-                res.send({ message: "Item removed from cart successfully!" });
-            });
-        });
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    res.status(200).send({ message: "Item removed from cart successfully!" });
 };

@@ -59,7 +59,7 @@ class UserService {
     }
 
     viewUserCart(userid) {
-        return axios.get(API_URL + "/user/cart/" + userid);
+        return axios.post(API_URL + "/user/cart/view", { userid });
     }
     
     viewUserItems(userid) {

@@ -46,21 +46,14 @@ export default class UserCreateItem extends Component {
             name: "",
             quantity: 0,
             type: "",
-            images: [],
+            coverImage: null,
+            otherImages: [],
             forItemName: "",
             forItemQty: 0,
             forItemType: "",
-            hasCoverImg: false,
             successful: false,
             message: "",
         };
-    }
-
-    removeCoverImg = () => {
-        this.setState({
-            hasCoverImg: false,
-            maxNumber: 4
-        });
     }
 
     onChangeName = (e) => {
@@ -102,113 +95,84 @@ export default class UserCreateItem extends Component {
     onChangeUploadImage = (imageList) => {
         const list = [];
         imageList.map(image => {
-            image.file.cover = (typeof image.file.cover === "undefined" || !image.file.cover) ? false : true;
-            list.push({
-                data_url: image.data_url,
-                file: image.file
-            })
-        });
-
-        this.setState({ images: list });
-    };
-
-    onChangeUploadCoverImage = (imageList, index) => {
-        // has other images in image list
-        if (imageList.length > 1) {
-            // index is a value which means user updated cover image
-            if (index) {
-                // remove the old cover image
-                imageList.map((image, i) => {
-                    if (image.file.cover) {
-                        imageList.splice(i, 1);
-                    }
-                });
-
-                // add cover parameter to newly added 
-                // image and set it to true
-                if (index == imageList.length) {
-                    imageList[index - 1].file.cover = true;
-                } else {
-                    imageList[index].file.cover = true;
-                }
-            }
-
-            // re-add all images with proper data
-            const temp = [];
-            imageList.map(image => {
-                image.file.cover = (typeof image.file.cover === "undefined" || !image.file.cover) ? false : true;
-                temp.push({
-                    data_url: image.data_url,
-                    file: image.file
-                });
-            });
-
-            this.setState({
-                hasCoverImg: true,
-                maxNumber: 5,
-                images: temp,
-            });
-        }
-        // no other images in image list
-        else {
-            const temp = this.state.images;
-
-            // remove old cover image
-            temp.map((image, index) => {
-                if (image.file.cover) temp.splice(index, 1);
-            });
-
-            // re-add image with proper data
-            imageList.map(image => {
-                image.file.cover = true;
-                temp.push({
+            if (!image.file.cover) {
+                image.file.cover = false;
+                list.push({
                     data_url: image.data_url,
                     file: image.file
                 })
-            });
+            }
+        });
 
-            this.setState({
-                hasCoverImg: true,
-                maxNumber: 5,
-                images: temp
+        this.setState({ otherImages: list });
+    };
+
+    onCoverImageRemove = () => {
+        this.setState({ coverImage: null });
+    }
+
+    onChangeUploadCoverImage = (imageList, index) => {
+        console.log(imageList, "cover imageList");
+        // add/update
+        if (index) {
+            imageList.map(image => {
+                image.file.cover = true;
+                this.setState({
+                    coverImage: {
+                        data_url: image.data_url,
+                        file: image.file
+                    }
+                });
             });
         }
-    };
+        // remove
+        if (!index) {
+            this.setState({ coverImage: null });
+        }
+    }
 
     handleRegister = (e) => {
         e.preventDefault();
 
         this.form.validateAll();
-        
-        let count = 0;
-        this.state.images.map((image) => {
-            if (image.file.cover) count++;
-        })
-        if (count > 1) {
+
+        if (!this.state.coverImage) {
             this.setState({
                 successful: false,
-                message: "Invalid amount of cover images!"
+                message: "Please upload at least 1 cover image!"
             });
             return;
         }
 
-        if (!this.state.hasCoverImg) {
+        if (this.state.otherImages.length < 1) {
             this.setState({
                 successful: false,
-                message: "Cover image required!"
+                message: "Please upload at least 1 item image!"
             });
             return;
         }
 
-        if (this.state.images.length == 0) {
+        if (this.state.otherImages.length > this.state.maxNumber) {
             this.setState({
                 successful: false,
-                message: "Please upload at least 1 image!"
+                message: "Exceeded maximum amount of images allowed (1 cover and 4 other images)!"
             });
             return;
         }
 
-        if (this.state.images.length > this.state.maxNumber) {
+        const temp = [];
+        temp.push(this.state.coverImage);
+        this.state.otherImages.map(image => {
+            temp.push(image);
+        });
+
+        // validate amount of cover images
+        let coverCount = 0;
+        temp.map(image => {
+            if (image.file.cover) coverCount++;
+        });
+
+        if (coverCount > 1) {
             this.setState({
                 successful: false,
                 message: "Exceeded maximum amount of images allowed (1 cover and 4 other images)!"
@@ -227,26 +191,46 @@ export default class UserCreateItem extends Component {
                 forItemType: this.state.forItemType,
             };
 
+            // create list of submitted files' is file cover index
             // to keep track which image is the item cover
             const coverIndexes = [];
-            this.state.images.map((image) => {
-                coverIndexes.push(
-                    image.file.cover
-                );
-            })
+            if (this.state.coverImage.file instanceof File) {
+                coverIndexes.push(this.state.coverImage.file.cover);
+            }
+            this.state.otherImages.map((image) => {
+                if (image.file instanceof File) {
+                    coverIndexes.push(
+                        image.file.cover
+                    );
+                }
+            });
+
+            // create list of newly uploaded image files
+            const newImgList = [];
+            if (this.state.coverImage.file instanceof File) {
+                newImgList.push(this.state.coverImage.file);
+            }
+            this.state.otherImages.map(image => {
+                if (image.file instanceof File) {
+                    newImgList.push(image.file);
+                }
+            });
 
             const formData = new FormData();
-            this.state.images.map(image =>
-                formData.append("files", image.file)
-            );
-            formData.append("userid", AuthService.getCurrentUser().id);
-            for (let key in item) {
-                formData.append(key, item[key]);
-            }
 
-            coverIndexes.map(index =>
-                formData.append("coverIndexes", index)
-            );
+            // add user id
+            formData.append("userid", AuthService.getCurrentUser().id);
+
+            // add item
+            formData.append("item", JSON.stringify(item));
+
+            // add cover indexes array
+            formData.append("coverIndexes", JSON.stringify(coverIndexes));
+
+            // add new files
+            newImgList.map(file => {
+                formData.append("files", file);
+            });
 
             const config = {
                 headers: {
@@ -403,7 +387,6 @@ export default class UserCreateItem extends Component {
 
                     <br />
                     <ImageUploading
-                        value={this.state.images}
                         maxFileSize={this.state.maxFileSize}
                         onChange={this.onChangeUploadCoverImage}
                         resolutionType={this.state.resolutionType}
@@ -424,14 +407,13 @@ export default class UserCreateItem extends Component {
                                 <h3>Cover image</h3>
                                 {errors && (
                                     <div>
-                                        {errors.maxNumber && <span>Exceeded maximum upload amount (1)!</span>}
                                         {errors.acceptType && <span>The selected file type is not allow!</span>}
                                         {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
                                         {errors.resolution && <span>Selected file exceeded allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                         <br />
                                     </div>)}
 
-                                {!this.state.hasCoverImg ?
+                                {!this.state.coverImage ?
                                     <button
                                         className="ImageUploadBox"
                                         type="button"
@@ -441,16 +423,15 @@ export default class UserCreateItem extends Component {
                                     >
                                         {isDragging ? "Drop to upload" : (<div>Click or drop here to upload image</div>)}
                                     </button>
-                                    : this.state.images.map((image, index) =>
-                                        image.file.cover &&
-                                        (
-                                            <div key={index} className="container ImagePanels">
-                                                <img src={image.data_url} alt={image.file.name} />
-                                                <button type="button" onClick={() => onImageUpdate(index)}>Update</button>
-                                                <button type="button" onClick={() => { onImageRemove(index); this.removeCoverImg(); }} className="Remove-btn">Remove</button>
-                                                <p>{image.file.name}</p>
-                                            </div>
-                                        ))
+                                    : this.state.coverImage &&
+                                    (
+                                        <div className="container ImagePanels">
+                                            <img src={this.state.coverImage.data_url} alt={this.state.coverImage.file.name} />
+                                            <button type="button" onClick={() => onImageUpdate()}>Update</button>
+                                            <button type="button" onClick={() => { onImageRemove(); this.onCoverImageRemove() }} className="Remove-btn">Remove</button>
+                                            <p>{this.state.coverImage.file.name}</p>
+                                        </div>
+                                    )
                                 }
                             </div>
                         )}
@@ -460,7 +441,7 @@ export default class UserCreateItem extends Component {
 
                     <ImageUploading
                         multiple
-                        value={this.state.images}
+                        value={this.state.otherImages}
                         onChange={this.onChangeUploadImage}
                         maxNumber={this.state.maxNumber}
                         maxFileSize={this.state.maxFileSize}
@@ -484,14 +465,14 @@ export default class UserCreateItem extends Component {
                                 <h3>Other images</h3>
                                 {errors && (
                                     <div>
-                                        {errors.maxNumber && <span>Exceeded maximum upload amount ({!this.state.hasCoverImg ? this.state.maxNumber : this.state.maxNumber - 1})!</span>}
+                                        {errors.maxNumber && <span>Exceeded maximum upload amount ({this.state.maxNumber})!</span>}
                                         {errors.acceptType && <span>The selected file type is not allow!</span>}
                                         {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
                                         {errors.resolution && <span>Selected file exceeded allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                         <br />
                                     </div>)}
 
-                                {(this.state.images.length < this.state.maxNumber) && (
+                                {(this.state.otherImages.length < this.state.maxNumber) && (
                                     <span>
                                         <button
                                             className="ImageUploadBox"
@@ -510,7 +491,7 @@ export default class UserCreateItem extends Component {
                                     //     </button>
                                     // )
                                 }
-                                {this.state.images.map((image, index) =>
+                                {this.state.otherImages.map((image, index) =>
                                     !image.file.cover &&
                                     (
                                         <div key={index} className="container ImagePanels">

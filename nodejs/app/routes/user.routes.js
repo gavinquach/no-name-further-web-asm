@@ -42,7 +42,7 @@ router.post("/user/cart", controller.addItemToCart);
 router.put("/user/cart/:id", controller.deleteItemFromCart);
 
 // get user cart and items
-router.get("/user/cart/:id", controller.getUserCart);
+router.post("/user/cart/view", controller.getUserCart);
 router.get("/user/items/:id", controller.getUserItems);
 
 // router.get("/api/test/all", controller.allAccess);
