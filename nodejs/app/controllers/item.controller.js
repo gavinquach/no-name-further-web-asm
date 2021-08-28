@@ -2,6 +2,7 @@ const model = require("../models");
 const Image = model.image;
 const Item = model.item;
 const ItemCategory = model.itemCategory;
+const Transaction = model.transaction;
 const User = model.user;
 
 const img = require("../config/img.config");
@@ -284,36 +285,68 @@ exports.editItem = async (req, res) => {
 
 exports.deleteItem = async (req, res) => {
     const itemId = req.params.id;
-    Item.findById(itemId)
-        .populate("images", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, item) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!item) return res.status(404).send({ message: "Item not found." });
+    let item = null;
+    try {
+        item = await Item.findById(itemId)
+            .populate("images", "-__v")
+            .populate("seller", "-__v")
+            .exec()
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!item) return res.status(404).send({ message: "Item not found." });
 
-            // remove images related to item
-            item.images.map(image => {
-                fs.unlink(img.path.concat(image.name), err => {
-                    // if (err) return res.status(500).send({ message: err });
-                });
-                Image.deleteOne({ _id: img.id });
-            });
-
-            const user = item.seller;
-
-            // remove item from user items array
-            user.items.splice(user.items.indexOf(item._id), 1);
-
-            user.save(err => {
-                if (err) return res.status(500).send({ message: err });
-
-                // finally, remove item from database
-                Item.deleteOne({ _id: itemId }, (err, deleted) => {
-                    if (err) return res.status(500).send({ message: err });
-                    if (deleted) res.status(200).send('Item successfully removed');
-                });
-            });
+    // remove images related to item
+    item.images.map(image => {
+        fs.unlink(img.path.concat(image.name), err => {
+            // if (err) return res.status(500).send({ message: err });
         });
+        Image.deleteOne({ _id: img.id });
+    });
+
+    const user = item.seller;
+
+    // remove item from user items array
+    const index = user.items.indexOf(itemId);
+    if (index > -1) user.items.splice(index, 1);
+
+    // update user on database
+    try {
+        user.save();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+
+    // ============= cancel all transactions with item =============
+    let transactions = [];
+    try {
+        transactions = await Transaction.find({
+            item: itemId, status: "Pending"
+        }).exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!transactions) return res.status(401).send({ message: "Transaction not found." });
+
+    // set status of all transactions of item to cancelled
+    transactions.map(async transaction => {
+        try {
+            transaction.status = "Cancelled";
+            transaction.save();
+        } catch (err) {
+            return res.status(500).send({ message: err });
+        }
+    });
+    
+    // ============= end of cancel all transactions with item =============
+
+    // finally, remove item from database
+    try {
+        await Item.deleteOne({ _id: itemId });
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    res.status(200).send({ message: "Item successfully removed" });
 };
 
 exports.getItem = async (req, res) => {
