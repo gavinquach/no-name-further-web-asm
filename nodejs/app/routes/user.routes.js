@@ -26,21 +26,20 @@ router.post("/deletefromcart/:id", controller.deleteItemFromCart);
 // router.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);
 // router.get("/api/test/admin", [authJwt.verifyToken, authJwt.isAdmin], controller.adminBoard);
 
-// Dummy Routes
-router.get("/test/view_admin", [authJwt.verifyToken, authJwt.isAdminType("create_admin"), authJwt.isAdmin], (req, res) => {
-    res.send("View Admin")
-})
+// Source: https://stackoverflow.com/a/1026087
+capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
-router.get("/test/edit_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isAdminType("edit_admin")], (req, res) => {
-    res.send("Edit Admin")
-})
-
-router.get("/test/delete_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isAdminType("delete_admin")], (req, res) => {
-    res.send("Delete Admin")
-})
-
-router.get("/test/create_admin", [authJwt.verifyToken, authJwt.isAdmin, authJwt.isAdminType("create_admin")], (req, res) => {
-    res.send("Create Admin")
-})
+// Dummy routes for testing
+const model = require("../models");
+model.ROLES.map(role => {
+    router.get(`/test/${role}`, [
+        authJwt.verifyToken,
+        authJwt.isValidAdmin(role)
+    ], (req, res) => {
+        res.send(capitalizeFirstLetter(role.replace("_", " ")));
+    });
+});
 
 module.exports = router;

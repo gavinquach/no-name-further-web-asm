@@ -23,9 +23,7 @@ model.ROLES = [
     "create_admin",
     "edit_admin",
     "delete_admin",
-    "root",
-    "promote_user",
-    "demote_admin"
+    "root"
 ];
 
 model.ITEMCATEGORIES = [
