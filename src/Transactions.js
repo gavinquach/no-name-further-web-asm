@@ -81,25 +81,21 @@ export default class Transactions extends Component {
                     <br />
                     <h2>Cancelled</h2>
                     {this.state.transactions.map((transaction, index) =>
-                        transaction.status === "Cancelled" &&
-                        <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
-                            {transaction.item !== null ? (
-                                <a key={index} href={"item/" + transaction.item._id}>
+                        transaction.status === "Cancelled" && (
+                            <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
+                                {transaction.item ? (
+                                    <a key={index} href={"item/" + transaction.item._id}>
+                                        <div className="ItemPanel">
+                                            <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
+                                        </div>
+                                    </a>
+                                ) : (
                                     <div className="ItemPanel">
-                                        {/* {transaction.item.images.map(image =>
-                                image.cover && (
-                                    <img src={Buffer.from(image.data_url).toString('utf8')} alt={image.name} />
-                                )
-                            )} */}
-                                        <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
+                                        <h4>(Item removed by trader)</h4>
                                     </div>
-                                </a>
-                            ) : (
-                                <div className="ItemPanel">
-                                    <h4>(Item removed by trader)</h4>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        )
                     )}
                 </div>
             </div>

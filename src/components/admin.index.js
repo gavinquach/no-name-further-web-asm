@@ -30,14 +30,14 @@ const manageUser = (
     </div>
 )
 
-const allItem =(
+const allItem = (
     <div>
         <h3 className="admin-control-header">All Item List</h3>
 
     </div>
 )
 
-const viewTrade =(
+const viewTrade = (
     <div>
         <h3 className="admin-control-header">View trade</h3>
     </div>
@@ -78,23 +78,23 @@ export default class AdminIndex extends Component {
                     <br />
                     {AuthService.hasManageAdminRole() && this.state.items.map((item, index) =>
                         (item.seller != AuthService.getCurrentUser().id) &&
-                            <a key={index} href={"item/" + item._id}>
-                                <div className="dashbord">
-                                    <div className="dashbord-img">
-                                            {item.images.map(image =>
-                                                image.cover && (
-                                                    <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} alt={image.name} />
-                                                )
-                                            )}
-                                    </div>
-                                            <p>{item.name} / <b>{item.quantity}</b></p>
-                                            <p></p>
-                                            <p className="for">For</p> 
-                                            <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
-                                            <p></p>
-                                            <button className="delete-item-btn">Delete</button>
+                        <a key={index} href={"item/" + item._id}>
+                            <div className="dashbord">
+                                <div className="dashbord-img">
+                                    {item.images.map(image =>
+                                        image.cover && (
+                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)}/>
+                                        )
+                                    )}
                                 </div>
-                            </a>
+                                <p>{item.name} / <b>{item.quantity}</b></p>
+                                <p></p>
+                                <p className="for">For</p>
+                                <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
+                                <p></p>
+                                <button className="delete-item-btn">Delete</button>
+                            </div>
+                        </a>
                     )}
                 </div>
                 <div>
