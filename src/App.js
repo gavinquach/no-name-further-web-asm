@@ -54,7 +54,7 @@ export default class App extends Component {
                         this.logout();
                     })
             } catch (err) {
-                console.log(error);
+                console.log(err);
             }
 
             if (!user) {
