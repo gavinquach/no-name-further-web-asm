@@ -8,7 +8,7 @@ export default class ItemTypes extends Component {
         return (
             <div>
                 <div className="container">
-                    <div className = "title-container"><h3>Item List</h3></div>
+                    <div className = "title-container"><h3>Item Type</h3></div>
                     <nav className = "">
                     <ul className = 'type-menu'> {
                         Types.map((item, index) => {

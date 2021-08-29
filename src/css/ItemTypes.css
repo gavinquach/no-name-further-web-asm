@@ -1,7 +1,7 @@
 .type-menu {
     display: grid;
     grid-template-columns: repeat(7, auto);
-    grid-gap: 15vw;
+    grid-gap: 10vw;
     list-style: none;
     text-align: center;
     width: 70vw;
