@@ -38,6 +38,16 @@ class UserService {
         });
     }
 
+    editInfo(id, username, email, phone, location, password) {
+        return axiosTokenHeader.patch(API_URL + "/user/edit/" + id, {
+            username,
+            email,
+            phone,
+            location,
+            password
+        });
+    }
+
     editPassword(id, oldpassword, newpassword) {
         return axiosTokenHeader.patch(API_URL + "/user/edit/password/" + id, {
             oldpassword,

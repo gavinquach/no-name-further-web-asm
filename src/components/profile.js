@@ -203,7 +203,7 @@ export default class UserProfile extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            UserService.editUser(
+            UserService.editInfo(
                 AuthService.getCurrentUser().id,
                 this.state.username,
                 this.state.email,

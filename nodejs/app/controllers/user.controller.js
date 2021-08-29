@@ -9,22 +9,6 @@ const bcrypt = require("bcryptjs");
 const img = require("../config/img.config");
 const fs = require("fs");
 
-exports.allAccess = (req, res) => {
-    res.status(200).send("Public Content.");
-};
-
-exports.userBoard = (req, res) => {
-    res.status(200).send("User Content.");
-};
-
-exports.adminBoard = (req, res) => {
-    res.status(200).send("Admin Content.");
-};
-
-exports.moderatorBoard = (req, res) => {
-    res.status(200).send("Moderator Content.");
-};
-
 // create new User in database (role is user if not specifying role)
 exports.signup = async (req, res) => {
     const user = new User({
@@ -121,7 +105,7 @@ exports.deleteUser = async (req, res) => {
         return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
-    
+
     // cancel all user transactions
     let transactions = [];
     try {
@@ -186,7 +170,13 @@ exports.editUser = async (req, res) => {
     }
     if (!user) return res.status(404).send("User not found.");
 
-    user.username = req.body.username;
+    let roles = [];
+    user.roles.map(role => roles.push(role.name));
+
+    // allow root to edit username only
+    if (roles.includes("root")) {
+        user.username = req.body.username;
+    }
     user.email = req.body.email;
     user.phone = req.body.phone;
     user.location = req.body.location;
@@ -194,10 +184,8 @@ exports.editUser = async (req, res) => {
         user.password = bcrypt.hashSync(req.body.password);
     }
 
-    // ==============
     // validate roles
-    // check if user is admin
-    if (user.role !== "user") {
+    if (req.body.roles) {
         // check if the data sent has roles
         if (req.body.roles.length > 0) {
             let roles = [];
@@ -217,6 +205,28 @@ exports.editUser = async (req, res) => {
             return res.status(400).send({ message: "Please add at least 1 role!" });
         }
     }
+
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "User updated succesfully!" });
+};
+
+exports.editInfo = async (req, res) => {
+    let user = null;
+    try {
+        user = await User.findById({ _id: req.params.id });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!user) return res.status(404).send("User not found.");
+
+    user.username = req.body.username;
+    user.email = req.body.email;
+    user.phone = req.body.phone;
+    user.location = req.body.location;
 
     try {
         await user.save();

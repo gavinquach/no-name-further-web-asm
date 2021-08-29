@@ -44,12 +44,12 @@ router.post("/user", [
     validate.checkRolesExisted
 ], controller.createUserWithRoles);
 
-// // User edit own's info 
-// router.patch("/user/edit/:id", [
-//     authJwt.verifyToken,
-//     authJwt.isUser,
-//     validate.checkDuplicateUsernameOrEmail
-// ], controller.editInfo);
+// User edit own's info 
+router.patch("/user/edit/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+    validate.checkDuplicateUsernameOrEmail
+], controller.editInfo);
 
 // User edit own's password 
 router.patch("/user/edit/password/:id", [
