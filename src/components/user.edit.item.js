@@ -330,16 +330,9 @@ export default class UserEditItem extends Component {
                 formData.append("files", file);
             });
 
-            const config = {
-                headers: {
-                    'content-type': 'multipart/form-data'
-                }
-            };
-
             ItemService.editItem(
                 this.props.match.params.id,
-                formData,
-                config
+                formData
             ).then(
                 response => {
                     this.setState({

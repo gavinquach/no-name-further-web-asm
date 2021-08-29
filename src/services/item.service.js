@@ -9,11 +9,11 @@ class ItemService {
         return axiosTokenHeader.get(API_URL + "/item/" + itemid);
     }
 
-    createItem(files, config) {
+    createItem(files) {
         return axiosFormData.post(API_URL + "/item", files);
     }
 
-    editItem(itemid, files, config) {
+    editItem(itemid, files) {
         return axiosFormData.put(API_URL + "/item/" + itemid, files);
     }
 
