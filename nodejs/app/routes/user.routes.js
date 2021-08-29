@@ -11,9 +11,23 @@ router.post("/signup", [
     controller.signup
 );
 
-// View all users 
+// View all users
 router.get("/users", [
-    authJwt.verifyToken
+    authJwt.verifyToken,
+    authJwt.canViewAdmins,
+    authJwt.canViewUsers
+], controller.viewAllUsers);
+
+// View all admins 
+router.get("/users/admin", [
+    authJwt.verifyToken,
+    authJwt.canViewAdmins
+], controller.viewAdmins);
+
+// View all non-admin users 
+router.get("/users/user", [
+    authJwt.verifyToken,
+    authJwt.canViewUsers
 ], controller.viewUsers);
 
 // get, edit, delete user with id as param

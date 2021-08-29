@@ -67,7 +67,7 @@ exports.createUserWithRoles = async (req, res) => {
     res.status(201).send({ message: "Admin created successfully!" });
 };
 
-exports.viewUsers = async (req, res) => {
+exports.viewAllUsers = async (req, res) => {
     try {
         const users = await User.find()
             .populate("roles", "-__v")
@@ -80,6 +80,58 @@ exports.viewUsers = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
+};
+
+exports.viewAdmins = async (req, res) => {
+    let users = [];
+    try {
+        users = await User.find()
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!users) return res.status(404).send({ message: "Users not found." });
+
+    const adminList = [];
+    for (const user of users) {
+        for (const role of user.roles) {
+            if (role.name !== "user") {
+                adminList.push(user);
+                break;
+            }
+        }
+    }
+
+    res.json(adminList);
+};
+
+exports.viewUsers = async (req, res) => {
+    let users = [];
+    try {
+        users = await User.find()
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!users) return res.status(404).send({ message: "Users not found." });
+
+    const userList = [];
+    for (const user of users) {
+        for (const role of user.roles) {
+            if (role.name === "user") {
+                userList.push(user);
+                break;
+            }
+        }
+    }
+
+    res.json(userList);
 };
 
 exports.viewOneUser = async (req, res) => {

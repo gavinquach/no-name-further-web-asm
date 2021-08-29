@@ -15,8 +15,16 @@ class UserService {
         });
     }
 
-    viewUsers() {
+    viewAllUsers() {
         return axiosTokenHeader.get(API_URL + "/users");
+    }
+
+    viewAdmins() {
+        return axiosTokenHeader.get(API_URL + "/users/admin");
+    }
+
+    viewUsers() {
+        return axiosTokenHeader.get(API_URL + "/users/user");
     }
 
     viewOneUser(id) {
