@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';  // n
 import { Component } from 'react';
 
 import AuthService from './services/auth.service';
+import UserService from './services/user.service';
 import AuthVerify from "./common/auth-verify";
 
 import AdminProtectedRoute from './common/admin-protected-route';
@@ -37,7 +38,57 @@ export default class App extends Component {
         super(props);
     }
 
-    logOut() {
+    // check if user is in database or whether their data is altered
+    // while they're still using the application and require re-login
+    // to refresh the data in localStorage
+    componentDidMount = async () => {
+        if (localStorage.getItem("user") !== null) {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            let user = null;
+
+            try {
+                await UserService.viewOneUser(currentUser.id)
+                    .then(response => {
+                        user = response.data;
+                    }, error => {
+                        this.logout();
+                    })
+            } catch (err) {
+                console.log(error);
+            }
+
+            if (!user) {
+                this.logOut();
+            } else {
+                if (user.username !== currentUser.username) {
+                    window.alert("Discrepency in user data detected, please log in again!");
+                    this.logOut();
+                    window.location.reload();
+                    return;
+                }
+                if (user.email !== currentUser.email) {
+                    window.alert("Discrepency in user data detected, please log in again!");
+                    this.logOut();
+                    window.location.reload();
+                    return;
+                }
+                if (user.phone !== currentUser.phone) {
+                    window.alert("Discrepency in user data detected, please log in again!");
+                    this.logOut();
+                    window.location.reload();
+                    return;
+                }
+                if (user.location[0] !== currentUser.location[0] || user.location[1] !== currentUser.location[1]) {
+                    window.alert("Discrepency in user data detected, please log in again!");
+                    this.logOut();
+                    window.location.reload();
+                    return;
+                }
+            }
+        }
+    }
+
+    logOut = () => {
         AuthService.logout();
     }
 
