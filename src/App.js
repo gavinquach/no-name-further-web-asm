@@ -11,26 +11,28 @@ import AuthVerify from "./common/auth-verify";
 import AdminProtectedRoute from './common/admin-protected-route';
 import UserProtectedRoute from './common/user-protected-route';
 
-import Home from "./Home"
-import Login from "./Login"
-import Signup from "./Signup"
-import NotFound from "./NotFound"
-import Cart from "./Cart"
-import Transactions from "./Transactions"
-import ItemDetails from './components/item.details';
-import UserProfile from './components/profile';
-import UserEditPassword from './components/profile.edit.password'
-import UserIndex from './components/user.index';
-import UserCreateItem from './components/user.create.item';
-import UserEditItem from './components/user.edit.item';
-import UserViewItem from './components/user.view.item';
-import AdminIndex from './components/admin.index';
-import AdminViewAdmin from './components/admin.view.admin';
-import AdminViewUser from './components/admin.view.user';
-import AdminCreateAdmin from './components/admin.create.admin';
-import AdminCreateUser from './components/admin.create.user';
-import AdminEditAdmin from './components/admin.edit.admin';
-import AdminEditUser from './components/admin.edit.user';
+import Home from './components/home';
+import Signup from './components/signup';
+import Login from './components/login';
+import ItemDetails from './components/Item/item.details';
+import Cart from './components/cart';
+import Transactions from './components/transaction';
+import NotFound from './components/notfound';
+import UserProfile from './components/UserProfile/user.profile';
+import UserEditPassword from './components/UserProfile/user.edit.password';
+import UserIndex from './components/User/user.index';
+import UserCreateItem from './components/User/user.create.item';
+import UserEditItem from './components/User/user.edit.item';
+import UserViewItem from './components/User/user.view.item';
+import AdminIndex from './components/Admin/admin.index';
+import AdminViewAdmin from './components/Admin/admin.view.admin';
+import AdminViewUser from './components/Admin/admin.view.user';
+import AdminCreateAdmin from './components/Admin/admin.create.admin';
+import AdminCreateUser from './components/Admin/admin.create.user';
+import AdminEditAdmin from './components/Admin/admin.edit.admin';
+import AdminEditUser from './components/Admin/admin.edit.user';
+import NavigationBar from './components/Navbar/NavigationBar';
+import Footer from './components/Footer/Footer'
 
 export default class App extends Component {
     constructor(props) {
@@ -44,6 +46,7 @@ export default class App extends Component {
     render = () => {
         return (
             <Router>
+            <NavigationBar/>
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route exact path="/signup" component={Signup} />
@@ -67,6 +70,7 @@ export default class App extends Component {
                     <Route component={NotFound} />
                 </Switch>
                 <AuthVerify logOut={this.logOut} />
+                <Footer/>
             </Router>
         );
     }

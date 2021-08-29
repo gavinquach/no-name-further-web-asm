@@ -1,0 +1,19 @@
+.type-menu {
+    display: grid;
+    grid-template-columns: repeat(7, auto);
+    grid-gap: 15vw;
+    list-style: none;
+    text-align: center;
+    width: 70vw;
+    justify-content: center;
+    margin: auto;
+    padding: auto; 
+}
+
+
+.type-links {
+    color: black;
+    text-decoration: none;
+    padding: 0.5rem 0.5rem;
+}
+

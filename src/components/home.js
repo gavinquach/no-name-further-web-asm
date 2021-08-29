@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 
-import AuthService from "./services/auth.service";
-import ItemService from "./services/item.service";
+import AuthService from "../services/auth.service";
+import ItemService from "../services/item.service";
 
-import NavigationBar from "./NavigationBar";
+import ItemTypes from "./ItemType/item.type.js"
+
 
 export default class Home extends Component {
     constructor(props) {
@@ -23,12 +24,9 @@ export default class Home extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
+               
                 <div className="container">
-                    <a href="cart">Cart</a>
-                    <br />
-                    <a href="transactions">Transactions</a>
-                    <br />
+                    <ItemTypes/>
                     <h3>All available listings</h3>
                     <br />
                     <br />

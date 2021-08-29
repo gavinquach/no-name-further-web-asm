@@ -5,13 +5,13 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
 
-import '../css/Profile.css';
+import '../../css/Profile.css';
 
-import NavigationBar from "../NavigationBar";
-import ProfileSideBar from "./ProfileSideBar"
+
+import ProfileSideBar from "./user.profile.sidebar"
 
 const required = value => {
     if (!value) {
@@ -238,7 +238,7 @@ export default class UserProfile extends Component {
         // const currentUser = AuthService.getCurrentUser();
         return (
             <div>
-                <NavigationBar />
+              
                 <div className="Flexbox">
                     <ProfileSideBar />
                     <div className="Right-content">

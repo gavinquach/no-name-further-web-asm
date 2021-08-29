@@ -4,8 +4,8 @@ import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { Redirect } from "react-router-dom";
 
-import NavigationBar from "./NavigationBar"
-import AuthService from './services/auth.service'
+
+import AuthService from '../services/auth.service'
 
 const required = value => {
     if (!value) {
@@ -86,8 +86,8 @@ export default class Login extends Component {
         }
         return (
             <div>
-                <NavigationBar />
-                <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '10em' }}>
+     
+                <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '7em', marginBottom: '7em' }}>
                     <h1 className="Big-text">Login</h1>
                     <br></br>
                     <Input

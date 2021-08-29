@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
-import AuthService from "../services/auth.service";
-import ItemService from "../services/item.service";
+import AuthService from "../../services/auth.service";
+import ItemService from "../../services/item.service";
 
-import NavigationBar from "../NavigationBar"
-import '../css/UserPages.css'
+
+import '../../css/UserPages.css'
 
 const manageAdmin = (
     <div className="Flexbox-item Center-text">
@@ -61,7 +61,6 @@ export default class AdminIndex extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
                 <h1 className="Center-text-header">Admin Panel</h1>
                 <br />
 

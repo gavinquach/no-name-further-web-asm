@@ -3,13 +3,13 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
 
-import '../css/Profile.css'
+import '../..//css/Profile.css'
 
-import NavigationBar from "../NavigationBar";
-import ProfileSideBar from "./ProfileSideBar";
+
+import ProfileSideBar from "./user.profile.sidebar";
 
 export default class UserEditPassword extends Component {
     constructor(props) {
@@ -143,7 +143,7 @@ export default class UserEditPassword extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
+               
                 <div className="Flexbox">
                     <ProfileSideBar />
                     <div className="Right-content">

@@ -1,17 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
-import { Redirect } from 'react-router-dom'
+
 
 import AuthService from "../services/auth.service";
-import UserService from '../services/user.service';
-
-import '../css/UserPages.css'
-
-import NavigationBar from "../NavigationBar"
+import UserService from "../services/user.service";
 
 const required = value => {
     if (!value) {
@@ -80,7 +77,7 @@ const showDistrictField = () => {
     }
 }
 
-export default class AdminCreateUser extends Component {
+export default class Signup extends Component {
     constructor(props) {
         super(props);
         this.handleRegister = this.handleRegister.bind(this);
@@ -100,10 +97,10 @@ export default class AdminCreateUser extends Component {
             phone: "",
             location: "",
             district: "",
-            password: '',
+            password: "",
             successful: false,
             message: ""
-        }
+        };
     }
 
     componentDidMount() {
@@ -112,7 +109,7 @@ export default class AdminCreateUser extends Component {
 
     getVietnamGeoData() {
         try {
-            fetch('/vn-geo.json', {
+            fetch('vn-geo.json', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -199,13 +196,13 @@ export default class AdminCreateUser extends Component {
         });
     }
 
-    onChangePassword = (e) => {
+    onChangePassword(e) {
         this.setState({
             password: e.target.value
         });
     }
 
-    handleRegister = (e) => {
+    handleRegister(e) {
         e.preventDefault();
 
         this.setState({
@@ -223,65 +220,81 @@ export default class AdminCreateUser extends Component {
                 location: [this.state.location, this.state.district],
                 password: this.state.password
             };
-            UserService.register(user).then(
-                response => {
-                    this.setState({
-                        message: response.data.message,
-                        successful: true
-                    });
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
+            UserService.register(user)
+                .then(
+                    response => {
+                        this.setState({
+                            message: response.data.message + " You will be logged in 3 seconds.",
+                            successful: true
+                        });
+                        setTimeout(() => {
+                            AuthService.login(this.state.username, this.state.password)
+                                .then(
+                                    () => {
+                                        this.props.history.push("/");
+                                    },
+                                    error => {
+                                        const resMessage =
+                                            (error.response &&
+                                                error.response.data &&
+                                                error.response.data.message) ||
+                                            error.message ||
+                                            error.toString();
 
-                    this.setState({
-                        successful: false,
-                        message: resMessage
-                    });
-                }
-            );
+                                        this.setState({
+                                            loading: false,
+                                            message: resMessage
+                                        });
+                                    }
+                                );
+                        }, 3000);
+                    },
+                    error => {
+                        const resMessage =
+                            (error.response &&
+                                error.response.data &&
+                                error.response.data.message) ||
+                            error.message ||
+                            error.toString();
+
+                        this.setState({
+                            successful: false,
+                            message: resMessage
+                        });
+                    }
+                );
         }
     }
 
     render() {
-        // redirect to home page when unauthorized user tries to view
-        if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_CREATE_USER")) {
-            return <Redirect to='/admin/index' />
+        if (AuthService.isLoggedIn()) {
+            return <Redirect to="/" />
         }
         return (
             <div>
-                <NavigationBar />
-                <a href="/admin/view/user" style={{ marginLeft: "15em" }}>
-                    <button className="Redirect-btn">View users</button>
-                </a>
-                <Form className="container" style={{ width: "30em" }} onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
-                    <h1 className="Big-text">Create user</h1>
-                    <br />
+              
+                <Form className="container" style={{ width: "30em",  marginTop: '7em', marginBottom: '7em' }} onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
+                    <h1 className="Big-text">Register</h1>
+                    <br></br>
                     <Input
                         id="username"
                         name="username"
                         className="Input"
                         type="text"
-                        placeholder="Username"
                         value={this.state.username}
                         onChange={this.onChangeUsername}
-                        validations={[required, vusername]}>
-                    </Input>
+                        validations={[required, vusername]}
+                        placeholder="Username" />
 
                     <Input
                         id="email"
                         name="email"
                         className="Input"
                         type="text"
-                        placeholder="Email"
                         value={this.state.email}
                         onChange={this.onChangeEmail}
-                        validations={[required, email]}>
-                    </Input>
+                        validations={[required, email]}
+                        placeholder="Email address" />
 
                     <Input
                         id="phone"
@@ -299,7 +312,7 @@ export default class AdminCreateUser extends Component {
                         className="Input"
                         onChange={this.onChangeLocation}
                         validations={[required]}>
-                        <option value="">Choose city</option>
+                        <option value="">Choose your city</option>
                         {
                             this.state.vnLocations.map(location =>
                                 <option key={location.city}>{location.city}</option>
@@ -315,7 +328,7 @@ export default class AdminCreateUser extends Component {
                             value={this.state.district}
                             onChange={this.onChangeDistrict}
                             validations={[required]}>
-                            <option value="">Choose district</option>
+                            <option value="">Choose your district</option>
                             {
                                 this.state.districts.map(name =>
                                     <option key={name}>{name}</option>
@@ -329,24 +342,28 @@ export default class AdminCreateUser extends Component {
                         name="password"
                         className="Input"
                         type="password"
-                        placeholder="Password"
                         value={this.state.password}
                         onChange={this.onChangePassword}
-                        validations={[required, vpassword]}>
-                    </Input>
+                        validations={[required, vpassword]}
+                        placeholder="Password" />
 
-                    <button className="Create-btn">Create user</button>
+                    <button className="Create-btn">
+                        Sign up
+                    </button>
 
                     {this.state.message && (
                         <div className="form-group">
-                            <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
+                            <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"}
+                                role="alert">
                                 {this.state.message}
                             </div>
                         </div>
                     )}
                     <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
+
+                    <p>By signing up you agree to the <a style={{ textDecoration: 'underline' }} href="#">terms of service</a>.</p>
                 </Form>
             </div>
-        )
+        );
     }
 }

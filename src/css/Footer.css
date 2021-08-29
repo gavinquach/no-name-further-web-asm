@@ -1,0 +1,59 @@
+.main-footer {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    color: white;
+    background-color: #284b63;
+    padding-top: 5px;
+    margin-top: 10px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.fa-facebook-square {
+    color: white;
+    font-size: 30px;
+    padding-bottom: 10px;
+}
+
+.policy {
+    display: inline-block;
+    padding-bottom: 10px;
+    color: white;
+}
+
+.col {
+    display: inline-block;
+    padding: 30px;
+}
+
+#description {
+    padding: 30px;
+    font-size: 15px;
+}
+
+#tag {
+    padding-left: 40px;
+    background-color: #09743b;
+    font-size: 15px;
+    color: white;
+}
+
+@media screen and (max-width: 760px) {
+    .main-footer {
+        display: inline-block;
+        column-gap: 20px;
+        color: white;
+        background-color: #284b63;
+        ;
+        padding-top: 5px;
+        margin-top: 10px;
+        position: relative;
+        bottom: 0;
+        width: 100%;
+    }
+    .col {
+        padding: 10px;
+        padding-left: 30px;
+    }
+}
