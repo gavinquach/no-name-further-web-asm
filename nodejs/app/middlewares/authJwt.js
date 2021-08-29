@@ -19,6 +19,39 @@ verifyToken = (req, res, next) => {
     });
 };
 
+// validate whether the person sending the request is a user
+isUser = async (req, res, next) => {
+    let user = null;
+    try {
+        user = await User.findById(req.userId).populate("roles", "-__v").exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
+    next();
+};
+
+// validate whether the person sending the request is an admin with any admin role
+isAdmin = async (req, res, next) => {
+    let user = null;
+    try {
+        user = await User.findById(req.userId).populate("roles", "-__v").exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
+
+    const adminRoles = model.ROLES.filter(role => role != "user");
+    for (const role of user.roles) {// check if client is regular user or root
+        if (role.name == "user") {
+            return res.status(403).send({ message: "Require admin access!" });
+        }
+        if (adminRoles.includes(role.name)) {
+            next();
+        }
+    }
+};
+
 // validate whether the person sending the request is admin
 isValidAdmin = (requiredRole) => {
     return validateAdmin = async (req, res, next) => {
@@ -29,7 +62,7 @@ isValidAdmin = (requiredRole) => {
             return res.status(500).send({ message: err });
         }
         if (!user) return res.status(404).send({ message: "User not found." });
-    
+
         let isRoot = false;
         const adminRoles = model.ROLES.filter(role => role != "user");
         for (const role of user.roles) {
@@ -61,8 +94,62 @@ isValidAdmin = (requiredRole) => {
     };
 }
 
+// validate whether the person sending the request has any of the CRUD admin roles
+canViewAdmins = async (req, res, next) => {
+    let user = null;
+    try {
+        user = await User.findById(req.userId).populate("roles", "-__v").exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
+
+    let roles = [];
+    user.roles.map((role => roles.push(role.name)));
+    if (!roles.includes("root")
+        && !roles.includes("view_admin")
+        && !roles.includes("create_admin")
+        && !roles.includes("edit_admin")
+        && !roles.includes("delete_admin")
+    ) {
+        return res.status(403).send({
+            message: "You don't have the correct admin permission to access this resource!"
+        });
+    }
+    next();
+};
+
+// validate whether the person sending the request has any of the CRUD user roles
+canViewUsers = async (req, res, next) => {
+    let user = null;
+    try {
+        user = await User.findById(req.userId).populate("roles", "-__v").exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
+
+    let roles = [];
+    user.roles.map((role => roles.push(role.name)));
+    if (!roles.includes("root")
+        && !roles.includes("view_user")
+        && !roles.includes("create_user")
+        && !roles.includes("edit_user")
+        && !roles.includes("delete_user")
+    ) {
+        return res.status(403).send({
+            message: "You don't have the correct admin permission to access this resource!"
+        });
+    }
+    next();
+};
+
 const authJwt = {
     verifyToken,
-    isValidAdmin
+    isUser,
+    isAdmin,
+    isValidAdmin,
+    canViewAdmins,
+    canViewUsers
 };
 module.exports = authJwt;
