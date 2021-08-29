@@ -4,6 +4,8 @@ import { Link, Redirect } from 'react-router-dom'
 import NavigationBar from "../NavigationBar"
 
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
+import ItemService from "../services/item.service";
 
 export default class UserViewItem extends Component {
     constructor(props) {
@@ -17,7 +19,7 @@ export default class UserViewItem extends Component {
     }
 
     load = () => {
-        AuthService.viewUserItems(
+        UserService.viewUserItems(
             AuthService.getCurrentUser().id
         ).then(response => {
             // console.log(response.data);
@@ -33,7 +35,7 @@ export default class UserViewItem extends Component {
 
     delete = (item) => {
         if (window.confirm("Are you sure you want to delete listing " + item.name + "?")) {
-            AuthService.deleteItem(item._id)
+            ItemService.deleteItem(item._id)
                 .then(
                     response => {
                         this.setState({

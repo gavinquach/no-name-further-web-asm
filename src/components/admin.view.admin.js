@@ -5,6 +5,7 @@ import AdminTableRow from './ViewAdminTableRow';
 import NavigationBar from "../NavigationBar"
 
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 
 export default class AdminViewAdmin extends Component {
     constructor(props) {
@@ -13,7 +14,7 @@ export default class AdminViewAdmin extends Component {
     }
 
     load = () => {
-        AuthService.viewUsers().then(response => {
+        UserService.viewUsers().then(response => {
             // console.log(response.data);
             this.setState({ users: response.data });
         })

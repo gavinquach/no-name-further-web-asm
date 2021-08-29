@@ -1,23 +1,7 @@
 import axios from "axios";
-
-const API_URL = process.env.REACT_APP_NODEJS_URL + "api/auth/";
+const API_URL = require("./index");
 
 class AuthService {
-    login(username, password) {
-        return axios
-            .post(API_URL + "login", {
-                username,
-                password
-            })
-            .then(response => {
-                if (response.data.accessToken) {
-                    localStorage.setItem("user", JSON.stringify(response.data));
-                }
-
-                return response.data;
-            });
-    }
-
     logout() {
         localStorage.removeItem("user");
     }
@@ -108,148 +92,20 @@ class AuthService {
         if (this.isLoggedIn() && !this.isAdmin()) { return true; }
         else { return false; }
     }
+    
+    login(username, password) {
+        return axios
+            .post(API_URL + "/login", {
+                username,
+                password
+            })
+            .then(response => {
+                if (response.data.accessToken) {
+                    localStorage.setItem("user", JSON.stringify(response.data));
+                }
 
-    viewUsers() {
-        return axios.get(API_URL + "view/users");
-    }
-
-    viewOneUser(id) {
-        return axios.get(API_URL + "view/user/" + id);
-    }
-
-    deleteUser(id) {
-        return axios.get(API_URL + "delete/user/" + id);
-    }
-
-    editUser(id, username, email, phone, location, password, roles) {
-        return axios.post(API_URL + "edit/user/" + id, {
-            username,
-            email,
-            phone,
-            location,
-            password,
-            roles
-        });
-    }
-
-    register(user) {
-        return axios.post(API_URL + "signup", user);
-    }
-
-    registerWithRoles(username, email, password, roles) {
-        return axios.post(API_URL + "signupWithRoles", {
-            username,
-            email,
-            password,
-            roles
-        });
-    }
-
-    // uploadImage(name, size, type, upload_date, data_url, item) {
-    //     return axios.post(API_URL + "add/image", {
-    //         name,
-    //         size,
-    //         type,
-    //         upload_date,
-    //         data_url,
-    //         item
-    //     });
-    // }
-
-    // getImage(imgId) {
-    //     return axios.get(API_URL + "view/img/" + imgId);
-    // }
-
-    viewAllItems() {
-        return axios.get(API_URL + "view/items");
-    }
-
-    viewUserItems(userid) {
-        return axios.get(API_URL + "view/user/items/" + userid);
-    }
-
-    viewOneItem(itemid) {
-        return axios.get(API_URL + "view/item/" + itemid);
-    }
-
-    // old code (storing image base64 URL on database)
-    // createItem(username, itemObj, imgList) {
-    //     return axios.post(API_URL + "add/item", {
-    //         username, itemObj, imgList
-    //     });
-    // }
-
-    // editItem(itemid, itemObj, oldImgList, newImgList) {
-    //     return axios.post(API_URL + "edit/item/" + itemid, {
-    //         itemid, itemObj, oldImgList, newImgList
-    //     });
-    // }
-
-    createItem(files, config) {
-        return axios.post(API_URL + "add/item", files, config);
-    }
-    editItem(itemid, files, config) {
-        return axios.post(API_URL + "edit/item/" + itemid, files, config);
-    }
-
-    deleteItem(id) {
-        return axios.get(API_URL + "delete/item/" + id);
-    }
-
-    editPassword(id, oldpassword, newpassword) {
-        return axios.post(API_URL + "user/edit/password/" + id, {
-            oldpassword,
-            newpassword
-        });
-    }
-
-    addItemToCart(itemid, userid) {
-        return axios.post(API_URL + "addtocart", {
-            itemid,
-            userid
-        });
-    }
-
-    deleteItemFromCart(itemid, userid) {
-        return axios.post(API_URL + "deletefromcart/" + itemid, {
-            userid
-        });
-    }
-
-    createTransaction(itemid, userid) {
-        return axios.post(API_URL + "add/transaction", {
-            itemid,
-            userid
-        });
-    }
-
-    deleteTransaction(id) {
-        return axios.get(API_URL + "delete/transaction/" + id);
-    }
-
-    cancelTransaction(itemid, userid) {
-        return axios.post(API_URL + "cancel/transaction", {
-            itemid,
-            userid
-        });
-    }
-
-    getTransactionsByBuyer(userid) {
-        return axios.get(API_URL + "view/transactions/buyer/" + userid);
-    }
-    getTransactionsBySeller(userid) {
-        return axios.get(API_URL + "view/transactions/seller/" + userid);
-    }
-    getTransactionsByItem(itemid) {
-        return axios.get(API_URL + "view/transactions/item/" + itemid);
-    }
-
-    uploadSingleImage(file, config) {
-        return axios.post(API_URL + "upload-single", file, config);
-    }
-
-    uploadMultipleImages(files, config) {
-        return axios.post(API_URL + "upload-multiple", files, config);
+                return response.data;
+            });
     }
 }
 

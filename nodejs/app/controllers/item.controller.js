@@ -2,262 +2,351 @@ const model = require("../models");
 const Image = model.image;
 const Item = model.item;
 const ItemCategory = model.itemCategory;
+const Transaction = model.transaction;
 const User = model.user;
 
 const img = require("../config/img.config");
 const fs = require("fs");
+const uploadFile = require("../middlewares/storeImage");
 
 exports.createItem = async (req, res) => {
+    try {
+        await uploadFile.multiple(req, res);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
     // validate username
     if (!req.body.userid) return res.status(500).send({ message: "Invalid user." });
 
+    let user = null;
+
     // find username in database to see if it exists
-    User.findById(req.body.userid).exec((err, user) => {
-        if (err) return res.status(500).send({ message: err });
-        if (!user) return res.status(404).send({ message: "User not found." });
+    try {
+        user = await User.findById(req.body.userid).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
 
-        ItemCategory.find().exec((err, categories) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!categories) return res.status(404).send({ message: "Item categories not found!" });
+    let categories = [];
+    try {
+        categories = await ItemCategory.find().exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!categories) return res.status(404).send({ message: "Item categories not found!" });
 
-            let itemType = null;
-            let forItemType = null;
-            categories.map(category => {
-                if (category.name === req.body.type) {
-                    itemType = category._id;
-                } else if (category.name === req.body.forItemType) {
-                    forItemType = category._id;
-                }
-            });
-
-            if (itemType === null || forItemType === null) {
-                return res.status(404).send({ message: "Invalid item category." });
-            }
-
-            // create item object from array passed through
-            const date = new Date();
-            const item = new Item({
-                name: req.body.name,
-                quantity: req.body.quantity,
-                type: itemType,
-                images: [],
-                forItemName: req.body.forItemName,
-                forItemQty: req.body.forItemQty,
-                forItemType: forItemType,
-                seller: user._id,
-                upload_date: date,
-                last_update: date
-            });
-
-            // validate files
-            if (req.files.length <= 0) {
-                return res.status(401).send("You must upload at least 1 file.");
-            }
-            if (req.files == undefined) {
-                return res.status(404).send({ message: "Incorrect file type or file not found" });
-            }
-
-            // create list of image objects from the array passed through
-            const images = [];
-            req.files.map((image, index) => {
-                images.push(new Image({
-                    name: image.filename,
-                    size: image.size,
-                    type: image.mimetype,
-                    item: item._id,
-                    cover: req.body.coverIndexes[index]
-                }));
-            })
-
-            // add images to database
-            images.map(image => {
-                image.save(err => {
-                    if (err) return res.status(500).send({ message: err });
-                });
-                // add image id to item's list of images
-                item.images.push(image._id);
-            })
-
-            // add item to database
-            item.save(err => {
-                if (err) return res.status(500).send({ message: err });
-
-                user.items.push(item._id);
-                user.save(err => {
-                    if (err) return res.status(500).send({ message: err });
-                });
-
-                res.send({ message: "Item created successfully!" });
-            });
-        });
+    const itemObj = JSON.parse(req.body.item);
+    let itemType = null;
+    let forItemType = null;
+    categories.map(category => {
+        if (category.name === itemObj.type) {
+            itemType = category._id;
+        }
+        if (category.name === itemObj.forItemType) {
+            forItemType = category._id;
+        }
     });
+
+    if (itemType === null || forItemType === null) {
+        return res.status(404).send({ message: "Invalid item category." });
+    }
+
+    // create item object from array passed through
+    const date = new Date();
+    const item = new Item({
+        name: itemObj.name,
+        quantity: itemObj.quantity,
+        type: itemType,
+        images: [],
+        forItemName: itemObj.forItemName,
+        forItemQty: itemObj.forItemQty,
+        forItemType: forItemType,
+        seller: user._id,
+        upload_date: date,
+        last_update: date
+    });
+
+    // ======================== validate images ========================
+    if (req.files === undefined) {
+        return res.status(404).send({ message: "Incorrect file type or file not found!" });
+    }
+    let newImages = { coverCount: 0, normalCount: 0 };
+    const parsedCoverIndexes = JSON.parse(req.body.coverIndexes);
+
+    parsedCoverIndexes.map(isCover => {
+        if (isCover) newImages.coverCount++;
+        else newImages.normalCount++;
+    });
+
+    if (newImages.coverCount + newImages.normalCount != req.files.length) {
+        return res.status(500).send({ message: "Error processing images, please re-upload them and try again." });
+    }
+
+    if (newImages.coverCount + newImages.normalCount < 1) {
+        return res.status(400).send({ message: "Please upload at least 1 cover and 1 item image!" });
+    }
+    if (newImages.coverCount > 1) {
+        return res.status(400).send({ message: "Invalid amount of cover images!" });
+    }
+    if (newImages.coverCount < 1) {
+        return res.status(400).send({ message: "Please upload at least 1 cover image!" });
+    }
+    if (newImages.normalCount < 1) {
+        return res.status(400).send({ message: "Please upload at least 1 item image!" });
+    }
+    // ======================== end of validate images ========================
+
+    // create list of image objects from the array passed through
+    const images = [];
+    req.files.map((image, index) => {
+        images.push(new Image({
+            name: image.filename,
+            size: image.size,
+            type: image.mimetype,
+            item: item._id,
+            cover: parsedCoverIndexes[index]
+        }));
+    });
+
+    // add images to database
+    images.map(async image => {
+        try {
+            image.save();
+        } catch (err) {
+            if (err) return res.status(500).send(err);
+        }
+
+        // add image id to item's list of images
+        item.images.push(image._id);
+    });
+
+    // add item to database
+    try {
+        item.save();
+    } catch (err) {
+        if (err) return res.status(500).send(err);
+    }
+
+    // add items to user items field
+    user.items.push(item._id);
+
+    // update user
+    try {
+        user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    res.send({ message: "Item created successfully!" });
 };
 
 exports.editItem = async (req, res) => {
-    Item.findById(req.params.id)
-        .populate("type", "-__v")
-        .populate("forItemType", "-__v")
-        .exec(function (err, item) {
-            if (err) return res.status(500).send({ message: err });
-            if (!item) return res.status(404).send({ message: "Item not found!" });
+    try {
+        await uploadFile.multiple(req, res);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
 
-            const itemObj = JSON.parse(req.body.item);
+    let item = null;
+    try {
+        item = await Item.findById(req.params.id)
+            .populate("type", "-__v")
+            .populate("forItemType", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!item) return res.status(404).send({ message: "Item not found!" });
 
-            ItemCategory.find().exec((err, categories) => {
-                if (err) return res.status(500).send({ message: err });
-                if (!categories) return res.status(404).send({ message: "Item categories not found!" });
+    let categories = [];
+    try {
+        categories = await ItemCategory.find().exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (categories.length < 1) return res.status(404).send({ message: "Item categories not found!" });
 
-                let itemType = null;
-                let forItemType = null;
-                categories.map(category => {
-                    if (category.name === itemObj.type) {
-                        itemType = category._id;
-                    } else if (category.name === itemObj.forItemType) {
-                        forItemType = category._id;
-                    }
-                });
+    const itemObj = JSON.parse(req.body.item);
+    let itemType = null;
+    let forItemType = null;
+    categories.map(category => {
+        if (category.name === itemObj.type) {
+            itemType = category._id;
+        }
+        if (category.name === itemObj.forItemType) {
+            forItemType = category._id;
+        }
+    });
 
-                if (itemType === null || forItemType === null) {
-                    return res.status(404).send({ message: "Invalid item category." });
-                }
+    if (itemType === null || forItemType === null) {
+        return res.status(400).send({ message: "Invalid item category." });
+    }
 
-                const date = new Date();
-                // update item data
-                item.name = itemObj.name;
-                item.quantity = itemObj.quantity;
-                item.type = itemType;
-                item.forItemName = itemObj.forItemName;
-                item.forItemQty = itemObj.forItemQty;
-                item.forItemType = forItemType;
-                item.last_update = date;
+    // ======================== validate images ========================
+    if (req.files === undefined) {
+        return res.status(404).send({ message: "Incorrect file type or file not found!" });
+    }
 
-                // validate files
-                if (req.files == undefined) {
-                    return res.status(404).send({ message: "Incorrect file type or file not found" });
-                }
+    let currentImages = { coverCount: 0, normalCount: 0 };
+    for (const imageid of item.images) {
+        const image = await Image.findById(imageid).exec();
+        if (image.cover) currentImages.coverCount++;
+        else currentImages.normalCount++;
+    };
 
+    let removedImages = { coverCount: 0, normalCount: 0 };
+    const parsedRemovedImages = JSON.parse(req.body.removedImages);
+    parsedRemovedImages.map(image => {
+        if (image.cover) removedImages.coverCount++;
+        else removedImages.normalCount++;
+    });
 
-                // create list of image objects
-                const images = [];
-                req.files.map((image, index) => {
-                    images.push(new Image({
-                        name: image.filename,
-                        size: image.size,
-                        type: image.mimetype,
-                        item: item._id,
-                        cover: JSON.parse(req.body.coverIndexes)[index]
-                    }));
-                })
+    let newImages = { coverCount: 0, normalCount: 0 };
+    const parsedCoverIndexes = JSON.parse(req.body.coverIndexes);
 
-                // remove old images from database and files
-                if (req.body.oldImages) {
-                    if (Array.isArray(req.body.oldImages)) {
-                        req.body.oldImages.map(oldImage => {
-                            const parsedImage = JSON.parse(oldImage);
+    parsedCoverIndexes.map(isCover => {
+        if (isCover) newImages.coverCount++;
+        else newImages.normalCount++;
+    });
 
-                            const path = img.path.concat(parsedImage.name)
-                            fs.unlink(path, (err) => {
-                                // if (err) return res.status(500).send({ message: err });
-                            });
+    if (newImages.coverCount + newImages.normalCount != req.files.length) {
+        return res.status(500).send({ message: "Error processing images, please re-upload them and try again." });
+    }
 
-                            // remove images from item database
-                            const imageIndex = item.images.indexOf(parsedImage._id);
-                            if (imageIndex > -1) {
-                                item.images.splice(imageIndex, 1);
-                            }
+    const finalImages = {
+        coverCount: currentImages.coverCount - removedImages.coverCount + newImages.coverCount,
+        normalCount: currentImages.normalCount - removedImages.normalCount + newImages.normalCount
+    }
 
-                            Image.deleteOne({ _id: parsedImage._id }, function (err, image) {
-                                // if (err) return res.status(500).send({ message: err });
-                                // if (!image) return res.status(404).send({ message: "Image not found." });
-                            });
-                        });
-                    } else {
-                        const parsedImage = JSON.parse(req.body.oldImages);
+    if (finalImages.coverCount + finalImages.normalCount < 1) {
+        return res.status(400).send({ message: "Please upload at least 1 cover and 1 item image!" });
+    }
+    if (finalImages.coverCount < 1) {
+        return res.status(400).send({ message: "Please upload at least 1 cover image!" });
+    }
+    if (finalImages.normalCount < 1) {
+        return res.status(400).send({ message: "Please upload at least 1 item image!" });
+    }
+    // ======================== end of validate images ========================
 
-                        const path = img.path.concat(parsedImage.name)
-                        fs.unlink(path, (err) => {
-                            // if (err) return res.status(500).send({ message: err });
-                        })
+    // create list of image objects
+    const images = [];
+    req.files.map((image, index) => {
+        images.push(new Image({
+            name: image.filename,
+            size: image.size,
+            type: image.mimetype,
+            item: item._id,
+            cover: parsedCoverIndexes[index]
+        }));
+    });
 
-                        // remove images from item database
-                        const imageIndex = item.images.indexOf(parsedImage._id);
-                        if (imageIndex > -1) {
-                            item.images.splice(imageIndex, 1);
-                        }
-
-                        Image.deleteOne({ _id: parsedImage._id }, function (err, image) {
-                            // if (err) return res.status(500).send({ message: err });
-                            // if (!image) return res.status(404).send({ message: "Image not found." });
-                        });
-                    }
-                }
-
-                // add new images to database
-                images.map(image => {
-                    image.save(err => {
-                        if (err) {
-                            // return res.status(500).send({ message: err })
-                        };
-                    });
-                    // add image id to item's list of images
-                    item.images.push(image._id);
-                });
-
-                // update item in database
-                item.save(err => {
-                    if (err) return res.status(500).send({ message: err });
-                    res.send({ message: "Item updated successfully!" });
-                });
-            });
+    // remove old images from database and files
+    parsedRemovedImages.map(image => {
+        fs.unlink(img.path.concat(image.name), err => {
+            // if (err) return res.status(500).send(err);
         });
+
+        // remove images from item database
+        const imageIndex = item.images.indexOf(image._id);
+        if (imageIndex > -1) {
+            item.images.splice(imageIndex, 1);
+        }
+
+        Image.deleteOne({ _id: image._id });
+    });
+
+    // assign item data to the sent request
+    item.name = itemObj.name;
+    item.quantity = itemObj.quantity;
+    item.type = itemType;
+    item.forItemName = itemObj.forItemName;
+    item.forItemQty = itemObj.forItemQty;
+    item.forItemType = forItemType;
+    item.last_update = new Date();
+
+    // add new images to database
+    images.map(async image => {
+        image.save();
+        // add image id to item's list of images
+        item.images.push(image._id);
+    });
+
+    // update item in database
+    try {
+        await item.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "Item updated successfully!" });
 };
 
 exports.deleteItem = async (req, res) => {
     const itemId = req.params.id;
-    Item.findById(itemId, function (err, item) {
-        if (err) return res.status(500).send({ message: err });
-        if (!item) return res.status(404).send({ message: "Item not found." });
+    let item = null;
+    try {
+        item = await Item.findById(itemId)
+            .populate("images", "-__v")
+            .populate("seller", "-__v")
+            .exec()
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!item) return res.status(404).send({ message: "Item not found." });
 
-        // remove images related to item
-        item.images.map(id => {
-            Image.findById(id, function (err, image) {
-                // if (err) return res.status(500).send({ message: err });
-                // if (!image) return res.status(404).send({ message: "Image not found." });
-
-                if (image) {
-                    fs.unlink(img.path.concat(image.name), (err) => {
-                        // if (err) return res.status(500).send({ message: err });
-                    });
-                }
-            });
-
-            Image.deleteOne({ _id: id }, (err, deleted) => {
-                // if (err) return res.status(500).send({ message: err });
-                // if (!deleted) return res.status(404).send({ message: "Image not found." });
-            });
+    // remove images related to item
+    item.images.map(image => {
+        fs.unlink(img.path.concat(image.name), err => {
+            // if (err) return res.status(500).send(err);
         });
-
-        // get user from item seller id
-        User.findById(item.seller)
-            .exec((err, user) => {
-                if (err) return res.status(500).send({ message: err });
-                if (!user) return res.status(404).send({ message: "User not found." });
-
-                // remove item from user items array
-                user.items.splice(user.items.indexOf(item._id), 1);
-                user.save(err => {
-                    if (err) return res.status(500).send({ message: err });
-
-                    // finally, remove item from database
-                    Item.findByIdAndRemove({
-                        _id: itemId
-                    }, function (err, item) {
-                        if (err) return res.status(500).send({ message: err });
-                        res.json('Item successfully removed');
-                    });
-                });
-            });
+        Image.deleteOne({ _id: image.id });
     });
+
+    const user = item.seller;
+
+    // remove item from user items array
+    const index = user.items.indexOf(itemId);
+    if (index > -1) user.items.splice(index, 1);
+
+    // update user on database
+    try {
+        user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // ============= cancel all transactions with item =============
+    let transactions = [];
+    try {
+        transactions = await Transaction.find({
+            item: itemId, status: "Pending"
+        }).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!transactions) return res.status(401).send({ message: "Transaction not found." });
+
+    // set status of all transactions of item to cancelled
+    transactions.map(async transaction => {
+        try {
+            transaction.status = "Cancelled";
+            transaction.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    });
+    
+    // ============= end of cancel all transactions with item =============
+
+    // finally, remove item from database
+    try {
+        await Item.deleteOne({ _id: itemId });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "Item successfully removed" });
 };
 
 exports.getItem = async (req, res) => {
@@ -268,30 +357,10 @@ exports.getItem = async (req, res) => {
         .populate("forItemType", "-__v")
         .populate("images", "-__v")
         .populate("seller", "-__v")
-        .exec(function (err, item) {
-            if (err) return res.status(500).send({ message: err });
+        .exec((err, item) => {
+            if (err) return res.status(500).send(err);
             if (!item) return res.status(404).send({ message: "Item not found." });
             res.json(item);
-        });
-};
-
-exports.getUserItems = async (req, res) => {
-    Item.find()
-        .populate("type", "-__v")
-        .populate("forItemType", "-__v")
-        .populate("images", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, items) => {
-            if (err) return res.status(500).send({ message: err });
-            if (!items) return res.status(404).send({ message: "Item not found." });
-
-            const userItems = [];
-            items.map(item => {
-                if (item.seller._id == req.params.id) {
-                    userItems.push(item);
-                }
-            });
-            res.json(userItems);
         });
 };
 
@@ -302,7 +371,7 @@ exports.getAllItems = async (req, res) => {
         .populate("images", "-__v")
         .populate("seller", "-__v")
         .exec((err, items) => {
-            if (err) return res.status(500).send({ message: err });
+            if (err) return res.status(500).send(err);
             if (!items) return res.status(404).send({ message: "Item not found." });
             res.json(items);
         });

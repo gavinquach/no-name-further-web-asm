@@ -47,19 +47,22 @@
 
 const img = require("../config/img.config");
 const fs = require("fs");
+const uploadFile = require("../middlewares/storeImage");
 
 exports.uploadSingle = async (req, res) => {
     try {
+        await uploadFile.single(req, res);
+
         if (req.file == undefined) {
             return res.status(404).send({ message: "Incorrect file type or file not found" });
         }
 
-        res.status(200).send({
+        res.status(201).send({
             message: "File uploaded successfully: " + req.file.originalname,
         });
     } catch (err) {
         if (err.code == "LIMIT_FILE_SIZE") {
-            return res.status(500).send({
+            return res.status(400).send({
                 message: `File size cannot be larger than ${img.maxSize / (1024 * 1024)} MB!`,
             });
         }
@@ -72,23 +75,24 @@ exports.uploadSingle = async (req, res) => {
 
 exports.uploadMultiple = async (req, res) => {
     try {
+        await uploadFile.multiple(req, res);
+
         if (req.files.length <= 0) {
             return res.send("You must upload at least 1 file.");
         }
-
         if (req.files == undefined) {
             return res.status(404).send({ message: "Incorrect file type or file not found" });
         }
 
-        res.status(200).send({ message: "Files uploaded successfully." });
+        res.status(201).send({ message: "Files uploaded successfully." });
     } catch (err) {
         if (err.code == "LIMIT_FILE_SIZE") {
-            return res.status(500).send({
+            return res.status(400).send({
                 message: `File size cannot be larger than ${img.maxSize / (1024 * 1024)} MB!`,
             });
         }
         if (err.code === "LIMIT_UNEXPECTED_FILE") {
-            return res.send("Max number of file upload exceeded!");
+            return res.status(400).send("Exceeded max number of files allowed!");
         }
 
         res.status(500).send({
@@ -98,12 +102,11 @@ exports.uploadMultiple = async (req, res) => {
 };
 
 exports.getListFiles = async (req, res) => {
-    fs.readdir(img.path, function (err, files) {
+    fs.readdir(img.path, (err, files) => {
         if (err) return res.status(500).send({ message: "Unable to scan files!", });
         if (!files) return res.status(404).send({ message: "Files not found." });
 
         let fileInfos = [];
-
         files.forEach((file) => {
             fileInfos.push({
                 name: file,

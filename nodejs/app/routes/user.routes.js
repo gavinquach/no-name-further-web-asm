@@ -3,24 +3,48 @@ const { validate } = require("../middlewares");
 const router = require("../routes");
 const authJwt = require("../middlewares/authJwt")
 
-// router.get("/view/users", controller.viewUsers);
-router.get("/view/users", controller.viewUsers);
-router.get("/view/user/:id", controller.viewOneUser);
-
-router.post("/edit/user/:id", [
-    validate.validateError,
-    validate.userValidationRules,
-    validate.checkDuplicateUsernameOrEmail
-],
-    controller.editUser
+router.post("/signup", [
+        validate.validateError,
+        validate.userValidationRules,
+        validate.checkDuplicateUsernameOrEmail,
+        validate.checkRolesExisted
+    ],
+    controller.signup
 );
 
-router.get("/delete/user/:id", controller.deleteUser);
+router.post("/signup-with-roles", [
+        validate.validateError,
+        validate.userValidationRules,
+        validate.checkDuplicateUsernameOrEmail,
+        validate.checkRolesExisted
+    ],
+    controller.createUserWithRoles
+);
 
-router.post("/user/edit/password/:id", controller.editPassword);
+// View all users 
+router.get("/users",controller.viewUsers);
 
-router.post("/addtocart", controller.addItemToCart);
-router.post("/deletefromcart/:id", controller.deleteItemFromCart);
+// CRUD user with id as param
+router
+    .route("/user/:id")
+    .get(controller.viewOneUser)
+    .delete(controller.deleteUser)
+    .put([
+        validate.validateError,
+        validate.userValidationRules,
+        validate.checkDuplicateUsernameOrEmail
+    ], controller.editUser);
+
+// Edit user password 
+router.patch("/user/password/:id", controller.editPassword);
+
+// add and delete item from cart
+router.post("/user/cart", controller.addItemToCart);
+router.put("/user/cart/:id", controller.deleteItemFromCart);
+
+// get user cart and items
+router.post("/user/cart/view", controller.getUserCart);
+router.get("/user/items/:id", controller.getUserItems);
 
 // router.get("/api/test/all", controller.allAccess);
 // router.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);

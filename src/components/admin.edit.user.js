@@ -8,6 +8,7 @@ import { isEmail } from "validator";
 import NavigationBar from "../NavigationBar"
 
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 
 const required = value => {
     if (!value) {
@@ -109,7 +110,7 @@ export default class AdminEditUser extends Component {
 
     delete = () => {
         if (window.confirm("Are you sure you want to delete user " + this.state.username + "?")) {
-            AuthService.deleteUser(this.props.match.params.id)
+            UserService.deleteUser(this.props.match.params.id)
                 .then(
                     response => {
                         this.setState({
@@ -139,7 +140,7 @@ export default class AdminEditUser extends Component {
 
     // get user info and assign to input fields
     componentDidMount() {
-        AuthService.viewOneUser(this.props.match.params.id)
+        UserService.viewOneUser(this.props.match.params.id)
             .then(response => {
                 let isUser = false;
                 const role_names = [];
@@ -170,7 +171,12 @@ export default class AdminEditUser extends Component {
 
     getVietnamGeoData = () => {
         try {
-            fetch("http://puu.sh/I27Xh/7c252db895.json")
+            fetch('/vn-geo.json', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
                 .then(response => response.json())
                 .then(jsonData => {
                     this.setState({ data: jsonData.data }, () => this.getVietnamLocations());
@@ -281,7 +287,7 @@ export default class AdminEditUser extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            AuthService.editUser(
+            UserService.editUser(
                 this.props.match.params.id,
                 this.state.username,
                 this.state.email,
