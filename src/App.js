@@ -61,25 +61,25 @@ export default class App extends Component {
                 this.logOut();
             } else {
                 if (user.username !== currentUser.username) {
-                    window.alert("Discrepency in user data detected, please log in again!");
+                    window.alert("Discrepancy in user data detected, please log in again!");
                     this.logOut();
                     window.location.reload();
                     return;
                 }
                 if (user.email !== currentUser.email) {
-                    window.alert("Discrepency in user data detected, please log in again!");
+                    window.alert("Discrepancy in user data detected, please log in again!");
                     this.logOut();
                     window.location.reload();
                     return;
                 }
                 if (user.phone !== currentUser.phone) {
-                    window.alert("Discrepency in user data detected, please log in again!");
+                    window.alert("Discrepancy in user data detected, please log in again!");
                     this.logOut();
                     window.location.reload();
                     return;
                 }
                 if (user.location[0] !== currentUser.location[0] || user.location[1] !== currentUser.location[1]) {
-                    window.alert("Discrepency in user data detected, please log in again!");
+                    window.alert("Discrepancy in user data detected, please log in again!");
                     this.logOut();
                     window.location.reload();
                     return;
