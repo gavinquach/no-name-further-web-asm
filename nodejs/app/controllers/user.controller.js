@@ -1,13 +1,23 @@
 const model = require("../models");
+const config = require("../config/auth.config");
+
+// define nodemailer, nodemailerSendgrid and transport
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
+const crypto = require('crypto');
+
 const Item = model.item;
 const User = model.user;
 const Role = model.role;
+const Token = model.tokenSchema;
 const Transaction = model.transaction;
 
 const bcrypt = require("bcryptjs");
 
 const img = require("../config/img.config");
 const fs = require("fs");
+
+
 
 exports.allAccess = (req, res) => {
     res.status(200).send("Public Content.");
@@ -39,11 +49,36 @@ exports.signup = async (req, res) => {
     user.roles = [role._id];
 
     try {
+
         await user.save();
+
+        // generate token and save
+        var token = await new Token({ _userId: user._id, token: crypto.randomBytes(16).toString('hex') });
+        console.log(token);
+        await token.save(function (err) {
+
+        // Send email (use verified sender's email address & generated API_KEY on SendGrid)
+        const transporter = nodemailer.createTransport(
+            sendgridTransport({
+                auth: {
+                    api_key: config.sendgrid_api_key
+                }
+            })
+        )
+        // Mail format and send URL request
+        var mailOptions = { from: '0nametrading@gmail.com', to: user.email, subject: 'Account Verification Link', text: 'Hello ' + req.body.name + ',\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/api/auth' + '\/confirmation\/' + user.email + '\/' + token.token + '\n\nThank You!\n' };
+        transporter.sendMail(mailOptions, function (err) {
+            if (err) {
+                return res.status(500).send({ msg: 'Technical Issue!, Please click on resend for verify your Email.' });
+            }
+            return res.status(200).send('A verification email has been sent to ' + user.email + '. It will be expire after one day. If you not get verification Email click on resend token.');
+        });
+
+    });
+
     } catch (err) {
         return res.status(500).send(err);
     }
-    res.status(201).send({ message: "Registered successfully!" });
 };
 
 // create new User in database with roles
@@ -121,7 +156,7 @@ exports.deleteUser = async (req, res) => {
         return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
-    
+
     // cancel all user transactions
     let transactions = [];
     try {
