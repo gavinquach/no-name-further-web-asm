@@ -6,6 +6,8 @@ const User = mongoose.model(
         username: String,
         email: String,
         phone: String,
+        emailToken: String,
+        isVerified: { type: Boolean, default: false },
         location: [String],
         password: { type: String, required: true },
         roles: [
