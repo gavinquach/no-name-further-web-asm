@@ -1,15 +1,9 @@
 # Installation
 
 ### react:
-```sh
-npm install react-scripts
-npm install react-router-dom bootstrap axios react-validation validator react-images-uploading
-```
+react: `npm install`
 
-### nodejs (cd into nodejs and then install):
-```sh
-npm install express mongoose body-parser cors jsonwebtoken bcryptjs nodemon multer express-rate-limit express-validator toobusy-js
-```
+nodejs: `cd nodejs` then `npm install`
 
 # Troubleshooting
 If you encounter errors with nodemon:
