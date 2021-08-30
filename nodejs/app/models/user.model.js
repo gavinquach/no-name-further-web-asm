@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
 
+const arrayLimit = (val) => {
+    return val.length === 2;
+}
+
 const User = mongoose.model(
     "User",
     new mongoose.Schema({
@@ -7,8 +11,14 @@ const User = mongoose.model(
         email: String,
         phone: String,
         emailToken: String,
-        isVerified: { type: Boolean, default: false },
-        location: [String],
+        verified: {
+            type: Boolean,
+            default: false
+        },
+        location: {
+            type: [String],
+            validate: [arrayLimit, '{PATH} exceeds the limit of 2']
+        },
         password: { type: String, required: true },
         roles: [
             {

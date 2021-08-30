@@ -1,12 +1,25 @@
 const mongoose = require("mongoose");
 
 const tokenSchema = mongoose.model(
-    "TokenSchema",
+    "Token",
     new mongoose.Schema({
-    _userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
-    token: { type: String, required: true },
-    expireAt: { type: Date, default: Date.now, index: { expires: 86400000 } }
-})
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        token: {
+            type: String,
+            required: true
+        },
+        expireAt: {
+            type: Date,
+            default: Date.now,
+            index: {
+                expires: 86400 * 1000   // expire in 24 hours
+            }
+        }
+    })
 );
 
 

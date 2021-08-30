@@ -99,7 +99,9 @@ export default class Signup extends Component {
             district: "",
             password: "",
             successful: false,
-            message: ""
+            message: "",
+            disableSend: false,
+            resendMessage: ""
         };
     }
 
@@ -202,6 +204,44 @@ export default class Signup extends Component {
         });
     }
 
+    sendEmail = () => {
+        if (!this.state.disableSend) {
+            AuthService.sendVerifyEmail(
+                this.state.username,
+                this.state.password
+            ).then(response => {
+                console.log(response.data.resendMessage);
+                this.setState({
+                    resendMessage: "Email sent, you will be able to resend again in 2 minutes."
+                });
+            }, error => {
+                const resMessage =
+                    (error.response &&
+                        error.response.data &&
+                        error.response.data.message) ||
+                    error.message ||
+                    error.toString();
+
+                this.setState({
+                    loading: false,
+                    message: resMessage
+                });
+            }
+            );
+            this.setState({
+                disableSend: true
+            }, () => {
+                // re-enable link after 2 minutes
+                setTimeout(() => {
+                    this.setState({
+                        disableSend: false,
+                        resendMessage: ""
+                    });
+                }, 120 * 1000);
+            });
+        }
+    }
+
     handleRegister(e) {
         e.preventDefault();
 
@@ -224,30 +264,30 @@ export default class Signup extends Component {
                 .then(
                     response => {
                         this.setState({
-                            message: response.data.message + " You will be logged in 3 seconds.",
+                            message: response.data.message,
                             successful: true
                         });
-                        setTimeout(() => {
-                            AuthService.login(this.state.username, this.state.password)
-                                .then(
-                                    () => {
-                                        this.props.history.push("/");
-                                    },
-                                    error => {
-                                        const resMessage =
-                                            (error.response &&
-                                                error.response.data &&
-                                                error.response.data.message) ||
-                                            error.message ||
-                                            error.toString();
+                        // setTimeout(() => {
+                        //     AuthService.login(this.state.username, this.state.password)
+                        //         .then(
+                        //             // () => {
+                        //             //     this.props.history.push("/");
+                        //             // },
+                        //             error => {
+                        //                 const resMessage =
+                        //                     (error.response &&
+                        //                         error.response.data &&
+                        //                         error.response.data.message) ||
+                        //                     error.message ||
+                        //                     error.toString();
 
-                                        this.setState({
-                                            loading: false,
-                                            message: resMessage
-                                        });
-                                    }
-                                );
-                        }, 3000);
+                        //                 this.setState({
+                        //                     loading: false,
+                        //                     message: resMessage
+                        //                 });
+                        //             }
+                        //         );
+                        // }, 3000);
                     },
                     error => {
                         const resMessage =
@@ -346,6 +386,21 @@ export default class Signup extends Component {
                         onChange={this.onChangePassword}
                         validations={[required, vpassword]}
                         placeholder="Password" />
+
+                    {(this.state.message) && (
+                        <span>
+                            <span
+                                id={this.state.disableSend ? "send-email-text-disabled" : "send-email-text"}
+                                onClick={this.sendEmail}>
+                                Resend email
+                            </span>
+                            <br />
+                        </span>
+                    )}
+
+                    {this.state.resendMessage && (
+                        <span style={{ color: 'blue', float: 'right' }}>{this.state.resendMessage}</span>
+                    )}
 
                     <button className="Create-btn">
                         Sign up
