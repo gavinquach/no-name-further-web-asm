@@ -3,11 +3,11 @@ const API_URL = require("./index");
 
 class UserService {
     register(user) {
-        return axiosTokenHeader.post(API_URL + "/signup", user);
+        return axiosTokenHeader.post(API_URL + "signup", user);
     }
 
     createUserWithRoles(username, email, password, roles) {
-        return axiosTokenHeader.post(API_URL + "/user", {
+        return axiosTokenHeader.post(API_URL + "user", {
             username,
             email,
             password,
@@ -16,27 +16,27 @@ class UserService {
     }
 
     viewAllUsers() {
-        return axiosTokenHeader.get(API_URL + "/users");
+        return axiosTokenHeader.get(API_URL + "users");
     }
 
     viewAdmins() {
-        return axiosTokenHeader.get(API_URL + "/users/admin");
+        return axiosTokenHeader.get(API_URL + "users/admin");
     }
 
     viewUsers() {
-        return axiosTokenHeader.get(API_URL + "/users/user");
+        return axiosTokenHeader.get(API_URL + "users/user");
     }
 
     viewOneUser(id) {
-        return axiosTokenHeader.get(API_URL + "/user/" + id);
+        return axiosTokenHeader.get(API_URL + "user/" + id);
     }
 
     deleteUser(id) {
-        return axiosTokenHeader.delete(API_URL + "/user/" + id);
+        return axiosTokenHeader.delete(API_URL + "user/" + id);
     }
 
     editUser(id, username, email, phone, location, password, roles) {
-        return axiosTokenHeader.put(API_URL + "/user/" + id, {
+        return axiosTokenHeader.put(API_URL + "user/" + id, {
             username,
             email,
             phone,
@@ -47,7 +47,7 @@ class UserService {
     }
 
     editInfo(id, username, email, phone, location, password) {
-        return axiosTokenHeader.patch(API_URL + "/user/edit/" + id, {
+        return axiosTokenHeader.patch(API_URL + "user/edit/" + id, {
             username,
             email,
             phone,
@@ -57,31 +57,31 @@ class UserService {
     }
 
     editPassword(id, oldpassword, newpassword) {
-        return axiosTokenHeader.patch(API_URL + "/user/edit/password/" + id, {
+        return axiosTokenHeader.patch(API_URL + "user/edit/password/" + id, {
             oldpassword,
             newpassword
         });
     }
 
     addItemToCart(itemid, userid) {
-        return axiosTokenHeader.post(API_URL + "/user/cart", {
+        return axiosTokenHeader.post(API_URL + "user/cart", {
             itemid,
             userid
         });
     }
 
     deleteItemFromCart(userid, itemid) {
-        return axiosTokenHeader.put(API_URL + "/user/cart/" + userid, {
+        return axiosTokenHeader.put(API_URL + "user/cart/" + userid, {
             itemid
         });
     }
 
     viewUserCart(userid) {
-        return axiosTokenHeader.post(API_URL + "/user/cart/view", { userid });
+        return axiosTokenHeader.post(API_URL + "user/cart/view", { userid });
     }
 
     viewUserItems(userid) {
-        return axiosTokenHeader.get(API_URL + "/user/items/" + userid);
+        return axiosTokenHeader.get(API_URL + "user/items/" + userid);
     }
 }
 

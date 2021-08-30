@@ -3,10 +3,10 @@ const API_URL = require("./index");
 
 class ImageService {
     uploadSingleImage(file) {
-        return axiosFormData.post(API_URL + "/upload-single", file);
+        return axiosFormData.post(API_URL + "upload-single", file);
     }
     uploadMultipleImages(files) {
-        return axiosFormData.post(API_URL + "/upload-multiple", files);
+        return axiosFormData.post(API_URL + "upload-multiple", files);
     }
 }
 
