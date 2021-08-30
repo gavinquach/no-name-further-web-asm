@@ -119,7 +119,7 @@ export default class Signup extends Component {
                 .then(jsonData => {
                     this.setState({ data: jsonData.data }, () => this.getVietnamLocations());
                 });
-            console.log("fetched vn location data");
+            // console.log("fetched vn location data");
         } catch (error) {
             console.error(error.message);
         }
