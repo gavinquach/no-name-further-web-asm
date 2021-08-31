@@ -148,3 +148,18 @@
   margin-bottom: 1em;
   color: black;
 }
+
+#send-email-text {
+  float: right;
+  color: blue;
+  text-decoration: underline;
+}
+
+#send-email-text:hover {
+  cursor: pointer;
+}
+
+#send-email-text-disabled {
+  float: right;
+  color: gray;
+}

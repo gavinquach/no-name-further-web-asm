@@ -1,7 +1,10 @@
 const model = require("../models");
+const config = require("../config/auth.config");
+
 const Item = model.item;
 const User = model.user;
 const Role = model.role;
+const Token = model.tokenSchema;
 const Transaction = model.transaction;
 
 const bcrypt = require("bcryptjs");
@@ -9,7 +12,12 @@ const bcrypt = require("bcryptjs");
 const img = require("../config/img.config");
 const fs = require("fs");
 
-// create new User in database (role is user if not specifying role)
+// define nodemailer, nodemailerSendgrid and transport
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
+const crypto = require('crypto');
+
+// create new user
 exports.signup = async (req, res) => {
     const user = new User({
         username: req.body.username,
@@ -27,7 +35,45 @@ exports.signup = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    res.status(201).send({ message: "Registered successfully!" });
+
+    // generate token and save
+    const token = await new Token({
+        user: user._id,
+        token: crypto.randomBytes(16).toString('hex')
+    });
+
+    try {
+        await token.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // Send email (use verified sender's email address & the generated API_KEY on SendGrid)
+    const transporter = nodemailer.createTransport(
+        sendgridTransport({
+            auth: {
+                api_key: config.sendgrid_api_key
+            }
+        })
+    );
+
+    try {
+        await transporter.sendMail({
+            from: '0nametrading@gmail.com',
+            to: user.email,
+            subject: 'n0name Account Verification',
+            text: `Hello ${user.username},\n\n` +
+                `Please verify your account by clicking on this link: \n` +
+                `http://${req.headers.host}/confirmation/${user.email}/${token.token}` +
+                `\n\nThank You!`
+        });
+    } catch (err) {
+        return res.status(500).send({ message: "Error encountered! Please click on 'Resend email' to send the email again." });
+    }
+
+    res.status(200).send({
+        message: "A verification email has been sent to " + user.email + ". It will be expired after 24 hours. Please click on 'Resend email' if you haven't received the email."
+    });
 };
 
 // create new User in database with roles

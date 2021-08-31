@@ -7,7 +7,7 @@ import { Redirect } from "react-router-dom";
 import NavigationBar from "./NavigationBar"
 import AuthService from './services/auth.service'
 
-const required = value => {
+const required = (value) => {
     if (!value) {
         return (
             <div className="alert alert-danger" role="alert">
@@ -28,23 +28,25 @@ export default class Login extends Component {
             username: "",
             password: "",
             loading: false,
-            message: ""
+            message: "",
+            disableSend: false,
+            resendMessage: ""
         };
     }
 
-    onChangeUsername(e) {
+    onChangeUsername = (e) => {
         this.setState({
             username: e.target.value
         });
     }
 
-    onChangePassword(e) {
+    onChangePassword = (e) => {
         this.setState({
             password: e.target.value
         });
     }
 
-    handleLogin(e) {
+    handleLogin = (e) => {
         e.preventDefault();
 
         this.setState({
@@ -55,7 +57,10 @@ export default class Login extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            AuthService.login(this.state.username, this.state.password).then(
+            AuthService.login(
+                this.state.username,
+                this.state.password
+            ).then(
                 () => {
                     this.props.history.push("/");
                 },
@@ -80,10 +85,45 @@ export default class Login extends Component {
         }
     }
 
-    render() {
-        if (AuthService.isLoggedIn()) {
-            return <Redirect to="/" />
+    sendEmail = () => {
+        if (!this.state.disableSend) {
+            AuthService.sendVerifyEmail(
+                this.state.username,
+                this.state.password
+            ).then(response => {
+                console.log(response.data.resendMessage);
+                this.setState({
+                    resendMessage: "Email sent, you will be able to resend again in 2 minutes."
+                });
+            }, error => {
+                const resMessage =
+                    (error.response &&
+                        error.response.data &&
+                        error.response.data.message) ||
+                    error.message ||
+                    error.toString();
+
+                this.setState({
+                    loading: false,
+                    message: resMessage
+                });
+            }
+            );
+            this.setState({
+                disableSend: true
+            }, () => {
+                // re-enable link after 2 minutes
+                setTimeout(() => {
+                    this.setState({
+                        disableSend: false,
+                        resendMessage: ""
+                    });
+                }, 120 * 1000);
+            });
         }
+    }
+
+    render() {
         return (
             <div>
                 <NavigationBar />
@@ -97,14 +137,31 @@ export default class Login extends Component {
                         value={this.state.username}
                         onChange={this.onChangeUsername}
                         validations={[required]}
-                        placeholder="Username"></Input>
+                        placeholder="Username"
+                    />
                     <Input
                         className="Input"
                         type="password"
                         value={this.state.password}
                         onChange={this.onChangePassword}
                         validations={[required]}
-                        placeholder="Password"></Input>
+                        placeholder="Password"
+                    />
+
+                    {(this.state.message) && (
+                        <span>
+                            <span
+                                id={this.state.disableSend ? "send-email-text-disabled" : "send-email-text"}
+                                onClick={this.sendEmail}>
+                                Resend email
+                            </span>
+                            <br />
+                        </span>
+                    )}
+
+                    {this.state.resendMessage && (
+                        <span style={{ color: 'blue', float: 'right' }}>{this.state.resendMessage}</span>
+                    )}
 
                     <button className="Create-btn" disabled={this.state.loading}>
                         {this.state.loading && (
