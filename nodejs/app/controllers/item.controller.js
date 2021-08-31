@@ -387,13 +387,23 @@ exports.getAllItems = async (req, res) => {
 
 
         // initialize query based on param
-        const query = await Item.find(JSON.parse(queryStr))
+        let query = Item.find(JSON.parse(queryStr))
             .populate("type", "-__v")
             .populate("forItemType", "-__v")
             .populate("images", "-__v")
-            .populate("seller", "-__v");;
+            .populate("seller", "-__v");
+
+
+        //3. Sorting 
+        // console.log(req.query.sort)
+        if (req.query.sort) {
+            const sortBy = req.query.sort.split(',').join('');
+            console.log(sortBy)
+            query = query.sort(req.query.sort)
+
+        }
         // Execute query
-        const items = query;
+        const items = await query;
 
 
         if (!items) return res.status(404).send({ message: "Item not found." });
@@ -405,6 +415,10 @@ exports.getAllItems = async (req, res) => {
             }
         });
     } catch (err) {
-        return res.status(500).send(err);
+        console.log(err)
+        res.status(404).json({
+            status: "fail",
+            message: err
+        });
     }
 };
