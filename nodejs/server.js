@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
 const dbConfig = require("./app/config/db.config");
 const cors = require("cors");
 var corsOptions = {
-    origin: "http://localhost:8081"
+    origin: process.env.FRONTEND_URL
 };
 
 app.use(cors(corsOptions));
