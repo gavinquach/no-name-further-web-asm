@@ -387,7 +387,7 @@ export default class Signup extends Component {
                         validations={[required, vpassword]}
                         placeholder="Password" />
 
-                    {(this.state.message) && (
+                    {(this.state.message && this.state.successful) && (
                         <span>
                             <span
                                 id={this.state.disableSend ? "send-email-text-disabled" : "send-email-text"}
