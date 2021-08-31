@@ -126,6 +126,7 @@ export default class App extends Component {
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route exact path="/signup" component={Signup} />
+                    <Route exact path="/login/:email/:token" component={Login} />
                     <Route exact path="/login" component={Login} />
                     <Route path="/item/:id" component={ItemDetails} />
                     <UserProtectedRoute path="/cart" component={Cart} />
