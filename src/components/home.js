@@ -32,17 +32,19 @@ export default class Home extends Component {
                     <br />
                     <br />
 
+                    <h2>Popular offers</h2>
+                    <hr className="section-line" />
                     <br />
                     {/* if is logged in then show listings from other people, hide ones that belong to current user */}
                     <div className="main-section">
                         {AuthService.isLoggedIn() && this.state.items.map((item, index) =>
                             (item.seller != AuthService.getCurrentUser().id) &&
                             <a key={index} href={"item/" + item._id}>
-                                <div className="dashbord">
-                                    <div className="dashbord-img">
+                                <div className="Dashboard">
+                                    <div className="Dashboard-img">
                                         {item.images.map(image =>
                                             image.cover && (
-                                                <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)}/>
+                                                <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                             )
                                         )}
                                     </div>
@@ -59,11 +61,11 @@ export default class Home extends Component {
                     {/* if not logged in, show all items */}
                     {!AuthService.isLoggedIn() && this.state.items.map((item, index) =>
                         <a key={index} href={"item/" + item._id}>
-                            <div className="dashbord">
-                                <div className="dashbord-img">
+                            <div className="Dashboard">
+                                <div className="Dashboard-img">
                                     {item.images.map(image =>
                                         image.cover && (
-                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)}/>
+                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                         )
                                     )}
                                 </div>

@@ -164,6 +164,44 @@
   color: gray;
 }
 
+.Dashboard {
+  display: inline-block;  
+  color:black;
+  margin-left:10%;
+  margin-bottom:5%;
+  border-radius: 5%;
+}
+
+.Dashboard img {
+  width: 200px;
+  height: 120px;
+  border-radius: 2%;
+  text-align: center;
+  display: inline-block;
+  border: black 10px;
+}
+
+.Dashboard-img {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+}
+
+.Dashboard p {
+  margin: 0px;
+  margin-left: 10px;
+  margin-top: 5px;
+}
+
+.Dashboard .for {
+  /* text-align: center; */
+  color: royalblue;
+}
+
+.Dashboard p:hover {
+  color: black;
+  text-decoration: none;
+}
+
 .section-line {
   display: inline-block;
   width: 14.5em;
