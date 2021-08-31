@@ -163,3 +163,11 @@
   float: right;
   color: gray;
 }
+
+.section-line {
+  display: inline-block;
+  width: 14.5em;
+  height: 0.2em;
+  color: #151414;
+  background-color: #151414;
+}

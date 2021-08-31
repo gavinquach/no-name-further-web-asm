@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import AuthService from "../services/auth.service";
 import ItemService from "../services/item.service";
 
-import ItemTypes from "./ItemType/item.type.js"
+import ItemCategories from "./ItemType/item.category.js"
 
 
 export default class Home extends Component {
@@ -24,11 +24,14 @@ export default class Home extends Component {
     render() {
         return (
             <div>
-               
                 <div className="container">
-                    <ItemTypes/>
-                    <h3>All available listings</h3>
+                    <h2>Categories</h2>
+                    <hr className="section-line" />
                     <br />
+                    <ItemCategories />
+                    <br />
+                    <br />
+
                     <br />
                     {/* if is logged in then show listings from other people, hide ones that belong to current user */}
                     <div className="main-section">
