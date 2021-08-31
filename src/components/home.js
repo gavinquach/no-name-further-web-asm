@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import AuthService from "../services/auth.service";
 import ItemService from "../services/item.service";
 
-import ItemTypes from "./ItemType/item.type.js"
+import ItemCategories from "./ItemType/item.category.js"
 
 
 export default class Home extends Component {
@@ -24,22 +24,27 @@ export default class Home extends Component {
     render() {
         return (
             <div>
-               
                 <div className="container">
-                    <ItemTypes/>
-                    <h3>All available listings</h3>
+                    <h2>Categories</h2>
+                    <hr className="section-line" />
                     <br />
+                    <ItemCategories />
+                    <br />
+                    <br />
+
+                    <h2>Popular offers</h2>
+                    <hr className="section-line" />
                     <br />
                     {/* if is logged in then show listings from other people, hide ones that belong to current user */}
                     <div className="main-section">
                         {AuthService.isLoggedIn() && this.state.items.map((item, index) =>
                             (item.seller != AuthService.getCurrentUser().id) &&
                             <a key={index} href={"item/" + item._id}>
-                                <div className="dashbord">
-                                    <div className="dashbord-img">
+                                <div className="Dashboard">
+                                    <div className="Dashboard-img">
                                         {item.images.map(image =>
                                             image.cover && (
-                                                <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)}/>
+                                                <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                             )
                                         )}
                                     </div>
@@ -56,11 +61,11 @@ export default class Home extends Component {
                     {/* if not logged in, show all items */}
                     {!AuthService.isLoggedIn() && this.state.items.map((item, index) =>
                         <a key={index} href={"item/" + item._id}>
-                            <div className="dashbord">
-                                <div className="dashbord-img">
+                            <div className="Dashboard">
+                                <div className="Dashboard-img">
                                     {item.images.map(image =>
                                         image.cover && (
-                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)}/>
+                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                         )
                                     )}
                                 </div>
