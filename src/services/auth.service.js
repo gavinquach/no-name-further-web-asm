@@ -76,9 +76,11 @@ class AuthService {
             let user = JSON.parse(localStorage.getItem('user'));
             if (user.roles.includes("ROLE_ROOT")) return true;
             else if (user.roles.includes("ROLE_VIEW_ADMIN")) return true;
+            else if (user.roles.includes("ROLE_CREATE_ADMIN")) return true;
             else if (user.roles.includes("ROLE_EDIT_ADMIN")) return true;
             else if (user.roles.includes("ROLE_DELETE_ADMIN")) return true;
             else if (user.roles.includes("ROLE_VIEW_USER")) return true;
+            else if (user.roles.includes("ROLE_CREATE_USER")) return true;
             else if (user.roles.includes("ROLE_EDIT_USER")) return true;
             else if (user.roles.includes("ROLE_DELETE_USER")) return true;
             else return false;
@@ -95,7 +97,7 @@ class AuthService {
     
     login(username, password) {
         return axios
-            .post(API_URL + "/login", {
+            .post(API_URL + "login", {
                 username,
                 password
             })

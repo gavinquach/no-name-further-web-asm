@@ -44,7 +44,6 @@ app.use((req, res, next) => {
     }
 }, limiter);
 
-const API_URL = "/api/auth";
 const authRoutes = require('./app/routes/auth.routes');
 const userRoutes = require('./app/routes/user.routes');
 const itemRoutes = require('./app/routes/item.routes');
@@ -52,11 +51,11 @@ const imageRoutes = require('./app/routes/image.routes');
 const transactionRoutes = require('./app/routes/transaction.routes');
 
 // routes
-app.use(API_URL, authRoutes);
-app.use(API_URL, userRoutes);
-app.use(API_URL, itemRoutes);
-app.use(API_URL, imageRoutes);
-app.use(API_URL, transactionRoutes);
+app.use(authRoutes);
+app.use(userRoutes);
+app.use(itemRoutes);
+app.use(imageRoutes);
+app.use(transactionRoutes);
 
 // set port, listen for requests
 app.listen(PORT, () => {

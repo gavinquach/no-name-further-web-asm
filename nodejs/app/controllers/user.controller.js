@@ -113,7 +113,7 @@ exports.createUserWithRoles = async (req, res) => {
     res.status(201).send({ message: "Admin created successfully!" });
 };
 
-exports.viewUsers = async (req, res) => {
+exports.viewAllUsers = async (req, res) => {
     try {
         const users = await User.find()
             .populate("roles", "-__v")
@@ -126,6 +126,58 @@ exports.viewUsers = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
+};
+
+exports.viewAdmins = async (req, res) => {
+    let users = [];
+    try {
+        users = await User.find()
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!users) return res.status(404).send({ message: "Users not found." });
+
+    const adminList = [];
+    for (const user of users) {
+        for (const role of user.roles) {
+            if (role.name !== "user") {
+                adminList.push(user);
+                break;
+            }
+        }
+    }
+
+    res.json(adminList);
+};
+
+exports.viewUsers = async (req, res) => {
+    let users = [];
+    try {
+        users = await User.find()
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!users) return res.status(404).send({ message: "Users not found." });
+
+    const userList = [];
+    for (const user of users) {
+        for (const role of user.roles) {
+            if (role.name === "user") {
+                userList.push(user);
+                break;
+            }
+        }
+    }
+
+    res.json(userList);
 };
 
 exports.viewOneUser = async (req, res) => {
@@ -216,7 +268,13 @@ exports.editUser = async (req, res) => {
     }
     if (!user) return res.status(404).send("User not found.");
 
-    user.username = req.body.username;
+    let roles = [];
+    user.roles.map(role => roles.push(role.name));
+
+    // allow root to edit username only
+    if (roles.includes("root")) {
+        user.username = req.body.username;
+    }
     user.email = req.body.email;
     user.phone = req.body.phone;
     user.location = req.body.location;
@@ -224,10 +282,8 @@ exports.editUser = async (req, res) => {
         user.password = bcrypt.hashSync(req.body.password);
     }
 
-    // ==============
     // validate roles
-    // check if user is admin
-    if (user.role !== "user") {
+    if (req.body.roles) {
         // check if the data sent has roles
         if (req.body.roles.length > 0) {
             let roles = [];
@@ -247,6 +303,28 @@ exports.editUser = async (req, res) => {
             return res.status(400).send({ message: "Please add at least 1 role!" });
         }
     }
+
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "User updated succesfully!" });
+};
+
+exports.editInfo = async (req, res) => {
+    let user = null;
+    try {
+        user = await User.findById({ _id: req.params.id });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!user) return res.status(404).send("User not found.");
+
+    user.username = req.body.username;
+    user.email = req.body.email;
+    user.phone = req.body.phone;
+    user.location = req.body.location;
 
     try {
         await user.save();

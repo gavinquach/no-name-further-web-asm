@@ -14,10 +14,11 @@ export default class AdminViewAdmin extends Component {
     }
 
     load = () => {
-        UserService.viewUsers().then(response => {
-            // console.log(response.data);
-            this.setState({ users: response.data });
-        })
+        UserService.viewAdmins()
+            .then(response => {
+                // console.log(response.data);
+                this.setState({ users: response.data });
+            })
             .catch(function (error) {
                 console.log(error);
             })
@@ -67,16 +68,7 @@ export default class AdminViewAdmin extends Component {
 
     tabRow = () => {
         return this.state.users.map(function (object, i) {
-            let isUser = false;
-            const roles = object.roles;
-            roles.map(role => {
-                if (role.name == "user") {
-                    isUser = true;
-                }
-            })
-            if (!isUser) {
-                return <AdminTableRow obj={object} key={i} />;
-            }
+            return <AdminTableRow obj={object} key={i} />;
         });
     }
 

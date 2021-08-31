@@ -1,24 +1,24 @@
-import axios from "axios";
+import { axiosTokenHeader, axiosFormData } from "./AxiosInstance"
 const API_URL = require("./index");
 
 class ItemService {
     viewAllItems() {
-        return axios.get(API_URL + "/items");
+        return axiosTokenHeader.get(API_URL + "items");
     }
     viewOneItem(itemid) {
-        return axios.get(API_URL + "/item/" + itemid);
+        return axiosTokenHeader.get(API_URL + "item/" + itemid);
     }
 
-    createItem(files, config) {
-        return axios.post(API_URL + "/item", files, config);
+    createItem(files) {
+        return axiosFormData.post(API_URL + "item", files);
     }
 
-    editItem(itemid, files, config) {
-        return axios.put(API_URL + "/item/" + itemid, files, config);
+    editItem(itemid, files) {
+        return axiosFormData.put(API_URL + "item/" + itemid, files);
     }
 
     deleteItem(id) {
-        return axios.delete(API_URL + "/item/" + id);
+        return axiosTokenHeader.delete(API_URL + "item/" + id);
     }
 }
 

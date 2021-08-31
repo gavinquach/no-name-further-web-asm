@@ -232,15 +232,8 @@ export default class UserCreateItem extends Component {
                 formData.append("files", file);
             });
 
-            const config = {
-                headers: {
-                    'content-type': 'multipart/form-data'
-                }
-            };
-
             ItemService.createItem(
-                formData,
-                config
+                formData
             ).then(
                 response => {
                     // this.setState({
