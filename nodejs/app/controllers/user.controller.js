@@ -25,6 +25,7 @@ exports.signup = async (req, res) => {
         phone: req.body.phone,
         location: req.body.location,
         password: bcrypt.hashSync(req.body.password),
+        verified: req.body.verified ? true : false
     });
 
     let role = await Role.findOne({ name: "user" })
@@ -71,9 +72,15 @@ exports.signup = async (req, res) => {
         return res.status(500).send({ message: "Error encountered! Please click on 'Resend email' to send the email again." });
     }
 
-    res.status(200).send({
-        message: "A verification email has been sent to " + user.email + ". It will be expired after 24 hours. Please click on 'Resend email' if you haven't received the email."
-    });
+    if (req.body.verified) {
+        res.status(200).send({
+            message: "User created successfully."
+        });
+    } else {
+        res.status(200).send({
+            message: "A verification email has been sent to " + user.email + ". It will be expired after 24 hours. Please click on 'Resend email' if you haven't received the email."
+        });
+    }
 };
 
 // create new User in database with roles
@@ -84,7 +91,8 @@ exports.createUserWithRoles = async (req, res) => {
         phone: req.body.phone,
         location: req.body.location,
         password: bcrypt.hashSync(req.body.password),
-        roles: req.body.roles
+        roles: req.body.roles,
+        verified: true
     });
 
     // check if the data sent has roles

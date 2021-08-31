@@ -221,7 +221,8 @@ export default class AdminCreateUser extends Component {
                 email: this.state.email,
                 phone: this.state.phone,
                 location: [this.state.location, this.state.district],
-                password: this.state.password
+                password: this.state.password,
+                verified: true
             };
             UserService.register(user).then(
                 response => {
