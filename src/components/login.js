@@ -124,9 +124,11 @@ export default class Login extends Component {
     }
 
     render() {
+        if (AuthService.isLoggedIn()) {
+            return <Redirect to="/" />
+        }
         return (
             <div>
-     
                 <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '7em', marginBottom: '7em' }}>
                     <h1 className="Big-text">Login</h1>
                     <br></br>
