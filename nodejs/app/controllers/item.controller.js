@@ -8,6 +8,7 @@ const User = model.user;
 const img = require("../config/img.config");
 const fs = require("fs");
 const uploadFile = require("../middlewares/storeImage");
+const { match } = require("assert");
 
 exports.createItem = async (req, res) => {
     try {
@@ -337,7 +338,7 @@ exports.deleteItem = async (req, res) => {
             return res.status(500).send(err);
         }
     });
-    
+
     // ============= end of cancel all transactions with item =============
 
     // finally, remove item from database
@@ -348,6 +349,9 @@ exports.deleteItem = async (req, res) => {
     }
     res.status(200).send({ message: "Item successfully removed" });
 };
+
+
+
 
 exports.getItem = async (req, res) => {
     Item.findById({
@@ -364,15 +368,43 @@ exports.getItem = async (req, res) => {
         });
 };
 
+
+// Duong'version with Pagination/ Filtering / Sorting  from Duong development branch
 exports.getAllItems = async (req, res) => {
-    Item.find()
-        .populate("type", "-__v")
-        .populate("forItemType", "-__v")
-        .populate("images", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, items) => {
-            if (err) return res.status(500).send(err);
-            if (!items) return res.status(404).send({ message: "Item not found." });
-            res.json(items);
+    try {
+
+        // Build query
+        // 1. Filtering 
+        const queryObj = { ...req.query };
+        const excludedField = ["page", "sort", "limit", "fields"];
+        excludedField.forEach(el => delete queryObj[el]);
+
+
+        // 2. Advanced Filtering with greater, greater equal, less than , less and equal
+        let queryStr = JSON.stringify(queryObj);
+        // Replace all case with new string including $ sign before for mongoose query
+        queryStr = queryStr.replace(/\b(gte|gt|lt|lte)\b/g, match => `$${match}`);
+
+
+        // initialize query based on param
+        const query = await Item.find(JSON.parse(queryStr))
+            .populate("type", "-__v")
+            .populate("forItemType", "-__v")
+            .populate("images", "-__v")
+            .populate("seller", "-__v");;
+        // Execute query
+        const items = query;
+
+
+        if (!items) return res.status(404).send({ message: "Item not found." });
+        await res.status(200).json({
+            status: "success",
+            result: items.length,
+            data: {
+                items
+            }
         });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
 };
