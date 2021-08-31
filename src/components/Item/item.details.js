@@ -1,13 +1,12 @@
 import React, { Component } from "react";
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
-import ItemService from "../services/item.service";
-import TransactionService from "../services/transaction.service";
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
+import ItemService from "../../services/item.service";
+import TransactionService from "../../services/transaction.service";
 
-import NavigationBar from "../NavigationBar";
 
-import '../css/ItemDetails.css'
+import "../../css/ItemDetails.css"
 
 // const updateQty = (id) => {
 //     let qtyValue = document.getElementById("qty-value").value;
@@ -161,7 +160,7 @@ export default class ItemDetails extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
+              
                 <div className="container">
                     <h1>Item details</h1>
                     <br />

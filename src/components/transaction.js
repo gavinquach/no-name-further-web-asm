@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 
-import AuthService from "./services/auth.service";
-
-import NavigationBar from "./NavigationBar";
-import TransactionService from "./services/transaction.service";
+import AuthService from "../services/auth.service";
+import TransactionService from "../services/transaction.service";
 
 export default class Transactions extends Component {
     constructor(props) {
@@ -52,7 +50,7 @@ export default class Transactions extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
+        
                 <div className="container">
                     <h1>Transactions</h1>
                     <br />

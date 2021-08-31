@@ -1,14 +1,17 @@
-import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
+import React, { Component } from 'react';
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
+import { Redirect } from 'react-router-dom'
 
-import NavigationBar from "./NavigationBar"
-import AuthService from "./services/auth.service";
-import UserService from "./services/user.service";
+import AuthService from "../../services/auth.service";
+import UserService from '../../services/user.service';
+
+import '../../css/UserPages.css'
+
+
 
 const required = value => {
     if (!value) {
@@ -77,7 +80,7 @@ const showDistrictField = () => {
     }
 }
 
-export default class Signup extends Component {
+export default class AdminCreateUser extends Component {
     constructor(props) {
         super(props);
         this.handleRegister = this.handleRegister.bind(this);
@@ -97,12 +100,10 @@ export default class Signup extends Component {
             phone: "",
             location: "",
             district: "",
-            password: "",
+            password: '',
             successful: false,
-            message: "",
-            disableSend: false,
-            resendMessage: ""
-        };
+            message: ""
+        }
     }
 
     componentDidMount() {
@@ -111,7 +112,7 @@ export default class Signup extends Component {
 
     getVietnamGeoData() {
         try {
-            fetch('vn-geo.json', {
+            fetch('/vn-geo.json', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -198,51 +199,13 @@ export default class Signup extends Component {
         });
     }
 
-    onChangePassword(e) {
+    onChangePassword = (e) => {
         this.setState({
             password: e.target.value
         });
     }
 
-    sendEmail = () => {
-        if (!this.state.disableSend) {
-            AuthService.sendVerifyEmail(
-                this.state.username,
-                this.state.password
-            ).then(response => {
-                console.log(response.data.resendMessage);
-                this.setState({
-                    resendMessage: "Email sent, you will be able to resend again in 2 minutes."
-                });
-            }, error => {
-                const resMessage =
-                    (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
-                    error.message ||
-                    error.toString();
-
-                this.setState({
-                    loading: false,
-                    message: resMessage
-                });
-            }
-            );
-            this.setState({
-                disableSend: true
-            }, () => {
-                // re-enable link after 2 minutes
-                setTimeout(() => {
-                    this.setState({
-                        disableSend: false,
-                        resendMessage: ""
-                    });
-                }, 120 * 1000);
-            });
-        }
-    }
-
-    handleRegister(e) {
+    handleRegister = (e) => {
         e.preventDefault();
 
         this.setState({
@@ -260,81 +223,66 @@ export default class Signup extends Component {
                 location: [this.state.location, this.state.district],
                 password: this.state.password
             };
-            UserService.register(user)
-                .then(
-                    response => {
-                        this.setState({
-                            message: response.data.message,
-                            successful: true
-                        });
-                        // setTimeout(() => {
-                        //     AuthService.login(this.state.username, this.state.password)
-                        //         .then(
-                        //             // () => {
-                        //             //     this.props.history.push("/");
-                        //             // },
-                        //             error => {
-                        //                 const resMessage =
-                        //                     (error.response &&
-                        //                         error.response.data &&
-                        //                         error.response.data.message) ||
-                        //                     error.message ||
-                        //                     error.toString();
+            UserService.register(user).then(
+                response => {
+                    this.setState({
+                        message: response.data.message,
+                        successful: true
+                    });
+                },
+                error => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
 
-                        //                 this.setState({
-                        //                     loading: false,
-                        //                     message: resMessage
-                        //                 });
-                        //             }
-                        //         );
-                        // }, 3000);
-                    },
-                    error => {
-                        const resMessage =
-                            (error.response &&
-                                error.response.data &&
-                                error.response.data.message) ||
-                            error.message ||
-                            error.toString();
-
-                        this.setState({
-                            successful: false,
-                            message: resMessage
-                        });
-                    }
-                );
+                    this.setState({
+                        successful: false,
+                        message: resMessage
+                    });
+                }
+            );
         }
     }
 
     render() {
-        if (AuthService.isLoggedIn()) {
-            return <Redirect to="/" />
+        // redirect to home page when unauthorized user tries to view
+        if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_CREATE_USER")) {
+            return <Redirect to='/admin/index' />
         }
         return (
             <div>
-                <NavigationBar />
-                <Form className="container" style={{ width: "30em", marginTop: '10em' }} onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
-                    <h1 className="Big-text">Register</h1>
-                    <br></br>
+               
+            
+                <a href="/admin/view/user" style={{ marginLeft: "15em" }}>
+                    <button className="Redirect-btn">View users</button>
+                </a>
+                <Form className="container" style={{ width: "30em" }} onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
+                    <h1 className="Big-text">Create user</h1>
+                    <br />
                     <Input
                         id="username"
                         name="username"
                         className="Input"
                         type="text"
+                        placeholder="Username"
                         value={this.state.username}
                         onChange={this.onChangeUsername}
-                        validations={[required, vusername]}
-                        placeholder="Username" />
+                        validations={[required, vusername]}>
+                    </Input>
 
                     <Input
                         id="email"
                         name="email"
                         className="Input"
                         type="text"
+                        placeholder="Email"
                         value={this.state.email}
                         onChange={this.onChangeEmail}
-                        validations={[required, email]}
-                        placeholder="Email address" />
+                        validations={[required, email]}>
+                    </Input>
 
                     <Input
                         id="phone"
@@ -352,7 +300,7 @@ export default class Signup extends Component {
                         className="Input"
                         onChange={this.onChangeLocation}
                         validations={[required]}>
-                        <option value="">Choose your city</option>
+                        <option value="">Choose city</option>
                         {
                             this.state.vnLocations.map(location =>
                                 <option key={location.city}>{location.city}</option>
@@ -368,7 +316,7 @@ export default class Signup extends Component {
                             value={this.state.district}
                             onChange={this.onChangeDistrict}
                             validations={[required]}>
-                            <option value="">Choose your district</option>
+                            <option value="">Choose district</option>
                             {
                                 this.state.districts.map(name =>
                                     <option key={name}>{name}</option>
@@ -382,43 +330,24 @@ export default class Signup extends Component {
                         name="password"
                         className="Input"
                         type="password"
+                        placeholder="Password"
                         value={this.state.password}
                         onChange={this.onChangePassword}
-                        validations={[required, vpassword]}
-                        placeholder="Password" />
+                        validations={[required, vpassword]}>
+                    </Input>
 
-                    {(this.state.message && this.state.successful) && (
-                        <span>
-                            <span
-                                id={this.state.disableSend ? "send-email-text-disabled" : "send-email-text"}
-                                onClick={this.sendEmail}>
-                                Resend email
-                            </span>
-                            <br />
-                        </span>
-                    )}
-
-                    {this.state.resendMessage && (
-                        <span style={{ color: 'blue', float: 'right' }}>{this.state.resendMessage}</span>
-                    )}
-
-                    <button className="Create-btn">
-                        Sign up
-                    </button>
+                    <button className="Create-btn">Create user</button>
 
                     {this.state.message && (
                         <div className="form-group">
-                            <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"}
-                                role="alert">
+                            <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
                                 {this.state.message}
                             </div>
                         </div>
                     )}
                     <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
-
-                    <p>By signing up you agree to the <a style={{ textDecoration: 'underline' }} href="#">terms of service</a>.</p>
                 </Form>
             </div>
-        );
+        )
     }
 }
