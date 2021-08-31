@@ -5,10 +5,10 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 
-import NavigationBar from "../NavigationBar"
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
+
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
 
 const required = value => {
     if (!value) {
@@ -324,7 +324,7 @@ export default class AdminEditUser extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
+              
                 <a href="/admin/view/user" style={{ marginLeft: "15em" }}>
                     <button className="Redirect-btn">View users</button>
                 </a>

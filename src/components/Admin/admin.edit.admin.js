@@ -1,4 +1,4 @@
-import '../css/UserPages.css'
+import '../../css/UserPages.css'
 
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
@@ -8,10 +8,10 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 
-import NavigationBar from "../NavigationBar"
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
+
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
 
 const required = value => {
     if (!value) {
@@ -397,7 +397,7 @@ export default class AdminEditAdmin extends Component {
         }
         return (
             <div>
-                <NavigationBar />
+                
                 <a href="/admin/view/admin" style={{ marginLeft: "15em" }}>
                     <button className="Redirect-btn">View admins</button>
                 </a>

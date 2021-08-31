@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom'
 
-import NavigationBar from "../NavigationBar"
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
-import ItemService from "../services/item.service";
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
+import ItemService from "../../services/item.service";
 
 export default class UserViewItem extends Component {
     constructor(props) {
@@ -113,7 +112,7 @@ export default class UserViewItem extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
+               
                 <br />
                 <h3 align="center">View Items</h3>
                 { this.state.items.length == 0 ? this.displayCreateItem() : this.showListings() }
