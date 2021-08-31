@@ -38,12 +38,16 @@ import Footer from './components/Footer/Footer'
 export default class App extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            currentUser: undefined
+        };
     }
 
     // check if user is in database or whether their data is altered
     // while they're still using the application and require re-login
     // to refresh the data in localStorage
-    componentDidMount = async () => {
+    checkDataChange = async () => {
         if (localStorage.getItem("user") !== null) {
             const currentUser = JSON.parse(localStorage.getItem('user'));
             let user = null;
@@ -53,6 +57,7 @@ export default class App extends Component {
                     .then(response => {
                         user = response.data;
                     }, error => {
+                        console.log(error);
                         this.logout();
                     })
             } catch (err) {
@@ -90,6 +95,21 @@ export default class App extends Component {
         }
     }
 
+    updateNavBar = () => {
+        if (localStorage.getItem("user") !== null) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            user.isAdmin = AuthService.isAdmin(user);
+            this.setState({ currentUser: user });
+        } else {
+            this.setState({ currentUser: undefined });
+        }
+    }
+
+    componentDidMount = () => {
+        this.checkDataChange();
+        this.updateNavBar();
+    }
+
     logOut = () => {
         AuthService.logout();
     }
@@ -97,7 +117,7 @@ export default class App extends Component {
     render = () => {
         return (
             <Router>
-            <NavigationBar/>
+                <NavigationBar obj={this.state.currentUser}/>
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route exact path="/signup" component={Signup} />
@@ -121,7 +141,7 @@ export default class App extends Component {
                     <Route component={NotFound} />
                 </Switch>
                 <AuthVerify logOut={this.logOut} />
-                <Footer/>
+                <Footer />
             </Router>
         );
     }

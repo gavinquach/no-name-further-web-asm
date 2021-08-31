@@ -61,9 +61,6 @@ export default class Login extends Component {
                 this.state.username,
                 this.state.password
             ).then(
-                () => {
-                    this.props.history.push("/");
-                },
                 error => {
                     const resMessage =
                         (error.response &&
