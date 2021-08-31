@@ -2,23 +2,23 @@ import axios from "axios";
 const API_URL = require("./index");
 
 class AuthService {
-    logout() {
+    logout = () => {
         localStorage.removeItem("user");
     }
 
-    getCurrentUser() {
+    getCurrentUser = () => {
         if (localStorage.getItem("user") !== null) {
             return JSON.parse(localStorage.getItem('user'));
         }
     }
 
-    isLoggedIn() {
+    isLoggedIn = () => {
         if (localStorage.getItem("user") === null) return false;
         else return true;
     }
 
     // get role array from user
-    getRoles() {
+    getRoles = () => {
         let roles = [];
         if (localStorage.getItem("user") !== null) {
             const user = JSON.parse(localStorage.getItem('user'));
@@ -28,7 +28,7 @@ class AuthService {
     }
 
     // admin has a manage admin role
-    hasManageAdminRole() {
+    hasManageAdminRole = () => {
         if (!this.isLoggedIn()) return false;
         const user = JSON.parse(localStorage.getItem('user'));
         let roles = [];
@@ -45,7 +45,7 @@ class AuthService {
     }
 
     // admin has a manage user role
-    hasManageUserRole() {
+    hasManageUserRole = () => {
         if (!this.isLoggedIn()) return false;
         const user = JSON.parse(localStorage.getItem('user'));
         let roles = [];
@@ -61,7 +61,7 @@ class AuthService {
     }
 
     // check if user has root access
-    isRoot() {
+    isRoot = () => {
         if (!this.isLoggedIn()) return false;
         const user = JSON.parse(localStorage.getItem('user'));
         if (user.roles.includes("ROLE_ROOT")) return true;
@@ -69,7 +69,7 @@ class AuthService {
     }
 
     // check if user is admin
-    isAdmin() {
+    isAdmin = () => {
         if (!this.isLoggedIn()) return false;
         const user = JSON.parse(localStorage.getItem('user'));
         if (user.roles.includes("ROLE_ROOT")) return true;
@@ -85,7 +85,7 @@ class AuthService {
     }
 
     // check if user is regular user
-    isRegularUser() {
+    isRegularUser = () => {
         if (!this.isLoggedIn()) return false;
         const user = JSON.parse(localStorage.getItem('user'));
         if (user.roles.includes("ROLE_ROOT")) {
@@ -93,7 +93,7 @@ class AuthService {
         }
     }
 
-    login(username, password) {
+    login = (username, password) => {
         return axios
             .post(API_URL + "login", {
                 username,
@@ -103,10 +103,18 @@ class AuthService {
                 if (response.data.accessToken) {
                     localStorage.setItem("user", JSON.stringify(response.data));
                 }
-                // redirect to home page after logging in
-                window.location.replace("/");
                 return response.data;
             });
+    }
+
+    confirmEmail = (email, token) => {
+        return axios.get(`${API_URL}confirm-and-login/${email}/${token}`)
+            .then(response => {
+                if (response.data.accessToken) {
+                    localStorage.setItem("user", JSON.stringify(response.data));
+                }
+                return response.data;
+            });;
     }
 }
 

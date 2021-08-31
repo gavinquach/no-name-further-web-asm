@@ -1,5 +1,6 @@
 const model = require("../models");
 const config = require("../config/auth.config");
+require('dotenv').config();
 
 const Item = model.item;
 const User = model.user;
@@ -37,46 +38,47 @@ exports.signup = async (req, res) => {
         return res.status(500).send(err);
     }
 
-    // generate token and save
-    const token = await new Token({
-        user: user._id,
-        token: crypto.randomBytes(16).toString('hex')
-    });
-
-    try {
-        await token.save();
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-
-    // Send email (use verified sender's email address & the generated API_KEY on SendGrid)
-    const transporter = nodemailer.createTransport(
-        sendgridTransport({
-            auth: {
-                api_key: config.sendgrid_api_key
-            }
-        })
-    );
-
-    try {
-        await transporter.sendMail({
-            from: '0nametrading@gmail.com',
-            to: user.email,
-            subject: 'n0name Account Verification',
-            text: `Hello ${user.username},\n\n` +
-                `Please verify your account by clicking on this link: \n` +
-                `http://${req.headers.host}/confirmation/${user.email}/${token.token}` +
-                `\n\nThank You!`
-        });
-    } catch (err) {
-        return res.status(500).send({ message: "Error encountered! Please click on 'Resend email' to send the email again." });
-    }
-
     if (req.body.verified) {
         res.status(200).send({
             message: "User created successfully."
         });
     } else {
+        // generate token and save
+        const token = await new Token({
+            user: user._id,
+            token: crypto.randomBytes(16).toString('hex')
+        });
+    
+        try {
+            await token.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    
+        // Send email (use verified sender's email address & the generated API_KEY on SendGrid)
+        const transporter = nodemailer.createTransport(
+            sendgridTransport({
+                auth: {
+                    api_key: config.sendgrid_api_key
+                }
+            })
+        );
+    
+        try {
+            await transporter.sendMail({
+                from: '0nametrading@gmail.com',
+                to: user.email,
+                subject: 'n0name Account Verification',
+                text: `Hello ${user.username},\n\n` +
+                    `Please verify your account by clicking on this link: \n` +
+                    // `http://${req.headers.host}/confirmation/${user.email}/${token.token}` +
+                    `${process.env.FRONTEND_URL}/login/${user.email}/${token.token}` +
+                    `\n\nThank You!`
+            });
+        } catch (err) {
+            return res.status(500).send({ message: "Error encountered! Please click on 'Resend email' to send the email again." });
+        }
+
         res.status(200).send({
             message: "A verification email has been sent to " + user.email + ". It will be expired after 24 hours. Please click on 'Resend email' if you haven't received the email."
         });

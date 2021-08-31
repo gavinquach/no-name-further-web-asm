@@ -34,6 +34,33 @@ export default class Login extends Component {
         };
     }
 
+    componentDidMount = () => {
+        if (this.props.match.params.email && this.props.match.params.token) {
+            AuthService.confirmEmail(
+                this.props.match.params.email,
+                this.props.match.params.token
+            ).then(
+                () => {
+                    this.props.history.push("/");
+                    window.location.reload();
+                },
+                error => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
+
+                    this.setState({
+                        loading: false,
+                        message: resMessage
+                    });
+                }
+            );
+        }
+    }
+
     onChangeUsername = (e) => {
         this.setState({
             username: e.target.value
@@ -61,6 +88,10 @@ export default class Login extends Component {
                 this.state.username,
                 this.state.password
             ).then(
+                () => {
+                    this.props.history.push("/");
+                    window.location.reload();
+                },
                 error => {
                     const resMessage =
                         (error.response &&
