@@ -112,6 +112,11 @@ export default class App extends Component {
 
     logOut = () => {
         AuthService.logout();
+
+        // show alert when user gets logged out automatically due to expired token
+        window.alert("Login session expired, please log in again!");
+        window.location.replace("/login");
+        return;
     }
 
     render = () => {
