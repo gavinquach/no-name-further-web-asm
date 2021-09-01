@@ -10,6 +10,9 @@ const fs = require("fs");
 const uploadFile = require("../middlewares/storeImage");
 const { match } = require("assert");
 
+
+
+
 exports.createItem = async (req, res) => {
     try {
         await uploadFile.multiple(req, res);
@@ -368,8 +371,22 @@ exports.getItem = async (req, res) => {
         });
 };
 
-
+// ============= Duong Work for Advanced API  =============
 // Duong'version with Pagination/ Filtering / Sorting  from Duong development branch
+
+
+// This is Alias to shorten URL, standard mechanism instead of customed Params
+// Can be applied to other features such as Least Quantity, Most Transaction, ... based on use cases later
+// Most Quantity and For Item quantity to least // Limit to 6 items
+exports.aliasTopItemQuantity = (req, res, next) => {
+    req.query.limit = "6";
+    req.query.sort = "-quantity,-forItemQty"
+    req.query.fields = "name,quantity,forItemQty,forItemName"
+    next();
+}
+
+
+// Advanced Get All items with Pagination/ Filtering / Sorting 
 exports.getAllItems = async (req, res) => {
     try {
 
@@ -418,7 +435,7 @@ exports.getAllItems = async (req, res) => {
 
         if (req.query.page) {
             const numItems = await Item.countDocuments();
-            if ( skip > numItems) throw new Error(' This page does not exist');
+            if (skip > numItems) throw new Error(' This page does not exist');
         }
 
 
@@ -441,3 +458,6 @@ exports.getAllItems = async (req, res) => {
         });
     }
 };
+
+
+
