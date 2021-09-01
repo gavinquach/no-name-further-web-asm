@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 
-import AuthService from "./services/auth.service";
-import UserService from "./services/user.service";
+import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 
-import NavigationBar from "./NavigationBar";
+
 
 export default class Cart extends Component {
     constructor(props) {
@@ -50,7 +50,7 @@ export default class Cart extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
+               
                 <div className="container">
                     <h1>Cart</h1>
                     {this.state.cart.map(item =>

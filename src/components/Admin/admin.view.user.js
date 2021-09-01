@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom'
 
-import UserTableRow from './ViewUserTableRow';
-import NavigationBar from "../NavigationBar"
+import UserTableRow from '../ViewUserTableRow';
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
+
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
 
 export default class AdminViewUser extends Component {
     constructor(props) {
@@ -67,7 +67,6 @@ export default class AdminViewUser extends Component {
         }
         return (
             <div>
-                <NavigationBar />
                 <br />
                 <h3 align="center">View Users</h3>
                 <table className="container table table-striped" style={{ marginTop: 20 }}>

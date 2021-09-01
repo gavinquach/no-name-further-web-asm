@@ -368,14 +368,21 @@ exports.getItem = async (req, res) => {
         });
 };
 
-
+// ============= Duong Work for Advanced API  =============
 // Duong'version with Pagination/ Filtering / Sorting  from Duong development branch
-exports.getAllItems = async (req, res) => {
-    try {
 
-        // Build query
+// Create API Features object to implement in other model if needed 
+// WARNING : In sort method, the default sort by -upload_date / the variables in item model
+// -> if use this object later with other models , create upload_date in other model too or set some default created time for each model
+class APIFeatures {
+    constructor(query, queryString) {
+        this.query = query;
+        this.queryString = queryString;
+    }
+
+    filter() {
         // 1. Filtering 
-        const queryObj = { ...req.query };
+        const queryObj = { ...this.queryString };
         const excludedFields = ["page", "sort", "limit", "fields"];
         excludedFields.forEach(el => delete queryObj[el]);
 
@@ -387,43 +394,79 @@ exports.getAllItems = async (req, res) => {
 
 
         // initialize query based on param
-        let query = Item.find(JSON.parse(queryStr))
-            .populate("type", "-__v")
-            .populate("forItemType", "-__v")
-            .populate("images", "-__v")
-            .populate("seller", "-__v");
+        this.query = this.query.find(JSON.parse(queryStr))
 
+        return this;
+    }
+
+    sort() {
 
         //3. Sorting 
-        if (req.query.sort) {
+        if (this.queryString.sort) {
             // split elements to sort 
-            const sortBy = req.query.sort.split(',').join(' ');
-            query = query.sort(sortBy)
+            const sortBy = this.queryString.sort.split(',').join(' ');
+            this.query = this.query.sort(sortBy)
         } else {
-            query = query.sort('-upload_date');
+            this.query = this.query.sort('-upload_date');
         }
 
+        return this;
+
+    }
+
+
+    limitFields() {
         //4 Field Limiting 
-        if (req.query.fields) {
-            const fields = req.query.fields.split(',').join(' ');
-            query = query.select(fields);
+        if (this.queryString.fields) {
+            const fields = this.queryString.fields.split(',').join(' ');
+            this.query = this.query.select(fields);
         } else {
-            query = query.select('-__v');
+            this.query = this.query.select('-__v');
         }
 
+        return this;
+    }
+
+
+    paginate() {
         // 5 Pagination with param page, and limit set 
-        const page = req.query.page * 1 || 1;
-        const limit = req.query.limit * 1 || 100;
+        const page = this.queryString.page * 1 || 1;
+        const limit = this.queryString.limit * 1 || 100;
         const skip = (page - 1) * limit;
 
-        if (req.query.page) {
-            const numItems = await Item.countDocuments();
-            if ( skip > numItems) throw new Error(' This page does not exist');
-        }
+        this.query = this.query.skip(skip).limit(limit);
+        
+        return this;
+    }
+}
+
+// This is Alias to shorten URL, standard mechanism instead of customed Params
+// Can be applied to other features such as Least Quantity, Most Transaction, ... based on use cases later
+// Most Quantity and For Item quantity to least // Limit to 6 items
+exports.aliasTopItemQuantity = (req, res, next) => {
+    req.query.limit = "6";
+    req.query.sort = "-quantity,-forItemQty"
+    req.query.fields = "name,quantity,forItemQty,forItemName"
+    next();
+}
 
 
-        // Execute query
-        const items = await query;
+// Advanced Get All items with Pagination/ Filtering / Sorting 
+exports.getAllItems = async (req, res) => {
+    try {
+
+        // Execute query from Feature API object
+        const features = new APIFeatures(
+            Item.find().populate("type", "-__v")
+                .populate("forItemType", "-__v")
+                .populate("images", "-__v")
+                .populate("seller", "-__v"),
+            req.query)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+        const items = await features.query;
 
 
         if (!items) return res.status(404).send({ message: "Item not found." });
@@ -435,9 +478,13 @@ exports.getAllItems = async (req, res) => {
             }
         });
     } catch (err) {
+        
         res.status(404).json({
             status: "fail",
-            message: err
+            message: console.log(err)
         });
     }
 };
+
+
+

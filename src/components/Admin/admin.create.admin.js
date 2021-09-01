@@ -5,12 +5,12 @@ import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 import { Redirect } from 'react-router-dom'
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
 
-import '../css/UserPages.css'
+import '../../css/UserPages.css'
 
-import NavigationBar from "../NavigationBar"
+
 
 const required = value => {
     if (!value) {
@@ -182,7 +182,7 @@ export default class AdminCreateAdmin extends Component {
         }
         return (
             <div>
-                <NavigationBar />
+          
                 <a href="/admin/view/admin" style={{ marginLeft: "15em"}}>
                     <button className="Redirect-btn">View admins</button>
                 </a>

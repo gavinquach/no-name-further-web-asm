@@ -1,63 +1,70 @@
-
-.Navbar {
-  border-bottom: 1px solid silver;
-  box-shadow: 5px 3px whitesmoke;
-  margin-bottom: 2em;
+.navbar {
+    border-bottom: 1px solid silver;
+    box-shadow: 5px 3px whitesmoke;
+    margin-bottom: 2em;
+    background-color: #284b63;
+}
+.nav {
+    margin-right: auto
+}
+.navbar-text {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white !important;
 }
 
-.Navbar > .Nav-bar-item {
-  color: black;
+.navbar-text:hover {
+    font-weight: bold;
+    color: #d9d9d9 !important;
 }
 
-.Nav-bar-text {
-  font-weight: bold;
-  color: black;
+.navbar-item {
+    width: 6 em;
+    justify-content: space-evenly;
+    text-align: center;
+    margin-top: 7px;
+    margin-bottom: 7px;
 }
 
-.Nav-bar-item {
-  width: 9em;
-  justify-content: space-evenly;
+.button1 {
+    border-radius: 1em 0.5em 0.5em 1em;
+    background-color: white;
+    border: 2px solid black;
+    width: 7em;
+    height: 2.8em;
+    font-weight: bold;
+}
+.button2 {
+    border-radius: 0.5em 1em 1em 0.5em;
+    background-color: white;
+    border: 2px solid black;
+    width: 7em;
+    height: 2.8em;
+    font-weight: bold;
 }
 
-.Log-in-out-btn {
-  border-radius: 2em;
-  background-color: black;
-  border: none;
-  width: 7em;
-  height: 2.8em;
-  color: white;
-  font-weight: bold;
+
+.button1:hover {
+    background-color: #d9d9d9;
+    border: 2px solid white;
+}
+.button2:hover {
+    background-color: #d9d9d9;
+    border: 2px solid white;
 }
 
-.Log-in-out-text {
-  color: white;
+.button-text {
+    color: black !important;
 }
 
-.Log-in-out-text:hover {
-  color: white;
-}
-
-.Sign-up-btn {
-  border-radius: 2em;
-  background-color: white;
-  border: 2px solid black;
-  width: 7em;
-  height: 2.8em;
-  font-weight: bold;
-}
-
-.Sign-up-text {
-  color: black;
-}
-
-.Sign-up-text:hover {
-  color: black;
+.button-text:hover {
+    color: white !important;
 }
 
 #username-text {
-  color: black;
+    color: black;
 }
 
 #username-text:hover {
-  color: black;
+    color: black;
 }

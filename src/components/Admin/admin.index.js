@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 
-import AuthService from "../services/auth.service";
-import ItemService from "../services/item.service";
+import AuthService from "../../services/auth.service";
+import ItemService from "../../services/item.service";
 
-import NavigationBar from "../NavigationBar"
-import '../css/UserPages.css'
+
+import '../../css/UserPages.css'
 
 const manageAdmin = (
     <div className="Flexbox-item Center-text">
         <h2 className="Center-text">Manage admins</h2>
         <a href="/admin/view/admin" className="Button-item">
-            <button className="Redirect-btn">View admins</button>
+            <button className="user-button">View admins</button>
         </a>
         <a href="/admin/create/admin" className="Button-item">
-            <button className="Redirect-btn">Create admin</button>
+            <button className="user-button">Create admin</button>
         </a>
     </div>
 )
@@ -22,10 +22,10 @@ const manageUser = (
     <div className="Flexbox-item Center-text">
         <h2 className="Center-text">Manage users</h2>
         <a href="/admin/view/user" className="Button-item">
-            <button className="Redirect-btn">View users</button>
+            <button className="user-button">View users</button>
         </a>
         <a href="/admin/create/user" className="Button-item">
-            <button className="Redirect-btn">Create user</button>
+            <button className="user-button">Create user</button>
         </a>
     </div>
 )
@@ -61,7 +61,6 @@ export default class AdminIndex extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
                 <h1 className="Center-text-header">Admin Panel</h1>
                 <br />
 

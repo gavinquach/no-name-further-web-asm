@@ -5,12 +5,12 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
 
-import AuthService from "../services/auth.service";
-import ItemService from "../services/item.service";
+import AuthService from "../../services/auth.service";
+import ItemService from "../../services/item.service";
 
-import NavigationBar from "../NavigationBar"
 
-import '../css/UserPages.css'
+
+import '../../css/UserPages.css'
 
 const required = value => {
     if (!value) {
@@ -361,7 +361,7 @@ export default class UserEditItem extends Component {
     render() {
         return (
             <div>
-                <NavigationBar />
+            
                 <div className="container" style={{ width: "60em" }}>
                     <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
                         <h1 className="Big-text">Edit item</h1>

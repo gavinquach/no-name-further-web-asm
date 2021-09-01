@@ -38,9 +38,9 @@
     font-weight: bold;
 }
 
-.Redirect-btn {
+.user-button {
     border-radius: 0.5em;
-    background-color: black;
+    background-color: #353535;
     border: none;
     width: 13.2em;
     height: 3.5em;
