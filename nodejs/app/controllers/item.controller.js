@@ -376,8 +376,8 @@ exports.getAllItems = async (req, res) => {
         // Build query
         // 1. Filtering 
         const queryObj = { ...req.query };
-        const excludedField = ["page", "sort", "limit", "fields"];
-        excludedField.forEach(el => delete queryObj[el]);
+        const excludedFields = ["page", "sort", "limit", "fields"];
+        excludedFields.forEach(el => delete queryObj[el]);
 
 
         // 2. Advanced Filtering with greater, greater equal, less than , less and equal
@@ -395,13 +395,33 @@ exports.getAllItems = async (req, res) => {
 
 
         //3. Sorting 
-        // console.log(req.query.sort)
         if (req.query.sort) {
-            const sortBy = req.query.sort.split(',').join('');
-            console.log(sortBy)
-            query = query.sort(req.query.sort)
-
+            // split elements to sort 
+            const sortBy = req.query.sort.split(',').join(' ');
+            query = query.sort(sortBy)
+        } else {
+            query = query.sort('-upload_date');
         }
+
+        //4 Field Limiting 
+        if (req.query.fields) {
+            const fields = req.query.fields.split(',').join(' ');
+            query = query.select(fields);
+        } else {
+            query = query.select('-__v');
+        }
+
+        // 5 Pagination with param page, and limit set 
+        const page = req.query.page * 1 || 1;
+        const limit = req.query.limit * 1 || 100;
+        const skip = (page - 1) * limit;
+
+        if (req.query.page) {
+            const numItems = await Item.countDocuments();
+            if ( skip > numItems) throw new Error(' This page does not exist');
+        }
+
+
         // Execute query
         const items = await query;
 
@@ -415,7 +435,6 @@ exports.getAllItems = async (req, res) => {
             }
         });
     } catch (err) {
-        console.log(err)
         res.status(404).json({
             status: "fail",
             message: err
