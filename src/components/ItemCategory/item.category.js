@@ -40,24 +40,29 @@ export default class ItemCategory extends Component {
                 <h2>{this.state.category}</h2>
                 <hr className="section-line" />
                 <br />
-                {this.state.items.map((item, index) =>
-                    <a key={index} href={"item/" + item._id}>
-                        <div className="Dashboard">
-                            <div className="Dashboard-img">
-                                {item.images.map(image =>
-                                    image.cover && (
-                                        <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
-                                    )
-                                )}
+                {this.state.items.length > 0
+                    ? this.state.items.map((item, index) => (
+                        <a key={index} href={"item/" + item._id}>
+                            <div className="Dashboard">
+                                <div className="Dashboard-img">
+                                    {item.images.map(image =>
+                                        image.cover && (
+                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
+                                        )
+                                    )}
+                                </div>
+                                <p>{item.name} / <b>{item.quantity}</b></p>
+                                <p></p>
+                                <p className="for">FOR</p>
+                                <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
+                                <p></p>
                             </div>
-                            <p>{item.name} / <b>{item.quantity}</b></p>
-                            <p></p>
-                            <p className="for">FOR</p>
-                            <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
-                            <p></p>
+                        </a>
+                    )) : (
+                        <div>
+                            <h2 style={{ textAlign: "center" }}>No items found.</h2>
                         </div>
-                    </a>
-                )}
+                    )}
             </div>
         )
     }
