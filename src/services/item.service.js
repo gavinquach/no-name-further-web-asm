@@ -21,8 +21,9 @@ class ItemService {
         return axiosTokenHeader.delete(API_URL + "item/" + id);
     }
 
-    getItemsByCategory = (category) => {
-        return axiosTokenHeader.get(API_URL + "items/" + category.replace("/", "-"));
+    getItemsByCategory = (category, page) => {
+        const url = `${category.replace("/", "-")}/${page}`
+        return axiosTokenHeader.get(API_URL + "items/" + url);
     }
 }
 

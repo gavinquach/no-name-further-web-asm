@@ -8,7 +8,6 @@ const User = model.user;
 const img = require("../config/img.config");
 const fs = require("fs");
 const uploadFile = require("../middlewares/storeImage");
-const { match } = require("assert");
 
 exports.createItem = async (req, res) => {
     try {
@@ -350,9 +349,6 @@ exports.deleteItem = async (req, res) => {
     res.status(200).send({ message: "Item successfully removed" });
 };
 
-
-
-
 exports.getItem = async (req, res) => {
     Item.findById({
         _id: req.params.id
@@ -487,47 +483,55 @@ exports.getAllItems = async (req, res) => {
                 .populate("seller", "-__v")
             , req.query)
             .filter()
-            // .filterType()
             .sort()
             .limitFields()
             .paginate();
 
         items = await features.query;
     } catch (err) {
-        res.status(404).json({
-            status: "fail",
-            message: err
-        });
+        return res.status(500).send(err);
     }
     if (!items) return res.status(404).send({ message: "Items not found." });
 
-    await res.status(200).json({
-        status: "success",
+    res.status(200).json({
         result: items.length,
-        items
+        totalPages: Math.ceil(await Item.countDocuments() / items.length),
+        items: items
     });
 };
 
 // Get items by category
 exports.getItemsByCategory = async (req, res) => {
+    let total = 0;
+    const resultsPerPage = 6;
+    const page = req.params.page || 1;
+
+    let items = null;
     try {
-        const items = await Item.find({
-            type: await ItemCategory.findOne({
-                name: req.params.category.replace("-", "/")
-            }).exec()
+        const category = await ItemCategory.findOne({
+            name: req.params.category.replace("-", "/")
+        }).exec();
+
+        items = await Item.find({
+            type: category
         })
+            .skip((resultsPerPage * page) - resultsPerPage)
+            .limit(resultsPerPage)
             .populate("type", "-__v")
             .populate("forItemType", "-__v")
             .populate("images", "-__v")
             .populate("seller", "-__v")
             .exec();
 
-        if (!items) return res.status(404).send({ message: "Items not found." });
-        res.json(items);
+            total = await Item.countDocuments({ type: category });
     } catch (err) {
         return res.status(500).send(err);
     }
+    if (!items) return res.status(404).send({ message: "Items not found." });
+
+    res.status(200).json({
+        results: items.length,
+        totalPages: Math.ceil(total / resultsPerPage),
+        items: items
+    });
 };
-
-
-

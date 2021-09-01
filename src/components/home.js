@@ -15,7 +15,6 @@ export default class Home extends Component {
     loadItems = () => {
         ItemService.viewAllItems()
             .then(response => {
-                console.log(response.data.items);
                 this.setState({ items: response.data.items });
             }).catch(function (error) {
                 console.log(error);
