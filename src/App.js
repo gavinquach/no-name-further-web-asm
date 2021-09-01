@@ -35,6 +35,9 @@ import AdminEditUser from './components/Admin/admin.edit.user';
 import NavigationBar from './components/Navbar/NavigationBar';
 import Footer from './components/Footer/Footer'
 
+import ItemCategory from "./components/ItemCategory/item.category"
+import { CategoryList } from "./components/ItemCategory/item-categories"
+
 export default class App extends Component {
     constructor(props) {
         super(props);
@@ -128,6 +131,7 @@ export default class App extends Component {
                     <Route exact path="/signup" component={Signup} />
                     <Route exact path="/login/:email/:token" component={Login} />
                     <Route exact path="/login" component={Login} />
+                    <Route path="/items" component={ItemCategory} />
                     <Route path="/item/:id" component={ItemDetails} />
                     <UserProtectedRoute path="/cart" component={Cart} />
                     <UserProtectedRoute path="/transactions" component={Transactions} />

@@ -2,23 +2,27 @@ import { axiosTokenHeader, axiosFormData } from "./AxiosInstance"
 const API_URL = require("./index");
 
 class ItemService {
-    viewAllItems() {
+    viewAllItems = () => {
         return axiosTokenHeader.get(API_URL + "items");
     }
-    viewOneItem(itemid) {
+    viewOneItem = (itemid) => {
         return axiosTokenHeader.get(API_URL + "item/" + itemid);
     }
 
-    createItem(files) {
+    createItem = (files) => {
         return axiosFormData.post(API_URL + "item", files);
     }
 
-    editItem(itemid, files) {
+    editItem = (itemid, files) => {
         return axiosFormData.put(API_URL + "item/" + itemid, files);
     }
 
-    deleteItem(id) {
+    deleteItem = (id) => {
         return axiosTokenHeader.delete(API_URL + "item/" + id);
+    }
+
+    getItemsByCategory = (category) => {
+        return axiosTokenHeader.get(API_URL + "items/" + category.replace("/", "-"));
     }
 }
 

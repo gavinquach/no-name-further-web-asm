@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import AuthService from "../services/auth.service";
 import ItemService from "../services/item.service";
 
-import ItemCategories from "./ItemType/item.category.js"
+import Categories from "./ItemCategory/Categories.js"
 
 
 export default class Home extends Component {
@@ -12,13 +12,18 @@ export default class Home extends Component {
         this.state = { items: [] };
     }
 
+    loadItems = () => {
+        ItemService.viewAllItems()
+            .then(response => {
+                console.log(response.data.items);
+                this.setState({ items: response.data.items });
+            }).catch(function (error) {
+                console.log(error);
+            })
+    }
+
     componentDidMount() {
-        ItemService.viewAllItems().then(response => {
-            // console.log(response.data);
-            this.setState({ items: response.data });
-        }).catch(function (error) {
-            console.log(error);
-        })
+        this.loadItems();
     }
 
     render() {
@@ -28,7 +33,7 @@ export default class Home extends Component {
                     <h2>Categories</h2>
                     <hr className="section-line" />
                     <br />
-                    <ItemCategories />
+                    <Categories />
                     <br />
                     <br />
 

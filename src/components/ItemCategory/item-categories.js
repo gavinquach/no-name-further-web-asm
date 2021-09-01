@@ -5,54 +5,54 @@ import instant_food from "../../images/instant-noodles.jpg";
 import condiments from "../../images/condiments-2.jpg";
 import rice_nuts from "../../images/nuts-1.jpg";
 import canned_food from "../../images/canned-food-2.jpg";
-import snack from "../../images/snacks-3.jpg";
+import snacks from "../../images/snacks-3.jpg";
 
-export const Categories = [{
+export const CategoryList = [{
         title: "Refrigerated/Processed food",
-        url: "/refrigerated-processed",
+        url: "refrigerated-processed-food",
         cName: "category-links",
         image: processed_meat
     },
     {
         title: "Seafood/Dried fish",
-        url: "/seafood-dried-fish",
+        url: "seafood-dried-fish",
         cName: "category-links",
         image: seafood
     },
     {
         title: "Vegetables/Fruits",
-        url: "/vegetables-fruits",
+        url: "vegetables-fruits",
         cName: "category-links",
         image: vegetables_fruits
     },
     {
         title: "Instant food",
-        url: "/instant-food",
+        url: "instant-food",
         cName: "category-links",
         image: instant_food
     },
     {
         title: "Spices/Condiments",
-        url: "/spices-condiments",
+        url: "spices-condiments",
         cName: "category-links",
         image: condiments
     },
     {
         title: "Rice/Nuts",
-        url: "/rice-nuts",
+        url: "rice-nuts",
         cName: "category-links",
         image: rice_nuts
     },
     {
         title: "Canned food",
-        url: "/canned",
+        url: "canned-food",
         cName: "category-links",
         image: canned_food
     },
     {
-        title: "Snack",
-        url: "/snack",
+        title: "Snacks",
+        url: "snacks",
         cName: "category-links",
-        image: snack
+        image: snacks
     }
 ];
