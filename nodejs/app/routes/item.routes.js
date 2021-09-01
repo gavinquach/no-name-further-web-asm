@@ -5,7 +5,7 @@ const router = require("../routes");
 
 router
     .route("/most-items-quantity")
-    .get(controller.aliasTopItemQuantity,controller.getAllItems);
+    .get(controller.aliasTopItemQuantity, controller.getAllItems);
 
 router
     .route("/item/:id")
@@ -27,5 +27,6 @@ router.post("/item", [
 ], controller.createItem);
 
 router.get("/items", controller.getAllItems);
+router.get("/items/:category", controller.getItemsByCategory);
 
 module.exports = router;
