@@ -34,9 +34,8 @@ import AdminEditAdmin from './components/Admin/admin.edit.admin';
 import AdminEditUser from './components/Admin/admin.edit.user';
 import NavigationBar from './components/Navbar/NavigationBar';
 import Footer from './components/Footer/Footer'
-
 import ItemCategory from "./components/ItemCategory/item.category"
-import { CategoryList } from "./components/ItemCategory/item-categories"
+import PopularOffers from "./components/popularoffers"
 
 export default class App extends Component {
     constructor(props) {
@@ -127,12 +126,16 @@ export default class App extends Component {
             <Router>
                 <NavigationBar obj={this.state.currentUser}/>
                 <Switch>
+                    {/* public pages */}
                     <Route exact path="/" component={Home} />
                     <Route exact path="/signup" component={Signup} />
                     <Route exact path="/login/:email/:token" component={Login} />
                     <Route exact path="/login" component={Login} />
                     <Route path="/items" component={ItemCategory} />
                     <Route path="/item/:id" component={ItemDetails} />
+                    <Route path="/popular" component={PopularOffers} />
+
+                    {/* user pages */}
                     <UserProtectedRoute path="/cart" component={Cart} />
                     <UserProtectedRoute path="/transactions" component={Transactions} />
                     <UserProtectedRoute exact path='/user' component={UserProfile} />
@@ -141,6 +144,8 @@ export default class App extends Component {
                     <UserProtectedRoute exact path='/user/create' component={UserCreateItem} />
                     <UserProtectedRoute path='/user/edit/item/:id' component={UserEditItem} />
                     <UserProtectedRoute exact path='/user/items' component={UserViewItem} />
+                    
+                    {/* admin pages */}
                     <AdminProtectedRoute exact path='/admin/index' component={AdminIndex} />
                     <AdminProtectedRoute exact path='/admin/view/admin' component={AdminViewAdmin} />
                     <AdminProtectedRoute exact path='/admin/view/user' component={AdminViewUser} />
