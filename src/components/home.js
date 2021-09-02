@@ -13,7 +13,7 @@ export default class Home extends Component {
     }
 
     loadItems = () => {
-        ItemService.viewAllItems()
+        ItemService.getItemsByTransaction()
             .then(response => {
                 this.setState({ items: response.data.items });
             }).catch(function (error) {
@@ -36,7 +36,11 @@ export default class Home extends Component {
                     <br />
                     <br />
 
-                    <h2>Popular offers</h2>
+                    <h2>Popular offers
+                        <a style={{ fontSize: "20px", marginLeft: "2em" }} href="/popular?page=1">
+                            {"more >>"}
+                        </a>
+                    </h2>
                     <hr className="section-line" />
                     <br />
                     {this.state.items.map((item, index) =>
@@ -53,7 +57,7 @@ export default class Home extends Component {
                                 <p></p>
                                 <p className="for">FOR</p>
                                 <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
-                                <p></p>
+                                <p>Offers: {item.offers}</p>
                             </div>
                         </a>
                     )}
