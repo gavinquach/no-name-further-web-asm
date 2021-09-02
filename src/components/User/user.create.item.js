@@ -296,7 +296,7 @@ export default class UserCreateItem extends Component {
                                 <option>Spices/Condiments</option>
                                 <option>Rice/Nuts</option>
                                 <option>Canned food</option>
-                                <option>Snack</option>
+                                <option>Snacks</option>
                             </Select>
                         </div>
                         <div className="Flex-row-item">
@@ -349,7 +349,7 @@ export default class UserCreateItem extends Component {
                                 <option>Spices/Condiments</option>
                                 <option>Rice/Nuts</option>
                                 <option>Canned food</option>
-                                <option>Snack</option>
+                                <option>Snacks</option>
                             </Select>
                         </div>
                         <div className="Flex-row-item">
