@@ -123,8 +123,8 @@ exports.createTransaction = async (req, res) => {
     item.offers += 1;
 
     const currentDate = new Date();
-    let datePlus2Weeks = new Date();
-    datePlus2Weeks.setDate(datePlus2Weeks.getDate() + 2 * 7);   // add 2 weeks to date
+    let datePlus2Days = new Date();
+    datePlus2Days.setDate(datePlus2Days.getDate() + 2 * 7);   // add 2 days to date
 
     // create transaction object
     const transaction = new Transaction({
@@ -132,7 +132,7 @@ exports.createTransaction = async (req, res) => {
         user_buyer: user._id,
         item: item._id,
         created_date: currentDate,
-        expirational_date: datePlus2Weeks,
+        expirational_date: datePlus2Days,
         status: "Pending"
     });
 
