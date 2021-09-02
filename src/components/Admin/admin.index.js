@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
-
 import '../../css/UserPages.css'
 
 const manageAdmin = (
@@ -12,9 +11,11 @@ const manageAdmin = (
         <a href="/admin/view/admin" className="Button-item">
             <button className="user-button">View admins</button>
         </a>
-        <a href="/admin/create/admin" className="Button-item">
-            <button className="user-button">Create admin</button>
-        </a>
+        {AuthService.isRoot() || AuthService.getRoles().includes("ROLE_CREATE_ADMIN") && (
+            <a href="/admin/create/admin" className="Button-item">
+                <button className="user-button">Create admin</button>
+            </a>
+        )}
     </div>
 )
 
@@ -24,9 +25,11 @@ const manageUser = (
         <a href="/admin/view/user" className="Button-item">
             <button className="user-button">View users</button>
         </a>
-        <a href="/admin/create/user" className="Button-item">
-            <button className="user-button">Create user</button>
-        </a>
+        {AuthService.isRoot() || AuthService.getRoles().includes("ROLE_CREATE_USER") && (
+            <a href="/admin/create/user" className="Button-item">
+                <button className="user-button">Create user</button>
+            </a>
+        )}
     </div>
 )
 
@@ -51,7 +54,6 @@ export default class AdminIndex extends Component {
     }
     componentDidMount() {
         ItemService.viewAllItems().then(response => {
-            // console.log(response.data);
             this.setState({ items: response.data.items });
         }).catch(function (error) {
             console.log(error);
@@ -82,7 +84,7 @@ export default class AdminIndex extends Component {
                                 <div className="Dashboard-img">
                                     {item.images.map(image =>
                                         image.cover && (
-                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)}/>
+                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                         )
                                     )}
                                 </div>

@@ -11,8 +11,6 @@ import UserService from '../../services/user.service';
 
 import '../../css/UserPages.css'
 
-
-
 const required = value => {
     if (!value) {
         return (
@@ -249,14 +247,12 @@ export default class AdminCreateUser extends Component {
     }
 
     render() {
-        // redirect to home page when unauthorized user tries to view
+        // redirect to index page when unauthorized admin tries to view
         if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_CREATE_USER")) {
             return <Redirect to='/admin/index' />
         }
         return (
             <div>
-               
-            
                 <a href="/admin/view/user" style={{ marginLeft: "15em" }}>
                     <button className="Redirect-btn">View users</button>
                 </a>
