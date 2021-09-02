@@ -31,36 +31,6 @@ export default class ItemCategory extends Component {
 
     load = () => {
         const queryParams = new URLSearchParams(window.location.search);
-
-        // no page parameter in URL, redirect to page 1
-        if (!this.state.currentPage) {
-            // get URL for redirect
-            const paths = window.location.href.split("/");
-            let url = null;
-            paths.map((path, index) => {
-                if (path.includes("items")) {
-                    url = paths[index];
-                }
-            });
-
-            let index = -1;
-            if (url.indexOf("page") < 0) {
-                index = url.length;
-            } else {
-                index = url.indexOf("page");
-            }
-
-            let pageURL = "";
-            for (let i = 0; i < index; i++) {
-                pageURL += url[i];
-            }
-            if (pageURL[pageURL.length - 1] !== "&") {
-                pageURL += "&";
-            }
-            pageURL += "page=1";
-            return window.location.replace("/" + pageURL);
-        }
-
         let category = queryParams.get('category');
         CategoryList.map(c => {
             if (category == c.url) {
@@ -95,18 +65,15 @@ export default class ItemCategory extends Component {
         }
 
         // get URL for redirect
-        const paths = window.location.href.split("/");
-        let url = null;
-        paths.map((path, index) => {
-            if (path.includes("items")) {
-                url = paths[index];
-            }
-        });
+        const url = new URL(window.location.href);
+        const search_params = url.searchParams;
 
         const buttons = [];
         if (this.state.currentPage > 1) {
             const prevPage = this.state.currentPage - 1;
-            const pageURL = this.replaceAt(url, url.indexOf("page") + 5, prevPage.toString());
+            search_params.set("page", prevPage);
+            const pageURL = url.pathname + "?" + search_params.toString();
+
             buttons.push(
                 <Link to={pageURL} onClick={() => this.updatePage(prevPage)}>
                     <button>Previous</button>
@@ -115,7 +82,8 @@ export default class ItemCategory extends Component {
         }
         for (let i = 1; i <= this.state.totalPages; i++) {
             // replace page number with index number
-            const pageURL = this.replaceAt(url, url.indexOf("page") + 5, i.toString());
+            search_params.set("page", i);
+            const pageURL = url.pathname + "?" + search_params.toString();
 
             if (i === this.state.currentPage) {
                 buttons.push(
@@ -131,7 +99,9 @@ export default class ItemCategory extends Component {
         }
         if (this.state.currentPage < this.state.totalPages) {
             const nextPage = this.state.currentPage + 1;
-            const pageURL = this.replaceAt(url, url.indexOf("page") + 5, nextPage.toString());
+            search_params.set("page", nextPage);
+            const pageURL = url.pathname + "?" + search_params.toString();
+
             buttons.push(
                 <Link to={pageURL} onClick={() => this.updatePage(nextPage)}>
                     <button>Next</button>
@@ -142,6 +112,16 @@ export default class ItemCategory extends Component {
     }
 
     render() {
+        // ========== validate GET parameters ==========
+        const url = new URL(window.location.href);
+        const search_params = url.searchParams;
+        const page = search_params.get("page");
+        if (!page || page === "") {
+            search_params.set("page", 1);
+            const pageURL = url.pathname + "?" + search_params.toString();
+            return window.location.replace(pageURL);
+        }
+        // ========== end of GET param validation ==========
         return (
             <div className="container">
                 <h2>{this.state.category}</h2>
