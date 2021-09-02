@@ -451,8 +451,19 @@ class APIFeatures {
 
     // Pagination with param page, and object limit per page
     paginate = () => {
-        const page = this.queryString.page * 1 || 1;
-        const limit = this.queryString.limit * 1 || 100;
+        // current page
+        let page = 1;
+        // validate value
+        if (this.queryString.page && this.queryString.page !== 'undefined' && parseInt(this.queryString.page) > 0) {
+            page = parseInt(this.queryString.page);
+        }
+        
+        // amount of results per page
+        let limit = 6;
+        // validate value
+        if (this.queryString.limit && this.queryString.limit === 'undefined' && parseInt(this.queryString.limit) > 0) {
+            limit = parseInt(this.queryString.limit);
+        }
         const skip = (page - 1) * limit;
 
         this.query = this.query.skip(skip).limit(limit);
