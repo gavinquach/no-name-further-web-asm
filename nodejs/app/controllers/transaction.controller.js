@@ -111,13 +111,6 @@ exports.createTransaction = async (req, res) => {
     const itemIndexInCart = user.cart.indexOf(req.body.itemid);
     if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
 
-    // add transaction to database
-    try {
-        await user.save();
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-
     let item = null;
     try {
         item = await Item.findById(req.body.itemid).exec();
@@ -125,6 +118,9 @@ exports.createTransaction = async (req, res) => {
         return res.status(500).send(err);
     }
     if (!item) return res.status(404).send({ message: "Item not found." });
+
+    // add 1 to offers in item model
+    item.offers += 1;
 
     const currentDate = new Date();
     let datePlus2Weeks = new Date();
@@ -140,6 +136,20 @@ exports.createTransaction = async (req, res) => {
         status: "Pending"
     });
 
+    // save user
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // save item
+    try {
+        await item.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
     // add transaction to database
     try {
         await transaction.save();
@@ -151,11 +161,30 @@ exports.createTransaction = async (req, res) => {
 
 // Delete transaction
 exports.deleteTransaction = async (req, res) => {
-    Transaction.deleteOne({
+    Transaction.findByIdAndRemove({
         _id: req.params.id
-    }, (err, deleted) => {
+    }, async (err, transaction) => {
         if (err) return res.status(500).send(err);
-        if (deleted) res.status(200).send({ message: "Transaction successfully removed" });
+        if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+
+        let item = null;
+        try {
+            item = await Item.findById(transaction.item).exec();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+        if (!item) return res.status(404).send({ message: "Item not found." });
+
+        // remove 1 from offers in item model
+        item.offers -= 1;
+        // save item
+        try {
+            await item.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+
+        res.status(200).send({ message: "Transaction successfully removed" });
     });
 }
 
@@ -173,7 +202,25 @@ exports.cancelTransaction = async (req, res) => {
     }
     if (!transaction) return res.status(401).send({ message: "Transaction not found." });
 
+    let item = null;
+    try {
+        item = await Item.findById(transaction.item).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!item) return res.status(404).send({ message: "Item not found." });
+
+    // remove 1 from offers in item model
+    item.offers -= 1;
+    
+    // set status to "Cancelled"
     transaction.status = "Cancelled";
+    // save item
+    try {
+        await item.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
     try {
         await transaction.save();
     } catch (err) {
@@ -191,7 +238,7 @@ exports.completeTransaction = async (req, res) => {
         return res.status(500).send(err);
     }
     if (!transaction) return res.status(401).send({ message: "Transaction not found." });
-    
+
     // add the buyer to transaction
     transaction.finalization_date = new Date();
     transaction.status = "Done";
