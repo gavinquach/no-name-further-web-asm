@@ -457,7 +457,7 @@ class APIFeatures {
         if (this.queryString.page && this.queryString.page !== 'undefined' && parseInt(this.queryString.page) > 0) {
             page = parseInt(this.queryString.page);
         }
-        
+
         // amount of results per page
         let limit = 6;
         // validate value
@@ -476,7 +476,7 @@ class APIFeatures {
 // Most Quantity and For Item quantity to least // Limit to 6 items
 exports.aliasTopItemQuantity = (req, res, next) => {
     req.query.limit = "6";
-    req.query.sort = "-quantity,-forItemQty"
+    req.query.sort = "-quantity,-forItemQty,-offers,-name,-forItemName"
     req.query.fields = "name,quantity,forItemQty,forItemName"
     next();
 }
@@ -484,6 +484,11 @@ exports.aliasTopItemQuantity = (req, res, next) => {
 // Advanced get all items function with Pagination/ Filtering / Sorting 
 exports.getAllItems = async (req, res) => {
     let items = null;
+    let limit = 6;
+    // validate value
+    if (req.query.limit && req.query.limit === 'undefined' && parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
     try {
         // Execute query from Feature API object
         const features = new APIFeatures(
@@ -506,7 +511,7 @@ exports.getAllItems = async (req, res) => {
 
     res.status(200).json({
         result: items.length,
-        totalPages: Math.ceil(await Item.countDocuments() / items.length),
+        totalPages: Math.ceil(await Item.countDocuments() / limit),
         items: items
     });
 };
@@ -534,7 +539,7 @@ exports.getItemsByCategory = async (req, res) => {
             .populate("seller", "-__v")
             .exec();
 
-            total = await Item.countDocuments({ type: category });
+        total = await Item.countDocuments({ type: category });
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -546,36 +551,3 @@ exports.getItemsByCategory = async (req, res) => {
         items: items
     });
 };
-
-// Get items by transaction with sorting and pagination
-exports.getItemsByTransaction = async (req, res) => {
-    const sort = req.query.sort === 'undefined' ? "descending" : req.query.sort;
-    const page = req.query.page === 'undefined' ? 1 : parseInt(req.query.page);
-    const resultsPerPage = req.query.limit === 'undefined' ? 6 : parseInt(req.query.limit);
-
-    let total = 0;
-    let items = null;
-
-    try {
-        items = await Item.find()
-            .sort({ offers: sort })
-            .skip((resultsPerPage * page) - resultsPerPage)
-            .limit(resultsPerPage)
-            .populate("type", "-__v")
-            .populate("forItemType", "-__v")
-            .populate("images", "-__v")
-            .populate("seller", "-__v")
-            .exec();
-
-            total = await Item.countDocuments();
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-    if (!items) return res.status(404).send({ message: "Items not found." });
-
-    res.status(200).json({
-        results: items.length,
-        totalPages: Math.ceil(total / resultsPerPage),
-        items: items
-    });
-}

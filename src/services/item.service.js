@@ -28,7 +28,7 @@ class ItemService {
 
     getItemsByTransaction = (sort, page, limit) => {
         const url = `?sort=${sort}&page=${page}&limit=${limit}`
-        return axiosTokenHeader.get(API_URL + "items/transaction" + url);
+        return axiosTokenHeader.get(API_URL + "items" + url);
     }
 }
 

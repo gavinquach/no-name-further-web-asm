@@ -27,7 +27,7 @@ export default class PopularOffers extends Component {
 
     load = () => {
         ItemService.getItemsByTransaction(
-            "descending",
+            "-offers",
             this.state.currentPage,
             9
         ).then(response => {
