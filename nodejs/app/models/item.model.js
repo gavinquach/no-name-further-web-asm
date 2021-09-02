@@ -31,6 +31,11 @@ const Item = mongoose.model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
+        offers: {
+            type: Number,
+            min: 0,
+            default: 0,
+        },
         expiration_date: Date,
         upload_date: Date,
         last_update: Date
