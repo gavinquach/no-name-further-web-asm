@@ -41,8 +41,8 @@ export default class UserCreateItem extends Component {
             maxNumber: 4,
             maxFileSize: 5000000,
             resolutionType: "less",
-            maxWidth: 1920,
-            maxHeight: 1920,
+            maxWidth: 5000,
+            maxHeight: 5000,
             name: "",
             quantity: 0,
             type: "",
@@ -112,7 +112,6 @@ export default class UserCreateItem extends Component {
     }
 
     onChangeUploadCoverImage = (imageList, index) => {
-        console.log(imageList, "cover imageList");
         // add/update
         if (index) {
             imageList.map(image => {
@@ -399,10 +398,10 @@ export default class UserCreateItem extends Component {
                             <div className="upload__image-wrapper">
                                 <h3>Cover image</h3>
                                 {errors && (
-                                    <div>
+                                    <div style={{ color: "red" }}>
                                         {errors.acceptType && <span>The selected file type is not allow!</span>}
                                         {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
-                                        {errors.resolution && <span>Selected file exceeded allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
+                                        {errors.resolution && <span>Selected file exceeded maximum allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                         <br />
                                     </div>)}
 
@@ -457,11 +456,11 @@ export default class UserCreateItem extends Component {
                             <div className="upload__image-wrapper">
                                 <h3>Other images</h3>
                                 {errors && (
-                                    <div>
+                                    <div style={{ color: "red" }}>
                                         {errors.maxNumber && <span>Exceeded maximum upload amount ({this.state.maxNumber})!</span>}
                                         {errors.acceptType && <span>The selected file type is not allow!</span>}
                                         {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
-                                        {errors.resolution && <span>Selected file exceeded allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
+                                        {errors.resolution && <span>Selected file exceeded maximum allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                         <br />
                                     </div>)}
 
