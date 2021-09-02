@@ -35,7 +35,7 @@ model.ITEMCATEGORIES = [
     "Spices/Condiments",
     "Rice/Nuts",
     "Canned food",
-    "Snack"
+    "Snacks"
 ];
 
 module.exports = model;
