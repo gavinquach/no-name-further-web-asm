@@ -28,5 +28,6 @@ router.post("/item", [
 
 router.get("/items", controller.getAllItems);
 router.get("/items/:category/:page", controller.getItemsByCategory);
+router.get("/items/transaction", controller.getItemsByTransaction);
 
 module.exports = router;

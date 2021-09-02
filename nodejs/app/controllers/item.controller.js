@@ -535,3 +535,36 @@ exports.getItemsByCategory = async (req, res) => {
         items: items
     });
 };
+
+// Get items by transaction with sorting and pagination
+exports.getItemsByTransaction = async (req, res) => {
+    const sort = req.query.sort === 'undefined' ? "descending" : req.query.sort;
+    const page = req.query.page === 'undefined' ? 1 : parseInt(req.query.page);
+    const resultsPerPage = req.query.limit === 'undefined' ? 6 : parseInt(req.query.limit);
+
+    let total = 0;
+    let items = null;
+
+    try {
+        items = await Item.find()
+            .sort({ offers: sort })
+            .skip((resultsPerPage * page) - resultsPerPage)
+            .limit(resultsPerPage)
+            .populate("type", "-__v")
+            .populate("forItemType", "-__v")
+            .populate("images", "-__v")
+            .populate("seller", "-__v")
+            .exec();
+
+            total = await Item.countDocuments();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!items) return res.status(404).send({ message: "Items not found." });
+
+    res.status(200).json({
+        results: items.length,
+        totalPages: Math.ceil(total / resultsPerPage),
+        items: items
+    });
+}
