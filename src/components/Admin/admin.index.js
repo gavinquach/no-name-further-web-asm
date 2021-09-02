@@ -52,7 +52,7 @@ export default class AdminIndex extends Component {
     componentDidMount() {
         ItemService.viewAllItems().then(response => {
             // console.log(response.data);
-            this.setState({ items: response.data });
+            this.setState({ items: response.data.items });
         }).catch(function (error) {
             console.log(error);
         })
@@ -78,8 +78,8 @@ export default class AdminIndex extends Component {
                     {AuthService.hasManageAdminRole() && this.state.items.map((item, index) =>
                         (item.seller != AuthService.getCurrentUser().id) &&
                         <a key={index} href={"item/" + item._id}>
-                            <div className="dashbord">
-                                <div className="dashbord-img">
+                            <div className="Dashboard">
+                                <div className="Dashboard-img">
                                     {item.images.map(image =>
                                         image.cover && (
                                             <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)}/>
