@@ -306,19 +306,22 @@ exports.createTransaction = async (req, res) => {
     res.status(200).send({ message: "Transaction created successfully!" });
 }
 
-// Create expire transaction
-exports.createExpiredTransaction = async (id) => {
-
-}
-
 // Delete transaction
-exports.deleteTransaction = async (req, res) => {
-    Transaction.deleteOne({
-        _id: req.params.id
-    }, (err, deleted) => {
-        if (err) return res.status(500).send(err);
-        if (deleted) res.status(200).send({ message: "Transaction successfully removed" });
-    });
+exports.deleteTransaction = (req, res) => {
+    Transaction.findByIdAndRemove(req.params.id,
+        async (err, transaction) => {
+            if (err) return res.status(500).send(err);
+            if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+
+            try {
+                await ExpiredTransaction.deleteOne({
+                    _id: transaction.expiration_date
+                });
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+            res.status(200).send({ message: "Transaction successfully removed" });
+        });
 }
 
 // Cancel transaction, set status to cancelled
@@ -335,8 +338,12 @@ exports.cancelTransaction = async (req, res) => {
     }
     if (!transaction) return res.status(401).send({ message: "Transaction not found." });
 
-    transaction.status = "Cancelled";
+    // delete expiration document and update transaction in database
     try {
+        await ExpiredTransaction.deleteOne({
+            _id: transaction.expiration_date
+        });
+        transaction.status = "Cancelled";
         await transaction.save();
     } catch (err) {
         return res.status(500).send(err);
@@ -344,8 +351,8 @@ exports.cancelTransaction = async (req, res) => {
     res.status(200).send({ message: "Transaction cancelled successfully!" });
 }
 
-// Edit transaction status to "Done"
-exports.completeTransaction = async (req, res) => {
+// set transaction to finished
+exports.setTransactionToFinished = async (req, res) => {
     let transaction = null;
     try {
         transaction = await Transaction.findById(req.params.id);
@@ -354,12 +361,13 @@ exports.completeTransaction = async (req, res) => {
     }
     if (!transaction) return res.status(404).send({ message: "Transaction not found." });
 
-    // add the buyer to transaction
-    transaction.finalization_date = new Date();
-    transaction.status = "Finished";
-
-    // update item in database
+    // delete expiration document and update transaction in database
     try {
+        await ExpiredTransaction.deleteOne({
+            _id: transaction.expiration_date
+        });
+        transaction.finalization_date = new Date();
+        transaction.status = "Finished";
         await transaction.save();
     } catch (err) {
         return res.status(500).send(err);
@@ -368,8 +376,8 @@ exports.completeTransaction = async (req, res) => {
     res.status(200).send({ message: "Transaction completed!" });
 };
 
-// Edit to expire
-exports.expireTransaction = async (req, res) => {
+// set transaction to expired
+exports.setTransactionToExpired = async (req, res) => {
     let transaction = null;
     let expiredId = null;
 
