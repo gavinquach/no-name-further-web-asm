@@ -12,12 +12,10 @@ const tokenSchema = mongoose.model(
             type: String,
             required: true
         },
-        expireAt: {
+        createdAt: {
             type: Date,
             default: Date.now,
-            index: {
-                expires: 86400 * 1000   // expire in 24 hours
-            }
+            expires: "24h"
         }
     })
 );
