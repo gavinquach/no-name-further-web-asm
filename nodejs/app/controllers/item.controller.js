@@ -375,16 +375,14 @@ class APIFeatures {
         this.queryString = queryString;
     }
 
-    // Filtering (return items based on param) 
+    // Advanced filtering with
+    // greater than, greater than or equal to,
+    // less than, less than or equal to
     filter = () => {
         const queryObj = { ...this.queryString };
-        const excludedFields = ["page", "sort", "limit", "fields"];
+        const excludedFields = ["page", "sort", "limit", "fields", "category"];
         excludedFields.forEach(el => delete queryObj[el]);
 
-        // =======================================
-        // Advanced filtering with
-        // greater than, greater than or equal to,
-        // less than, less than or equal to
         let queryStr = JSON.stringify(queryObj);
 
         // Replace all case with new string including $ sign before for mongoose query
@@ -392,39 +390,8 @@ class APIFeatures {
 
         // initialize query based on param
         this.query = this.query.find(JSON.parse(queryStr))
-        // =======================================
-
         return this;
     }
-
-    // // Filtering (return items based on param) 
-    // filterType = () => {
-    //     const queryObj = { ...this.queryString };
-    //     const excludedFields = ["page", "sort", "limit", "fields"];
-    //     excludedFields.forEach(el => delete queryObj[el]);
-
-    //     if (queryObj.type) {
-    //         // initialize query based on param
-    //         this.query.find({
-    //             type: ItemCategory.findOne({
-    //                 name: queryObj.type
-    //             }, (err, category) => {
-    //                 if (err) return res.status(500).send(err);
-    //                 if (category) return this;
-    //             })
-    //         });
-    //     } else if (queryObj.forItemType) {
-    //         // initialize query based on param
-    //         this.query.find({
-    //             forItemType: ItemCategory.findOne({
-    //                 name: queryObj.forItemType
-    //             }, (err, category) => {
-    //                 if (err) return res.status(500).send(err);
-    //                 if (category) return this;
-    //             })
-    //         });
-    //     }
-    // }
 
     // Sorting (sort a field by ascending or descending)
     sort = () => {
@@ -483,16 +450,72 @@ exports.aliasTopItemQuantity = (req, res, next) => {
 
 // Advanced get all items function with Pagination/ Filtering / Sorting 
 exports.getAllItems = async (req, res) => {
-    let items = null;
+    let items = [];
     let limit = 6;
+    let total = 0;
+    // validate value
+    if (req.query.limit && req.query.limit === 'undefined' && parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
+
+    try {
+        let queryString = "{}";
+        // has category in GET param
+        if (req.query.category && req.query.category !== "undefined") {
+            const category = await ItemCategory.findOne({
+                name: req.query.category.replace("-", "/")
+            }).exec();
+            queryString = `{"type":"${category._id}"}`
+        }
+
+        // Execute query from Feature API object
+        const features = new APIFeatures(
+            Item.find(JSON.parse(queryString))
+                .populate("type", "-__v")
+                .populate("forItemType", "-__v")
+                .populate("images", "-__v")
+                .populate("seller", "-__v")
+            , req.query)
+            .filter()
+            .sort()
+            // commented out since populate forces it to display everything anyways
+            // .limitFields()
+            .paginate();
+
+        items = await features.query;
+        // get total amount of results to calculate total pages
+        total = await Item.countDocuments(JSON.parse(queryString));
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (items.length < 1) return res.status(404).send({ message: "Items not found." });
+
+    res.status(200).json({
+        result: items.length,
+        totalPages: Math.ceil(total / limit),
+        items: items
+    });
+};
+
+// Get items by category
+exports.getItemsByCategory = async (req, res) => {
+    let items = [];
+    let limit = 6;
+    let total = 0;
     // validate value
     if (req.query.limit && req.query.limit === 'undefined' && parseInt(req.query.limit) > 0) {
         limit = parseInt(req.query.limit);
     }
     try {
+        const category = await ItemCategory.findOne({
+            name: req.params.category.replace("-", "/")
+        }).exec();
+
         // Execute query from Feature API object
         const features = new APIFeatures(
-            Item.find()
+            Item.find({
+                type: category
+            })
                 .populate("type", "-__v")
                 .populate("forItemType", "-__v")
                 .populate("images", "-__v")
@@ -504,50 +527,16 @@ exports.getAllItems = async (req, res) => {
             .paginate();
 
         items = await features.query;
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-    if (!items) return res.status(404).send({ message: "Items not found." });
-
-    res.status(200).json({
-        result: items.length,
-        totalPages: Math.ceil(await Item.countDocuments() / limit),
-        items: items
-    });
-};
-
-// Get items by category
-exports.getItemsByCategory = async (req, res) => {
-    let total = 0;
-    const resultsPerPage = 6;
-    const page = req.params.page || 1;
-
-    let items = null;
-    try {
-        const category = await ItemCategory.findOne({
-            name: req.params.category.replace("-", "/")
-        }).exec();
-
-        items = await Item.find({
-            type: category
-        })
-            .skip((resultsPerPage * page) - resultsPerPage)
-            .limit(resultsPerPage)
-            .populate("type", "-__v")
-            .populate("forItemType", "-__v")
-            .populate("images", "-__v")
-            .populate("seller", "-__v")
-            .exec();
-
         total = await Item.countDocuments({ type: category });
+
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!items) return res.status(404).send({ message: "Items not found." });
+    if (items.length < 1) return res.status(404).send({ message: "Items not found." });
 
     res.status(200).json({
         results: items.length,
-        totalPages: Math.ceil(total / resultsPerPage),
+        totalPages: Math.ceil(total / limit),
         items: items
     });
 };

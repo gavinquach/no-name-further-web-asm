@@ -22,8 +22,8 @@ class ItemService {
     }
 
     getItemsByCategory = (category, page) => {
-        const url = `${category.replace("/", "-")}/${page}`
-        return axiosTokenHeader.get(API_URL + "items/" + url);
+        const url = `?category=${category.replace("/", "-")}&page=${page}`
+        return axiosTokenHeader.get(API_URL + "items" + url);
     }
 
     getItemsByTransaction = (sort, page, limit) => {
