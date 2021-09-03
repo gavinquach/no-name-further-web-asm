@@ -77,7 +77,11 @@ model.mongoose
         // (node:52380) DeprecationWarning: Mongoose: `findOneAndUpdate()` and 
         // `findOneAndDelete()` without the `useFindAndModify` option set to false 
         // are deprecated. See: https://mongoosejs.com/docs/deprecations.html#findandmodify
-        useFindAndModify: false
+        useFindAndModify: false,
+
+        // Fix following warning:
+        // "DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead."
+        useCreateIndex: true
     })
     .then(() => {
         console.log("Successfully connected to MongoDB.");

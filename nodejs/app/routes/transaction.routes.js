@@ -6,11 +6,10 @@ const router = require("../routes");
 router
     .route("/transaction/:id")
     .get(controller.getTransaction)
-    // .put(controller.editTransaction)
     .delete([
         authJwt.verifyToken,
         authJwt.isAdmin
-    ], controller.deleteTransaction)
+    ], controller.deleteTransaction);
 
 // add transaction
 router.post("/transaction", [
