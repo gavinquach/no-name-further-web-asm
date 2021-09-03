@@ -1,11 +1,8 @@
-
-const { transaction } = require("../models");
-var mongoose = require('mongoose');
 const model = require("../models");
 const User = model.user;
 const Item = model.item;
 const Transaction = model.transaction;
-const ExpiredTransaction = model.ExpiredTransaction;
+const ExpiredTransaction = model.expiredTransaction;
 
 
 // Get transaction by Id
@@ -104,65 +101,54 @@ exports.createTransaction = async (req, res) => {
     // find user and item in database to see if it exists
     let user = null;
     try {
-        user = await User.findById(req.body.userid)
-            .exec();
+        user = await User.findById(req.body.userid).exec();
+        item = await Item.findById(req.body.itemid).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
+    if (!item) return res.status(404).send({ message: "Item not found." });
 
     // if item is found in cart, remove it
     const itemIndexInCart = user.cart.indexOf(req.body.itemid);
     if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
 
-    //
     try {
         await user.save();
     } catch (err) {
         return res.status(500).send(err);
     }
 
-    let item = null;
-    try {
-        item = await Item.findById(req.body.itemid).exec();
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-    if (!item) return res.status(404).send({ message: "Item not found." });
-
     const currentDate = new Date();
-    // let datePlus2Weeks = new Date();
-    // datePlus2Weeks.setDate(datePlus2Weeks.getDate() + 2 * 7);   // add 2 weeks to date
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() + 48);
 
+    // create expired transaction object
+    const expiredTransaction = new ExpiredTransaction({
+        createdAt: currentDate,
+        expiredAt: expiryDate
+    });
 
     // create transaction object
-    var transactionId = mongoose.Types.ObjectId();
     const transaction = new Transaction({
-        _id : transactionId,
         user_seller: item.seller,
         user_buyer: user._id,
         item: item._id,
-        created_date: currentDate,
+        creation_date: currentDate,
+        expiration_date: expiredTransaction,
         status: "Pending"
     });
 
-     // create expired transaction object
-     var expiredTransactionId = mongoose.Types.ObjectId();
-     const expiredTransaction = new ExpiredTransaction({
-        _id : expiredTransactionId,
-        transaction: transactionId
-    })
+    expiredTransaction.transaction = transaction;
 
-    // attach expireation date for transaction object
-    transaction.expirational_date = expiredTransactionId;
-
-    // add transaction, expire transaction to database
+    // add transaction and expire transaction to database
     try {
         await transaction.save();
         await expiredTransaction.save();
     } catch (err) {
         return res.status(500).send(err);
     }
+
     res.status(200).send({ message: "Transaction created successfully!" });
 }
 
@@ -212,30 +198,33 @@ exports.completeTransaction = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!transaction) return res.status(401).send({ message: "Transaction not found." });
-    
+    if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+
     // add the buyer to transaction
     transaction.finalization_date = new Date();
-    transaction.status = "Done";
+    transaction.status = "Finished";
 
     // update item in database
-    transaction.save(err => {
-        if (err) return res.status(500).send(err);
-        res.status(200).send({ message: "Transaction completed!" });
-    });
+    try {
+        await transaction.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    res.status(200).send({ message: "Transaction completed!" });
 };
 
 // Edit to expire
 exports.expireTransaction = async (req, res) => {
-    let  transaction = null;
+    let transaction = null;
     let expiredId = null;
 
     // Get the expirational Id from the transaction object
     try {
         transaction = await Transaction.findById(req.params.id);
-        expiredId = transaction.expirational_date;
+        expiredId = transaction.expiration_date;
     } catch (err) {
-        return res.status(500).send({message: "Something went wrong with the transaction"}, err);
+        return res.status(500).send(err);
     }
 
     // Find the expiredTransaction object
@@ -243,22 +232,20 @@ exports.expireTransaction = async (req, res) => {
     try {
         expiredTransaction = await ExpiredTransaction.findById(expiredId);
     } catch (err) {
-        return res.status(500).send({message: "Something went wrong with the expired transaction"}, err);
+        return res.status(500).send(err);
     }
 
     // If cannot be found, edit the transaction to expired
-    if (!expiredTransaction){
-        transaction.status = "Expired";
-        
-        transaction.save(err => {
-        if (err) return res.status(500).send(err);
-        res.status(200).send({ message: "Transaction Expired Successfully!" });
-        });
+    if (expiredTransaction) {
+        res.status(403).send({ message: "Transaction is still on-going!" });
     }
 
-    // Else do nothing
-    else {
-        res.status(401).send({message: "Transaction is not Expired"})
-        console.log("??")
+    try {
+        transaction.status = "Expired";
+        await transaction.save();
+    } catch (err) {
+        return res.status(500).send(err);
     }
+
+    res.status(200).send({ message: "Transaction set to expired Successfully!" });
 }

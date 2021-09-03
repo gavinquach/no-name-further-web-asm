@@ -11,7 +11,8 @@ model.role = require("./role.model");
 model.item = require("./item.model");
 model.itemCategory = require("./item.category.model");
 model.image = require("./image.model");
-model.transaction = require("./transaction.model")
+model.transaction = require("./transaction.model");
+model.expiredTransaction = require("./expired.transaction.model");
 model.tokenSchema = require("./token.model");
 
 model.ROLES = [

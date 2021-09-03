@@ -1,5 +1,11 @@
 const mongoose = require("mongoose");
 
+const hoursFromNow = () => {
+    var timeObject = new Date();
+    timeObject.setHours(timeObject.getHours() + 48);
+    return timeObject;
+}
+
 const ExpiredTransaction = mongoose.model(
     "ExpiredTransaction",
     new mongoose.Schema({
@@ -8,11 +14,15 @@ const ExpiredTransaction = mongoose.model(
             ref: "Transaction",
             require: true
         },
-        expirational_date:{
-            type: Date, 
-            default: Date.now, 
-            expires: 1000
+        createdAt: {
+            type: Date,
+            default: Date.now,
+            expires: "48h"
         },
+        expiredAt: {
+            type: Date,
+            default: hoursFromNow
+        }
     })
 );
 

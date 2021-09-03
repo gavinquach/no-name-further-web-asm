@@ -9,15 +9,17 @@ const Transaction = mongoose.model(
         },
         user_buyer: {
             type: mongoose.Schema.Types.ObjectId,
-            preferences: { default: null },
             ref: "User"
         },
         item: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Item"
         },
-        creation_date: Date,
-        expirational_date: {
+        creation_date: {
+            type: Date,
+            default: Date.now
+        },
+        expiration_date: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "ExpiredTransaction"
         },
