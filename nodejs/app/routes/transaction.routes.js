@@ -13,6 +13,8 @@ router
         authJwt.isAdmin
     ], controller.deleteTransaction)
 
+router.route("/transaction/expire/:id").put(controller.expireTransaction);
+
 // add transaction
 router.post("/transaction", [
     authJwt.verifyToken,

@@ -223,7 +223,7 @@ exports.expireTransaction = async (req, res) => {
         transaction = await Transaction.findById(req.params.id);
         expiredId = transaction.expirational_date;
     } catch (err) {
-        return res.status(500).send(err);
+        return res.status(500).send({message: "Something went wrong with the transaction"}, err);
     }
 
     // Find the expiredTransaction object
@@ -231,7 +231,7 @@ exports.expireTransaction = async (req, res) => {
     try {
         expiredTransaction = await ExpiredTransaction.findById(expiredId);
     } catch (err) {
-        return res.status(500).send(err);
+        return res.status(500).send({message: "Something went wrong with the expired transaction"}, err);
     }
 
     // If cannot be found, edit the transaction to expired
@@ -246,6 +246,7 @@ exports.expireTransaction = async (req, res) => {
 
     // Else do nothing
     else {
-        res.send({message: "Transaction is not Expired"})
+        res.status(401).send({message: "Transaction is not Expired"})
+        console.log("??")
     }
 }
