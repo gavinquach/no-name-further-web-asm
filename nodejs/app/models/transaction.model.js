@@ -17,7 +17,10 @@ const Transaction = mongoose.model(
             ref: "Item"
         },
         creation_date: Date,
-        expirational_date: Date,
+        expirational_date: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ExpiredTransaction"
+        },
         finalization_date: Date,
         status: String
     })

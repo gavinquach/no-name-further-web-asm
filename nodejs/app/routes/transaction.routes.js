@@ -7,6 +7,7 @@ router
     .route("/transaction/:id")
     .get(controller.getTransaction)
     // .put(controller.editTransaction)
+    .put(controller.expireTransaction)
     .delete([
         authJwt.verifyToken,
         authJwt.isAdmin

@@ -1,8 +1,10 @@
 
+const { transaction } = require("../models");
 const model = require("../models");
 const User = model.user;
 const Item = model.item;
 const Transaction = model.transaction;
+const ExpiredTransaction = model.ExpiredTransaction;
 
 // Get transaction by Id
 exports.getTransaction = async (req, res) => {
@@ -127,18 +129,26 @@ exports.createTransaction = async (req, res) => {
     if (!item) return res.status(404).send({ message: "Item not found." });
 
     const currentDate = new Date();
-    let datePlus2Weeks = new Date();
-    datePlus2Weeks.setDate(datePlus2Weeks.getDate() + 2 * 7);   // add 2 weeks to date
+    // let datePlus2Weeks = new Date();
+    // datePlus2Weeks.setDate(datePlus2Weeks.getDate() + 2 * 7);   // add 2 weeks to date
 
+   
     // create transaction object
     const transaction = new Transaction({
         user_seller: item.seller,
         user_buyer: user._id,
         item: item._id,
         created_date: currentDate,
-        expirational_date: datePlus2Weeks,
         status: "Pending"
     });
+
+     // create expired transaction object
+     const expiredTransaction = new ExpiredTransaction({
+        transaction: transaction._id,
+    })
+
+    // attach expireation date for transaction object
+    transaction.expirational_date = expiredTransaction._id;
 
     // add transaction to database
     try {
@@ -204,3 +214,38 @@ exports.completeTransaction = async (req, res) => {
 };
 
 // Edit to expire
+exports.expireTransaction = async (req, res) => {
+    let  transaction = null;
+    let expiredId = null;
+
+    // Get the expirational Id from the transaction object
+    try {
+        transaction = await Transaction.findById(req.params.id);
+        expiredId = transaction.expirational_date;
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // Find the expiredTransaction object
+    let expiredTransaction = null;
+    try {
+        expiredTransaction = await ExpiredTransaction.findById(expiredId);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // If cannot be found, edit the transaction to expired
+    if (!expiredTransaction){
+        transaction.status = "Expired";
+        
+        transaction.save(err => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send({ message: "Transaction Expired Successfully!" });
+        });
+    }
+
+    // Else do nothing
+    else {
+        res.send({message: "Transaction is not Expired"})
+    }
+}
