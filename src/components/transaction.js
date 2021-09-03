@@ -95,6 +95,28 @@ export default class Transactions extends Component {
                             </div>
                         )
                     )}
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <h2>Expired</h2>
+                    {this.state.transactions.map((transaction, index) =>
+                        transaction.status === "Expired" && (
+                            <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
+                                {transaction.item ? (
+                                    <a key={index} href={"item/" + transaction.item._id}>
+                                        <div className="ItemPanel">
+                                            <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
+                                        </div>
+                                    </a>
+                                ) : (
+                                    <div className="ItemPanel">
+                                        <h4>(Item removed by trader)</h4>
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    )}
                 </div>
             </div>
         );
