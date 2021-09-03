@@ -9,11 +9,9 @@ const ExpiredTransaction = mongoose.model(
             require: true
         },
         expirational_date:{
-            type: Date,
-            default: Date.now,
-            index: {
-                expires: 10000
-            }
+            type: Date, 
+            default: Date.now, 
+            expires: 1000
         },
     })
 );
