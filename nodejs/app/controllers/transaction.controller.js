@@ -4,7 +4,6 @@ const Item = model.item;
 const Transaction = model.transaction;
 const ExpiredTransaction = model.expiredTransaction;
 
-
 // Get transaction by Id
 exports.getTransaction = async (req, res) => {
     Transaction.findById({
@@ -14,73 +13,228 @@ exports.getTransaction = async (req, res) => {
         .populate("user_buyer", "-__v")
         .populate("item", "-__v")
         .populate("seller", "-__v")
-        .exec((err, transaction) => {
+        .populate("expiration_date", "-__v")
+        .exec(async (err, transaction) => {
             if (err) return res.status(500).send(err);
             if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+
+            // set transaction to expired if can't find the expiration transaction entry in database
+            if (!transaction.expiration_date) {
+                try {
+                    transaction.status = "Expired";
+                    await transaction.save();
+                } catch (err) {
+                    return res.status(500).send(err);
+                }
+            } else {
+                let expiredTransaction = null;
+                try {
+                    expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
+                } catch (err) {
+                    return res.status(500).send(err);
+                }
+
+                if (!expiredTransaction) {
+                    try {
+                        transaction.status = "Expired";
+                        await transaction.save();
+                    } catch (err) {
+                        return res.status(500).send(err);
+                    }
+                }
+            }
             res.json(transaction);
         });
 }
 
 // Get all transactions
 exports.viewAllTransactions = async (req, res) => {
-    Transaction.find()
-        .populate("user_seller", "-__v")
-        .populate("user_buyer", "-__v")
-        .populate("item", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, transactions) => {
-            if (err) return res.status(500).send(err);
-            if (!transactions) return res.status(404).send({ message: "Transactions not found." });
-            res.json(transactions);
-        });
+    let transactions = [];
+    try {
+        transactions = await Transaction.find()
+            .populate("user_seller", "-__v")
+            .populate("user_buyer", "-__v")
+            .populate("item", "-__v")
+            .populate("seller", "-__v")
+            .populate("expiration_date", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
+
+    // set transaction to expired if can't find the expiration transaction entry in database
+    for (const transaction of transactions) {
+        if (!transaction.expiration_date) {
+            try {
+                transaction.status = "Expired";
+                await transaction.save();
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+        } else {
+            let expiredTransaction = null;
+            try {
+                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+
+            if (!expiredTransaction) {
+                try {
+                    transaction.status = "Expired";
+                    await transaction.save();
+                } catch (err) {
+                    return res.status(500).send(err);
+                }
+            }
+        }
+    }
+    res.json(transactions);
 };
 
 // Get transactions by buyer id
 exports.getBuyerTransactions = async (req, res) => {
-    Transaction.find({
-        user_buyer: req.params.id
-    })
-        .populate("user_seller", "-__v")
-        .populate("user_buyer", "-__v")
-        .populate("item", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, transactions) => {
-            if (err) return res.status(500).send(err);
-            if (!transactions) return res.status(404).send({ message: "Transactions not found." });
-            res.json(transactions);
-        });
+    let transactions = [];
+    try {
+        transactions = await Transaction.find({
+            user_buyer: req.params.id
+        })
+            .populate("user_seller", "-__v")
+            .populate("user_buyer", "-__v")
+            .populate("item", "-__v")
+            .populate("seller", "-__v")
+            .populate("expiration_date", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
+
+    // set transaction to expired if can't find the expiration transaction entry in database
+    for (const transaction of transactions) {
+        if (!transaction.expiration_date) {
+            try {
+                transaction.status = "Expired";
+                await transaction.save();
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+        } else {
+            let expiredTransaction = null;
+            try {
+                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+
+            if (!expiredTransaction) {
+                try {
+                    transaction.status = "Expired";
+                    await transaction.save();
+                } catch (err) {
+                    return res.status(500).send(err);
+                }
+            }
+        }
+    }
+    res.json(transactions);
 };
 
 // Get transactions by seller id
 exports.getSellerTransactions = async (req, res) => {
-    Transaction.find({
-        user_seller: req.params.id
-    })
-        .populate("user_seller", "-__v")
-        .populate("user_buyer", "-__v")
-        .populate("item", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, transactions) => {
-            if (err) return res.status(500).send(err);
-            if (!transactions) return res.status(404).send({ message: "Transactions not found." });
-            res.json(transactions);
-        });
+    let transactions = [];
+    try {
+        transactions = await Transaction.find({
+            user_seller: req.params.id
+        })
+            .populate("user_seller", "-__v")
+            .populate("user_buyer", "-__v")
+            .populate("item", "-__v")
+            .populate("seller", "-__v")
+            .populate("expiration_date", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
+
+    // set transaction to expired if can't find the expiration transaction entry in database
+    for (const transaction of transactions) {
+        if (!transaction.expiration_date) {
+            try {
+                transaction.status = "Expired";
+                await transaction.save();
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+        } else {
+            let expiredTransaction = null;
+            try {
+                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+
+            if (!expiredTransaction) {
+                try {
+                    transaction.status = "Expired";
+                    await transaction.save();
+                } catch (err) {
+                    return res.status(500).send(err);
+                }
+            }
+        }
+    }
+    res.json(transactions);
 };
 
 // Get transactions by item id
 exports.getItemTransactions = async (req, res) => {
-    Transaction.find({
-        item: req.params.id
-    })
-        .populate("user_seller", "-__v")
-        .populate("user_buyer", "-__v")
-        .populate("item", "-__v")
-        .populate("seller", "-__v")
-        .exec((err, transactions) => {
-            if (err) return res.status(500).send(err);
-            if (!transactions) return res.status(404).send({ message: "Transactions not found." });
-            res.json(transactions);
-        });
+    let transactions = [];
+    try {
+        transactions = await Transaction.find({
+            item: req.params.id
+        })
+            .populate("user_seller", "-__v")
+            .populate("user_buyer", "-__v")
+            .populate("item", "-__v")
+            .populate("seller", "-__v")
+            .populate("expiration_date", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
+
+    // set transaction to expired if can't find the expiration transaction entry in database
+    for (const transaction of transactions) {
+        if (!transaction.expiration_date) {
+            try {
+                transaction.status = "Expired";
+                await transaction.save();
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+        } else {
+            let expiredTransaction = null;
+            try {
+                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+
+            if (!expiredTransaction) {
+                try {
+                    transaction.status = "Expired";
+                    await transaction.save();
+                } catch (err) {
+                    return res.status(500).send(err);
+                }
+            }
+        }
+    }
+    res.json(transactions);
 };
 
 // Post a new transaction
