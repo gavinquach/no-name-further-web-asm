@@ -1,10 +1,12 @@
 
 const { transaction } = require("../models");
+var mongoose = require('mongoose');
 const model = require("../models");
 const User = model.user;
 const Item = model.item;
 const Transaction = model.transaction;
 const ExpiredTransaction = model.ExpiredTransaction;
+
 
 // Get transaction by Id
 exports.getTransaction = async (req, res) => {
@@ -113,7 +115,7 @@ exports.createTransaction = async (req, res) => {
     const itemIndexInCart = user.cart.indexOf(req.body.itemid);
     if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
 
-    // add transaction to database
+    //
     try {
         await user.save();
     } catch (err) {
@@ -132,9 +134,11 @@ exports.createTransaction = async (req, res) => {
     // let datePlus2Weeks = new Date();
     // datePlus2Weeks.setDate(datePlus2Weeks.getDate() + 2 * 7);   // add 2 weeks to date
 
-   
+
     // create transaction object
+    var transactionId = mongoose.Types.ObjectId();
     const transaction = new Transaction({
+        _id : transactionId,
         user_seller: item.seller,
         user_buyer: user._id,
         item: item._id,
@@ -143,20 +147,28 @@ exports.createTransaction = async (req, res) => {
     });
 
      // create expired transaction object
+     var expiredTransactionId = mongoose.Types.ObjectId();
      const expiredTransaction = new ExpiredTransaction({
-        transaction: transaction._id,
+        _id : expiredTransactionId,
+        transaction: transactionId
     })
 
     // attach expireation date for transaction object
-    transaction.expirational_date = expiredTransaction._id;
+    transaction.expirational_date = expiredTransactionId;
 
-    // add transaction to database
+    // add transaction, expire transaction to database
     try {
         await transaction.save();
+        await expiredTransaction.save();
     } catch (err) {
         return res.status(500).send(err);
     }
     res.status(200).send({ message: "Transaction created successfully!" });
+}
+
+// Create expire transaction
+exports.createExpiredTransaction = async (id) => {
+
 }
 
 // Delete transaction
