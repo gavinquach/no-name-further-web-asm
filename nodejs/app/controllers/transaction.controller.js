@@ -384,6 +384,7 @@ exports.createTransaction = async (req, res) => {
 
     // find user and item in database to see if it exists
     let user = null;
+    let item = null;
     try {
         user = await User.findById(req.body.userid).exec();
         item = await Item.findById(req.body.itemid).exec();
