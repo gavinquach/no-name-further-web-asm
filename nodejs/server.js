@@ -4,11 +4,16 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const dbConfig = require("./app/config/db.config");
 const cors = require("cors");
-var corsOptions = {
+const corsOptions = {
     origin: process.env.FRONTEND_URL
 };
 
 app.use(cors(corsOptions));
+
+// protect app from some well-known web vulnerabilities by setting HTTP headers appropriately
+const helmet = require('helmet');
+app.use(helmet());
+
 // parse requests of content-type - application/json
 app.use(express.json({ limit: '50mb' }));
 // parse requests of content-type - application/x-www-form-urlencoded
