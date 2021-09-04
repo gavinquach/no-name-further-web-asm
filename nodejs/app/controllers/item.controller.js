@@ -378,7 +378,7 @@ class APIFeatures {
     // Advanced filtering with
     // greater than, greater than or equal to,
     // less than, less than or equal to
-    filter = () => {
+    filter() {
         const queryObj = { ...this.queryString };
         const excludedFields = ["page", "sort", "limit", "fields", "category"];
         excludedFields.forEach(el => delete queryObj[el]);
@@ -394,7 +394,7 @@ class APIFeatures {
     }
 
     // Sorting (sort a field by ascending or descending)
-    sort = () => {
+    sort() {
         if (this.queryString.sort) {
             // split elements to sort
             const sortBy = this.queryString.sort.split(',').join(' ');
@@ -406,7 +406,7 @@ class APIFeatures {
     }
 
     // Field limiting
-    limitFields = () => {
+    limitFields() {
         if (this.queryString.fields) {
             const fields = this.queryString.fields.split(',').join(' ');
             this.query = this.query.select(fields);
@@ -417,7 +417,7 @@ class APIFeatures {
     }
 
     // Pagination with param page, and object limit per page
-    paginate = () => {
+    paginate() {
         // current page
         let page = 1;
         // validate value
