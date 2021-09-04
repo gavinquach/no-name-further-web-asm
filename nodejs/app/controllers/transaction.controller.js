@@ -2,7 +2,6 @@ const model = require("../models");
 const User = model.user;
 const Item = model.item;
 const Transaction = model.transaction;
-const ExpiredTransaction = model.expiredTransaction;
 
 // Get transaction by Id
 exports.getTransaction = async (req, res) => {
@@ -15,7 +14,6 @@ exports.getTransaction = async (req, res) => {
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
             .populate("seller", "-__v")
-            .populate("expiration_date", "-__v")
             .exec();
 
     } catch (err) {
@@ -24,8 +22,8 @@ exports.getTransaction = async (req, res) => {
     if (!transaction) return res.status(404).send({ message: "Transaction not found." });
 
     if (transaction.status === "Pending") {
-        // set transaction to expired if can't find the expiration transaction entry in database
-        if (!transaction.expiration_date) {
+        // set transaction to expired if expiration date is before or equal to current date
+        if (transaction.expiration_date <= new Date()) {
             let item = null;
             try {
                 item = await Item.findById(transaction.item).exec();
@@ -43,34 +41,6 @@ exports.getTransaction = async (req, res) => {
                 await transaction.save();
             } catch (err) {
                 return res.status(500).send(err);
-            }
-        } else {
-            let expiredTransaction = null;
-            try {
-                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
-            } catch (err) {
-                return res.status(500).send(err);
-            }
-
-            if (!expiredTransaction) {
-                let item = null;
-                try {
-                    item = await Item.findById(transaction.item).exec();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
-                if (!item) return res.status(404).send({ message: "Item not found." });
-
-                // remove 1 from offers in item model
-                item.offers -= 1;
-
-                try {
-                    await item.save();
-                    transaction.status = "Expired";
-                    await transaction.save();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
             }
         }
     }
@@ -86,17 +56,16 @@ exports.viewAllTransactions = async (req, res) => {
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
             .populate("seller", "-__v")
-            .populate("expiration_date", "-__v")
             .exec();
     } catch (err) {
         return res.status(500).send(err);
     }
     if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
 
-    // set transaction to expired if can't find the expiration transaction entry in database
+    // set transaction to expired if expiration date is before or equal to current date
     for (const transaction of transactions) {
         if (transaction.status != "Pending") continue;
-        if (!transaction.expiration_date) {
+        if (transaction.expiration_date <= new Date()) {
             let item = null;
             try {
                 item = await Item.findById(transaction.item).exec();
@@ -114,34 +83,6 @@ exports.viewAllTransactions = async (req, res) => {
                 await transaction.save();
             } catch (err) {
                 return res.status(500).send(err);
-            }
-        } else {
-            let expiredTransaction = null;
-            try {
-                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
-            } catch (err) {
-                return res.status(500).send(err);
-            }
-
-            if (!expiredTransaction) {
-                let item = null;
-                try {
-                    item = await Item.findById(transaction.item).exec();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
-                if (!item) return res.status(404).send({ message: "Item not found." });
-
-                // remove 1 from offers in item model
-                item.offers -= 1;
-
-                try {
-                    await item.save();
-                    transaction.status = "Expired";
-                    await transaction.save();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
             }
         }
     }
@@ -159,17 +100,16 @@ exports.getBuyerTransactions = async (req, res) => {
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
             .populate("seller", "-__v")
-            .populate("expiration_date", "-__v")
             .exec();
     } catch (err) {
         return res.status(500).send(err);
     }
     if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
 
-    // set transaction to expired if can't find the expiration transaction entry in database
+    // set transaction to expired if expiration date is before or equal to current date
     for (const transaction of transactions) {
         if (transaction.status != "Pending") continue;
-        if (!transaction.expiration_date) {
+        if (transaction.expiration_date <= new Date()) {
             let item = null;
             try {
                 item = await Item.findById(transaction.item).exec();
@@ -187,34 +127,6 @@ exports.getBuyerTransactions = async (req, res) => {
                 await transaction.save();
             } catch (err) {
                 return res.status(500).send(err);
-            }
-        } else {
-            let expiredTransaction = null;
-            try {
-                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
-            } catch (err) {
-                return res.status(500).send(err);
-            }
-
-            if (!expiredTransaction) {
-                let item = null;
-                try {
-                    item = await Item.findById(transaction.item).exec();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
-                if (!item) return res.status(404).send({ message: "Item not found." });
-
-                // remove 1 from offers in item model
-                item.offers -= 1;
-
-                try {
-                    await item.save();
-                    transaction.status = "Expired";
-                    await transaction.save();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
             }
         }
     }
@@ -232,17 +144,16 @@ exports.getSellerTransactions = async (req, res) => {
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
             .populate("seller", "-__v")
-            .populate("expiration_date", "-__v")
             .exec();
     } catch (err) {
         return res.status(500).send(err);
     }
     if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
 
-    // set transaction to expired if can't find the expiration transaction entry in database
+    // set transaction to expired if expiration date is before or equal to current date
     for (const transaction of transactions) {
         if (transaction.status != "Pending") continue;
-        if (!transaction.expiration_date) {
+        if (transaction.expiration_date <= new Date()) {
             let item = null;
             try {
                 item = await Item.findById(transaction.item).exec();
@@ -260,34 +171,6 @@ exports.getSellerTransactions = async (req, res) => {
                 await transaction.save();
             } catch (err) {
                 return res.status(500).send(err);
-            }
-        } else {
-            let expiredTransaction = null;
-            try {
-                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
-            } catch (err) {
-                return res.status(500).send(err);
-            }
-
-            if (!expiredTransaction) {
-                let item = null;
-                try {
-                    item = await Item.findById(transaction.item).exec();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
-                if (!item) return res.status(404).send({ message: "Item not found." });
-
-                // remove 1 from offers in item model
-                item.offers -= 1;
-
-                try {
-                    await item.save();
-                    transaction.status = "Expired";
-                    await transaction.save();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
             }
         }
     }
@@ -305,17 +188,16 @@ exports.getItemTransactions = async (req, res) => {
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
             .populate("seller", "-__v")
-            .populate("expiration_date", "-__v")
             .exec();
     } catch (err) {
         return res.status(500).send(err);
     }
     if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
 
-    // set transaction to expired if can't find the expiration transaction entry in database
+    // set transaction to expired if expiration date is before or equal to current date
     for (const transaction of transactions) {
         if (transaction.status != "Pending") continue;
-        if (!transaction.expiration_date) {
+        if (transaction.expiration_date <= new Date()) {
             let item = null;
             try {
                 item = await Item.findById(transaction.item).exec();
@@ -333,34 +215,6 @@ exports.getItemTransactions = async (req, res) => {
                 await transaction.save();
             } catch (err) {
                 return res.status(500).send(err);
-            }
-        } else {
-            let expiredTransaction = null;
-            try {
-                expiredTransaction = await ExpiredTransaction.findById(transaction.expiration_date._id);
-            } catch (err) {
-                return res.status(500).send(err);
-            }
-
-            if (!expiredTransaction) {
-                let item = null;
-                try {
-                    item = await Item.findById(transaction.item).exec();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
-                if (!item) return res.status(404).send({ message: "Item not found." });
-
-                // remove 1 from offers in item model
-                item.offers -= 1;
-
-                try {
-                    await item.save();
-                    transaction.status = "Expired";
-                    await transaction.save();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
             }
         }
     }
@@ -405,30 +259,21 @@ exports.createTransaction = async (req, res) => {
     const expiryDate = new Date();
     expiryDate.setHours(expiryDate.getHours() + 48);
 
-    // create expired transaction object
-    const expiredTransaction = new ExpiredTransaction({
-        createdAt: currentDate,
-        expiredAt: expiryDate
-    });
-
     // create transaction object
     const transaction = new Transaction({
         user_seller: item.seller,
         user_buyer: user._id,
         item: item._id,
         creation_date: currentDate,
-        expiration_date: expiredTransaction,
+        expiration_date: expiryDate,
         status: "Pending"
     });
-
-    expiredTransaction.transaction = transaction;
 
     // add transaction and expire transaction to database
     try {
         await item.save();
         await user.save();
         await transaction.save();
-        await expiredTransaction.save();
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -552,29 +397,18 @@ exports.setTransactionToExpired = async (req, res) => {
     if (!transaction) return res.status(404).send({ message: "Transaction not found." });
     if (!item) return res.status(404).send({ message: "Item not found." });
 
-    // remove 1 from offers in item model
-    item.offers -= 1;
-
-    // Find the expiredTransaction object
-    let expiredTransaction = null;
-    try {
-        expiredTransaction = await ExpiredTransaction.findById(expiredId);
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-
-    // If cannot be found, edit the transaction to expired
-    if (expiredTransaction) {
-        res.status(403).send({ message: "Transaction is still on-going!" });
-    }
-
-    try {
-        await item.save();
+    if (transaction.expiration_date <= new Date()) {
+        // remove 1 from offers in item model
+        item.offers -= 1;
         transaction.status = "Expired";
-        await transaction.save();
-    } catch (err) {
-        return res.status(500).send(err);
-    }
 
-    res.status(200).send({ message: "Transaction set to expired Successfully!" });
+        try {
+            await item.save();
+            await transaction.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+
+        res.status(200).send({ message: "Transaction set to expired Successfully!" });
+    }
 }

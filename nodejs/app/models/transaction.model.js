@@ -1,5 +1,11 @@
 const mongoose = require("mongoose");
 
+const hoursFromNow = () => {
+    var timeObject = new Date();
+    timeObject.setHours(timeObject.getHours() + 48);
+    return timeObject;
+}
+
 const Transaction = mongoose.model(
     "Transaction",
     new mongoose.Schema({
@@ -20,8 +26,8 @@ const Transaction = mongoose.model(
             default: Date.now
         },
         expiration_date: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "ExpiredTransaction"
+            type: Date,
+            default: hoursFromNow
         },
         finalization_date: Date,
         status: String
