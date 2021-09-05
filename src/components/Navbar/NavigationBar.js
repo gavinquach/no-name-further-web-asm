@@ -84,7 +84,7 @@ export default class NavigationBar extends Component {
                                 <div>
                                     {/* loop through to list out the notifications */}
                                     {this.state.notifications.map((notification, index) => (
-                                        <div>
+                                        <div key={index}>
                                             {/* display up to 5 items */}
                                             {index < 5 && (
                                                 <Nav.Link href={notification.url} className="notification-items">

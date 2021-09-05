@@ -9,7 +9,7 @@ module.exports = (io) => {
         // console.log("Made socket connection");
 
         socket.on("disconnect", () => {
-            console.log(`User ${users[getUserIdFromSocketId(users, socket.id)]} disconnected`);
+            // console.log(`User ${users[getUserIdFromSocketId(users, socket.id)]} disconnected`);
             try {
                 delete users[getUserIdFromSocketId(users, socket.id)];
             } catch (err) {
@@ -18,7 +18,7 @@ module.exports = (io) => {
         });
 
         socket.on("auth", (data) => {
-            console.log(`User ${data.id} connected`);
+            // console.log(`User ${data.id} connected`);
             // saving user id to object with socket ID
             users[data.id] = socket.id;
         });

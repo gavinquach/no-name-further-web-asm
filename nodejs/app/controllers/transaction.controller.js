@@ -7,9 +7,7 @@ const Transaction = model.transaction;
 exports.getTransaction = async (req, res) => {
     let transaction = null;
     try {
-        transaction = await Transaction.findById({
-            _id: req.params.id
-        })
+        transaction = await Transaction.findById(req.params.id)
             .populate("user_seller", "-__v")
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
