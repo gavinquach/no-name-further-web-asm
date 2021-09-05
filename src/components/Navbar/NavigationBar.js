@@ -19,13 +19,14 @@ export default class NavigationBar extends Component {
     render() {
         const currentUser = this.props.obj;
         return (
-            <Navbar className="navbar" expand="lg" >
-                <Navbar.Brand href="/"><Image src={logo} fluid style={{ marginLeft: '1em', width: '3em', maxWidth: '3em', height: "100%" }} /></Navbar.Brand>
-                <Navbar.Toggle aria-controls='basic-navbar-nav' />
-                <Navbar.Collapse id='basic-navbar-nav'>
-                    <Nav className="nav">
-                        <Nav.Link className="navbar-text navbar-item" href="/transactions" >Transactions</Nav.Link>
-                        <Nav.Link className="navbar-text navbar-item" href="/cart">Cart</Nav.Link>
+            <div>
+                <Navbar className="navbar" expand="lg" >
+                    <Navbar.Brand href="/"><Image src={logo} fluid style={{ marginLeft: '1em', width: '3em', maxWidth: '3em', height: "100%" }} /></Navbar.Brand>
+                    <Navbar.Toggle aria-controls='basic-navbar-nav' />
+                    <Navbar.Collapse id='basic-navbar-nav'>
+                        <Nav className="nav">
+                            <Nav.Link className="navbar-text navbar-item" href="/transactions" >Transactions</Nav.Link>
+                            <Nav.Link className="navbar-text navbar-item" href="/cart">Cart</Nav.Link>
 
                         {/* show user panel user is logged in */}
                         {currentUser && (
@@ -69,6 +70,8 @@ export default class NavigationBar extends Component {
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>
+            <div id="navbar-spacing"></div>
+        </div>
         );
     }
 }
