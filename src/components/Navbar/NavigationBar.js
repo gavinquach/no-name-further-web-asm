@@ -19,6 +19,9 @@ export default class NavigationBar extends Component {
     }
 
     componentDidMount = () => {
+        if (!AuthService.isLoggedIn()) {
+            return;
+        }
         UserService.getUserNotifications(AuthService.getCurrentUser().id)
             .then(
                 response => {
