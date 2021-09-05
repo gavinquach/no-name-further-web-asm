@@ -68,3 +68,86 @@
 #username-text:hover {
     color: black;
 }
+
+.notification {
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    padding: 10px 20px;
+    margin-right: 1em;
+    position: relative;
+    display: inline-block;
+    border: 2px solid black;
+    border-radius: 0.3em;
+}
+
+.notification:hover {
+    color: white;
+    background: orangered;
+    cursor: pointer;
+}
+
+.notification .badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    padding: 5px 7.5px;
+    border-radius: 50%;
+    background-color: red;
+    color: white;
+}
+
+#notification-panel {
+    opacity: 0;
+    visibility: hidden;
+    background-color: white;
+    -moz-box-shadow: 0 0 4px black;
+    -webkit-box-shadow: 0 0 4px black;
+    box-shadow: 0 0 4px black;  /* Horizontal offset, Vertical offset, Blur radius, Color */
+    border-radius: 0.2em;
+    width: 0;
+    height: 0;
+    position: absolute;
+    top: 4.1em;
+    right: 15em;
+    z-index: 100;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    transition: all 0.2s ease-out;
+}
+
+.notification:hover~#notification-panel, #notification-panel:hover {
+    opacity: 1;
+    visibility: visible;
+    width: 18em;
+    height: 20em;
+    transition: all 0.2s ease-in;
+}
+
+.notification-items {
+    color: black;
+    text-decoration: none;
+    padding: 12px 10px;
+    background-color: rgba(0, 140, 255, 0.07);
+    margin-bottom: 0.5em;
+}
+
+.notification-items:hover {
+    /* cursor: pointer; */
+    color: black;
+    background-color: rgba(0, 0, 0, 0.01);
+}
+
+#notification-view-more {
+    padding: 12px 0;
+    width: 18em;
+    color: black;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    background-color: white;
+}
+
+#notification-view-more:hover {
+    text-decoration: none;
+}

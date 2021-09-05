@@ -3,6 +3,8 @@ import React, { Component } from "react";
 import AuthService from "../services/auth.service";
 import TransactionService from "../services/transaction.service";
 
+import socket from '../services/socket';
+
 export default class Transactions extends Component {
     constructor(props) {
         super(props);
@@ -24,26 +26,41 @@ export default class Transactions extends Component {
         this.load();
     }
 
-    cancelTransaction = (itemid) => {
+    cancelTransaction = (transaction) => {
         if (window.confirm("Are you sure you want to cancel transaction?")) {
-            TransactionService.cancelTransaction(
-                itemid,
-                AuthService.getCurrentUser().id
-            ).then(
-                response => {
-                    this.load();
+            const data = {
+                sender: {
+                    id: transaction.user_buyer._id,
+                    username: transaction.user_buyer.username
                 },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
+                receiver: {
+                    id: transaction.user_seller._id,
+                    username: transaction.user_seller.username
+                },
+                transaction: transaction
+            };
 
-                    // console.log(resMessage);
-                }
-            );
+            socket.emit("notifyCancelTransaction", data);
+
+            // TransactionService.cancelTransaction(
+            //     transaction.item._id,
+            //     AuthService.getCurrentUser().id
+            // ).then(
+            //     () => {
+            //         this.load();
+            //     },
+            //     error => {
+            //         const resMessage =
+            //             (error.response &&
+            //                 error.response.data &&
+            //                 error.response.data.message) ||
+            //             error.message ||
+            //             error.toString();
+
+            //         console.log(resMessage);
+            //     }
+            // );
+
         }
     }
 
@@ -70,7 +87,7 @@ export default class Transactions extends Component {
                                     </div>
                                 </a>
                             </div>
-                            <button onClick={() => this.cancelTransaction(transaction.item._id)}>Cancel transaction</button>
+                            <button onClick={() => this.cancelTransaction(transaction)}>Cancel transaction</button>
                         </div>
                     )}
                     <br />

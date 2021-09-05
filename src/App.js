@@ -37,6 +37,8 @@ import Footer from './components/Footer/Footer'
 import ItemCategory from "./components/ItemCategory/item.category"
 import PopularOffers from "./components/popularoffers"
 
+import socket from './services/socket';
+
 export default class App extends Component {
     constructor(props) {
         super(props);
@@ -107,7 +109,14 @@ export default class App extends Component {
         }
     }
 
+    authenticateSocket = () => {
+        if (localStorage.getItem("user") !== null) {
+            socket.emit("auth", AuthService.getCurrentUser());
+        }
+    }
+
     componentDidMount = () => {
+        this.authenticateSocket();
         this.checkDataChange();
         this.updateNavBar();
     }

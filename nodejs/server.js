@@ -3,11 +3,11 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
 const dbConfig = require("./app/config/db.config");
+
 const cors = require("cors");
 const corsOptions = {
     origin: process.env.FRONTEND_URL
 };
-
 app.use(cors(corsOptions));
 
 // protect app from some well-known web vulnerabilities by setting HTTP headers appropriately
@@ -21,6 +21,16 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // allow images to be displayed
 app.use("/images", express.static("images"));
+
+const server = app.listen(8888, () => {
+    console.log(`Socket IO notification server running on port ${server.address().port}`);
+});
+
+const socket = require("socket.io");
+const io = socket(server, {
+  path: '/notification/'
+})
+require('./app/controllers/socket.io.controller')(io);
 
 // simple route
 app.get("/", (req, res) => {
@@ -65,7 +75,7 @@ app.use(transactionRoutes);
 
 // set port, listen for requests
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
+    console.log(`Express server running on port ${PORT}.`);
 });
 
 const model = require("./app/models");
@@ -74,7 +84,7 @@ const model = require("./app/models");
 model.mongoose
     // connect to cloud database
     .connect(`${dbConfig.CLOUD_DB}`, {
-    // .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+        // .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
 

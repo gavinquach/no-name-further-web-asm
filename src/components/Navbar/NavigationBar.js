@@ -5,18 +5,40 @@ import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css'
 
 import AuthService from "../../services/auth.service";
+import socket from '../../services/socket';
 
 export default class NavigationBar extends Component {
     constructor(props) {
         super(props);
         this.logOut = this.logOut.bind(this);
+
+        this.state = {
+            notifications: []
+        }
     }
 
-    logOut() {
+    componentDidMount = () => {
+        const temp = [];
+        socket.on("receiveNotifications", data => {
+            console.log(data, "received data");
+
+            const notification = {
+                url: "",
+                message: `User ${data.sender.username} has requested a transaction cancellation. Click here for more information`
+            };
+
+            temp.push(notification);
+            this.setState({
+                notifications: temp
+            });
+        });
+    }
+
+    logOut = () => {
         AuthService.logout();
     }
 
-    render() {
+    render = () => {
         const currentUser = this.props.obj;
         return (
             <Navbar className="navbar" expand="lg" >
@@ -36,6 +58,43 @@ export default class NavigationBar extends Component {
                             <Nav.Link className="navbar-text navbar-item" href="/admin/index">Admin Panel</Nav.Link>
                         )}
                     </Nav>
+
+                    <Nav className="notification">
+                        <div>Notifications</div>
+                        {this.state.notifications.length > 0 &&
+                            <span className="badge">{this.state.notifications.length}</span>
+                        }
+                    </Nav>
+                    <div id="notification-panel">
+                        {/* display if there are notifications in list */}
+                        {this.state.notifications.length > 0 ? (
+                            <div>
+                                {/* loop through to list out the notifications */}
+                                {this.state.notifications.map((notification, index) => (
+                                    <div>
+                                        {/* display up to 5 items */}
+                                        {index < 5 && (
+                                            <Nav.Link href={notification.url} className="notification-items">
+                                                {notification.message}
+                                            </Nav.Link>
+                                        )}
+                                        {/* display "View more" for 6th item */}
+                                        {index == 5 && (
+                                            <Nav.Link href="/notifications" id="notification-view-more">
+                                                View more
+                                            </Nav.Link>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            // no notifications, display text
+                            <div style={{ padding: '1em 2em', textAlign: 'center' }}>
+                                <strong><h5>No Notifications</h5></strong>
+                            </div>
+                        )}
+                    </div>
+
                     {/* show username and logout button if logged in, otherwise, show log in and sign up buttons */}
                     <Nav>
                         {currentUser ? (
