@@ -89,7 +89,6 @@ export default class Login extends Component {
                 this.state.password
             ).then(
                 () => {
-                    this.props.history.push("/");
                     window.location.reload();
                 },
                 error => {
