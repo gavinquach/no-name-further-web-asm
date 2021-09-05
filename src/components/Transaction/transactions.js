@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 
-import AuthService from "../services/auth.service";
-import UserService from "../services/user.service";
-import TransactionService from "../services/transaction.service";
+import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
+import TransactionService from "../../services/transaction.service";
 
-import socket from '../services/socket';
+import socket from '../../services/socket';
 
 export default class Transactions extends Component {
     constructor(props) {
@@ -29,31 +29,29 @@ export default class Transactions extends Component {
 
     cancelTransaction = (transaction) => {
         if (window.confirm("Are you sure you want to request for transaction cancellation?")) {
+            const sender = {
+                id: AuthService.getCurrentUser().id,
+                username: AuthService.getCurrentUser().username
+            };
+
+            let receiverId = null;
+            if (AuthService.getCurrentUser().id == transaction.user_seller._id) {
+                receiverId = transaction.user_buyer._id
+            } else if (AuthService.getCurrentUser().id == transaction.user_buyer._id) {
+                receiverId = transaction.user_seller._id
+            }
             const data = {
-                sender: {
-                    id: transaction.user_buyer._id,
-                    username: transaction.user_buyer.username
-                },
-                receiver: {
-                    id: transaction.user_seller._id,
-                    username: transaction.user_seller.username
-                },
-                transaction: transaction,
-                url: "",
-                message: `User ${transaction.user_buyer.username} has requested for a transaction cancellation. Click here for more information`
+                type: "transaction",
+                sender: sender.id,
+                receiver: receiverId,
+                url: `/transaction/${transaction._id}`,
+                message: `User ${sender.username} has requested for a transaction cancellation. Click here for more information.`
             };
 
             socket.emit("notifyCancelTransaction", data);
 
-            const notificationData = {
-                type: "transaction",
-                sender: transaction.user_buyer._id,
-                receiver: transaction.user_seller._id,
-                url: `/transaction/${transaction._id}`,
-                message: `User ${transaction.user_buyer.username} has requested for a transaction cancellation. Click here for more information`
-            };
             UserService.addNotification(
-                transaction.user_seller._id, notificationData
+                transaction.user_seller._id, data
             ).then(
                 (response) => {
 
@@ -103,7 +101,7 @@ export default class Transactions extends Component {
                         transaction.status === "Pending" &&
                         <div>
                             <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
-                                <a key={index} href={"item/" + transaction.item._id}>
+                                    <a key={index} href={"transaction/" + transaction._id}>
                                     <div className="ItemPanel">
                                         {/* {transaction.item.images.map(image =>
                                     image.cover && (
@@ -126,7 +124,7 @@ export default class Transactions extends Component {
                         transaction.status === "Cancelled" && (
                             <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
                                 {transaction.item ? (
-                                    <a key={index} href={"item/" + transaction.item._id}>
+                                    <a key={index} href={"transaction/" + transaction._id}>
                                         <div className="ItemPanel">
                                             <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
                                         </div>
@@ -148,7 +146,7 @@ export default class Transactions extends Component {
                         transaction.status === "Expired" && (
                             <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
                                 {transaction.item ? (
-                                    <a key={index} href={"item/" + transaction.item._id}>
+                                    <a key={index} href={"transaction/" + transaction._id}>
                                         <div className="ItemPanel">
                                             <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
                                         </div>

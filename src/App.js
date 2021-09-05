@@ -17,6 +17,7 @@ import Signup from './components/signup';
 import Login from './components/login';
 import ItemDetails from './components/Item/item.details';
 import Cart from './components/cart';
+import Transactions from './components/Transaction/transactions';
 import Transactions from './components/transaction';
 import NotFound from './components/notfound';
 import UserProfile from './components/UserProfile/user.profile';
@@ -145,8 +146,8 @@ export default class App extends Component {
                     <Route path="/popular" component={PopularOffers} />
 
                     {/* user pages */}
-                    <UserProtectedRoute path="/cart" component={Cart} />
-                    <UserProtectedRoute path="/transactions" component={Transactions} />
+                    <UserProtectedRoute exact path="/cart" component={Cart} />
+                    <UserProtectedRoute exact path="/transactions" component={Transactions} />
                     <UserProtectedRoute exact path='/user' component={UserProfile} />
                     <UserProtectedRoute exact path='/user/password' component={UserEditPassword} />
                     <UserProtectedRoute exact path='/user/index' component={UserIndex} />
