@@ -46,8 +46,16 @@ export default class Transactions extends Component {
         TransactionService.getTransaction(
             this.props.match.params.id
         ).then(response => {
-            this.setState({ transaction: response.data });
-        }).catch(function (error) {
+            // checks if user is either seller or buyer
+            if (AuthService.getCurrentUser().id != response.data.user_buyer._id && AuthService.getCurrentUser().id != response.data.user_seller._id) {
+                this.props.history.push("/");
+            }
+            this.setState({ transaction: response.data});
+        }).catch((error) => {
+            // error produced (either id is invalid, or
+            // something went wrong while getting transaction),
+            // redirect to home page
+            this.props.history.push("/");
             console.log(error);
         });
     }
