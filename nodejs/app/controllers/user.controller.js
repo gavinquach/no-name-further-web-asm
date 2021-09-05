@@ -7,6 +7,7 @@ const User = model.user;
 const Role = model.role;
 const Token = model.tokenSchema;
 const Transaction = model.transaction;
+const Notification = model.notification;
 
 const bcrypt = require("bcryptjs");
 
@@ -501,4 +502,43 @@ exports.deleteItemFromCart = async (req, res) => {
         return res.status(500).send(err);
     }
     res.status(200).send({ message: "Item removed from cart successfully!" });
+};
+
+exports.getUserNotifications = async (req, res) => {
+    try {
+        const user = await User.findById({ _id: req.params.id })
+            .populate("notifications", "-__v")
+            .exec();
+
+        if (!user) return res.status(404).send({ message: "User not found." });
+        res.json(user.notifications);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
+exports.addNotification = async (req, res) => {
+    let user = null;
+    try {
+        user = await User.findById(req.body.userid).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!user) return res.status(404).send({ message: "Users not found." });
+
+    const notification = new Notification(req.body.data);
+
+    if (user.notifications) {
+        user.notifications.push(notification);
+    } else {
+        user.notifications = [notification];
+    }
+
+    try {
+        await notification.save();
+        await user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "Notification added to user successfully." });
 };

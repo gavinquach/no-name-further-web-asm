@@ -19,7 +19,10 @@ const User = mongoose.model(
             type: [String],
             validate: [arrayLimit, '{PATH} exceeds the limit of 2']
         },
-        password: { type: String, required: true },
+        password: {
+            type: String,
+            required: true
+        },
         roles: [
             {
                 type: mongoose.Schema.Types.ObjectId,
@@ -37,7 +40,13 @@ const User = mongoose.model(
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Item"
             }
-        ]
+        ],
+        notifications: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Notification"
+            }
+        ],
     })
 );
 

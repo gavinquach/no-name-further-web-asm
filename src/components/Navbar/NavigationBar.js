@@ -5,6 +5,7 @@ import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css'
 
 import AuthService from "../../services/auth.service";
+import UserService from "../../services/user.service";
 import socket from '../../services/socket';
 
 export default class NavigationBar extends Component {
@@ -18,15 +19,23 @@ export default class NavigationBar extends Component {
     }
 
     componentDidMount = () => {
-        const temp = [];
+        UserService.getUserNotifications(AuthService.getCurrentUser().id)
+            .then(
+                response => {
+                    this.setState({
+                        notifications: response.data ? response.data : []
+                    });
+                })
+            .catch((error) => {
+                console.log(error);
+            })
+
         socket.on("receiveNotifications", data => {
-            console.log(data, "received data");
-
+            const temp = this.state.notifications;
             const notification = {
-                url: "",
-                message: `User ${data.sender.username} has requested a transaction cancellation. Click here for more information`
+                url: data.url,
+                message: data.message
             };
-
             temp.push(notification);
             this.setState({
                 notifications: temp

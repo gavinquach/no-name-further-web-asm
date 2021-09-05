@@ -7,6 +7,7 @@ const model = {};
 model.mongoose = mongoose;
 
 model.user = require("./user.model");
+model.notification = require("./notification.model");
 model.role = require("./role.model");
 model.item = require("./item.model");
 model.itemCategory = require("./item.category.model");

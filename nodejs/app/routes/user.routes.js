@@ -93,15 +93,15 @@ router.get("/user/items/:id", [
     authJwt.isUser,
 ], controller.getUserItems);
 
-// Dummy routes for testing
-// const model = require("../models");
-// model.ROLES.map(role => {
-//     router.get(`/test/${role}`, [
-//         authJwt.verifyToken,
-//         authJwt.isValidAdmin(role)
-//     ], (req, res) => {
-//         res.send(`${role} content.`);
-//     });
-// });
+// get notifications and add notification
+router.get("/user/notifications/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.getUserNotifications);
+
+router.post("/user/notification", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.addNotification);
 
 module.exports = router;

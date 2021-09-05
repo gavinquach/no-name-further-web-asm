@@ -83,6 +83,17 @@ class UserService {
     viewUserItems(userid) {
         return axiosTokenHeader.get(API_URL + "user/items/" + userid);
     }
+
+    getUserNotifications(userid) {
+        return axiosTokenHeader.get(API_URL + "user/notifications/" + userid);
+    }
+
+    addNotification(userid, data) {
+        return axiosTokenHeader.post(API_URL + "user/notification", {
+            userid,
+            data
+        });
+    }
 }
 
 export default new UserService();

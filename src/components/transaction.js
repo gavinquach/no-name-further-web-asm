@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 import TransactionService from "../services/transaction.service";
 
 import socket from '../services/socket';
@@ -27,7 +28,7 @@ export default class Transactions extends Component {
     }
 
     cancelTransaction = (transaction) => {
-        if (window.confirm("Are you sure you want to cancel transaction?")) {
+        if (window.confirm("Are you sure you want to request for transaction cancellation?")) {
             const data = {
                 sender: {
                     id: transaction.user_buyer._id,
@@ -37,10 +38,37 @@ export default class Transactions extends Component {
                     id: transaction.user_seller._id,
                     username: transaction.user_seller.username
                 },
-                transaction: transaction
+                transaction: transaction,
+                url: "",
+                message: `User ${transaction.user_buyer.username} has requested for a transaction cancellation. Click here for more information`
             };
 
             socket.emit("notifyCancelTransaction", data);
+
+            const notificationData = {
+                type: "transaction",
+                sender: transaction.user_buyer._id,
+                receiver: transaction.user_seller._id,
+                url: `/transaction/${transaction._id}`,
+                message: `User ${transaction.user_buyer.username} has requested for a transaction cancellation. Click here for more information`
+            };
+            UserService.addNotification(
+                transaction.user_seller._id, notificationData
+            ).then(
+                (response) => {
+
+                },
+                error => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
+
+                    console.log(resMessage);
+                }
+            );
 
             // TransactionService.cancelTransaction(
             //     transaction.item._id,
@@ -67,7 +95,6 @@ export default class Transactions extends Component {
     render() {
         return (
             <div>
-        
                 <div className="container">
                     <h1>Transactions</h1>
                     <br />
