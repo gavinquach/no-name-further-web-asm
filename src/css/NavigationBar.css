@@ -1,12 +1,17 @@
 .navbar {
     border-bottom: 1px solid silver;
-    box-shadow: 5px 3px whitesmoke;
     margin-bottom: 2em;
     background-color: #284b63;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    overflow: hidden;
 }
+
 .nav {
     margin-right: auto
 }
+
 .navbar-text {
     font-size: 1.5em;
     font-weight: bold;
@@ -67,6 +72,10 @@
 
 #username-text:hover {
     color: black;
+}
+
+#navbar-spacing {
+    margin-bottom: 6em;
 }
 
 .notification {
