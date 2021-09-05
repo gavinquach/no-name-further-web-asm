@@ -20,6 +20,9 @@ class TransactionService {
         });
     }
 
+    getTransaction(id) {
+        return axiosTokenHeader.get(API_URL + "transaction/" + id);
+    }
     getAllTransactions() {
         return axiosTokenHeader.get(API_URL + "transactions");
     }
