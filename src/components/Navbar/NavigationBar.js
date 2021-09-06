@@ -50,7 +50,7 @@ export default class NavigationBar extends Component {
                     
                 {/* show user panel user is logged in */}
                 {currentUser && (
-                    <Nav.Link className="navbar-text navbar-item" href="/user/index">User Panel</Nav.Link>
+                    <Nav.Link className="navbar-text navbar-item" href="/user">User Panel</Nav.Link>
                 )}
                 {/* show admin panel fi user is admin */}
                 {showAdminPanel && (
