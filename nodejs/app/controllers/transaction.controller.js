@@ -221,7 +221,7 @@ exports.getItemTransactions = async (req, res) => {
 
 // Post a new transaction
 exports.createTransaction = async (req, res) => {
-    // check if user same item in transaction and is ongoing
+    // check if transaction is already available
     try {
         const transaction = await Transaction.findOne({
             item: req.body.itemid,
@@ -302,14 +302,6 @@ exports.deleteTransaction = (req, res) => {
             } catch (err) {
                 return res.status(500).send(err);
             }
-
-            try {
-                await ExpiredTransaction.deleteOne({
-                    _id: transaction.expiration_date
-                });
-            } catch (err) {
-                return res.status(500).send(err);
-            }
             res.status(200).send({ message: "Transaction successfully removed" });
         });
 }
@@ -317,23 +309,18 @@ exports.deleteTransaction = (req, res) => {
 // Cancel transaction, set status to cancelled
 exports.cancelTransaction = async (req, res) => {
     let transaction = null;
+    let item = null;
     try {
         transaction = await Transaction.findOne({
             user_buyer: req.body.userid,
             item: req.body.itemid,
             status: "Pending"
         });
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-    if (!transaction) return res.status(401).send({ message: "Transaction not found." });
-
-    let item = null;
-    try {
         item = await Item.findById(transaction.item).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
+    if (!transaction) return res.status(401).send({ message: "Transaction not found." });
     if (!item) return res.status(404).send({ message: "Item not found." });
 
     // remove 1 from offers in item model
@@ -342,9 +329,6 @@ exports.cancelTransaction = async (req, res) => {
     // save item, delete expiration document, and update transaction in database
     try {
         await item.save();
-        await ExpiredTransaction.deleteOne({
-            _id: transaction.expiration_date
-        });
         transaction.status = "Cancelled";
         await transaction.save();
     } catch (err) {
@@ -365,9 +349,6 @@ exports.setTransactionToFinished = async (req, res) => {
 
     // delete expiration document and update transaction in database
     try {
-        await ExpiredTransaction.deleteOne({
-            _id: transaction.expiration_date
-        });
         transaction.finalization_date = new Date();
         transaction.status = "Finished";
         await transaction.save();
