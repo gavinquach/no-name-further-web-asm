@@ -276,7 +276,11 @@ exports.createTransaction = async (req, res) => {
         return res.status(500).send(err);
     }
 
-    res.status(200).send({ message: "Transaction created successfully!" });
+    res.status(200).send({
+        message: "Transaction created successfully!",
+        transaction: transaction,
+        item: item
+    });
 }
 
 // Delete transaction
@@ -324,16 +328,16 @@ exports.cancelTransaction = async (req, res) => {
     if (!item) return res.status(404).send({ message: "Item not found." });
 
     // remove 1 from offers in item model
-    item.offers -= 1;
+    // item.offers -= 1;
 
-    // save item, delete expiration document, and update transaction in database
-    try {
-        await item.save();
-        transaction.status = "Cancelled";
-        await transaction.save();
-    } catch (err) {
-        return res.status(500).send(err);
-    }
+    // // save item, delete expiration document, and update transaction in database
+    // try {
+    //     await item.save();
+    //     transaction.status = "Cancelled";
+    //     await transaction.save();
+    // } catch (err) {
+    //     return res.status(500).send(err);
+    // }
     res.status(200).send({ message: "Transaction cancelled successfully!" });
 }
 

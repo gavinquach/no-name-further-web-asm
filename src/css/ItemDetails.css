@@ -62,41 +62,36 @@
     }
     
     .item-image img, .image-list img {
-        max-width: 100%;
-        height: auto;
+        width: 33em;
+        height: 33em;
+        object-fit: contain;
     }
 
     .image-list {
-        display: flex;
-        justify-content: center; /* align horizontal */
-        align-items: center; /* align vertical */
-        justify-content: center;
-        align-items: center;
         list-style-type: none;
-        margin-top: 1em;
-        /* border: 1px solid black; */
+        padding: 1em 0em;
     }
 
     .image-list li {
-        position: relative;
-        right: 2.4em;
-        width: 8em;
-        height: 6em;
+        display: inline-block;
+        width: 6.2em;
+        height: 6.2em;
         margin-right: 0.5em;
         background-color: lightgray;
         cursor: pointer;
     }
 
     .image-list img {
-        max-width: 100%;
-        height: auto;
+        width: 6.2em;
+        height: 6.2em;
         transition: opacity 0.2s ease;
     }
 
     /* for javascript attach border when selected */
     .image-list-img-border {
-        border: 3px solid black;
-        border-radius: 4px;
+        outline-width: 2.5px;
+        outline-color: black;
+        outline-style: solid;
     }
 
     /* make image slightly transparent when hovering mouse over */

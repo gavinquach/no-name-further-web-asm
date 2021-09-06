@@ -4,7 +4,7 @@ import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import ItemService from "../../services/item.service";
 import TransactionService from "../../services/transaction.service";
-
+import socket from '../../services/socket';
 
 import "../../css/ItemDetails.css"
 
@@ -24,18 +24,49 @@ import "../../css/ItemDetails.css"
 //     }
 // }
 
+const changeImage = (e) => {
+    let item;
+    let img;
+    if (e.target.tagName == "LI") {
+        item = e.target;
+        img = e.target.firstChild.src;
+    }
+    else if (e.target.tagName == "IMG") {
+        item = e.target.parentElement;
+        img = e.target.src;
+    }
+
+    document.getElementById("main-image").src = img;
+
+    // get elements from class to remove border from
+    let elements = document.getElementsByClassName("image-item");
+
+    // remove border from all images
+    for (let i = 0; i < elements.length; i++) {
+        elements[i].classList.remove("image-list-img-border");
+    }
+    // add border to selected preview image
+    item.classList.add("image-list-img-border");
+}
+
 export default class ItemDetails extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            name: "",
-            quantity: 0,
-            type: "",
-            forItemName: "",
-            forItemQty: 0,
-            forItemType: "",
-            tempImgList: [],
+            notfound: false,
+            item: {
+                _id: "",
+                name: "",
+                quantity: 0,
+                type: "",
+                forItemName: "",
+                forItemQty: 0,
+                forItemType: "",
+                images: [],
+                seller: "",
+                offers: 0
+            },
             images: [],
             successful: false,
             message: ""
@@ -46,25 +77,38 @@ export default class ItemDetails extends Component {
     componentDidMount() {
         ItemService.viewOneItem(this.props.match.params.id)
             .then(response => {
+                if (response.status != 200) {
+                    this.setState({
+                        notfound: true
+                    });
+                }
                 this.setState({
-                    name: response.data.name,
-                    quantity: response.data.quantity,
-                    type: response.data.type.name,
-                    forItemName: response.data.forItemName,
-                    forItemQty: response.data.forItemQty,
-                    forItemType: response.data.forItemType.name,
-                    tempImgList: response.data.images,
+                    item: {
+                        _id: response.data._id,
+                        name: response.data.name,
+                        quantity: response.data.quantity,
+                        type: response.data.type.name,
+                        forItemName: response.data.forItemName,
+                        forItemQty: response.data.forItemQty,
+                        forItemType: response.data.forItemType.name,
+                        images: response.data.images,
+                        seller: response.data.seller._id,
+                        offers: response.data.offers
+                    },
                     seller: response.data.seller,
                 }, () => this.addImages());
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
+                this.setState({
+                    notfound: true
+                });
             })
     }
 
     addImages = () => {
         const imgList = [];
-        this.state.tempImgList.map(image => {
+        this.state.item.images.map(image => {
             imgList.push({
                 // format image data to 
                 data_url: process.env.REACT_APP_NODEJS_URL.concat("images/", image.name),
@@ -80,34 +124,10 @@ export default class ItemDetails extends Component {
         })
     }
 
-    changeImage = (e) => {
-        let item;
-        let img;
-        if (e.target.tagName == "LI") {
-            item = e.target;
-            img = e.target.firstChild.src;
-        }
-        else if (e.target.tagName == "IMG") {
-            item = e.target.parentElement;
-            img = e.target.src;
-        }
-
-        document.getElementById("main-image").src = img;
-
-        // get elements from class to remove border from
-        let elements = document.getElementsByClassName("image-item");
-
-        // remove border from all images
-        for (let i = 0; i < elements.length; i++) {
-            elements[i].classList.remove("image-list-img-border");
-        }
-        // add border to selected preview image
-        item.classList.add("image-list-img-border");
-    }
-
     addToCart = () => {
         UserService.addItemToCart(
-            this.props.match.params.id, AuthService.getCurrentUser().id
+            this.props.match.params.id,
+            AuthService.getCurrentUser().id
         ).then(
             response => {
                 this.setState({
@@ -133,9 +153,35 @@ export default class ItemDetails extends Component {
 
     makeTransaction = () => {
         TransactionService.createTransaction(
-            this.props.match.params.id, AuthService.getCurrentUser().id
+            this.state.item,
+            AuthService.getCurrentUser().id
         ).then(
             response => {
+                const transaction = response.data.transaction;
+                const item = response.data.item;
+
+                const sender = {
+                    id: AuthService.getCurrentUser().id,
+                    username: AuthService.getCurrentUser().username
+                };
+                let receiverId = null;
+                if (sender.id == transaction.user_seller) {
+                    receiverId = transaction.user_buyer;
+                } else if (sender.id == transaction.user_buyer) {
+                    receiverId = transaction.user_seller;
+                }
+            
+                const data = {
+                    type: "transaction",
+                    sender: sender.id,
+                    receiver: receiverId,
+                    url: `/transaction/${transaction._id}`,
+                    message: `User ${sender.username} has requested to trade with your item "${item.name}. Click here for more details."`,
+                    createdAt: new Date()
+                };
+                socket.emit("notifyUser", data);
+                UserService.addNotification(data);
+
                 this.setState({
                     message: response.data.message,
                     successful: true
@@ -160,89 +206,97 @@ export default class ItemDetails extends Component {
     render() {
         return (
             <div>
-              
-                <div className="container">
-                    <h1>Item details</h1>
-                    <br />
-                    <div className="row">
-                        <div className="col-sm-6">
-                            <div className="item-image">
-                                {this.state.images.map((image, index) =>
-                                    image.cover && (
-                                        <div key={index} className="item-image">
-                                            <img id="main-image" className="active" src={image.data_url} alt={image.file.name} />
-                                        </div>
-                                    )
-                                )}
+                {this.state.notfound ? (
+                    <div className="container" style={{ width: '60em', height: '40em' }}>
+                        <h1 style={{ textAlign: 'center', marginTop: '50%' }}>
+                            Something went wrong, we can't find the item :(
+                        </h1>
+                    </div>
+                ) : (
+                    <div className="container">
+                        <h1>Item details</h1>
+                        <br />
+                        <div className="row">
+                            <div className="col-sm-6">
+                                <div className="item-image">
+                                    {this.state.images.map((image, index) =>
+                                        image.cover && (
+                                            <div key={index} className="item-image">
+                                                <img id="main-image" className="active" src={image.data_url} alt={image.file.name} />
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                                <ul className="image-list">
+                                    {/* show cover first */}
+                                    {this.state.images.map((image, index) =>
+                                        image.cover && (
+                                            <li key={index} className="image-item" onClick={(e) => changeImage(e)}><img src={image.data_url} /></li>
+                                        )
+                                    )}
+                                    {/* then show other images */}
+                                    {this.state.images.map((image, index) =>
+                                        !image.cover && (
+                                            <li key={index} className="image-item" onClick={(e) => changeImage(e)}><img src={image.data_url} /></li>
+                                        )
+                                    )}
+                                </ul>
                             </div>
-                            <ul className="image-list">
-                                {/* show cover first */}
-                                {this.state.images.map((image, index) =>
-                                    image.cover && (
-                                        <li key={index} className="image-item" onClick={this.changeImage}><img src={image.data_url} /></li>
-                                    )
-                                )}
-                                {/* then show other images */}
-                                {this.state.images.map((image, index) =>
-                                    !image.cover && (
-                                        <li key={index} className="image-item" onClick={this.changeImage}><img src={image.data_url} /></li>
-                                    )
-                                )}
-                            </ul>
-                        </div>
 
-                        <div className="col-sm-6">
-                            <h2>{this.state.name}</h2>
-                            <br />
-                            <table className="table">
-                                <tbody>
-                                    <tr>
-                                        <td>Type:</td>
-                                        <td>{this.state.type}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Quantity:</td>
-                                        <td>{this.state.quantity}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>For item:</td>
-                                        <td>{this.state.forItemName}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>For item type:</td>
-                                        <td>{this.state.forItemType}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>For item quantity:</td>
-                                        <td>{this.state.forItemQty}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div className="col-sm-6">
+                                <h2>{this.state.item.name}</h2>
+                                <br />
+                                <table className="table">
+                                    <tbody>
+                                        <tr>
+                                            <td>Type:</td>
+                                            <td>{this.state.item.type}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Quantity:</td>
+                                            <td>{this.state.item.quantity}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>For item:</td>
+                                            <td>{this.state.item.forItemName}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>For item type:</td>
+                                            <td>{this.state.item.forItemType}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>For item quantity:</td>
+                                            <td>{this.state.item.forItemQty}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
 
-                            {/* <div className="qtySelector text-center">
+                                {/* <div className="qtySelector text-center">
                                 <i className="qtyBtn minus decreaseQty" id="decrease-qty" onClick={() => updateQty(this.id)}></i>
                                 <input type="text" className="qtyValue" id="qty-value" value="1" />
                                 <i className="qtyBtn plus increaseQty" id="increase-qty" onClick={() => updateQty(this.id)}></i>
                             </div> */}
 
-                            <br />
-                            <br />
+                                <br />
+                                <br />
 
-                            <button id="addToCart" className="add-to-cart" onClick={this.addToCart}>Add To Cart</button>
-                            <br />
-                            <br />
-                            <button id="makeTransaction" className="make-transaction" onClick={this.makeTransaction}>Request trade</button>
-                            <br />
-                            {this.state.message && (
-                                <div className="statusMsg">
-                                    <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
-                                        {this.state.message}
+                                <button id="addToCart" className="add-to-cart" onClick={this.addToCart}>Add To Cart</button>
+                                <br />
+                                <br />
+                                <button id="makeTransaction" className="make-transaction" onClick={this.makeTransaction}>Request trade</button>
+                                <br />
+                                {this.state.message && (
+                                    <div className="statusMsg">
+                                        <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
+                                            {this.state.message}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </div >
+                )
+                }
             </div>
         );
     }
