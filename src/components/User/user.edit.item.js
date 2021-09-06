@@ -367,11 +367,17 @@ export default class UserEditItem extends Component {
 
     render() {
         return (
+<<<<<<< Updated upstream
             <div>
             
                 <div className="container" style={{ width: "60em" }}>
+=======
+            <div className = "page-container">
+                    <div className = "title">Edit Listing</div>
+                    <hr className="section-line" />
+                    <div className="menu white-container">
+>>>>>>> Stashed changes
                     <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
-                        <h1 className="Big-text">Edit item</h1>
                         <br />
 
                         <h2>Your item:</h2>
@@ -636,8 +642,9 @@ export default class UserEditItem extends Component {
                     </button>
 
                     <br /><br /><br />
-                </div>
+                    </div>
             </div>
+            
         );
     }
 }

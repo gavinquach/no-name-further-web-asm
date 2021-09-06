@@ -62,6 +62,7 @@ export default class UserViewItem extends Component {
 
     showListings = () => {
         return (
+            
             <table className="container table table-striped" style={{ marginTop: 20 }}>
                 <thead>
                     <tr>
@@ -111,11 +112,12 @@ export default class UserViewItem extends Component {
 
     render() {
         return (
-            <div>
-               
-                <br />
-                <h3 align="center">View Items</h3>
+            <div className ="page-container">
+                 <div className = "title">Listings</div>
+                    <hr className="section-line" />
+                    <div className="menu white-container">
                 { this.state.items.length == 0 ? this.displayCreateItem() : this.showListings() }
+            </div>
             </div>
         );
     }

@@ -239,10 +239,12 @@ export default class UserProfile extends Component {
         return (
             <div>
               
-                <div className="Flexbox">
+                <div className="page-container my-profile">
                     <ProfileSideBar />
-                    <div className="Right-content">
-                        <h2 className="right-content-label">My profile</h2>
+                    <div className="profile-page">
+                        <div className="title">My profile</div>
+                        <hr className="section-line" />
+                        <div className = "form white-container">
                         <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
                             <div className="labels">
                                 <label className="label row"> Username: </label>
@@ -251,12 +253,12 @@ export default class UserProfile extends Component {
                                 <label className="label row"> Location: </label>
                             </div>
                             <div>
-                                <span className="row">
-                                    <p>
+                                <span className="prow">
+                                    <div id = "profile-name">
                                         {this.state.username}
-                                    </p>
+                                    </div>
                                 </span>
-                                <span className="row">
+                                <span className="prow">
                                     <Input
                                         id="email"
                                         name="email"
@@ -268,7 +270,7 @@ export default class UserProfile extends Component {
                                         validations={[requiredInline, email]}>
                                     </Input>
                                 </span>
-                                <span className="row">
+                                <span className="prow">
                                     <Input
                                         id="phone"
                                         name="phone"
@@ -279,7 +281,7 @@ export default class UserProfile extends Component {
                                         validations={[requiredInline, vphone]}
                                         placeholder="Phone number" />
                                 </span>
-                                <span className="row">
+                                <span className="location-row">
                                     <Select
                                         id="location"
                                         name="location"
@@ -321,6 +323,7 @@ export default class UserProfile extends Component {
                             )}
                             <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
                         </Form>
+                        </div>
                     </div>
                     {/* <p>
                         <strong>Token:</strong>{" "}

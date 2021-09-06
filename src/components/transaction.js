@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import AuthService from "../services/auth.service";
 import TransactionService from "../services/transaction.service";
 
+
 export default class Transactions extends Component {
     constructor(props) {
         super(props);
@@ -49,11 +50,10 @@ export default class Transactions extends Component {
 
     render() {
         return (
-            <div>
-        
-                <div className="container">
-                    <h1>Transactions</h1>
-                    <br />
+                <div className="page-container">
+                    <div className = "title">Transactions</div>
+                    <hr className="section-line" />
+                    <div className="menu white-container">
                     <h2>Ongoing</h2>
                     {this.state.transactions.map((transaction, index) =>
                         transaction.status === "Pending" &&
@@ -73,10 +73,6 @@ export default class Transactions extends Component {
                             <button onClick={() => this.cancelTransaction(transaction.item._id)}>Cancel transaction</button>
                         </div>
                     )}
-                    <br />
-                    <br />
-                    <br />
-                    <br />
                     <h2>Cancelled</h2>
                     {this.state.transactions.map((transaction, index) =>
                         transaction.status === "Cancelled" && (
@@ -95,8 +91,29 @@ export default class Transactions extends Component {
                             </div>
                         )
                     )}
+<<<<<<< Updated upstream
+=======
+                    <h2>Expired</h2>
+                    {this.state.transactions.map((transaction, index) =>
+                        transaction.status === "Expired" && (
+                            <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
+                                {transaction.item ? (
+                                    <a key={index} href={"item/" + transaction.item._id}>
+                                        <div className="ItemPanel">
+                                            <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
+                                        </div>
+                                    </a>
+                                ) : (
+                                    <div className="ItemPanel">
+                                        <h4>(Item removed by trader)</h4>
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    )}
+>>>>>>> Stashed changes
                 </div>
-            </div>
+                </div>
         );
     }
 }

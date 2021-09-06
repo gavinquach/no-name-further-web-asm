@@ -23,6 +23,7 @@ const required = value => {
     }
 };
 
+
 const email = value => {
     if (!isEmail(value)) {
         return (

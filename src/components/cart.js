@@ -49,10 +49,10 @@ export default class Cart extends Component {
 
     render() {
         return (
-            <div>
-               
-                <div className="container">
-                    <h1>Cart</h1>
+            <div className ="page-container">
+                <div className="title">Cart</div>
+                <hr className="section-line" />
+                <div className="white-container">
                     {this.state.cart.map(item =>
                         <div>
                             <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>

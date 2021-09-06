@@ -159,13 +159,12 @@ export default class ItemDetails extends Component {
 
     render() {
         return (
-            <div>
-              
-                <div className="container">
-                    <h1>Item details</h1>
-                    <br />
-                    <div className="row">
-                        <div className="col-sm-6">
+           
+                <div className="page-container">
+                    <div className = "title">Item Details</div>
+                    <hr className="section-line" />
+                    <div className="item white-container">
+                        <div className="item-image-box">
                             <div className="item-image">
                                 {this.state.images.map((image, index) =>
                                     image.cover && (
@@ -175,6 +174,7 @@ export default class ItemDetails extends Component {
                                     )
                                 )}
                             </div>
+
                             <ul className="image-list">
                                 {/* show cover first */}
                                 {this.state.images.map((image, index) =>
@@ -191,10 +191,9 @@ export default class ItemDetails extends Component {
                             </ul>
                         </div>
 
-                        <div className="col-sm-6">
+                        <div>
                             <h2>{this.state.name}</h2>
-                            <br />
-                            <table className="table">
+                            <table className="item-detail">
                                 <tbody>
                                     <tr>
                                         <td>Type:</td>
@@ -243,7 +242,7 @@ export default class ItemDetails extends Component {
                         </div>
                     </div>
                 </div>
-            </div>
+            
         );
     }
 }

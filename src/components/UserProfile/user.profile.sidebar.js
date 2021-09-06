@@ -2,23 +2,19 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 
 export default class ProfileSideBar extends Component {
-    constructor(props) {
-        super(props);
-    }
+
     render() {
         return (
-            <div className="Left-content">
-                <ul className="left-item-list">
-                    <Link to="/user/">
-                        <li className="list-item">
-                            Info
-                        </li>
+            <div className="profile-sidebar">
+                <ul className="profile-list">
+                   <li style={{marginBottom: "18px"}}><Link  className="profile-item" to="/user/profile">
+                        Info
                     </Link>
-                    <Link to="/user/password">
-                        <li className="list-item">
-                            Change password
-                        </li>
+                    </li>
+                    <li ><Link className="profile-item" to="/user/password">
+                        Change Password
                     </Link>
+                    </li>
                 </ul>
             </div>
         );

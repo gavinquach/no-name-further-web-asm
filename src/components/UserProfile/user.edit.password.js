@@ -144,11 +144,12 @@ export default class UserEditPassword extends Component {
         return (
             <div>
                
-                <div className="Flexbox">
+                <div className="page-container my-profile">
                     <ProfileSideBar />
-                    <div className="Right-content">
-                        <h2 className="right-content-label">Change password</h2>
-                        <br />
+                    <div className="profile-page">
+                    <div className="title">Change Password</div>
+                    <hr className="section-line" />
+                    <div className = "form white-container">
                         <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
                             <div className="labels">
                                 <label className="label row"> Old password: </label>
@@ -156,7 +157,7 @@ export default class UserEditPassword extends Component {
                                 <label className="label row"> Confirm new password: </label>
                             </div>
                             <div>
-                                <span className="row">
+                                <span className="prow">
                                     <Input
                                         id="oldpassword"
                                         name="oldfpassword"
@@ -167,7 +168,7 @@ export default class UserEditPassword extends Component {
                                         onChange={this.onChangeOldPassword}>
                                     </Input>
                                 </span>
-                                <span className="row">
+                                <span className="prow">
                                     <Input
                                         id="newpassword"
                                         name="newpassword"
@@ -179,7 +180,7 @@ export default class UserEditPassword extends Component {
                                         disabled>
                                     </Input>
                                 </span>
-                                <span className="row">
+                                <span className="prow">
                                     <Input
                                         id="confirm-new-password"
                                         name="confirm-new-password"
@@ -209,6 +210,7 @@ export default class UserEditPassword extends Component {
                             </h5>
                             <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
                         </Form>
+                    </div>
                     </div>
                 </div>
             </div>

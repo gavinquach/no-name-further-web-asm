@@ -85,10 +85,17 @@ export default class Login extends Component {
             return <Redirect to="/" />
         }
         return (
+<<<<<<< Updated upstream
             <div>
      
+=======
+            <div className ='page-container'>
+                <div className = "title">Login</div>
+                <hr className="section-line" />
+                <div className = "form white-container">
+>>>>>>> Stashed changes
                 <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '7em', marginBottom: '7em' }}>
-                    <h1 className="Big-text">Login</h1>
+                    
                     <br></br>
                     <Input
                         className="Input"
@@ -123,6 +130,7 @@ export default class Login extends Component {
                     <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }}
                     />
                 </Form>
+            </div>
             </div>
         );
     };

@@ -1,39 +1,61 @@
-.Flexbox {
-    display: flex;
-    width: 80em;
+.my-profile {
+    display: grid;
+    grid-template-columns: 20% 80%;
     margin-left: auto;
     margin-right: auto;
 }
 
-.Left-content {
-    float:left;
-    width: 20%;
-    margin-left: 0;
-    margin-top: 0;
-    padding-top: 2em;
-    /* border: 1px solid black; */
+.form {
+    padding: 3em;
 }
 
-.Right-content {
-    float:right;
-    width: 70%;
+.profile-sidebar {
+    padding-top: 10vw;
+    background-color: white;
+    margin-left: 0;
+}
+
+.profile-list {
+    list-style-type: none;
+}
+
+.profile-item {
+    text-decoration: none;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #484e10;
+    transition: 0.3s;
+}
+
+.profile-item:hover {
+    color: rgba(249, 187, 19, 0.6);
+    text-decoration: none;
+    background-color: rgba;
+}
+
+.profile-page {
+    padding: 5vw;
     margin-left: 1em;
     border: 1px solid black;
 }
 
-.row {
+.prow {
     height: 5em;
     margin-bottom: 1em;
 }
 
-.row:nth-child(1) {
+.prow:nth-child(1) {
     height: 4em;
 }
 
+#profile-name {
+    margin-bottom: 1.5em;
+}
+
 .profile-input {
-    width: 20em;
+    width: 30vw;
     height: 3.5em;
-    margin-top: -0.9em;
+    margin-bottom: 1em;
     padding-top: auto;
     padding-bottom: auto;
     padding-left: 0.4em;
@@ -42,34 +64,27 @@
 .labels {
     float: left;
     width: 20%;
-    height: 29em;
+    height: 30em;
     text-align: right;
     margin-right: 3em;
+    margin-bottom: 1em;
 }
 
 .label {
     display: block;
+    padding-top: 0.3em;
+    padding-bottom: 1.9em;
+    color: #484e10;
+    font-size: 1em;
+    font-weight: 300;
 }
 
 #district-select {
-    width: 15em;
-    margin-left: 1em;
+    width: 30vw;
 }
 
 .left-item-list {
     list-style-type: none;
-}
-
-.list-item {
-    padding: 10px 0px 15px 15px;
-    text-decoration: none;
-    color: black;
-}
-
-.list-item:hover {
-    color: black;
-    text-decoration: none;
-    background-color: rgba(155, 155, 155, 0.3);
 }
 
 .right-content-label {
@@ -95,4 +110,40 @@
 
 .not-allowed:hover {
     cursor: not-allowed;
+}
+
+@media screen and (max-width: 780px) {
+    .my-profile {
+        text-align: center;
+        display: block;
+    }
+    .profile-sidebar {
+        padding-top: 1em;
+        padding-bottom: 1em;
+    }
+    .profile-item {
+        display: inline;
+    }
+    .profile-page {
+        margin-left: 0;
+        margin-top: 1.5em
+    }
+    .profile-list {
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    #name {
+        margin-top: 0.5em;
+        margin-bottom: 1.5em
+    }
+    .profile-input {
+        margin-top: 0.2em;
+        margin-bottom: 2em
+    }
+    .form {
+        padding: 2em;
+    }
+    .labels {
+        margin-right: 1em;
+    }
 }

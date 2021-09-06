@@ -1,7 +1,11 @@
-.main-section{
-    margin:10px;
+.item {
+    padding: 4em 3vw 3vw 4em;
+    display: grid;
+    grid-template-columns: 40% 60%;
+    gap: 3em
 }
 
+<<<<<<< Updated upstream
 .dashbord{
     display: inline-block;  
     color:black;
@@ -46,50 +50,57 @@
     height: 20em;
     border: 1px solid black;
     margin-right: 1em;
-}
-
-.ItemImage img {
-    width: 20em;
-    margin-right: 1em;
-}
-
-.add-to-cart {
-  background: black;
-  color: white;
-  border: none;
-  border-radius: 0.25em;
-  padding: 1.25rem 2.5rem;
-  font-size: 1.5em;
-  text-transform: uppercase;
-  transition: background-color 0.3s ease;
-}
-
-/* make button slightly darker when hovering mouse over */
-.add-to-cart:hover {
-  background-color: rgb(49, 49, 49);
-}
-
-.make-transaction {
-  background: green;
-  color: white;
-  border: none;
-  border-radius: 0.25em;
-  padding: 1em 2em;
-  font-size: 1.25em;
-  text-transform: uppercase;
-  transition: background-color 0.3s ease;
-}
-
-/* make button slightly darker when hovering mouse over */
-.make-transaction:hover {
-  background-color: rgb(14, 95, 0);
+=======
+.item-image-box {
+    display: block;
+>>>>>>> Stashed changes
 }
 
 .item-image {
-    display: none;
+    width: 30vw;
+    height: 25vw;
+    border: 0.1em solid black;
 }
 
-@media (min-width: 50px) {
+#main-image {
+}
+
+
+
+.add-to-cart {
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 0.25em;
+    padding: 1.25rem 2.5rem;
+    font-size: 1.5em;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.add-to-cart:hover {
+    background-color: rgb(49, 49, 49);
+}
+
+.make-transaction {
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 0.25em;
+    padding: 1em 2em;
+    font-size: 1.25em;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+
+/* make button slightly darker when hovering mouse over */
+
+.make-transaction:hover {
+    background-color: rgb(14, 95, 0);
+}
+
+@media (max-width: 400px) {
     .item-image {
         display: flex;
         justify-content: center;
@@ -99,23 +110,23 @@
         display: block;
         background-color: lightgray;
     }
-    
-    .item-image img, .image-list img {
+    .item-image img,
+    .image-list img {
         max-width: 100%;
         height: auto;
     }
-
     .image-list {
         display: flex;
-        justify-content: center; /* align horizontal */
-        align-items: center; /* align vertical */
+        justify-content: center;
+        /* align horizontal */
+        align-items: center;
+        /* align vertical */
         justify-content: center;
         align-items: center;
         list-style-type: none;
         margin-top: 1em;
         /* border: 1px solid black; */
     }
-
     .image-list li {
         position: relative;
         right: 2.4em;
@@ -125,50 +136,54 @@
         background-color: lightgray;
         cursor: pointer;
     }
-
     .image-list img {
         max-width: 100%;
         height: auto;
         transition: opacity 0.2s ease;
     }
-
     /* for javascript attach border when selected */
     .image-list-img-border {
         border: 3px solid black;
         border-radius: 4px;
     }
-
     /* make image slightly transparent when hovering mouse over */
     .image-list img:hover {
         opacity: 0.7;
     }
 }
 
+
 /*Product Quantity Box */
-.qtySelector{
+
+.qtySelector {
     border: 1px solid #ddd;
     width: 107px;
     height: 35px;
     margin: 10px auto 0;
 }
-.qtySelector .qtyBtn{
+
+.qtySelector .qtyBtn {
     padding: 10px 5px;
     width: 35px;
     height: 100%;
     float: left;
     cursor: pointer;
 }
-.qtySelector .qtyBtn.clicked{
+
+.qtySelector .qtyBtn.clicked {
     font-size: 12px;
     padding: 12px 5px;
 }
-.qtySelector .minus{
+
+.qtySelector .minus {
     border-right: 1px solid #ddd;
 }
-.qtySelector .plus{
+
+.qtySelector .plus {
     border-left: 1px solid #ddd;
 }
-.qtySelector .qtyValue{
+
+.qtySelector .qtyValue {
     border: none;
     padding: 5px;
     width: 35px;
@@ -183,8 +198,9 @@
     text-align: center;
 }
 
-.delete-item-btn{
-    background-color: #fc6969; /* Green */
+.delete-item-btn {
+    background-color: #fc6969;
+    /* Green */
     border: none;
     color: white;
     padding: 7px 16px;

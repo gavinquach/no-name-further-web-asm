@@ -45,6 +45,7 @@ export default class App extends Component {
 
     render = () => {
         return (
+        <div className = "app">
             <Router>
             <NavigationBar/>
                 <Switch>
@@ -54,9 +55,9 @@ export default class App extends Component {
                     <Route path="/item/:id" component={ItemDetails} />
                     <UserProtectedRoute path="/cart" component={Cart} />
                     <UserProtectedRoute path="/transactions" component={Transactions} />
-                    <UserProtectedRoute exact path='/user' component={UserProfile} />
+                    <UserProtectedRoute exact path='/user/profile' component={UserProfile} />
                     <UserProtectedRoute exact path='/user/password' component={UserEditPassword} />
-                    <UserProtectedRoute exact path='/user/index' component={UserIndex} />
+                    <UserProtectedRoute exact path='/user' component={UserIndex} />
                     <UserProtectedRoute exact path='/user/create' component={UserCreateItem} />
                     <UserProtectedRoute path='/user/edit/item/:id' component={UserEditItem} />
                     <UserProtectedRoute exact path='/user/items' component={UserViewItem} />
@@ -72,6 +73,7 @@ export default class App extends Component {
                 <AuthVerify logOut={this.logOut} />
                 <Footer/>
             </Router>
+            </div>
         );
     }
 }

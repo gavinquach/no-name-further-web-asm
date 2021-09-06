@@ -3,8 +3,13 @@ import React, { Component } from "react";
 import AuthService from "../services/auth.service";
 import ItemService from "../services/item.service";
 
+<<<<<<< Updated upstream
 import ItemTypes from "./ItemType/item.type.js"
 
+=======
+import Categories from "./ItemCategory/Categories.js"
+import Offers from "./Item/item.offers";
+>>>>>>> Stashed changes
 
 export default class Home extends Component {
     constructor(props) {
@@ -24,6 +29,7 @@ export default class Home extends Component {
     render() {
         return (
             <div>
+<<<<<<< Updated upstream
                
                 <div className="container">
                     <ItemTypes/>
@@ -72,6 +78,11 @@ export default class Home extends Component {
                             </div>
                         </a>
                     )}
+=======
+                <div className="page-container">
+                    <Categories />
+                    <Offers/>
+>>>>>>> Stashed changes
                 </div>
             </div>
         );

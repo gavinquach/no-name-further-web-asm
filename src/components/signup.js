@@ -271,10 +271,12 @@ export default class Signup extends Component {
             return <Redirect to="/" />
         }
         return (
-            <div>
-              
+            <div className ="page-container">
+                <div className="title">Register</div>
+                <hr className="section-line" />
+                <div className = "form white-container">
                 <Form className="container" style={{ width: "30em",  marginTop: '7em', marginBottom: '7em' }} onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
-                    <h1 className="Big-text">Register</h1>
+                    
                     <br></br>
                     <Input
                         id="username"
@@ -363,6 +365,7 @@ export default class Signup extends Component {
 
                     <p>By signing up you agree to the <a style={{ textDecoration: 'underline' }} href="#">terms of service</a>.</p>
                 </Form>
+            </div>
             </div>
         );
     }
