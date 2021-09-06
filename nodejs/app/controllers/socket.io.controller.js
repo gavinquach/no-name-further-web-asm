@@ -23,7 +23,7 @@ module.exports = (io) => {
             users[data.id] = socket.id;
         });
 
-        socket.on("notifyCancelTransaction", (data) => {
+        socket.on("notifyUser", (data) => {
             io.to(users[data.receiver]).emit("receiveNotifications", data);
         });
     });
