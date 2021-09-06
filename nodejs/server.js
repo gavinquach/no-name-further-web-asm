@@ -6,8 +6,9 @@ const dbConfig = require("./app/config/db.config");
 
 const cors = require("cors");
 const corsOptions = {
-    origin: process.env.FRONTEND_URL
-};
+    origin: process.env.FRONTEND_URL,
+    method: ['GET, POST, OPTIONS, PUT, PATCH, DELETE']
+}
 app.use(cors(corsOptions));
 
 // protect app from some well-known web vulnerabilities by setting HTTP headers appropriately
@@ -28,7 +29,11 @@ const server = app.listen(8888, () => {
 
 const socket = require("socket.io");
 const io = socket(server, {
-  path: '/notification/'
+    cors: {
+        origin: process.env.FRONTEND_URL,
+        methods: ["GET", "POST"]
+    },
+    path: '/notification/'
 })
 require('./app/controllers/socket.io.controller')(io);
 
