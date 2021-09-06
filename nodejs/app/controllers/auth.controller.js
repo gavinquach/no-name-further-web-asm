@@ -104,7 +104,7 @@ exports.confirmEmail = async (req, res) => {
     // =================== verify user ===================
     // delete token after verifying
     try {
-        await token.deleteOne({
+        await Token.deleteOne({
             user: user._id
         });
     } catch (err) {
@@ -234,7 +234,7 @@ exports.confirmAndLogin = async (req, res) => {
     // =================== verify user ===================
     // delete token after verifying
     try {
-        await token.deleteOne({
+        await Token.deleteOne({
             user: user._id
         });
     } catch (err) {
