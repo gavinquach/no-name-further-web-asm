@@ -25,13 +25,21 @@ export default class NavigationBar extends Component {
         UserService.getUserNotifications(AuthService.getCurrentUser().id)
             .then(
                 response => {
-                    this.setState({
-                        notifications: response.data ? response.data : []
-                    });
+                    if (response.data) {
+                        const temp = response.data;
+                        // sort from newest to oldest
+                        temp.sort((a, b) => {
+                            return new Date(b.createdAt) - new Date(a.createdAt);
+                        });
+
+                        this.setState({
+                            notifications: temp
+                        });
+                    }
                 })
             .catch((error) => {
                 console.log(error);
-            })
+            });
 
         socket.on("receiveNotifications", data => {
             const temp = this.state.notifications;
@@ -39,7 +47,8 @@ export default class NavigationBar extends Component {
                 url: data.url,
                 message: data.message
             };
-            temp.push(notification);
+            // push new notification to first index
+            temp.unshift(notification);
             this.setState({
                 notifications: temp
             });
