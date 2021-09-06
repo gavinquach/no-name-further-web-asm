@@ -116,6 +116,14 @@ class AuthService {
                 return response.data;
             });;
     }
+
+    sendVerifyEmail = (username, password) => {
+        return axios
+            .post(API_URL + "resend-email", {
+                username,
+                password
+            })
+    }
 }
 
 export default new AuthService();
