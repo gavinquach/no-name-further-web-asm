@@ -28,6 +28,10 @@ const Notification = mongoose.model(
         read: {
             type: Boolean,
             default: false
+        },
+        createdAt: {
+            type: Date,
+            default: new Date()
         }
     })
 );
