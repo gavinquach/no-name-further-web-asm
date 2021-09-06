@@ -1,16 +1,28 @@
 const controller = require("../controllers/item.controller");
-const { validate } = require("../middlewares");
+const { authJwt, validate } = require("../middlewares");
 const router = require("../routes");
+
+
+router
+    .route("/most-items-quantity")
+    .get(controller.aliasTopItemQuantity, controller.getAllItems);
 
 router
     .route("/item/:id")
     .get(controller.getItem)
-    .delete(controller.deleteItem)
+    .delete([
+        authJwt.verifyToken,
+        authJwt.isUser
+    ], controller.deleteItem)
     .put([
+        authJwt.verifyToken,
+        authJwt.isUser,
         validate.checkUploadPath
     ], controller.editItem);
 
 router.post("/item", [
+    authJwt.verifyToken,
+    authJwt.isUser,
     validate.checkUploadPath
 ], controller.createItem);
 

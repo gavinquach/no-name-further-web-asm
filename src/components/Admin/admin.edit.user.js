@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 
-
-
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
+
+import '../../css/UserPages.css'
 
 const required = value => {
     if (!value) {
@@ -322,9 +323,12 @@ export default class AdminEditUser extends Component {
     }
 
     render() {
+        // redirect to home page when unauthorized user tries to view
+        if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_EDIT_USER")) {
+            return <Redirect to='/admin/index' />
+        }
         return (
             <div>
-              
                 <a href="/admin/view/user" style={{ marginLeft: "15em" }}>
                     <button className="Redirect-btn">View users</button>
                 </a>

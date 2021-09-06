@@ -8,8 +8,6 @@ import ImageUploading from "react-images-uploading";    // npm install --save re
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
-
-
 import '../../css/UserPages.css'
 
 const required = value => {
@@ -41,8 +39,8 @@ export default class UserEditItem extends Component {
             maxNumber: 4,
             maxFileSize: 5000000,
             resolutionType: "less",
-            maxWidth: 1920,
-            maxHeight: 1920,
+            maxWidth: 5000,
+            maxHeight: 5000,
             name: "",
             quantity: 0,
             type: "",
@@ -330,16 +328,9 @@ export default class UserEditItem extends Component {
                 formData.append("files", file);
             });
 
-            const config = {
-                headers: {
-                    'content-type': 'multipart/form-data'
-                }
-            };
-
             ItemService.editItem(
                 this.props.match.params.id,
-                formData,
-                config
+                formData
             ).then(
                 response => {
                     this.setState({
@@ -367,12 +358,10 @@ export default class UserEditItem extends Component {
 
     render() {
         return (
-
-            <div className = "page-container">
-                    <div className = "title">Edit Listing</div>
-                    <hr className="section-line" />
-                    <div className="menu white-container">
-
+            <div className="page-container">
+                <div className="title">Edit Listing</div>
+                <hr className="section-line" />
+                <div className="menu white-container">
                     <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
                         <br />
 
@@ -405,7 +394,7 @@ export default class UserEditItem extends Component {
                                     <option>Spices/Condiments</option>
                                     <option>Rice/Nuts</option>
                                     <option>Canned food</option>
-                                    <option>Snack</option>
+                                    <option>Snacks</option>
                                 </Select>
                             </div>
                             <div className="Flex-row-item">
@@ -458,7 +447,7 @@ export default class UserEditItem extends Component {
                                     <option>Spices/Condiments</option>
                                     <option>Rice/Nuts</option>
                                     <option>Canned food</option>
-                                    <option>Snack</option>
+                                    <option>Snacks</option>
                                 </Select>
                             </div>
                             <div className="Flex-row-item">
@@ -507,10 +496,10 @@ export default class UserEditItem extends Component {
                                 <div className="upload__image-wrapper">
                                     <h3>Cover image</h3>
                                     {errors && (
-                                        <div>
+                                        <div style={{ color: "red" }}>
                                             {errors.acceptType && <span>The selected file type is not allow!</span>}
                                             {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
-                                            {errors.resolution && <span>Selected file exceeded allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
+                                            {errors.resolution && <span>Selected file exceeded maximum allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                             <br />
                                         </div>)}
 
@@ -565,11 +554,11 @@ export default class UserEditItem extends Component {
                                 <div className="upload__image-wrapper">
                                     <h3>Other images</h3>
                                     {errors && (
-                                        <div>
+                                        <div style={{ color: "red" }}>
                                             {errors.maxNumber && <span>Exceeded maximum upload amount ({this.state.maxNumber})!</span>}
                                             {errors.acceptType && <span>The selected file type is not allow!</span>}
                                             {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
-                                            {errors.resolution && <span>Selected file exceeded allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
+                                            {errors.resolution && <span>Selected file exceeded maximum allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                             <br />
                                         </div>)}
 
@@ -638,9 +627,8 @@ export default class UserEditItem extends Component {
                     </button>
 
                     <br /><br /><br />
-                    </div>
+                </div>
             </div>
-            
         );
     }
 }

@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';  // n
 import { Component } from 'react';
 
 import AuthService from './services/auth.service';
+import UserService from './services/user.service';
 import AuthVerify from "./common/auth-verify";
 
 import AdminProtectedRoute from './common/admin-protected-route';
@@ -33,26 +34,109 @@ import AdminEditAdmin from './components/Admin/admin.edit.admin';
 import AdminEditUser from './components/Admin/admin.edit.user';
 import NavigationBar from './components/Navbar/NavigationBar';
 import Footer from './components/Footer/Footer'
+import ItemCategory from "./components/ItemCategory/item.category"
+import PopularOffers from "./components/popularoffers"
 
 export default class App extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            currentUser: undefined
+        };
     }
 
-    logOut() {
+    // check if user is in database or whether their data is altered
+    // while they're still using the application and require re-login
+    // to refresh the data in localStorage
+    checkDataChange = async () => {
+        if (localStorage.getItem("user") !== null) {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            let user = null;
+
+            try {
+                await UserService.viewOneUser(currentUser.id)
+                    .then(response => {
+                        user = response.data;
+                    }, error => {
+                        console.log(error);
+                        this.logout();
+                    })
+            } catch (err) {
+                console.log(err);
+            }
+
+            if (!user) {
+                this.logOut();
+            } else {
+                if (user.username !== currentUser.username) {
+                    window.alert("Discrepancy in user data detected, please log in again!");
+                    this.logOut();
+                    window.location.reload();
+                    return;
+                }
+                if (user.email !== currentUser.email) {
+                    window.alert("Discrepancy in user data detected, please log in again!");
+                    this.logOut();
+                    window.location.reload();
+                    return;
+                }
+                if (user.phone !== currentUser.phone) {
+                    window.alert("Discrepancy in user data detected, please log in again!");
+                    this.logOut();
+                    window.location.reload();
+                    return;
+                }
+                if (user.location[0] !== currentUser.location[0] || user.location[1] !== currentUser.location[1]) {
+                    window.alert("Discrepancy in user data detected, please log in again!");
+                    this.logOut();
+                    window.location.reload();
+                    return;
+                }
+            }
+        }
+    }
+
+    updateNavBar = () => {
+        if (localStorage.getItem("user") !== null) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            user.isAdmin = AuthService.isAdmin(user);
+            this.setState({ currentUser: user });
+        } else {
+            this.setState({ currentUser: undefined });
+        }
+    }
+
+    componentDidMount = () => {
+        this.checkDataChange();
+        this.updateNavBar();
+    }
+
+    logOut = () => {
         AuthService.logout();
+
+        // show alert when user gets logged out automatically due to expired token
+        window.alert("Login session expired, please log in again!");
+        window.location.replace("/login");
+        return;
     }
 
     render = () => {
         return (
         <div className = "app">
             <Router>
-            <NavigationBar/>
+                <NavigationBar obj={this.state.currentUser}/>
                 <Switch>
+                    {/* public pages */}
                     <Route exact path="/" component={Home} />
                     <Route exact path="/signup" component={Signup} />
+                    <Route exact path="/login/:email/:token" component={Login} />
                     <Route exact path="/login" component={Login} />
+                    <Route path="/items" component={ItemCategory} />
                     <Route path="/item/:id" component={ItemDetails} />
+                    <Route path="/popular" component={PopularOffers} />
+
+                    {/* user pages */}
                     <UserProtectedRoute path="/cart" component={Cart} />
                     <UserProtectedRoute path="/transactions" component={Transactions} />
                     <UserProtectedRoute exact path='/user/profile' component={UserProfile} />
@@ -61,6 +145,8 @@ export default class App extends Component {
                     <UserProtectedRoute exact path='/user/create' component={UserCreateItem} />
                     <UserProtectedRoute path='/user/edit/item/:id' component={UserEditItem} />
                     <UserProtectedRoute exact path='/user/items' component={UserViewItem} />
+                    
+                    {/* admin pages */}
                     <AdminProtectedRoute exact path='/admin/index' component={AdminIndex} />
                     <AdminProtectedRoute exact path='/admin/view/admin' component={AdminViewAdmin} />
                     <AdminProtectedRoute exact path='/admin/view/user' component={AdminViewUser} />
@@ -71,7 +157,7 @@ export default class App extends Component {
                     <Route component={NotFound} />
                 </Switch>
                 <AuthVerify logOut={this.logOut} />
-                <Footer/>
+                <Footer />
             </Router>
             </div>
         );

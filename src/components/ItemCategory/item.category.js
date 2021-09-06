@@ -93,7 +93,7 @@ export default class ItemCategory extends Component {
             } else {
                 buttons.push(
                     <Link to={pageURL} onClick={() => this.updatePage(i)}>
-                        <p className="page-button" style={{  display: "inline", margin: '0px 8px' }}>{i}</p>
+                        <p className="page-button" style={{ display: "inline", margin: '0px 8px' }}>{i}</p>
                     </Link>
                 )
             }
@@ -125,12 +125,12 @@ export default class ItemCategory extends Component {
         // ========== end of GET param validation ==========
         return (
             <div className="page-container">
-                <div className = "title">{this.state.category}</div>
+                <div className="title">{this.state.category}</div>
                 <hr className="section-line" />
                 <div className="menu white-container">
-                {this.state.items.length > 0
-                    ? this.state.items.map((item, index) => (
-                        <a  className="item-box" key={index} href={"item/" + item._id}>                           
+                    {this.state.items.length > 0
+                        ? this.state.items.map((item, index) => (
+                            <a className="item-box" key={index} href={"item/" + item._id}>
                                 <div className="item-box-img">
                                     {item.images.map(image =>
                                         image.cover && (
@@ -138,25 +138,26 @@ export default class ItemCategory extends Component {
                                         )
                                     )}
                                 </div>
-                                <div className = "item-info">
+                                <div className="item-info">
                                     {item.name} / <b>{item.quantity}</b>
                                     <p className="for">FOR</p>
                                     <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
                                     <p><b>Offers</b>: {item.offers}</p>
                                 </div>
-                        </a>
-                    )) : (
-                        <div>
-                            <h2 style={{ textAlign: "center" }}>No items found.</h2>
-                        </div>
-                    )}
-                <br />
-                <br />
-                <div className="page-buttons">
-                    {this.state.pageButtons}
-                </div>
-                </div>
-            </div>
+                            </a >
+                        )) : (
+                            <div>
+                                <h2 style={{ textAlign: "center" }}>No items found.</h2>
+                            </div>
+                        )
+                    }
+                    <br />
+                    <br />
+                    <div className="page-buttons">
+                        {this.state.pageButtons}
+                    </div>
+                </div >
+            </div >
         )
     }
 }

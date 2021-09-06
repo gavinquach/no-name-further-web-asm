@@ -38,7 +38,7 @@ export const CategoryList = [{
         image: condiments
     },
     {
-        title: "Rice/ Nuts",
+        title: "Rice/Nuts",
         url: "rice-nuts",
         cName: "category-links",
         image: rice_nuts

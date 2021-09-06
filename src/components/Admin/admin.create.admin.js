@@ -10,8 +10,6 @@ import UserService from "../../services/user.service";
 
 import '../../css/UserPages.css'
 
-
-
 const required = value => {
     if (!value) {
         return (
@@ -141,8 +139,7 @@ export default class AdminCreateAdmin extends Component {
         else if (roles_submit.length == roles.length) {
             roles_submit = ["root"];
         }
-        // console.log('roles_submit: ' + roles_submit) // debug
-        
+
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
@@ -176,14 +173,13 @@ export default class AdminCreateAdmin extends Component {
     }
 
     render() {
-        // redirect to home page when unauthorized user tries to view
+        // redirect to index page when unauthorized admin tries to view
         if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_CREATE_ADMIN")) {
             return <Redirect to='/admin/index' />
         }
         return (
             <div>
-          
-                <a href="/admin/view/admin" style={{ marginLeft: "15em"}}>
+                <a href="/admin/view/admin" style={{ marginLeft: "15em" }}>
                     <button className="Redirect-btn">View admins</button>
                 </a>
                 <Form className="container" style={{ width: "30em" }} onSubmit={this.handleRegister} ref={c => { this.form = c; }}>

@@ -1,5 +1,3 @@
-import '../../css/UserPages.css'
-
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import Form from "react-validation/build/form";
@@ -8,10 +6,10 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 
-
-
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
+
+import '../../css/UserPages.css'
 
 const required = value => {
     if (!value) {
@@ -388,6 +386,10 @@ export default class AdminEditAdmin extends Component {
     }
 
     render() {
+        // redirect to home page when unauthorized user tries to view
+        if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_EDIT_ADMIN")) {
+            return <Redirect to='/admin/index' />
+        }
         // prevent admins from editing their own profile, except root admin
         if (!(this.props.match.params.id != AuthService.getCurrentUser().id || AuthService.getCurrentUser().roles.includes("ROLE_ROOT"))) {
             return <Redirect to='/admin/view/admin' />
@@ -398,7 +400,6 @@ export default class AdminEditAdmin extends Component {
         }
         return (
             <div>
-                
                 <a href="/admin/view/admin" style={{ marginLeft: "15em" }}>
                     <button className="Redirect-btn">View admins</button>
                 </a>

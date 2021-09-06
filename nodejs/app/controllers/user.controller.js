@@ -1,7 +1,11 @@
 const model = require("../models");
+const config = require("../config/auth.config");
+require('dotenv').config();
+
 const Item = model.item;
 const User = model.user;
 const Role = model.role;
+const Token = model.tokenSchema;
 const Transaction = model.transaction;
 
 const bcrypt = require("bcryptjs");
@@ -9,23 +13,12 @@ const bcrypt = require("bcryptjs");
 const img = require("../config/img.config");
 const fs = require("fs");
 
-exports.allAccess = (req, res) => {
-    res.status(200).send("Public Content.");
-};
+// define nodemailer, nodemailerSendgrid and transport
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
+const crypto = require('crypto');
 
-exports.userBoard = (req, res) => {
-    res.status(200).send("User Content.");
-};
-
-exports.adminBoard = (req, res) => {
-    res.status(200).send("Admin Content.");
-};
-
-exports.moderatorBoard = (req, res) => {
-    res.status(200).send("Moderator Content.");
-};
-
-// create new User in database (role is user if not specifying role)
+// create new user
 exports.signup = async (req, res) => {
     const user = new User({
         username: req.body.username,
@@ -33,6 +26,7 @@ exports.signup = async (req, res) => {
         phone: req.body.phone,
         location: req.body.location,
         password: bcrypt.hashSync(req.body.password),
+        verified: req.body.verified ? true : false
     });
 
     let role = await Role.findOne({ name: "user" })
@@ -43,7 +37,52 @@ exports.signup = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    res.status(201).send({ message: "Registered successfully!" });
+
+    if (req.body.verified) {
+        res.status(200).send({
+            message: "User created successfully."
+        });
+    } else {
+        // generate token and save
+        const token = await new Token({
+            user: user._id,
+            token: crypto.randomBytes(16).toString('hex')
+        });
+    
+        try {
+            await token.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    
+        // Send email (use verified sender's email address & the generated API_KEY on SendGrid)
+        const transporter = nodemailer.createTransport(
+            sendgridTransport({
+                auth: {
+                    api_key: config.sendgrid_api_key
+                }
+            })
+        );
+    
+        try {
+            await transporter.sendMail({
+                from: '0nametrading@gmail.com',
+                to: user.email,
+                subject: 'n0name Account Verification',
+                text: `Hello ${user.username},\n\n` +
+                    `Please verify your account by clicking on this link: \n` +
+                    // `http://${req.headers.host}/confirmation/${user.email}/${token.token}` +
+                    `${process.env.FRONTEND_URL}/login/${user.email}/${token.token}` +
+                    `\n\nThank You!`
+            });
+        } catch (err) {
+            return res.status(500).send({ message: "Error encountered! Please click on 'Resend email' to send the email again." });
+        }
+
+        res.status(200).send({
+            message: "A verification email has been sent to " + user.email + ". It will be expired after 24 hours. Please click on 'Resend email' if you haven't received the email."
+        });
+    }
 };
 
 // create new User in database with roles
@@ -54,7 +93,8 @@ exports.createUserWithRoles = async (req, res) => {
         phone: req.body.phone,
         location: req.body.location,
         password: bcrypt.hashSync(req.body.password),
-        roles: req.body.roles
+        roles: req.body.roles,
+        verified: true
     });
 
     // check if the data sent has roles
@@ -83,7 +123,7 @@ exports.createUserWithRoles = async (req, res) => {
     res.status(201).send({ message: "Admin created successfully!" });
 };
 
-exports.viewUsers = async (req, res) => {
+exports.viewAllUsers = async (req, res) => {
     try {
         const users = await User.find()
             .populate("roles", "-__v")
@@ -96,6 +136,58 @@ exports.viewUsers = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
+};
+
+exports.viewAdmins = async (req, res) => {
+    let users = [];
+    try {
+        users = await User.find()
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!users) return res.status(404).send({ message: "Users not found." });
+
+    const adminList = [];
+    for (const user of users) {
+        for (const role of user.roles) {
+            if (role.name !== "user") {
+                adminList.push(user);
+                break;
+            }
+        }
+    }
+
+    res.json(adminList);
+};
+
+exports.viewUsers = async (req, res) => {
+    let users = [];
+    try {
+        users = await User.find()
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!users) return res.status(404).send({ message: "Users not found." });
+
+    const userList = [];
+    for (const user of users) {
+        for (const role of user.roles) {
+            if (role.name === "user") {
+                userList.push(user);
+                break;
+            }
+        }
+    }
+
+    res.json(userList);
 };
 
 exports.viewOneUser = async (req, res) => {
@@ -121,7 +213,7 @@ exports.deleteUser = async (req, res) => {
         return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
-    
+
     // cancel all user transactions
     let transactions = [];
     try {
@@ -186,7 +278,13 @@ exports.editUser = async (req, res) => {
     }
     if (!user) return res.status(404).send("User not found.");
 
-    user.username = req.body.username;
+    let roles = [];
+    user.roles.map(role => roles.push(role.name));
+
+    // allow root to edit username only
+    if (roles.includes("root")) {
+        user.username = req.body.username;
+    }
     user.email = req.body.email;
     user.phone = req.body.phone;
     user.location = req.body.location;
@@ -194,10 +292,8 @@ exports.editUser = async (req, res) => {
         user.password = bcrypt.hashSync(req.body.password);
     }
 
-    // ==============
     // validate roles
-    // check if user is admin
-    if (user.role !== "user") {
+    if (req.body.roles) {
         // check if the data sent has roles
         if (req.body.roles.length > 0) {
             let roles = [];
@@ -217,6 +313,28 @@ exports.editUser = async (req, res) => {
             return res.status(400).send({ message: "Please add at least 1 role!" });
         }
     }
+
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "User updated succesfully!" });
+};
+
+exports.editInfo = async (req, res) => {
+    let user = null;
+    try {
+        user = await User.findById({ _id: req.params.id });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!user) return res.status(404).send("User not found.");
+
+    user.username = req.body.username;
+    user.email = req.body.email;
+    user.phone = req.body.phone;
+    user.location = req.body.location;
 
     try {
         await user.save();

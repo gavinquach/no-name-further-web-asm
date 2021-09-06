@@ -1,52 +1,107 @@
 const controller = require("../controllers/user.controller");
-const { validate } = require("../middlewares");
+const { authJwt, validate } = require("../middlewares");
 const router = require("../routes");
 
 router.post("/signup", [
-        validate.validateError,
-        validate.userValidationRules,
-        validate.checkDuplicateUsernameOrEmail,
-        validate.checkRolesExisted
-    ],
+    validate.validateError,
+    validate.userValidationRules,
+    validate.checkDuplicateUsernameOrEmail,
+    validate.checkRolesExisted
+],
     controller.signup
 );
 
-router.post("/signup-with-roles", [
-        validate.validateError,
-        validate.userValidationRules,
-        validate.checkDuplicateUsernameOrEmail,
-        validate.checkRolesExisted
-    ],
-    controller.createUserWithRoles
-);
+// View all users
+router.get("/users", [
+    authJwt.verifyToken,
+    authJwt.canViewAdmins,
+    authJwt.canViewUsers
+], controller.viewAllUsers);
 
-// View all users 
-router.get("/users",controller.viewUsers);
+// View all admins 
+router.get("/users/admin", [
+    authJwt.verifyToken,
+    authJwt.canViewAdmins
+], controller.viewAdmins);
 
-// CRUD user with id as param
+// View all non-admin users 
+router.get("/users/user", [
+    authJwt.verifyToken,
+    authJwt.canViewUsers
+], controller.viewUsers);
+
+// get, edit, delete user with id as param
 router
     .route("/user/:id")
-    .get(controller.viewOneUser)
-    .delete(controller.deleteUser)
+    .get([
+        authJwt.verifyToken
+    ], controller.viewOneUser)
     .put([
+        authJwt.verifyToken,
+        authJwt.isValidAdmin("edit_admin"),
         validate.validateError,
         validate.userValidationRules,
         validate.checkDuplicateUsernameOrEmail
-    ], controller.editUser);
+    ], controller.editUser)
+    .delete([
+        authJwt.verifyToken,
+        authJwt.isValidAdmin("delete_admin")
+    ], controller.deleteUser);
 
-// Edit user password 
-router.patch("/user/password/:id", controller.editPassword);
+// create user with roles (or admin)
+router.post("/user", [
+    authJwt.verifyToken,
+    authJwt.isValidAdmin("create_admin"),
+    validate.validateError,
+    validate.userValidationRules,
+    validate.checkDuplicateUsernameOrEmail,
+    validate.checkRolesExisted
+], controller.createUserWithRoles);
+
+// User edit own's info 
+router.patch("/user/edit/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+    validate.checkDuplicateUsernameOrEmail
+], controller.editInfo);
+
+// User edit own's password 
+router.patch("/user/edit/password/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.editPassword);
 
 // add and delete item from cart
-router.post("/user/cart", controller.addItemToCart);
-router.put("/user/cart/:id", controller.deleteItemFromCart);
+router.post("/user/cart", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.addItemToCart);
+
+router.put("/user/cart/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.deleteItemFromCart);
 
 // get user cart and items
-router.post("/user/cart/view", controller.getUserCart);
-router.get("/user/items/:id", controller.getUserItems);
+router.post("/user/cart/view", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.getUserCart);
 
-// router.get("/api/test/all", controller.allAccess);
-// router.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);
-// router.get("/api/test/admin", [authJwt.verifyToken, authJwt.isAdmin], controller.adminBoard);
+router.get("/user/items/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.getUserItems);
+
+// Dummy routes for testing
+// const model = require("../models");
+// model.ROLES.map(role => {
+//     router.get(`/test/${role}`, [
+//         authJwt.verifyToken,
+//         authJwt.isValidAdmin(role)
+//     ], (req, res) => {
+//         res.send(`${role} content.`);
+//     });
+// });
 
 module.exports = router;

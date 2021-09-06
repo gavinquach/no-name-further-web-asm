@@ -1,13 +1,19 @@
+require('dotenv').config();
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
 const dbConfig = require("./app/config/db.config");
 const cors = require("cors");
-var corsOptions = {
-    origin: "http://localhost:8081"
+const corsOptions = {
+    origin: process.env.FRONTEND_URL
 };
 
 app.use(cors(corsOptions));
+
+// protect app from some well-known web vulnerabilities by setting HTTP headers appropriately
+const helmet = require('helmet');
+app.use(helmet());
+
 // parse requests of content-type - application/json
 app.use(express.json({ limit: '50mb' }));
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -44,7 +50,6 @@ app.use((req, res, next) => {
     }
 }, limiter);
 
-const API_URL = "/api/auth";
 const authRoutes = require('./app/routes/auth.routes');
 const userRoutes = require('./app/routes/user.routes');
 const itemRoutes = require('./app/routes/item.routes');
@@ -52,11 +57,11 @@ const imageRoutes = require('./app/routes/image.routes');
 const transactionRoutes = require('./app/routes/transaction.routes');
 
 // routes
-app.use(API_URL, authRoutes);
-app.use(API_URL, userRoutes);
-app.use(API_URL, itemRoutes);
-app.use(API_URL, imageRoutes);
-app.use(API_URL, transactionRoutes);
+app.use(authRoutes);
+app.use(userRoutes);
+app.use(itemRoutes);
+app.use(imageRoutes);
+app.use(transactionRoutes);
 
 // set port, listen for requests
 app.listen(PORT, () => {
@@ -77,7 +82,11 @@ model.mongoose
         // (node:52380) DeprecationWarning: Mongoose: `findOneAndUpdate()` and 
         // `findOneAndDelete()` without the `useFindAndModify` option set to false 
         // are deprecated. See: https://mongoosejs.com/docs/deprecations.html#findandmodify
-        useFindAndModify: false
+        useFindAndModify: false,
+
+        // Fix following warning:
+        // "DeprecationWarning: collection.ensureIndex is deprecated. Use createIndexes instead."
+        useCreateIndex: true
     })
     .then(() => {
         console.log("Successfully connected to MongoDB.");
@@ -130,7 +139,8 @@ function initialize() {
                 username: "root",
                 email: "",
                 password: bcrypt.hashSync("123456"),
-                roles: [root]
+                roles: [root],
+                verified: true
             }).save(err => {
                 if (err) {
                     console.log("error", err);

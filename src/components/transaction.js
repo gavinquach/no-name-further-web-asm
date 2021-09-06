@@ -50,10 +50,10 @@ export default class Transactions extends Component {
 
     render() {
         return (
-                <div className="page-container">
-                    <div className = "title">Transactions</div>
-                    <hr className="section-line" />
-                    <div className="menu white-container">
+            <div className="page-container">
+                <div className="title">Transactions</div>
+                <hr className="section-line" />
+                <div className="menu white-container">
                     <h2>Ongoing</h2>
                     {this.state.transactions.map((transaction, index) =>
                         transaction.status === "Pending" &&
@@ -73,6 +73,7 @@ export default class Transactions extends Component {
                             <button onClick={() => this.cancelTransaction(transaction.item._id)}>Cancel transaction</button>
                         </div>
                     )}
+
                     <h2>Cancelled</h2>
                     {this.state.transactions.map((transaction, index) =>
                         transaction.status === "Cancelled" && (
@@ -91,7 +92,6 @@ export default class Transactions extends Component {
                             </div>
                         )
                     )}
-
 
                     <h2>Expired</h2>
                     {this.state.transactions.map((transaction, index) =>
@@ -113,7 +113,7 @@ export default class Transactions extends Component {
                     )}
 
                 </div>
-                </div>
+            </div>
         );
     }
 }

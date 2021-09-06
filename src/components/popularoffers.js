@@ -53,7 +53,7 @@ export default class PopularOffers extends Component {
         if (this.state.currentPage > this.state.totalPages) {
             return;
         }
-        
+
         const url = new URL(window.location.href);
         const search_params = url.searchParams;
 
@@ -62,7 +62,7 @@ export default class PopularOffers extends Component {
             const prevPage = this.state.currentPage - 1;
             search_params.set("page", prevPage);
             const pageURL = url.pathname + "?" + search_params.toString();
-            
+
             buttons.push(
                 <Link to={pageURL} onClick={() => this.updatePage(prevPage)}>
                     <button>Previous</button>
@@ -80,7 +80,7 @@ export default class PopularOffers extends Component {
                 )
             } else {
                 buttons.push(
-                    <Link style={{ textDecoration :'none'}} to={pageURL} onClick={() => this.updatePage(i)}>
+                    <Link style={{ textDecoration: 'none' }} to={pageURL} onClick={() => this.updatePage(i)}>
                         <div className="page-button" style={{ display: "inline", margin: '0px 8px' }}>{i}</div>
                     </Link>
                 )
@@ -113,12 +113,12 @@ export default class PopularOffers extends Component {
         // ========== end of GET param validation ==========
         return (
             <div className="page-container">
-                <div className = "title">Popular Offers</div>
+                <div className="title">Popular Offers</div>
                 <hr className="section-line" />
                 <div className="menu white-container">
-                {this.state.items.length > 0
-                    ? this.state.items.map((item, index) => (
-                        <a className="item-box" key={index} href={"item/" + item._id}>
+                    {this.state.items.length > 0
+                        ? this.state.items.map((item, index) => (
+                            <a className="item-box" key={index} href={"item/" + item._id}>
                                 <div className="item-box-img">
                                     {item.images.map(image =>
                                         image.cover && (
@@ -126,23 +126,23 @@ export default class PopularOffers extends Component {
                                         )
                                     )}
                                 </div>
-                                <div className = "item-info">
+                                <div className="item-info">
                                     {item.name} / <b>{item.quantity}</b>
                                     <p className="for">FOR</p>
                                     <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
                                     <p><b>Offers</b>: {item.offers}</p>
                                 </div>
-                        </a>
-                    )) : (
-                        <div>
-                            <h2 style={{ textAlign: "center" }}>No items found.</h2>
-                        </div>
-                    )}
-                <br />
-                <br />
-                <div className="page-buttons">
-                    {this.state.pageButtons}
-                </div>
+                            </a>
+                        )) : (
+                            <div>
+                                <h2 style={{ textAlign: "center" }}>No items found.</h2>
+                            </div>
+                        )}
+                    <br />
+                    <br />
+                    <div className="page-buttons">
+                        {this.state.pageButtons}
+                    </div>
                 </div>
             </div>
         )

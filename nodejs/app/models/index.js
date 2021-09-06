@@ -11,7 +11,8 @@ model.role = require("./role.model");
 model.item = require("./item.model");
 model.itemCategory = require("./item.category.model");
 model.image = require("./image.model");
-model.transaction = require("./transaction.model")
+model.transaction = require("./transaction.model");
+model.tokenSchema = require("./token.model");
 
 model.ROLES = [
     "user",
@@ -23,9 +24,7 @@ model.ROLES = [
     "create_admin",
     "edit_admin",
     "delete_admin",
-    "root",
-    "promote_user",
-    "demote_admin"
+    "root"
 ];
 
 model.ITEMCATEGORIES = [
@@ -36,7 +35,7 @@ model.ITEMCATEGORIES = [
     "Spices/Condiments",
     "Rice/Nuts",
     "Canned food",
-    "Snack"
+    "Snacks"
 ];
 
 module.exports = model;

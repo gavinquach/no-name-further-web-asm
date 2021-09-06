@@ -7,7 +7,7 @@ import { Redirect } from "react-router-dom";
 
 import AuthService from '../services/auth.service'
 
-const required = value => {
+const required = (value) => {
     if (!value) {
         return (
             <div className="alert alert-danger" role="alert">
@@ -28,23 +28,52 @@ export default class Login extends Component {
             username: "",
             password: "",
             loading: false,
-            message: ""
+            message: "",
+            disableSend: false,
+            resendMessage: ""
         };
     }
 
-    onChangeUsername(e) {
+    componentDidMount = () => {
+        if (this.props.match.params.email && this.props.match.params.token) {
+            AuthService.confirmEmail(
+                this.props.match.params.email,
+                this.props.match.params.token
+            ).then(
+                () => {
+                    this.props.history.push("/");
+                    window.location.reload();
+                },
+                error => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
+
+                    this.setState({
+                        loading: false,
+                        message: resMessage
+                    });
+                }
+            );
+        }
+    }
+
+    onChangeUsername = (e) => {
         this.setState({
             username: e.target.value
         });
     }
 
-    onChangePassword(e) {
+    onChangePassword = (e) => {
         this.setState({
             password: e.target.value
         });
     }
 
-    handleLogin(e) {
+    handleLogin = (e) => {
         e.preventDefault();
 
         this.setState({
@@ -55,9 +84,12 @@ export default class Login extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            AuthService.login(this.state.username, this.state.password).then(
+            AuthService.login(
+                this.state.username,
+                this.state.password
+            ).then(
                 () => {
-                    this.props.history.push("/");
+                    window.location.reload();
                 },
                 error => {
                     const resMessage =
@@ -80,55 +112,106 @@ export default class Login extends Component {
         }
     }
 
+    sendEmail = () => {
+        if (!this.state.disableSend) {
+            AuthService.sendVerifyEmail(
+                this.state.username,
+                this.state.password
+            ).then(response => {
+                console.log(response.data.resendMessage);
+                this.setState({
+                    resendMessage: "Email sent, you will be able to resend again in 2 minutes."
+                });
+            }, error => {
+                const resMessage =
+                    (error.response &&
+                        error.response.data &&
+                        error.response.data.message) ||
+                    error.message ||
+                    error.toString();
+
+                this.setState({
+                    loading: false,
+                    message: resMessage
+                });
+            }
+            );
+            this.setState({
+                disableSend: true
+            }, () => {
+                // re-enable link after 2 minutes
+                setTimeout(() => {
+                    this.setState({
+                        disableSend: false,
+                        resendMessage: ""
+                    });
+                }, 120 * 1000);
+            });
+        }
+    }
+
     render() {
         if (AuthService.isLoggedIn()) {
             return <Redirect to="/" />
         }
         return (
-
-     
-            <div className ='page-container'>
-                <div className = "title">Login</div>
+            <div className='page-container'>
+                <div className="title">Login</div>
                 <hr className="section-line" />
-                <div className = "form white-container">
+                <div className="form white-container">
+                    <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '7em', marginBottom: '7em' }}>
 
+                        <br></br>
+                        <Input
+                            className="Input"
+                            type="text"
+                            name="username"
+                            value={this.state.username}
+                            onChange={this.onChangeUsername}
+                            validations={[required]}
+                            placeholder="Username"
+                        />
+                        <Input
+                            className="Input"
+                            type="password"
+                            value={this.state.password}
+                            onChange={this.onChangePassword}
+                            validations={[required]}
+                            placeholder="Password"
+                        />
 
-                <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '7em', marginBottom: '7em' }}>
-                    
-                    <br></br>
-                    <Input
-                        className="Input"
-                        type="text"
-                        name="username"
-                        value={this.state.username}
-                        onChange={this.onChangeUsername}
-                        validations={[required]}
-                        placeholder="Username"></Input>
-                    <Input
-                        className="Input"
-                        type="password"
-                        value={this.state.password}
-                        onChange={this.onChangePassword}
-                        validations={[required]}
-                        placeholder="Password"></Input>
-
-                    <button className="Create-btn" disabled={this.state.loading}>
-                        {this.state.loading && (
-                            <span className="spinner-border spinner-border-sm" style={{ marginRight: '5px' }}></span>
+                        {(this.state.message) && (
+                            <span>
+                                <span
+                                    id={this.state.disableSend ? "send-email-text-disabled" : "send-email-text"}
+                                    onClick={this.sendEmail}>
+                                    Resend email
+                                </span>
+                                <br />
+                            </span>
                         )}
-                        <span>Login</span>
-                    </button>
 
-                    {this.state.message && (
-                        <div className="form-group">
-                            <div className="alert alert-danger" role="alert">
-                                {this.state.message}
+                        {this.state.resendMessage && (
+                            <span style={{ color: 'blue', float: 'right' }}>{this.state.resendMessage}</span>
+                        )}
+
+                        <button className="Create-btn" disabled={this.state.loading}>
+                            {this.state.loading && (
+                                <span className="spinner-border spinner-border-sm" style={{ marginRight: '5px' }}></span>
+                            )}
+                            <span>Login</span>
+                        </button>
+
+                        {this.state.message && (
+                            <div className="form-group">
+                                <div className="alert alert-danger" role="alert">
+                                    {this.state.message}
+                                </div>
                             </div>
-                        </div>
-                    )}
-                    <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }}
-                    />
-                </Form>
+                        )}
+                        <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }}
+                        />
+                    </Form>
                 </div>
             </div>
 
