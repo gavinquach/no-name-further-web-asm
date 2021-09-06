@@ -520,7 +520,7 @@ exports.getUserNotifications = async (req, res) => {
 exports.addNotification = async (req, res) => {
     let user = null;
     try {
-        user = await User.findById(req.body.userid).exec();
+        user = await User.findById(req.body.data.receiver).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
