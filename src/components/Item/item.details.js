@@ -152,40 +152,22 @@ export default class ItemDetails extends Component {
     }
 
     makeTransaction = () => {
-        TransactionService.createTransaction(
+        TransactionService.createTransactionWithNotification(
             this.state.item,
             AuthService.getCurrentUser().id
         ).then(
             response => {
-                const transaction = response.data.transaction;
-                const item = response.data.item;
-
-                const sender = {
-                    id: AuthService.getCurrentUser().id,
-                    username: AuthService.getCurrentUser().username
-                };
-                let receiverId = null;
-                if (sender.id == transaction.user_seller) {
-                    receiverId = transaction.user_buyer;
-                } else if (sender.id == transaction.user_buyer) {
-                    receiverId = transaction.user_seller;
+                if (response.status == 200) {
+                    this.setState({
+                        message: response.data.message,
+                        successful: true
+                    });
+                } else {
+                    this.setState({
+                        message: response.data.message,
+                        successful: false
+                    });
                 }
-            
-                const data = {
-                    type: "transaction",
-                    sender: sender.id,
-                    receiver: receiverId,
-                    url: `/transaction/${transaction._id}`,
-                    message: `User ${sender.username} has requested to trade with your item "${item.name}. Click here for more details."`,
-                    createdAt: new Date()
-                };
-                socket.emit("notifyUser", data);
-                UserService.addNotification(data);
-
-                this.setState({
-                    message: response.data.message,
-                    successful: true
-                });
             },
             error => {
                 const resMessage =

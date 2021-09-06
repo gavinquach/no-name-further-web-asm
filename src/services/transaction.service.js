@@ -47,6 +47,44 @@ class TransactionService {
         });
     }
 
+    createTransactionWithNotification(itemid, userid) {
+        return axiosTokenHeader.post(API_URL + "transaction", {
+            itemid,
+            userid
+        }).then(
+            response => {
+                const transaction = response.data.transaction;
+                const item = response.data.item;
+
+                const sender = {
+                    id: AuthService.getCurrentUser().id,
+                    username: AuthService.getCurrentUser().username
+                };
+                let receiverId = null;
+                if (sender.id == transaction.user_seller) {
+                    receiverId = transaction.user_buyer;
+                } else if (sender.id == transaction.user_buyer) {
+                    receiverId = transaction.user_seller;
+                }
+
+                const data = {
+                    type: "transaction",
+                    sender: sender.id,
+                    receiver: receiverId,
+                    url: `/transaction/${transaction._id}`,
+                    message: `User <b>${sender.username}</b> has requested to trade with your item <b>${item.name}</b>. Click here for more details.`,
+                    createdAt: new Date()
+                };
+                socket.emit("notifyUser", data);
+                UserService.addNotification(data);
+                return response;
+            },
+            error => {
+                return error.response;
+            }
+        );
+    }
+
     deleteTransactionWithNotification(transaction, id) {
         sendNotification(
             transaction,
