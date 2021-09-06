@@ -1,12 +1,12 @@
-import axios from "axios";
+import { axiosTokenHeader, axiosFormData } from "./AxiosInstance"
 const API_URL = require("./index");
 
 class ImageService {
-    uploadSingleImage(file, config) {
-        return axios.post(API_URL + "/upload-single", file, config);
+    uploadSingleImage(file) {
+        return axiosFormData.post(API_URL + "upload-single", file);
     }
-    uploadMultipleImages(files, config) {
-        return axios.post(API_URL + "/upload-multiple", files, config);
+    uploadMultipleImages(files) {
+        return axiosFormData.post(API_URL + "upload-multiple", files);
     }
 }
 
