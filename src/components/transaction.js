@@ -53,7 +53,6 @@ export default class Transactions extends Component {
             <div className="page-container">
                 <div className="title">Transactions</div>
                 <hr className="section-line" />
-                <div className="menu white-container">
                     <h2>Ongoing</h2>
                     {this.state.transactions.map((transaction, index) =>
                         transaction.status === "Pending" &&
@@ -111,8 +110,6 @@ export default class Transactions extends Component {
                             </div>
                         )
                     )}
-
-                </div>
             </div>
         );
     }

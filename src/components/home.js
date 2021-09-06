@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 
-import AuthService from "../services/auth.service";
 import ItemService from "../services/item.service";
 
 import Categories from "./ItemCategory/Categories.js"
 import Offers from "./Item/item.offers";
-
 
 export default class Home extends Component {
     constructor(props) {
