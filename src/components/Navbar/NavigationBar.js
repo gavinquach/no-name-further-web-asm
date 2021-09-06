@@ -47,7 +47,6 @@ export default class NavigationBar extends Component {
                     <Nav className= "nav">
                         <Nav.Link className="navbar-text navbar-item" href="/transactions" >Transactions</Nav.Link>
                         <Nav.Link className="navbar-text navbar-item" href="/cart">Cart</Nav.Link>
-<<<<<<< Updated upstream
                     
                 {/* show user panel user is logged in */}
                 {currentUser && (
@@ -57,21 +56,9 @@ export default class NavigationBar extends Component {
                 {showAdminPanel && (
                     <Nav.Link className="navbar-text navbar-item" href="/admin/index">Admin Panel</Nav.Link>
                 )}
-=======
-
-                        {/* show user panel user is logged in */}
-                        {currentUser && (
-                            <Nav.Link className="navbar-text navbar-item" href="/user">User Panel</Nav.Link>
-                        )}
-                        {/* show admin panel fi user is admin */}
-                        {(currentUser && currentUser.isAdmin) && (
-                            <Nav.Link className="navbar-text navbar-item" href="/admin/index">Admin Panel</Nav.Link>
-                        )}
->>>>>>> Stashed changes
                     </Nav>
                 {/* show username and logout button if logged in, otherwise, show log in and sign up buttons */}
                     <Nav>
-<<<<<<< Updated upstream
                 {currentUser ? (
                     <span className="navbar-item">
                         <button className="button1">
@@ -101,37 +88,6 @@ export default class NavigationBar extends Component {
                     </span>
                 )}
                 </Nav>
-=======
-                        {currentUser ? (
-                            <span className="navbar-item">
-                                <button className="button1">
-                                    <Nav.Link href="/user/profile" id="username-text" className="button-text">
-                                        {currentUser.username}
-                                    </Nav.Link>
-                                </button>
-                            </span>
-                        ) : (
-                            <span className="navbar-item">
-                                <button className="button1">
-                                    <Nav.Link href="/login" className="button-text">Log In</Nav.Link>
-                                </button>
-                            </span>
-                        )}
-                        {currentUser ? (
-                            <span className="navbar-item">
-                                <button className="button2" onClick={this.logOut}>
-                                    <Nav.Link href="/" className="button-text">Log Out</Nav.Link>
-                                </button>
-                            </span>
-                        ) : (
-                            <span className="navbar-item">
-                                <button className="button2">
-                                    <Nav.Link href="/signup" className="button-text">Sign Up</Nav.Link>
-                                </button>
-                            </span>
-                        )}
-                    </Nav>
->>>>>>> Stashed changes
                 </Navbar.Collapse>
             </Navbar>
         );

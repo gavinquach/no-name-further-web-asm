@@ -91,8 +91,8 @@ export default class Transactions extends Component {
                             </div>
                         )
                     )}
-<<<<<<< Updated upstream
-=======
+
+
                     <h2>Expired</h2>
                     {this.state.transactions.map((transaction, index) =>
                         transaction.status === "Expired" && (
@@ -111,7 +111,7 @@ export default class Transactions extends Component {
                             </div>
                         )
                     )}
->>>>>>> Stashed changes
+
                 </div>
                 </div>
         );
