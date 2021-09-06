@@ -30,7 +30,8 @@ export default class Login extends Component {
             loading: false,
             message: "",
             disableSend: false,
-            resendMessage: ""
+            resendMessage: "",
+            verified: true
         };
     }
 
@@ -92,6 +93,11 @@ export default class Login extends Component {
                     window.location.reload();
                 },
                 error => {
+                    if (error.response.data.verified === false) {
+                        this.setState({ verified: false });
+                    } else {
+                        this.setState({ verified: true });
+                    }
                     const resMessage =
                         (error.response &&
                             error.response.data &&
@@ -118,7 +124,6 @@ export default class Login extends Component {
                 this.state.username,
                 this.state.password
             ).then(response => {
-                console.log(response.data.resendMessage);
                 this.setState({
                     resendMessage: "Email sent, you will be able to resend again in 2 minutes."
                 });
@@ -177,7 +182,7 @@ export default class Login extends Component {
                         placeholder="Password"
                     />
 
-                    {(this.state.message) && (
+                    {(this.state.message && this.state.verified === false) && (
                         <span>
                             <span
                                 id={this.state.disableSend ? "send-email-text-disabled" : "send-email-text"}
@@ -188,7 +193,7 @@ export default class Login extends Component {
                         </span>
                     )}
 
-                    {this.state.resendMessage && (
+                    {(this.state.resendMessage && this.state.verified === false) && (
                         <span style={{ color: 'blue', float: 'right' }}>{this.state.resendMessage}</span>
                     )}
 

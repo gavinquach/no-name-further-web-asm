@@ -41,7 +41,10 @@ exports.login = async (req, res) => {
     }
 
     if (!user.verified) {
-        return res.status(401).send({ message: "Please verify your email!" });
+        return res.status(401).send({
+            message: "Please verify your email!",
+            verified: false
+        });
     }
 
     // generate a token using jsonwebtoken
