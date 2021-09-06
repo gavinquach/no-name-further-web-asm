@@ -7,6 +7,7 @@ import '../../css/NavigationBar.css'
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import socket from '../../services/socket';
+import DOMPurify from 'dompurify';
 
 export default class NavigationBar extends Component {
     constructor(props) {
@@ -96,8 +97,8 @@ export default class NavigationBar extends Component {
                                         <div key={index}>
                                             {/* display up to 5 items */}
                                             {index < 5 && (
-                                                <Nav.Link href={notification.url} className="notification-items">
-                                                    {notification.message}
+                                                <Nav.Link href={notification.url} className="notification-items"
+                                                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }}>
                                                 </Nav.Link>
                                             )}
                                             {/* display "View more" for 6th item */}

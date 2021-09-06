@@ -88,7 +88,7 @@ class TransactionService {
     deleteTransactionWithNotification(transaction, id) {
         sendNotification(
             transaction,
-            `Your transaction ${transaction._id} has been deleted. Click here for more details.`
+            `Your transaction <b>${transaction._id}</b> has been deleted. Click here for more details.`
         );
         return axiosTokenHeader.delete(API_URL + "transaction/" + id);
     }
@@ -96,7 +96,7 @@ class TransactionService {
     cancelTransactionWithNotification(transaction) {
         sendNotification(
             transaction,
-            `User ${AuthService.getCurrentUser().username} has requested for a trade cancellation. Click here for more details.`
+            `User <b>${AuthService.getCurrentUser().username}</b> has requested for a trade cancellation. Click here for more details.`
         );
         return axiosTokenHeader.patch(API_URL + "cancel/transaction", {
             itemid: transaction.item._id,
