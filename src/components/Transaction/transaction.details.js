@@ -143,4 +143,4 @@ export default class Transactions extends Component {
             </div>
         );
     }
-}console
+}
