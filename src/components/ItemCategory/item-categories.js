@@ -1,4 +1,4 @@
-import processed_meat from "../../images/processed_meat-1000x667.jpg";
+import processed_meat from "../../images/processed-meat-1000x667.jpg";
 import seafood from "../../images/SEAFOODS-IMAGE-2.jpg";
 import vegetables_fruits from "../../images/veggies_fruits.jpg";
 import instant_food from "../../images/instant-noodles.jpg";
