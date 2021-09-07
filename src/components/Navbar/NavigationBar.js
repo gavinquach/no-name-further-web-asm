@@ -11,6 +11,23 @@ import UserService from "../../services/user.service";
 import socket from '../../services/socket';
 import DOMPurify from 'dompurify';
 
+// format the date to be readable from Date object
+const formatDate = (d) => {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const dateObj = new Date(d);
+    const date = dateObj.getDate();
+    const month = monthNames[dateObj.getMonth()];   // add leading 0 to month
+    const year = dateObj.getFullYear();
+    const hour = ("0" + dateObj.getHours()).slice(-2);   // add leading 0 to hour
+    const minute = ("0" + (dateObj.getMinutes())).slice(-2);   // add leading 0 to minute
+    const second = ("0" + (dateObj.getSeconds())).slice(-2);
+
+    return `${month} ${date}, ${year} at ${hour}:${minute}:${second}`;
+}
+
 export default class NavigationBar extends Component {
     constructor(props) {
         super(props);
@@ -96,8 +113,12 @@ export default class NavigationBar extends Component {
                                         <div key={index}>
                                             {/* display up to 5 items */}
                                             {index < 5 && (
-                                                <Nav.Link href={notification.url} className="notification-items"
-                                                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }}>
+                                                <Nav.Link
+                                                    href={notification.url}
+                                                    className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
+                                                >
+                                                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }}></div>
+                                                    <div className="notification-date">{formatDate(notification.createdAt)}</div>
                                                 </Nav.Link>
                                             )}
                                             {/* display "View more" for 6th item */}
