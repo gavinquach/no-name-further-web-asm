@@ -76,10 +76,10 @@
     margin-bottom: 6em;
 }
 
-.notification {
+#notification {
     background-color: white;
     color: black;
-    font-weight: bold;
+    font-weight: 500;
     padding: 10px 20px;
     margin-right: 1em;
     position: relative;
@@ -88,13 +88,13 @@
     border-radius: 0.3em;
 }
 
-.notification:hover {
+#notification:hover {
     color: white;
     background: orangered;
     cursor: pointer;
 }
 
-.notification .badge {
+#notification .badge {
     position: absolute;
     top: -10px;
     right: -10px;
@@ -123,7 +123,7 @@
     transition: all 0.2s ease-out;
 }
 
-.notification:hover~#notification-panel, #notification-panel:hover {
+#notification:hover~#notification-panel, #notification-panel:hover {
     opacity: 1;
     visibility: visible;
     width: 18em;
@@ -146,8 +146,10 @@
 }
 
 #notification-view-more {
+    margin-left: auto;
+    margin-right: auto;
     padding: 12px 0;
-    width: 18em;
+    width: 16em;
     color: black;
     font-weight: 500;
     text-align: center;

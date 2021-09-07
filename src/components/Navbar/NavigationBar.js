@@ -34,7 +34,9 @@ export default class NavigationBar extends Component {
         this.logOut = this.logOut.bind(this);
 
         this.state = {
-            notifications: []
+            notifications: [],
+            unreadList: [],
+            unreadCount: 0
         }
     }
 
@@ -46,15 +48,86 @@ export default class NavigationBar extends Component {
             .then(
                 response => {
                     if (response.data) {
-                        const temp = response.data;
-                        // sort from newest to oldest
-                        temp.sort((a, b) => {
-                            return new Date(b.createdAt) - new Date(a.createdAt);
-                        });
+                        // user has more than 5 total notifications
+                        if (response.data.length > 5) {
+                            const temp = response.data;
 
-                        this.setState({
-                            notifications: temp
-                        });
+                            // create array for all unread notifications
+                            const unreadList = [];
+                            temp.map(notification => {
+                                !notification.read && unreadList.push(notification);
+                            });
+
+                            // no unread notifications,
+                            // display notifications normally
+                            if (unreadList.length == 0) {
+                                this.setState({
+                                    notifications: response.data,
+                                    unreadCount: unreadList.length
+                                });
+                            }
+
+                            // trim array to have only 5 unread notifications so
+                            // only the latest 5 unread notifications get set to
+                            // read when user opens the panel
+                            else if (unreadList.length > 5) {
+                                const unreadCount = unreadList.length;
+                                const temp = [];
+                                for (let i = 0; i < 5; i++) {
+                                    temp.push(unreadList[i]);
+                                }
+                                this.setState({
+                                    notifications: temp,
+                                    unreadList: unreadList,
+                                    unreadCount: unreadCount
+                                });
+                            }
+
+                            // unread notifications less than 5,
+                            // display all of them and display the latest
+                            // read notifications after
+                            else if (unreadList.length < 5) {
+                                const readList = [];
+                                const finalList = [];
+                                temp.map(notification => {
+                                    !notification.read && finalList.push(notification);
+                                    notification.read && readList.push(notification);
+                                });
+
+                                // fill up the empty slots with
+                                // the latest read notification(s)
+                                for (let i = 0; i < 5 - finalList.length; i++) {
+                                    finalList.push(readList[i]);
+                                }
+
+                                this.setState({
+                                    notifications: finalList,
+                                    unreadCount: unreadList.length
+                                });
+                            }
+
+                            // user has 5 total unread notifications
+                            // display unread notifications normally
+                            else {
+                                this.setState({
+                                    notifications: unreadList,
+                                    unreadCount: unreadList.length
+                                });
+                            }
+                        }
+                        // user has less than 5 total notifications
+                        // display notifications normally
+                        else {
+                            //get unread count
+                            let count = 0;
+                            response.data.map(notification => {
+                                !notification.read && count++;
+                            });
+                            this.setState({
+                                notifications: response.data,
+                                unreadCount: count
+                            });
+                        }
                     }
                 })
             .catch((error) => {
@@ -63,14 +136,13 @@ export default class NavigationBar extends Component {
 
         socket.on("receiveNotifications", data => {
             const temp = this.state.notifications;
-            const notification = {
-                url: data.url,
-                message: data.message
-            };
             // push new notification to first index
-            temp.unshift(notification);
+            temp.unshift(data);
+            // add to unread notification count
+            const unreadCountCount = this.state.unreadCount + 1;
             this.setState({
-                notifications: temp
+                notifications: temp,
+                unreadCount: unreadCountCount
             });
         });
     }
@@ -83,6 +155,12 @@ export default class NavigationBar extends Component {
         if (this.state.unreadCount > 0) {
             // add delay to sync up with CSS 0.3s animation
             setTimeout(() => {
+                // reduce unread count
+                const count = this.state.unreadCount - 5;
+                this.setState({
+                    unreadCount: count < 0 ? 0 : count
+                });
+
                 UserService.setReadNotifications(
                     this.state.notifications
                 )
@@ -120,6 +198,8 @@ export default class NavigationBar extends Component {
 
                         <Nav id="notification" onMouseEnter={this.setReadAllNotifcations}>
                             <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
+                            {this.state.unreadCount > 0 &&
+                                <span className="badge">{this.state.unreadCount}</span>
                             }
                         </Nav>
                         <div id="notification-panel">
@@ -139,14 +219,17 @@ export default class NavigationBar extends Component {
                                                     <div className="notification-date">{formatDate(notification.createdAt)}</div>
                                                 </Nav.Link>
                                             )}
-                                            {/* display "View more" for 6th item */}
-                                            {index == 5 && (
-                                                <Nav.Link href="/notifications" id="notification-view-more">
-                                                    View more
-                                                </Nav.Link>
-                                            )}
                                         </div>
                                     ))}
+                                    {this.state.unreadList.length > 5 ? (
+                                        <Nav.Link href="/notifications/unread" id="notification-view-more">
+                                            View more unread notifications here
+                                        </Nav.Link>
+                                    ) : (
+                                        <Nav.Link href="/notifications" id="notification-view-more">
+                                            View more
+                                        </Nav.Link>
+                                    )}
                                 </div>
                             ) : (
                                 // no notifications, display text
