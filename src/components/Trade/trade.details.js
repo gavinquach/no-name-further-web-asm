@@ -108,9 +108,7 @@ export default class Transactions extends Component {
                                 <h5>Type: <b>{item.type.name}</b></h5>
                                 <h5>Quantity: <b>{item.quantity}</b></h5>
                             </div>
-                            <h3 style={{ position: 'relative', bottom: '2px' }}>
-                                for
-                            </h3>
+                            <h3>for</h3>
                             <div className="ItemDetails">
                                 <h3 style={{ textAlign: 'center' }}><b>{item.forItemName}</b></h3>
                                 <hr style={{ border: '1px solid black' }} />
