@@ -99,6 +99,12 @@ router.get("/user/notifications/:id", [
     authJwt.isUser,
 ], controller.getUserNotifications);
 
+// get unreadnotifications
+router.get("/user/unreadnotifications/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.getUserUnreadNotifications);
+
 // add notification
 router.post("/user/notification", [
     authJwt.verifyToken,
