@@ -5,30 +5,19 @@ import TransactionService from "../../services/transaction.service";
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
     const dateObj = new Date(d);
-    const date = ("0" + dateObj.getDate()).slice(-2);   // add leading 0 to date
-    const month = ("0" + (dateObj.getMonth() + 1)).slice(-2);   // add leading 0 to month
+    const date = dateObj.getDate();
+    const month = monthNames[dateObj.getMonth()];   // add leading 0 to month
     const year = dateObj.getFullYear();
     const hour = ("0" + dateObj.getHours()).slice(-2);   // add leading 0 to hour
     const minute = ("0" + (dateObj.getMinutes())).slice(-2);   // add leading 0 to minute
-    const second = dateObj.getSeconds();
+    const second = ("0" + (dateObj.getSeconds())).slice(-2);
 
-    // ===============================================
-    // commented out because Date object automatically
-    // adjust to current client time zone
-    // ===============================================
-    // // calculate time zone
-    // const timeZoneOffset = dateObj.getTimezoneOffset();
-    // let timeZone = timeZoneOffset / 60;
-    // if (timeZone < 0) {
-    //     timeZone = Math.abs(timeZone);
-    // } else {
-    //     timeZone = -Math.abs(timeZone);
-    // }
-    // // get final hour value
-    // hour = ("0" + (hour + timeZone)).slice(-2); // add leading 0 to hour
-
-    return `${date}/${month}/${year} at ${hour}:${minute}:${second}`;
+    return `${month} ${date}, ${year} at ${hour}:${minute}:${second}`;
 }
 
 export default class Transactions extends Component {
