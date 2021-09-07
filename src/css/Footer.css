@@ -1,6 +1,6 @@
 .main-footer {
     display: grid;
-    grid-template-columns: 60% 40%;
+    grid-template-columns: 50% 50%;
     color: white;
     background-color: #7d8b11;
     padding-top: 5px;
@@ -22,21 +22,16 @@
     color: white;
 }
 
-.col {
-    display: inline-block;
-    padding: 30px;
-}
-
 #description {
+    margin-left: 20px;
     padding: 30px;
     font-size: 15px;
 }
 
-#tag {
-    padding-left: 40px;
-    background-color: #09743b;
+#about {
+    margin-left: 20px;
+    padding: 30px;
     font-size: 15px;
-    color: white;
 }
 
 @media screen and (max-width: 760px) {

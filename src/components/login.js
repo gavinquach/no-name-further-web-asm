@@ -3,7 +3,7 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { Redirect } from "react-router-dom";
-
+import {Helmet} from "react-helmet";
 
 import AuthService from '../services/auth.service'
 
@@ -161,6 +161,9 @@ export default class Login extends Component {
         }
         return (
             <div className='page-container'>
+                 <Helmet>
+                    <title>Login</title>
+                </Helmet>
                 <div className="title">Login</div>
                 <hr className="section-line" />
                 <div className="form white-container">

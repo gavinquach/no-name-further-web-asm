@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import ItemService from "../../services/item.service";
 import { CategoryList } from './item-categories.js';
-
+import {Helmet} from "react-helmet";
 import '../../css/ItemCategories.css';
 import '../../css/ItemMenu.css'
 
@@ -125,9 +125,12 @@ export default class ItemCategory extends Component {
         // ========== end of GET param validation ==========
         return (
             <div className="page-container">
+                 <Helmet>
+                    <title>{this.state.category}</title>
+                </Helmet>
                 <div className="title">{this.state.category}</div>
                 <hr className="section-line" />
-                <div className="menu white-container">
+                <div className="menu">
                     {this.state.items.length > 0
                         ? this.state.items.map((item, index) => (
                             <a className="item-box" key={index} href={"item/" + item._id}>
@@ -151,12 +154,11 @@ export default class ItemCategory extends Component {
                             </div>
                         )
                     }
-                    <br />
-                    <br />
+                    </div >
                     <div className="page-buttons">
                         {this.state.pageButtons}
                     </div>
-                </div >
+                
             </div >
         )
     }

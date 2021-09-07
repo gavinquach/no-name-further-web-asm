@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import ItemService from "../services/item.service";
 import '../css/ItemCategories.css';
 import '../css/ItemMenu.css'
+import {Helmet} from "react-helmet";
 
 export default class PopularOffers extends Component {
     constructor(props) {
@@ -113,6 +114,9 @@ export default class PopularOffers extends Component {
         // ========== end of GET param validation ==========
         return (
             <div className="page-container">
+                <Helmet>
+                    <title>Popular Offers</title>
+                </Helmet>
                 <div className="title">Popular Offers</div>
                 <hr className="section-line" />
                 <div className="menu white-container">
@@ -138,12 +142,11 @@ export default class PopularOffers extends Component {
                                 <h2 style={{ textAlign: "center" }}>No items found.</h2>
                             </div>
                         )}
-                    <br />
-                    <br />
+                     </div>
                     <div className="page-buttons">
                         {this.state.pageButtons}
                     </div>
-                </div>
+               
             </div>
         )
     }

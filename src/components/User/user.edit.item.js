@@ -4,7 +4,7 @@ import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
-
+import {Helmet} from "react-helmet";
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
@@ -359,6 +359,9 @@ export default class UserEditItem extends Component {
     render() {
         return (
             <div className="page-container">
+                 <Helmet>
+                    <title>Edit Listing</title>
+                </Helmet>
                 <div className="title">Edit Listing</div>
                 <hr className="section-line" />
                 <div className="menu white-container">

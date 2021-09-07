@@ -10,7 +10,7 @@ export default class Categories extends Component {
             <div>
                 <div className="title">Categories</div>
                 <hr className="section-line" />
-                <div className="category-menu white-container">
+                <div className="category-menu ">
                     {CategoryList.map((category, index) => (
                         <div className="container category-item">
                             <Link className="link-no-style" to={`/items?category=${category.url}`}>

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Router, Switch, useRouteMatch } from "react-router-dom";
-
+import {Helmet} from "react-helmet";
 import "../../css/UserPages.css";
 
 export default class UserIndex extends Component {
@@ -8,6 +8,9 @@ export default class UserIndex extends Component {
         render(){
         return (
             <div className = "page-container">
+                <Helmet>
+                    <title>User Panel</title>
+                </Helmet>
                 <div className="title">User Panel</div>
                 <hr className="section-line" />
                 <div className="white-container">

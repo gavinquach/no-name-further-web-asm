@@ -4,7 +4,7 @@ import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
-
+import {Helmet} from "react-helmet";
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 
@@ -237,9 +237,10 @@ export default class UserProfile extends Component {
     render() {
         // const currentUser = AuthService.getCurrentUser();
         return (
-            <div>
-              
                 <div className="page-container my-profile">
+                <Helmet>
+                    <title>{this.state.username}'s Profile</title>
+                </Helmet>
                     <ProfileSideBar />
                     <div className="profile-page">
                         <div className="title">My profile</div>
@@ -341,7 +342,7 @@ export default class UserProfile extends Component {
                         </p>
                     } */}
                 </div>
-            </div>
+
         );
     }
 }

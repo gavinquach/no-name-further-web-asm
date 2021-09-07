@@ -52,8 +52,7 @@
 }
 
 .user-menu-button:hover {
-    background-color: rgba(249, 187, 19, 0.6);
-    color: black;
+    background-color: rgba(125, 139, 17, 0.7);
 }
 
 .danger-zone-container {

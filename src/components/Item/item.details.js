@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import {Helmet} from "react-helmet";
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import ItemService from "../../services/item.service";
@@ -161,6 +161,9 @@ export default class ItemDetails extends Component {
         return (
            
                 <div className="page-container">
+                    <Helmet>
+                    <title>{this.state.name}| Details</title>
+                    </Helmet>
                     <div className = "title">Item Details</div>
                     <hr className="section-line" />
                     <div className="item white-container">

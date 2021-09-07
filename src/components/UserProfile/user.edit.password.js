@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
-
+import {Helmet} from "react-helmet";
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 
@@ -141,10 +141,11 @@ export default class UserEditPassword extends Component {
     }
 
     render() {
-        return (
-            <div>
-               
+        return (             
                 <div className="page-container my-profile">
+                <Helmet>
+                    <title>Change Password</title>
+                </Helmet>
                     <ProfileSideBar />
                     <div className="profile-page">
                     <div className="title">Change Password</div>
@@ -213,7 +214,6 @@ export default class UserEditPassword extends Component {
                     </div>
                     </div>
                 </div>
-            </div>
         );
     }
 }

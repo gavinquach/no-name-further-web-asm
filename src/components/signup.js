@@ -5,7 +5,7 @@ import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
-
+import {Helmet} from "react-helmet";
 
 import AuthService from "../services/auth.service";
 import UserService from "../services/user.service";
@@ -312,6 +312,9 @@ export default class Signup extends Component {
         }
         return (
             <div className ="page-container">
+                <Helmet>
+                    <title>Sign Up</title>
+                </Helmet>
                 <div className="title">Register</div>
                 <hr className="section-line" />
                 <div className = "form white-container">

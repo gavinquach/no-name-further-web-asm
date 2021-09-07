@@ -12,25 +12,27 @@
 .profile-sidebar {
     padding-top: 10vw;
     background-color: white;
-    margin-left: 0;
 }
 
 .profile-list {
     list-style-type: none;
+    padding-left: 10px;
 }
 
-.profile-item {
-    text-decoration: none;
+.profile-list li {
+    border-radius: 0.5em;
+    padding: 0.8em;
+    margin-bottom: 0.4em;
+    background-color: #484e10;
+    border: none;
     font-size: 1.3em;
     font-weight: bold;
-    color: #484e10;
+    color: white;
     transition: 0.3s;
 }
 
-.profile-item:hover {
-    color: rgba(249, 187, 19, 0.6);
-    text-decoration: none;
-    background-color: rgba;
+.profile-list li:hover {
+    background-color: rgba(125, 139, 17, 0.7);
 }
 
 .profile-page {
@@ -138,7 +140,7 @@
     }
     .profile-input {
         margin-top: 0.2em;
-        margin-bottom: 2em
+        margin-bottom: 1.2em
     }
     .form {
         padding: 2em;

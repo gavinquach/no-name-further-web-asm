@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import AuthService from "../services/auth.service";
 import TransactionService from "../services/transaction.service";
-
+import {Helmet} from "react-helmet";
 
 export default class Transactions extends Component {
     constructor(props) {
@@ -51,6 +51,9 @@ export default class Transactions extends Component {
     render() {
         return (
             <div className="page-container">
+                <Helmet>
+                    <title>Transactions</title>
+                </Helmet>
                 <div className="title">Transactions</div>
                 <hr className="section-line" />
                     <h2>Ongoing</h2>
