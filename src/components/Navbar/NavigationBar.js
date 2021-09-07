@@ -79,6 +79,23 @@ export default class NavigationBar extends Component {
         AuthService.logout();
     }
 
+    setReadAllNotifcations = () => {
+        if (this.state.unreadCount > 0) {
+            // add delay to sync up with CSS 0.3s animation
+            setTimeout(() => {
+                UserService.setReadNotifications(
+                    this.state.notifications
+                )
+                    .then(() => {
+
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            }, 300);
+        }
+    }
+
     render = () => {
         const currentUser = this.props.obj;
         return (
@@ -101,6 +118,7 @@ export default class NavigationBar extends Component {
                             )}
                         </Nav>
 
+                        <Nav id="notification" onMouseEnter={this.setReadAllNotifcations}>
                             <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
                             }
                         </Nav>

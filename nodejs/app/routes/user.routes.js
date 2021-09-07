@@ -93,15 +93,28 @@ router.get("/user/items/:id", [
     authJwt.isUser,
 ], controller.getUserItems);
 
-// get notifications and add notification
+// get notifications
 router.get("/user/notifications/:id", [
     authJwt.verifyToken,
     authJwt.isUser,
 ], controller.getUserNotifications);
 
+// add notification
 router.post("/user/notification", [
     authJwt.verifyToken,
     authJwt.isUser,
 ], controller.addNotification);
+
+// set notifcation to read
+router.patch("/user/read/notification", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.setReadNotification);
+
+// set many notifcations to read
+router.patch("/user/read/notifications", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.setReadNotifications);
 
 module.exports = router;
