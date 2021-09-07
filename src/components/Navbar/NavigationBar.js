@@ -1,5 +1,7 @@
 import { React, Component } from 'react';
 import { Navbar, Nav, Image } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBell } from '@fortawesome/free-solid-svg-icons'
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css'
@@ -82,10 +84,7 @@ export default class NavigationBar extends Component {
                             )}
                         </Nav>
 
-                        <Nav className="notification">
-                            <div>Notifications</div>
-                            {this.state.notifications.length > 0 &&
-                                <span className="badge">{this.state.notifications.length}</span>
+                            <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
                             }
                         </Nav>
                         <div id="notification-panel">
