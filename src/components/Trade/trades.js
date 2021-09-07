@@ -25,7 +25,7 @@ export default class Transactions extends Component {
     }
 
     cancelTransaction = (transaction) => {
-        if (window.confirm("Are you sure you want to request for transaction cancellation?")) {
+        if (window.confirm("Are you sure you want to request for trade cancellation?")) {
             TransactionService.cancelTransactionWithNotification(
                 transaction
             ).then(
@@ -50,13 +50,13 @@ export default class Transactions extends Component {
         return (
             <div>
                 <div className="container">
-                    <h1>Transactions</h1>
+                    <h1>Trades</h1>
                     <br />
                     <h2>Ongoing</h2>
                     {this.state.transactions.map((transaction, index) =>
                         transaction.status === "Pending" &&
                         <div key={index + "-div1"} style={{ backgroundColor: 'lightgrey', width: '60em', height: '10em', marginBottom: '4em' }}>
-                            <a href={"transaction/" + transaction._id}>
+                            <a href={"/trade/" + transaction._id}>
                                 <div key={index + "-ItemPanel"} className="ItemPanel" style={{ width: '60em', height: '10em' }}>
                                     {/* {transaction.item.images.map(image =>
                                     image.cover && (
@@ -78,7 +78,7 @@ export default class Transactions extends Component {
                         transaction.status === "Cancelled" && (
                             <div key={index + "-div2"} style={{ width: '40em', height: '10em', marginTop: '2em' }}>
                                 {transaction.item ? (
-                                    <a href={"transaction/" + transaction._id}>
+                                    <a href={"/trade/" + transaction._id}>
                                         <div key={index + "-ItemPanel"} className="ItemPanel">
                                             <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
                                         </div>
@@ -100,7 +100,7 @@ export default class Transactions extends Component {
                         transaction.status === "Expired" && (
                             <div key={index + "-div2"} style={{ width: '40em', height: '10em', marginTop: '2em' }}>
                                 {transaction.item ? (
-                                    <a href={"transaction/" + transaction._id}>
+                                    <a href={"/trade/" + transaction._id}>
                                         <div key={index + "-ItemPanel"} className="ItemPanel">
                                             <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
                                         </div>

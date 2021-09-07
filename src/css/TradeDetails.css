@@ -1,0 +1,40 @@
+.TradeDetails p {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.ItemPanel {
+    display: flex;
+    color: black;
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.15);
+    padding: 12px 12px;
+    margin-bottom: 1em;
+}
+
+.ItemPanel:hover {
+    color: black;
+    text-decoration: none;
+}
+
+.ItemImage {
+    width: auto;
+    height: 13em;
+    border: 1px solid black;
+    display: inline;
+}
+
+.ItemDetails {
+    margin: 0 1em;
+    width: 25em;
+}
+
+.TradeButton {
+    color: white;
+    font-size: 20px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 0.5em;
+    background-color: rgba(55, 61, 0, 0.918);
+    margin-right: 1em;
+}

@@ -17,8 +17,8 @@ import Signup from './components/signup';
 import Login from './components/login';
 import ItemDetails from './components/Item/item.details';
 import Cart from './components/cart';
-import Transactions from './components/Transaction/transactions';
-import TransactionDetails from './components/Transaction/transaction.details';
+import Trades from './components/Trade/trades';
+import TradeDetails from './components/Trade/trade.details';
 import NotFound from './components/notfound';
 import UserProfile from './components/UserProfile/user.profile';
 import UserEditPassword from './components/UserProfile/user.edit.password';
@@ -147,8 +147,9 @@ export default class App extends Component {
 
                     {/* user pages */}
                     <UserProtectedRoute exact path="/cart" component={Cart} />
-                    <UserProtectedRoute exact path="/transactions" component={Transactions} />
-                    <UserProtectedRoute path="/transaction/:id" component={TransactionDetails} />
+                    <UserProtectedRoute exact path="/notifications" component={Notifications} />
+                    <UserProtectedRoute exact path="/trades" component={Trades} />
+                    <UserProtectedRoute path="/trade/:id" component={TradeDetails} />
                     <UserProtectedRoute exact path='/user' component={UserProfile} />
                     <UserProtectedRoute exact path='/user/password' component={UserEditPassword} />
                     <UserProtectedRoute exact path='/user/index' component={UserIndex} />
