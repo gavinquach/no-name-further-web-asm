@@ -20,7 +20,7 @@ const sendNotification = (transaction, msg) => {
         type: "transaction",
         sender: sender.id,
         receiver: receiverId,
-        url: `/transaction/${transaction._id}`,
+        url: `/trade/${transaction._id}`,
         message: msg,
         createdAt: new Date()
     };
@@ -71,7 +71,7 @@ class TransactionService {
                     type: "transaction",
                     sender: sender.id,
                     receiver: receiverId,
-                    url: `/transaction/${transaction._id}`,
+                    url: `/trade/${transaction._id}`,
                     message: `User <b>${sender.username}</b> has requested to trade with your item <b>${item.name}</b>. Click here for more details.`,
                     createdAt: new Date()
                 };
