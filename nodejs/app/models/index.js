@@ -14,6 +14,8 @@ model.itemCategory = require("./item.category.model");
 model.image = require("./image.model");
 model.transaction = require("./transaction.model");
 model.tokenSchema = require("./token.model");
+model.conversation = require("./conversation.model")
+model.message = require("./message.model")
 
 model.ROLES = [
     "user",
