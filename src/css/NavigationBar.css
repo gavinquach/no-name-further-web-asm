@@ -1,6 +1,6 @@
 .navbar {
+    background-color: #7d8b11;
     margin-bottom: 2em;
-    background-color: #284b63;
     position: fixed;
     top: 0;
     width: 100%;
@@ -14,11 +14,12 @@
     font-size: 1.5em;
     font-weight: bold;
     color: white !important;
+    transition: 0.3s;
 }
 
 .navbar-text:hover {
     font-weight: bold;
-    color: #d9d9d9 !important;
+    color: #f3e0c2 !important;
 }
 
 .navbar-item {
@@ -27,41 +28,41 @@
     text-align: center;
     margin-top: 7px;
     margin-bottom: 7px;
+    margin-right: 7px;
 }
 
 .button1 {
-    border-radius: 1em 0.5em 0.5em 1em;
+    border-radius: 0.5em;
     background-color: white;
-    border: 2px solid black;
+    border: 2px solid white;
     width: 7em;
     height: 2.8em;
     font-weight: bold;
-}
-.button2 {
-    border-radius: 0.5em 1em 1em 0.5em;
-    background-color: white;
-    border: 2px solid black;
-    width: 7em;
-    height: 2.8em;
-    font-weight: bold;
+    transition: 0.3s;
 }
 
+.button2 {
+    border-radius: 0.5em;
+    background-color: white;
+    border: 2px solid white;
+    width: 7em;
+    height: 2.8em;
+    font-weight: bold;
+    transition: 0.3s;
+}
 
 .button1:hover {
-    background-color: #d9d9d9;
-    border: 2px solid white;
+    background-color: #f3e0c2;
+    border: 2px solid #484e10;
 }
+
 .button2:hover {
-    background-color: #d9d9d9;
-    border: 2px solid white;
+    background-color: #f3e0c2;
+    border: 2px solid #484e10;
 }
 
 .button-text {
-    color: black !important;
-}
-
-.button-text:hover {
-    color: white !important;
+    color: #484e10 !important;
 }
 
 #username-text {

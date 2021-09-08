@@ -12,6 +12,7 @@ import AuthVerify from "./common/auth-verify";
 import AdminProtectedRoute from './common/admin-protected-route';
 import UserProtectedRoute from './common/user-protected-route';
 
+
 import Home from './components/home';
 import Signup from './components/signup';
 import Login from './components/login';
@@ -134,6 +135,7 @@ export default class App extends Component {
 
     render = () => {
         return (
+        <div className = "app">
             <Router>
                 <NavigationBar obj={this.state.currentUser}/>
                 <Switch>
@@ -151,9 +153,9 @@ export default class App extends Component {
                     <UserProtectedRoute exact path="/notifications" component={Notifications} />
                     <UserProtectedRoute exact path="/trades" component={Trades} />
                     <UserProtectedRoute path="/trade/:id" component={TradeDetails} />
-                    <UserProtectedRoute exact path='/user' component={UserProfile} />
+                    <UserProtectedRoute exact path='/user/profile' component={UserProfile} />
                     <UserProtectedRoute exact path='/user/password' component={UserEditPassword} />
-                    <UserProtectedRoute exact path='/user/index' component={UserIndex} />
+                    <UserProtectedRoute exact path='/user' component={UserIndex} />
                     <UserProtectedRoute exact path='/user/create' component={UserCreateItem} />
                     <UserProtectedRoute path='/user/edit/item/:id' component={UserEditItem} />
                     <UserProtectedRoute exact path='/user/items' component={UserViewItem} />
@@ -171,6 +173,7 @@ export default class App extends Component {
                 <AuthVerify logOut={this.logOut} />
                 <Footer />
             </Router>
+            </div>
         );
     }
 }

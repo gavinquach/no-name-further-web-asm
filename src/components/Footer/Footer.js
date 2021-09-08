@@ -14,8 +14,15 @@ export default class Footer extends Component {
                 </div>
                 
                 {/* Column 2*/}
-                <div className="col">
+                <div id="about" >
                     <h4>ABOUT US</h4>
+                    <b>A Food Trading Platform For Covid Lockdown Situation.</b><br></br>
+                    Han Sang Yeob: s3821179<br></br>
+                    Quach Gia Vi: s3757317<br></br>
+                    Bui Manh Dai Duong: s3757278<br></br>
+                    Nguyen Bao Tri: s3749560<br></br>
+                    Vu Dang Phuc: s3801962<br></br>
+                    Phan Gia Bao: s3741181<br></br>
                 </div>
                 <hr />
             </div>

@@ -4,7 +4,7 @@ import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
-
+import {Helmet} from "react-helmet";
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
@@ -260,11 +260,14 @@ export default class UserCreateItem extends Component {
 
     render() {
         return (
-            <div>
-             
-                <Form className="container" style={{ width: "60em" }} onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
-                    <h1 className="Big-text">Create item</h1>
-                    <br />
+            <div className = "page-container">
+                  <Helmet>
+                    <title>Create Listing</title>
+                </Helmet>
+            <div className = "title">Create Listing</div>
+            <hr className="section-line" />
+            <div className=" form white-container">
+                <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
 
                     <h2>Your item:</h2>
                     <Input
@@ -512,9 +515,10 @@ export default class UserCreateItem extends Component {
 
                 <br /><br /><br />
 
-                <div className="container" style={{ width: "60em" }}>
+                <div>
                     <h1 className="Big-text">Preview of listing</h1>
                     <h3>Show preview down here, preview will look like what it will look like on the actual listing page.</h3>
+                </div>
                 </div>
             </div>
         );

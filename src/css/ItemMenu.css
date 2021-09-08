@@ -1,0 +1,83 @@
+.menu {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 1em;
+    padding-left: 3vw;
+    padding-right: 3vw;
+    padding-top: 4em;
+    padding-bottom: 2em;
+}
+
+#more {
+    color: #484e10;
+    margin-left: 20px;
+    font-size: 0.4em;
+    font-weight: 350;
+    transition: 0.3s;
+}
+
+#more:hover {
+    text-decoration: none;
+    color: #f9bb13;
+}
+
+.item-box {
+    text-align: center;
+    display: inline-block;
+    padding: 0.8em;
+    width: 230px;
+    margin: auto;
+    margin-bottom: 5%;
+    border-radius: 0.2;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-style: solid;
+    border-width: 0.8px;
+    box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+
+.item-box:hover {
+    text-decoration: none;
+    background-color: rgba(125, 139, 17, 0.2);
+    color: white;
+    border-color: rgba(125, 139, 17, 0.2);
+}
+
+.item-box img {
+    width: 100%;
+    height: 170px;
+    border-radius: 0.2em;
+    display: inline-block;
+    border: none;
+    transition: 0.3s;
+}
+
+.item-box p {
+    margin: 0px;
+}
+
+.item-info {
+    width: 200px;
+    color: black;
+    text-align: left;
+    padding: 10px 0px 5px 0px;
+    margin-top: 5px;
+    transition: 0.3s;
+}
+
+@media screen and (max-width: 760px) {
+    .menu {
+        grid-template-columns: repeat(2, auto);
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .menu {
+        text-align: center;
+        display: block;
+    }
+    .item-box {
+        padding-bottom: 20px;
+        margin-bottom: 3em;
+    }
+}

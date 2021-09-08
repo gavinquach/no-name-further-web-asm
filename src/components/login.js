@@ -3,7 +3,7 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { Redirect } from "react-router-dom";
-
+import {Helmet} from "react-helmet";
 
 import AuthService from '../services/auth.service'
 
@@ -160,61 +160,67 @@ export default class Login extends Component {
             return <Redirect to="/" />
         }
         return (
-            <div>
-                <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '7em', marginBottom: '7em' }}>
-                    <h1 className="Big-text">Login</h1>
-                    <br></br>
-                    <Input
-                        className="Input"
-                        type="text"
-                        name="username"
-                        value={this.state.username}
-                        onChange={this.onChangeUsername}
-                        validations={[required]}
-                        placeholder="Username"
-                    />
-                    <Input
-                        className="Input"
-                        type="password"
-                        value={this.state.password}
-                        onChange={this.onChangePassword}
-                        validations={[required]}
-                        placeholder="Password"
-                    />
+            <div className='page-container'>
+                 <Helmet>
+                    <title>Login</title>
+                </Helmet>
+                <div className="title">Login</div>
+                <hr className="section-line" />
+                <div className="form white-container">
+                    <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '7em', marginBottom: '7em' }}>
+                        <Input
+                            className="Input"
+                            type="text"
+                            name="username"
+                            value={this.state.username}
+                            onChange={this.onChangeUsername}
+                            validations={[required]}
+                            placeholder="Username"
+                        />
+                        <Input
+                            className="Input"
+                            type="password"
+                            value={this.state.password}
+                            onChange={this.onChangePassword}
+                            validations={[required]}
+                            placeholder="Password"
+                        />
 
-                    {(this.state.message && this.state.verified === false) && (
-                        <span>
-                            <span
-                                id={this.state.disableSend ? "send-email-text-disabled" : "send-email-text"}
-                                onClick={this.sendEmail}>
-                                Resend email
+                        {(this.state.message && this.state.verified === false) && (
+                            <span>
+                                <span
+                                    id={this.state.disableSend ? "send-email-text-disabled" : "send-email-text"}
+                                    onClick={this.sendEmail}>
+                                    Resend email
+                                </span>
+                                <br />
                             </span>
-                            <br />
-                        </span>
-                    )}
-
-                    {(this.state.resendMessage && this.state.verified === false) && (
-                        <span style={{ color: 'blue', float: 'right' }}>{this.state.resendMessage}</span>
-                    )}
-
-                    <button className="Create-btn" disabled={this.state.loading}>
-                        {this.state.loading && (
-                            <span className="spinner-border spinner-border-sm" style={{ marginRight: '5px' }}></span>
                         )}
-                        <span>Login</span>
-                    </button>
 
-                    {this.state.message && (
-                        <div className="form-group">
-                            <div className="alert alert-danger" role="alert">
-                                {this.state.message}
+                        {(this.state.resendMessage && this.state.verified === false) && (
+                            <span style={{ color: 'blue', float: 'right' }}>{this.state.resendMessage}</span>
+                        )}
+
+                        <button className="Create-btn" disabled={this.state.loading}>
+                            {this.state.loading && (
+                                <span className="spinner-border spinner-border-sm" style={{ marginRight: '5px' }}></span>
+                            )}
+                            <span>Login</span>
+                        </button>
+
+                        {this.state.message && (
+                            <div className="form-group">
+                                <div className="alert alert-danger" role="alert">
+                                    {this.state.message}
+                                </div>
                             </div>
-                        </div>
-                    )}
-                    <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }}
-                    />
-                </Form>
+                        )}
+                        <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }}
+                        />
+                    </Form>
+                </div>
             </div>
+
         );
     };
 }

@@ -7,21 +7,25 @@ import { CategoryList } from './item-categories.js';
 export default class Categories extends Component {
     render() {
         return (
-            <div className="category-menu">
-                {CategoryList.map((category, index) => (
-                    <div className="container category-item">
-                        <Link to={`/items?category=${category.url}`}>
-                            <div className="category-image" style={{ backgroundImage: `url("${category.image}")` }} />
-                            {/* <span className="category-image" style={{ backgroundImage: 'url("' + category.image + '")' }} /> */}
-                            <li key={index}>
-                                <p activeClassName="category-name-active" className={category.cName} >
-                                    {category.title}
-                                </p>
-                            </li>
-                        </Link>
-                    </div>
-                ))}
-            </div>
+            <div>
+                <div className="title">Categories</div>
+                <hr className="section-line" />
+                <div className="category-menu ">
+                    {CategoryList.map((category, index) => (
+                        <div className="container category-item">
+                            <Link className="link-no-style" to={`/items?category=${category.url}`}>
+                                <div className="category-image" style={{ backgroundImage: `url("${category.image}")` }} />
+                                {/* <span className="category-image" style={{ backgroundImage: 'url("' + category.image + '")' }} /> */}
+                                <li key={index}>
+                                    <p activeClassName="category-name-active" className={category.cName} >
+                                        {category.title}
+                                    </p>
+                                </li>
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+            </div >
         )
     }
 }
