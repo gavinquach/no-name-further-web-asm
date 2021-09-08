@@ -51,27 +51,30 @@ exports.postConversation = async (req, res) => {
 
 // get conversations of a user 
 exports.getConversations = async (req, res) => {
+    let conversations = [];
+    let user = null
     // check if user is available in database
-    // try {
-    //     const user = await User.findById({ _id: req.params.id })
-    //         .exec();
-
-    //     if (!user) return res.status(404).send({ message: "User not found." });
-
-    // } catch (err) {
-    //     return res.status(500).send(err);
-    // }
-
-
-    // find list of conversations in database to see if it exists
     try {
-        const conversation = await Conversation.find({
-            members: { $in: [req.params.id] },
+         user = await User.findById({ _id: req.params.id }).exec();
+
+        if (!user) return res.status(404).send({ message: "User not found." });
+
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+
+    // find list of conversations in database to see if any conversation exists
+    try {
+        console.log(user)
+        conversations = await Conversation.find({
+            members: { $in: [user._id] },
         });
-        res.status(200).json(conversation);
+        res.status(200).json(conversations);
     } catch (err) {
         res.status(500).json(err);
     }
+    if (conversations.length < 1) return res.status(404).send({ message: "Conversations not found." });
 
 }
 
