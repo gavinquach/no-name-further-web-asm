@@ -123,8 +123,6 @@ export default class Notifications extends Component {
         setTimeout(() => {
             // get hash value in URL
             const hash = window.location.hash.replace("#", "");
-            console.log(hash);
-
             UserService.getUserNotifications(AuthService.getCurrentUser().id)
                 .then(
                     response => {
