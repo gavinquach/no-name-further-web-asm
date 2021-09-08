@@ -1,7 +1,5 @@
-const { mongoose } = require("../models");
 const model = require("../models");
-const user = require("../models");
-const User = require("../models/user.model");
+const User = model.user;
 const Conversation = model.conversation;
 
 // Post new conversation
@@ -66,7 +64,6 @@ exports.getConversations = async (req, res) => {
 
     // find list of conversations in database to see if any conversation exists
     try {
-        console.log(user)
         conversations = await Conversation.find({
             members: { $in: [user._id] },
         });
