@@ -28,9 +28,7 @@ import NavigationBar from './components/Navbar/NavigationBar';
 import Footer from './components/Footer/Footer'
 
 import UserProfileIndex from './components/UserProfile/user.profile.index';
-import NotFound from './components/notfound';
-import UserProfile from './components/UserProfile/user.profile';
-import UserEditPassword from './components/UserProfile/user.edit.password';
+import Notifications from "./components/UserProfile/user.notifications"
 import UserIndex from './components/User/user.index';
 import UserCreateItem from './components/User/user.create.item';
 import UserEditItem from './components/User/user.edit.item';
@@ -156,6 +154,7 @@ export default class App extends Component {
                     <UserProtectedRoute path="/trade/:id" component={TradeDetails} />
                     <UserProtectedRoute exact path='/user' component={UserIndex} />
                     <UserProtectedRoute exact path='/user/profile' component={UserProfileIndex} />
+                    <UserProtectedRoute exact path="/user/notifications" component={Notifications} />
                     <UserProtectedRoute exact path='/user/create' component={UserCreateItem} />
                     <UserProtectedRoute path='/user/edit/item/:id' component={UserEditItem} />
                     <UserProtectedRoute exact path='/user/items' component={UserViewItem} />

@@ -2,7 +2,6 @@
     display:table;
     color: black;
     text-decoration: none;
-    width: 60em;
     border: 1px solid rgba(0, 0, 0, 0.5);
     border-radius: 2px;
 }
@@ -17,7 +16,7 @@
     text-decoration: none;
     text-align: center;
     vertical-align: middle;
-    width: 8em;
+    width: 6em;
     height: 3.2em;
     font-weight: 400;
 }
@@ -27,13 +26,18 @@
 }
 
 .NotificationTypesCell:not(:first-child) {
-    width: 12em;
+    width: 18em;
 }
 
 .NotificationTypesCell:hover {
     color: black;
     text-decoration: none;
     background-color: rgba(0, 0, 0, 0.15);
+}
+
+.NotificationList {
+    max-width: 60em;
+    border-top: 1px solid black;
 }
 
 .NotificationItem {

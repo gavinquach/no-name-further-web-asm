@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from "react-helmet";
 import DOMPurify from 'dompurify';
 
 import logo from '../../images/lazyslob-logo.png';
@@ -7,6 +8,8 @@ import '../../css/Notifications.css';
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import socket from '../../services/socket';
+
+import ProfileSideBar from "./user.profile.sidebar"
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -183,11 +186,14 @@ export default class Notifications extends Component {
 
     render() {
         return (
-            <div align="center">
-                <br />
-                <h1>Notifications</h1>
-                <br />
-                <div>
+            <div className="page-container my-profile">
+                <Helmet>
+                    <title>{AuthService.getCurrentUser().username}'s Notifications</title>
+                </Helmet>
+                <ProfileSideBar />
+                <div className="profile-page">
+                    <div className="title">Notifications</div>
+                    <hr className="section-line" />
                     <div className="NotificationTypes">
                         <div className="NotificationTypesRow" onClick={this.getNotifications}>
                             <a href="#all"
@@ -229,7 +235,7 @@ export default class Notifications extends Component {
 
                     {/* display if there are notifications in list */}
                     {this.state.notifications.length > 0 ? (
-                        <div style={{ width: '60em', borderTop: '1px solid' }}>
+                        <div className="NotificationList">
                             {/* loop through to list out the notifications */}
                             {this.state.notifications.map((notification, index) => (
                                 <div key={index} className={notification.read ? "NotificationItem NotificationRead" : "NotificationItem NotificationUnread"}>
@@ -270,7 +276,6 @@ export default class Notifications extends Component {
                         </div>
                     )}
                 </div>
-                <div style={{ marginBottom: '10em' }} />
             </div>
         );
     }

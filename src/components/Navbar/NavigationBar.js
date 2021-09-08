@@ -196,7 +196,7 @@ export default class NavigationBar extends Component {
                             )}
                         </Nav>
 
-                        <Nav.Link href="/notifications" id="notification" onMouseEnter={this.setReadAllNotifcations}>
+                        <Nav.Link href="/user/notifications" id="notification" onMouseEnter={this.setReadAllNotifcations}>
                             <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
                             {this.state.unreadCount > 0 &&
                                 <span className="badge">{this.state.unreadCount}</span>
@@ -222,11 +222,11 @@ export default class NavigationBar extends Component {
                                         </div>
                                     ))}
                                     {this.state.unreadList.length > 5 ? (
-                                        <Nav.Link href="/notifications#unread" id="notification-view-more">
+                                        <Nav.Link href="/user/notifications#unread" id="notification-view-more">
                                             View more unread notifications here
                                         </Nav.Link>
                                     ) : (
-                                        <Nav.Link href="/notifications" id="notification-view-more">
+                                        <Nav.Link href="/user/notifications" id="notification-view-more">
                                             View more
                                         </Nav.Link>
                                     )}

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Helmet } from "react-helmet";
 import UserProfile from './user.profile';
 import UserEditPassword from './user.edit.password';
+import Notifications from "./user.notifications"
 
 import '../../css/Profile.css';
 import AuthService from "../../services/auth.service";
@@ -56,6 +57,15 @@ export default class UserProfileIndex extends Component {
                                 <title>Change Password</title>
                             </Helmet>
                             <UserEditPassword />
+                        </div>
+                    )}
+
+                    {this.state.hash == "notifications" && (
+                        <div>
+                            <Helmet>
+                                <title>{AuthService.getCurrentUser().username}'s Notifications</title>
+                            </Helmet>
+                            <Notifications />
                         </div>
                     )}
                 </div>

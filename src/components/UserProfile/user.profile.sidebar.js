@@ -11,7 +11,9 @@ export default class ProfileSideBar extends Component {
                     <a style={{ textDecoration: "black" }} href="/user/profile#password">
                         <li>Change Password</li>
                     </a>
-                    
+                    <a style={{ textDecoration: "black" }} href="/user/notifications">
+                        <li>Notifications</li>
+                    </a>
                 </ul>
             </div>
         );
