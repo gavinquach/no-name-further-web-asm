@@ -1,5 +1,5 @@
 import { React, Component } from 'react';
-import { Navbar, Nav, Image } from 'react-bootstrap';
+import { Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell } from '@fortawesome/free-solid-svg-icons'
 
@@ -10,6 +10,9 @@ import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import socket from '../../services/socket';
 import DOMPurify from 'dompurify';
+
+import { faUserAlt } from '../../../node_modules/@fortawesome/free-solid-svg-icons/index';
+import { faFacebookF, faGoogle } from '../../../node_modules/@fortawesome/free-brands-svg-icons/index';
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -208,6 +211,11 @@ export default class NavigationBar extends Component {
 
     render = () => {
         const currentUser = this.props.obj;
+
+        const user = <FontAwesomeIcon icon={faUserAlt} />
+        const facebook = <FontAwesomeIcon icon={faFacebookF} />
+        const google = <FontAwesomeIcon icon={faGoogle} />
+
         return (
             <div>
                 <Navbar className="navbar" expand="lg" >
@@ -276,31 +284,63 @@ export default class NavigationBar extends Component {
                         {/* show username and logout button if logged in, otherwise, show log in and sign up buttons */}
                         <Nav>
                             {currentUser ? (
-                                <span className="navbar-item">
-                                    <button className="button1">
-                                        <Nav.Link href="/user" id="username-text" className="button-text">
-                                            {currentUser.username}
-                                        </Nav.Link>
-                                    </button>
+                                <span className="Nav-bar-item Push-left">
+                                    <NavDropdown className="Nav-bar-text Nav-bar-item" title={
+                                        <button className="Nav-bar-text button1" >
+                                            <Nav.Link href="/user" id="username-text" className="">
+                                                {currentUser.username}
+                                            </Nav.Link>
+                                        </button>
+                                    } id="basic-nav-dropdown" renderMenuOnMount={true}>
+                                        <NavDropdown.Item href="/">
+                                            <button className="btn-warning Sign-up-btn nav-btn button-spec">
+                                                <Nav.Link href="/user" className="text-dark Nav-link">Profile</Nav.Link>
+                                            </button>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Divider />
+                                        <NavDropdown.Item href="/">
+                                            <button className="btn-danger Sign-up-btn nav-btn button-spec" onClick={this.logOut}>
+                                                <Nav.Link href="/login" className="text-white Nav-link">Log Out</Nav.Link>
+                                            </button>
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
                                 </span>
                             ) : (
-                                <span className="navbar-item">
-                                    <button className="button1">
-                                        <Nav.Link href="/login" className="button-text">Log In</Nav.Link>
-                                    </button>
-                                </span>
-                            )}
-                            {currentUser ? (
-                                <span className="navbar-item">
-                                    <button className="button2" onClick={this.logOut}>
-                                        <Nav.Link href="/" className="button-text">Log Out</Nav.Link>
-                                    </button>
-                                </span>
-                            ) : (
-                                <span className="navbar-item">
-                                    <button className="button2">
-                                        <Nav.Link href="/signup" className="button-text">Sign Up</Nav.Link>
-                                    </button>
+                                <span className="Nav-bar-item Push-left">
+                                    <NavDropdown className="Nav-bar-text Nav-bar-item"
+                                        title={
+                                            <button className="Nav-bar-text button1">
+                                                <Nav.Link href="/login" className="Log-in-out-text">{user} Log In</Nav.Link>
+                                            </button>
+                                        }
+                                        id="basic-nav-dropdown"
+                                        renderMenuOnMount={true}>
+                                        <NavDropdown.Item href="/">
+                                            <button className="btn-warning Log-in-out-btn nav-btn button-spec">
+                                                <Nav.Link href="/login" className="text-dark Nav-link">Log In</Nav.Link>
+                                            </button>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item href="/">
+                                            <button className="btn-warning Sign-up-btn nav-btn button-spec">
+                                                <Nav.Link href="/signup" className="text-dark Nav-link">Sign Up</Nav.Link>
+                                            </button>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Divider />
+                                        <NavDropdown.Item href="/">
+                                            <button className="btn p-2 btn-primary nav-btn button-spec">
+                                                <Nav.Link href="" id="username-text" className="text-white Nav-link">
+                                                    {facebook} Login with Facebook
+                                                </Nav.Link>
+                                            </button>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item href="/">
+                                            <button className="btn p-2 btn-danger nav-btn button-spec">
+                                                <Nav.Link href="" id="username-text" className="text-white Nav-link">
+                                                    {google} Sign in with Google+
+                                                </Nav.Link>
+                                            </button>
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
                                 </span>
                             )}
                         </Nav>
