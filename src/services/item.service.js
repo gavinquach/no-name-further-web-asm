@@ -30,6 +30,10 @@ class ItemService {
         const url = `?sort=${sort}&page=${page}&limit=${limit}`
         return axiosTokenHeader.get(API_URL + "items" + url);
     }
+
+    getMostOffersItems  = () => {
+        return axiosTokenHeader.get(API_URL + "most-offers-items");
+    }
 }
 
 export default new ItemService();
