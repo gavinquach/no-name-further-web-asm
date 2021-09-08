@@ -37,6 +37,7 @@ import NavigationBar from './components/Navbar/NavigationBar';
 import Footer from './components/Footer/Footer'
 import ItemCategory from "./components/ItemCategory/item.category"
 import PopularOffers from "./components/popularoffers"
+import Notifications from "./components/Notifications/notifications"
 
 import socket from './services/socket';
 

@@ -1,0 +1,107 @@
+.NotificationTypes {
+    display:table;
+    color: black;
+    text-decoration: none;
+    width: 60em;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 2px;
+}
+
+.NotificationTypesRow {
+    display:table-row;
+}
+
+.NotificationTypesCell {
+    display: table-cell;
+    color: black;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+    width: 8em;
+    height: 3.2em;
+    font-weight: 400;
+}
+
+.NotificationTypesCell:not(:last-child) {
+    border-right: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.NotificationTypesCell:not(:first-child) {
+    width: 12em;
+}
+
+.NotificationTypesCell:hover {
+    color: black;
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.NotificationItem {
+    display: flex;
+    color: black;
+    text-decoration: none;
+    max-width: 60em;
+    padding: 12px 10px;
+    background-color: rgba(0, 140, 255, 0.07);
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+.NotificationItem:hover {
+    color: black;
+    background-color: rgba(0, 0, 0, 0.01);
+}
+
+.NotificationImageContainer {
+    margin-right: 1em;
+    padding: 2px 2px;
+    border: 2px solid black;
+    border-radius: 5px;
+}
+
+.NotificationImage {
+    width: 64px;
+    height: 64px;
+}
+
+.NotificationMessage {
+    font-size: 20px;
+}
+
+.NotificationDate {
+    text-align: left;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.NotificationButtonContainer {
+    width: 19em;
+    text-align: right;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.NotificationButton {
+    color: white;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 3px;
+    background-color: rgba(78, 70, 0, 0.897);
+}
+
+.NotificationRead {
+    background-color: rgba(0, 0, 0, 0.01);
+}
+
+.NotificationUnread {
+    background-color: rgba(0, 140, 255, 0.07);
+}
+
+.active {
+    background-color: rgba(240, 255, 0, 0.850);
+}
+
+.active:hover {
+    background-color: rgba(200, 214, 0, 0.85);
+}

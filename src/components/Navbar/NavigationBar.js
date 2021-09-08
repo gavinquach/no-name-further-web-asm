@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell } from '@fortawesome/free-solid-svg-icons'
 
 import logo from '../../images/lazyslob-logo.png';
-import '../../css/NavigationBar.css'
+import '../../css/NavigationBar.css';
 
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
@@ -196,12 +196,12 @@ export default class NavigationBar extends Component {
                             )}
                         </Nav>
 
-                        <Nav id="notification" onMouseEnter={this.setReadAllNotifcations}>
+                        <Nav.Link href="/notifications" id="notification" onMouseEnter={this.setReadAllNotifcations}>
                             <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
                             {this.state.unreadCount > 0 &&
                                 <span className="badge">{this.state.unreadCount}</span>
                             }
-                        </Nav>
+                        </Nav.Link>
                         <div id="notification-panel">
                             {/* display if there are notifications in list */}
                             {this.state.notifications.length > 0 ? (
