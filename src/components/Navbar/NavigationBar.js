@@ -1,7 +1,8 @@
 import { React, Component } from 'react';
 import { Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBell } from '@fortawesome/free-solid-svg-icons'
+import { faBell, faUserAlt } from '@fortawesome/free-solid-svg-icons'
+import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons'
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css';
@@ -10,9 +11,6 @@ import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import socket from '../../services/socket';
 import DOMPurify from 'dompurify';
-
-import { faUserAlt } from '../../../node_modules/@fortawesome/free-solid-svg-icons/index';
-import { faFacebookF, faGoogle } from '../../../node_modules/@fortawesome/free-brands-svg-icons/index';
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
