@@ -32,6 +32,8 @@ export default class NavigationBar extends Component {
     constructor(props) {
         super(props);
         this.logOut = this.logOut.bind(this);
+        this.openTime = 0;
+        this.openTimeInterval = null;
 
         this.state = {
             notifications: [],
@@ -152,26 +154,56 @@ export default class NavigationBar extends Component {
     }
 
     setReadAllNotifcations = () => {
-        if (this.state.unreadCount > 0) {
-            // add delay to sync up with CSS 0.3s animation
-            setTimeout(() => {
-                // reduce unread count
-                const count = this.state.unreadCount - 5;
-                this.setState({
-                    unreadCount: count < 0 ? 0 : count
+        // add delay to sync up with CSS 0.3s animation
+        this.openTime = setTimeout(() => {
+            // reduce unread count
+            const count = this.state.unreadCount - 5;
+            this.setState({
+                unreadCount: count < 0 ? 0 : count
+            });
+
+            UserService.setReadNotifications(
+                this.state.notifications
+            )
+                .then(() => {
+
+                })
+                .catch((error) => {
+                    console.log(error);
                 });
+        }, 300);
+    }
 
-                UserService.setReadNotifications(
-                    this.state.notifications
-                )
-                    .then(() => {
+    countPanelOpenTime = () => {
+        if (this.state.unreadCount > 0) {
+            const notificationPanel = document.getElementById("notification");
+            const style = getComputedStyle(notificationPanel);
 
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
-            }, 300);
+            if (style.visibility === "visible") {
+                this.openTimeInterval = setInterval(() => {
+                    this.openTime += 100;
+
+                    // user opens panel for 3 seconds or more,
+                    // stop timer and set notifications to read
+                    if (this.openTime >= 3000) {
+                        if (this.openTimeInterval) {
+                            clearInterval(this.openTimeInterval);
+                            this.openTimeInterval = null;
+
+                            this.setReadAllNotifcations();
+                        }
+                    }
+                }, 100);
+            }
         }
+    }
+
+    stopTimer = () => {
+        if (this.openTimeInterval) {
+            clearInterval(this.openTimeInterval);
+            this.openTimeInterval = null;
+        }
+        this.openTime = 0;
     }
 
     render = () => {
@@ -196,48 +228,50 @@ export default class NavigationBar extends Component {
                             )}
                         </Nav>
 
-                        <Nav.Link href="/user/notifications" id="notification" onMouseEnter={this.setReadAllNotifcations}>
-                            <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
-                            {this.state.unreadCount > 0 &&
-                                <span className="badge">{this.state.unreadCount}</span>
-                            }
-                        </Nav.Link>
-                        <div id="notification-panel">
-                            {/* display if there are notifications in list */}
-                            {this.state.notifications.length > 0 ? (
-                                <div>
-                                    {/* loop through to list out the notifications */}
-                                    {this.state.notifications.map((notification, index) => (
-                                        <div key={index}>
-                                            {/* display up to 5 items */}
-                                            {index < 5 && (
-                                                <Nav.Link
-                                                    href={notification.url}
-                                                    className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
-                                                >
-                                                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }}></div>
-                                                    <div className="notification-date">{formatDate(notification.createdAt)}</div>
-                                                </Nav.Link>
-                                            )}
-                                        </div>
-                                    ))}
-                                    {this.state.unreadList.length > 5 ? (
-                                        <Nav.Link href="/user/notifications#unread" id="notification-view-more">
-                                            View more unread notifications here
-                                        </Nav.Link>
-                                    ) : (
-                                        <Nav.Link href="/user/notifications" id="notification-view-more">
-                                            View more
-                                        </Nav.Link>
-                                    )}
-                                </div>
-                            ) : (
-                                // no notifications, display text
-                                <div style={{ padding: '1em 2em', textAlign: 'center' }}>
-                                    <strong><h5>No Notifications</h5></strong>
-                                </div>
-                            )}
-                        </div>
+                        <span onMouseEnter={this.countPanelOpenTime} onMouseLeave={this.stopTimer}>
+                            <Nav.Link href="/user/notifications" id="notification">
+                                <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
+                                {this.state.unreadCount > 0 &&
+                                    <span className="badge">{this.state.unreadCount}</span>
+                                }
+                            </Nav.Link>
+                            <div id="notification-panel">
+                                {/* display if there are notifications in list */}
+                                {this.state.notifications.length > 0 ? (
+                                    <div>
+                                        {/* loop through to list out the notifications */}
+                                        {this.state.notifications.map((notification, index) => (
+                                            <div key={index}>
+                                                {/* display up to 5 items */}
+                                                {index < 5 && (
+                                                    <Nav.Link
+                                                        href={notification.url}
+                                                        className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
+                                                    >
+                                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }}></div>
+                                                        <div className="notification-date">{formatDate(notification.createdAt)}</div>
+                                                    </Nav.Link>
+                                                )}
+                                            </div>
+                                        ))}
+                                        {this.state.unreadList.length > 5 ? (
+                                            <Nav.Link href="/user/notifications#unread" id="notification-view-more">
+                                                View more unread notifications here
+                                            </Nav.Link>
+                                        ) : (
+                                            <Nav.Link href="/user/notifications" id="notification-view-more">
+                                                View more
+                                            </Nav.Link>
+                                        )}
+                                    </div>
+                                ) : (
+                                    // no notifications, display text
+                                    <div style={{ padding: '1em 2em', textAlign: 'center' }}>
+                                        <strong><h5>No Notifications</h5></strong>
+                                    </div>
+                                )}
+                            </div>
+                        </span>
 
                         {/* show username and logout button if logged in, otherwise, show log in and sign up buttons */}
                         <Nav>
