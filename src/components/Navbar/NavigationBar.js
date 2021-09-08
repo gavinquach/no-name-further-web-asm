@@ -155,24 +155,21 @@ export default class NavigationBar extends Component {
     }
 
     setReadAllNotifcations = () => {
-        // add delay to sync up with CSS 0.3s animation
-        this.openTime = setTimeout(() => {
-            // reduce unread count
-            const count = this.state.unreadCount - 5;
-            this.setState({
-                unreadCount: count < 0 ? 0 : count
+        // reduce unread count
+        const count = this.state.unreadCount - 5;
+        this.setState({
+            unreadCount: count < 0 ? 0 : count
+        });
+
+        UserService.setReadNotifications(
+            this.state.notifications
+        )
+            .then(() => {
+
+            })
+            .catch((error) => {
+                console.log(error);
             });
-
-            UserService.setReadNotifications(
-                this.state.notifications
-            )
-                .then(() => {
-
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        }, 300);
     }
 
     countPanelOpenTime = () => {
