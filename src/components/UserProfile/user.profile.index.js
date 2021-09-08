@@ -26,11 +26,10 @@ export default class UserProfileIndex extends Component {
     }
 
     setHashTagValue = () => {
-        console.log(window.location.hash.replace("#", ""))
         setTimeout(() => {
             this.setState({
                 hash: window.location.hash.replace("#", "")
-            }, () => console.log(this.state.hash));
+            });
         }, 100);
     }
 

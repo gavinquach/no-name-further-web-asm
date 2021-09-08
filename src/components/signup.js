@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
@@ -421,7 +421,7 @@ export default class Signup extends Component {
                     )}
                     <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
 
-                    <p>By signing up you agree to the <a style={{ textDecoration: 'underline' }} href="#">terms of service</a>.</p>
+                    <p>By signing up you agree to the <Link style={{ textDecoration: 'underline' }} to="#">terms of service</Link>.</p>
                 </Form>
             </div>
             </div>

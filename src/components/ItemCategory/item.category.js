@@ -1,5 +1,5 @@
 import { React, Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 import ItemService from "../../services/item.service";
 import { CategoryList } from './item-categories.js';
@@ -120,7 +120,7 @@ export default class ItemCategory extends Component {
         if (!page || page === "") {
             search_params.set("page", 1);
             const pageURL = url.pathname + "?" + search_params.toString();
-            return window.location.replace(pageURL);
+            return <Redirect to={pageURL} />
         }
         // ========== end of GET param validation ==========
         return (
@@ -133,7 +133,7 @@ export default class ItemCategory extends Component {
                 <div className="menu">
                     {this.state.items.length > 0
                         ? this.state.items.map((item, index) => (
-                            <a className="item-box" key={index} href={"item/" + item._id}>
+                            <Link className="item-box" key={index} to={"/item/" + item._id}>
                                 <div className="item-box-img">
                                     {item.images.map(image =>
                                         image.cover && (
@@ -147,7 +147,7 @@ export default class ItemCategory extends Component {
                                     <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
                                     <p><b>Offers</b>: {item.offers}</p>
                                 </div>
-                            </a >
+                            </Link >
                         )) : (
                             <div>
                                 <h2 style={{ textAlign: "center" }}>No items found.</h2>

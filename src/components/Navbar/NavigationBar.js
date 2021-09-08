@@ -2,6 +2,7 @@ import { React, Component } from 'react';
 import { Navbar, Nav, Image } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell } from '@fortawesome/free-solid-svg-icons'
+import { Link } from "react-router-dom";
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css';
@@ -211,30 +212,34 @@ export default class NavigationBar extends Component {
         return (
             <div>
                 <Navbar className="navbar" expand="lg" >
-                    <Navbar.Brand href="/"><Image src={logo} fluid style={{ marginLeft: '1em', width: '3em', maxWidth: '3em', height: "100%" }} /></Navbar.Brand>
+                    <Navbar.Brand>
+                        <Link to="/">
+                            <Image src={logo} fluid style={{ marginLeft: '1em', width: '3em', maxWidth: '3em', height: "100%" }} />
+                        </Link>
+                    </Navbar.Brand>
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>
                         <Nav className="nav">
-                            <Nav.Link className="navbar-text navbar-item" href="/trades" >Trades</Nav.Link>
-                            <Nav.Link className="navbar-text navbar-item" href="/cart">Cart</Nav.Link>
+                            <Link className="navbar-text navbar-item" to="/trades" >Trades</Link>
+                            <Link className="navbar-text navbar-item" to="/cart">Cart</Link>
 
                             {/* show user panel user is logged in */}
                             {currentUser && (
-                                <Nav.Link className="navbar-text navbar-item" href="/user">User Panel</Nav.Link>
+                                <Link className="navbar-text navbar-item" to="/user">User Panel</Link>
                             )}
                             {/* show admin panel fi user is admin */}
                             {(currentUser && currentUser.isAdmin) && (
-                                <Nav.Link className="navbar-text navbar-item" href="/admin/index">Admin Panel</Nav.Link>
+                                <Link className="navbar-text navbar-item" to="/admin/index">Admin Panel</Link>
                             )}
                         </Nav>
 
                         <span onMouseEnter={this.countPanelOpenTime} onMouseLeave={this.stopTimer}>
-                            <Nav.Link href="/user/notifications" id="notification">
+                            <Link to="/user/notifications" id="notification">
                                 <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
                                 {this.state.unreadCount > 0 &&
                                     <span className="badge">{this.state.unreadCount}</span>
                                 }
-                            </Nav.Link>
+                            </Link>
                             <div id="notification-panel">
                                 {/* display if there are notifications in list */}
                                 {this.state.notifications.length > 0 ? (
@@ -244,24 +249,28 @@ export default class NavigationBar extends Component {
                                             <div key={index}>
                                                 {/* display up to 5 items */}
                                                 {index < 5 && (
-                                                    <Nav.Link
+                                                    <a
                                                         href={notification.url}
                                                         className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
                                                     >
-                                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }}></div>
+                                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }} />
                                                         <div className="notification-date">{formatDate(notification.createdAt)}</div>
-                                                    </Nav.Link>
+                                                    </a>
                                                 )}
                                             </div>
                                         ))}
                                         {this.state.unreadList.length > 5 ? (
-                                            <Nav.Link href="/user/notifications#unread" id="notification-view-more">
-                                                View more unread notifications here
-                                            </Nav.Link>
+                                            <Link to="/user/notifications#unread">
+                                                <div id="notification-view-more">
+                                                    View more unread notifications here
+                                                </div>
+                                            </Link>
                                         ) : (
-                                            <Nav.Link href="/user/notifications" id="notification-view-more">
-                                                View more
-                                            </Nav.Link>
+                                            <Link to="/user/notifications">
+                                                <div id="notification-view-more">
+                                                    View more
+                                                </div>
+                                            </Link>
                                         )}
                                     </div>
                                 ) : (
@@ -278,28 +287,29 @@ export default class NavigationBar extends Component {
                             {currentUser ? (
                                 <span className="navbar-item">
                                     <button className="button1">
-                                        <Nav.Link href="/user" id="username-text" className="button-text">
+                                        <Link to="/user" id="username-text" className="button-text">
                                             {currentUser.username}
-                                        </Nav.Link>
+                                        </Link>
                                     </button>
                                 </span>
                             ) : (
                                 <span className="navbar-item">
                                     <button className="button1">
-                                        <Nav.Link href="/login" className="button-text">Log In</Nav.Link>
+                                        <Link to="/login" className="button-text">Log In</Link>
                                     </button>
                                 </span>
                             )}
                             {currentUser ? (
                                 <span className="navbar-item">
                                     <button className="button2" onClick={this.logOut}>
-                                        <Nav.Link href="/" className="button-text">Log Out</Nav.Link>
+                                        {/* Not <Link> because needs reload to refresh navigation bar */}
+                                        <a href="/" className="button-text">Log Out</a>
                                     </button>
                                 </span>
                             ) : (
                                 <span className="navbar-item">
                                     <button className="button2">
-                                        <Nav.Link href="/signup" className="button-text">Sign Up</Nav.Link>
+                                        <Link to="/signup" className="button-text">Sign Up</Link>
                                     </button>
                                 </span>
                             )}

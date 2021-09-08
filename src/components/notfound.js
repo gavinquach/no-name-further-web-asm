@@ -1,5 +1,6 @@
 
 import {Helmet} from "react-helmet";
+import { Link } from "react-router-dom";
 const NotFound = () => {
     return (
 
@@ -9,7 +10,7 @@ const NotFound = () => {
             </Helmet>
         <div className ="white-container" style={{ textAlign: 'center', marginTop: '2em' }}>
             <h3>404! <br/>Page not found.</h3>
-            <a href="/">CLick here to go to homepage</a>
+            <Link to="/">CLick here to go to homepage</Link>
         </div>
         </div>
     )
