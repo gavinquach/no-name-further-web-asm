@@ -88,9 +88,27 @@ class UserService {
         return axiosTokenHeader.get(API_URL + "user/notifications/" + userid);
     }
 
+    getUserUnreadNotifications(userid) {
+        return axiosTokenHeader.get(API_URL + "user/unreadnotifications/" + userid);
+    }
+
     addNotification(data) {
         return axiosTokenHeader.post(API_URL + "user/notification", {
             data
+        });
+    }
+
+    setReadNotification(sender, receiver, createdAt) {
+        return axiosTokenHeader.patch(API_URL + "user/read/notification", {
+            sender,
+            receiver,
+            createdAt
+        });
+    }
+
+    setReadNotifications(notifications) {
+        return axiosTokenHeader.patch(API_URL + "user/read/notifications", {
+            notifications
         });
     }
 }

@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 
-import AuthService from "../services/auth.service";
 import ItemService from "../services/item.service";
+import { Helmet } from "react-helmet";
 
 import Categories from "./ItemCategory/Categories.js"
-
+import Offers from "./Item/item.offers";
 
 export default class Home extends Component {
     constructor(props) {
@@ -27,41 +27,12 @@ export default class Home extends Component {
 
     render() {
         return (
-            <div>
-                <div className="container">
-                    <h2>Categories</h2>
-                    <hr className="section-line" />
-                    <br />
-                    <Categories />
-                    <br />
-                    <br />
-
-                    <h2>Popular offers
-                        <a style={{ fontSize: "20px", marginLeft: "2em" }} href="/popular?page=1">
-                            {"more >>"}
-                        </a>
-                    </h2>
-                    <hr className="section-line" />
-                    <br />
-                    {this.state.items.map((item, index) =>
-                        <a key={index} href={"item/" + item._id}>
-                            <div className="Dashboard">
-                                <div className="Dashboard-img">
-                                    {item.images.map(image =>
-                                        image.cover && (
-                                            <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
-                                        )
-                                    )}
-                                </div>
-                                <p>{item.name} / <b>{item.quantity}</b></p>
-                                <p></p>
-                                <p className="for">FOR</p>
-                                <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
-                                <p>Offers: {item.offers}</p>
-                            </div>
-                        </a>
-                    )}
-                </div>
+            <div className="page-container">
+                <Helmet>
+                    <title>No Name Food Trading</title>
+                </Helmet>
+                <Categories />
+                <Offers />
             </div>
         );
     }

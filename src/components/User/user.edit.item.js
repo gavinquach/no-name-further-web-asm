@@ -4,11 +4,9 @@ import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
-
+import {Helmet} from "react-helmet";
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
-
-
 
 import '../../css/UserPages.css'
 
@@ -360,10 +358,14 @@ export default class UserEditItem extends Component {
 
     render() {
         return (
-            <div>
-                <div className="container" style={{ width: "60em" }}>
+            <div className="page-container">
+                 <Helmet>
+                    <title>Edit Listing</title>
+                </Helmet>
+                <div className="title">Edit Listing</div>
+                <hr className="section-line" />
+                <div className="menu white-container">
                     <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
-                        <h1 className="Big-text">Edit item</h1>
                         <br />
 
                         <h2>Your item:</h2>
@@ -500,7 +502,7 @@ export default class UserEditItem extends Component {
                                         <div style={{ color: "red" }}>
                                             {errors.acceptType && <span>The selected file type is not allow!</span>}
                                             {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
-                                        {errors.resolution && <span>Selected file exceeded maximum allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
+                                            {errors.resolution && <span>Selected file exceeded maximum allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                             <br />
                                         </div>)}
 
@@ -559,7 +561,7 @@ export default class UserEditItem extends Component {
                                             {errors.maxNumber && <span>Exceeded maximum upload amount ({this.state.maxNumber})!</span>}
                                             {errors.acceptType && <span>The selected file type is not allow!</span>}
                                             {errors.maxFileSize && <span>Selected file size exceed {this.state.maxFileSize / 1000000}MB!</span>}
-                                        {errors.resolution && <span>Selected file exceeded maximum allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
+                                            {errors.resolution && <span>Selected file exceeded maximum allowed resolution ({this.state.maxWidth}px * {this.state.maxHeight}px)</span>}
                                             <br />
                                         </div>)}
 

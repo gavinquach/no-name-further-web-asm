@@ -1,30 +1,32 @@
 .category-menu {
     display: grid;
     grid-template-columns: repeat(4, auto);
-    gap: 4em;
-    width: 70em;
-    height: 35em;
-    min-width: 70em;
-    min-height: 35em;
-    max-width: 70em;
-    max-height: 35em;
+    gap: 2em;
     list-style: none;
     text-align: center;
-    font-weight: bold;
-    justify-content: center;
     margin-left: auto;
     margin-right: auto;
+    padding-top: 4em;
+    padding-bottom: 4em;
+    padding-left: 3vw;
+    padding-right: 3vw;
 }
 
 .category-item {
-    width: 13em;
-    height: 13em;
+    margin: auto;
 }
 
 .category-links {
-    color: black;
+    color: #484e10;
+    font-size: 1em;
+    font-weight: 300;
     text-decoration: none;
     padding: 0.5rem 0.5rem;
+    transition: 0.3s;
+}
+
+.category-links:hover {
+    color: #f9bb13;
 }
 
 .category-image {
@@ -45,6 +47,7 @@
 
 .page-buttons {
     text-align: center;
+    margin: auto;
 }
 
 .page-buttons button {
@@ -52,14 +55,36 @@
     border-radius: 2px;
     padding: 3px 9px;
     color: black;
-    background-color: rgb(138, 193, 255);
+    background-color: rgba(125, 139, 17, 0.5);
 }
 
-.page-buttons p {
+.page-buttons button:hover {
+    border: none;
+    color: white;
+    background-color: rgba(125, 139, 17, 0.8);
+}
+
+.page-button {
     color: black;
     text-decoration: none;
+    border: none;
+    border-radius: 2px;
+    padding: 3px 9px;
+}
+
+.page-button:hover {
+    color: white;
+    background-color: rgba(125, 139, 17, 0.8);
 }
 
 .page-buttons-button-active {
     border: 2px solid black;
+}
+
+@media screen and (max-width: 760px) {
+    .category-menu {
+        grid-template-columns: repeat(8, auto);
+        gap: 0.5em;
+        overflow-x: scroll;
+    }
 }

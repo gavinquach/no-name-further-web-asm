@@ -8,7 +8,7 @@ const router = express.Router();
 //set limiter
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 500 // limit each IP this amount of requests per windowMs
+    max: 1000 // limit each IP this amount of requests per windowMs
 });
 
 router.use((req, res, next) => {

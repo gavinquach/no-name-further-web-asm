@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import AuthService from "../services/auth.service";
 import UserService from "../services/user.service";
-
+import {Helmet} from "react-helmet";
 
 
 export default class Cart extends Component {
@@ -49,10 +49,13 @@ export default class Cart extends Component {
 
     render() {
         return (
-            <div>
-               
-                <div className="container">
-                    <h1>Cart</h1>
+            <div className ="page-container">
+                 <Helmet>
+                    <title>Cart</title>
+                </Helmet>
+                <div className="title">Cart</div>
+                <hr className="section-line" />
+                <div className="white-container">
                     {this.state.cart.map(item =>
                         <div>
                             <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>

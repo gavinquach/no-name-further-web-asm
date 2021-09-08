@@ -506,12 +506,28 @@ exports.deleteItemFromCart = async (req, res) => {
 
 exports.getUserNotifications = async (req, res) => {
     try {
-        const user = await User.findById({ _id: req.params.id })
-            .populate("notifications", "-__v")
+        const notifications = await Notification.find({
+            receiver: req.params.id
+        }) 
+            .sort("-createdAt")
             .exec();
 
-        if (!user) return res.status(404).send({ message: "User not found." });
-        res.json(user.notifications);
+        if (!notifications) return res.status(404).send({ message: "Notifications not found." });
+        res.status(200).json(notifications);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
+exports.getUserUnreadNotifications = async (req, res) => {
+    try {
+        const notifications = await Notification.find({
+            receiver: req.params.id,
+            read: false
+        }).exec();
+
+        if (!notifications) return res.status(404).send({ message: "Notifications not found." });
+        res.status(200).json(notifications);
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -542,3 +558,47 @@ exports.addNotification = async (req, res) => {
     }
     res.status(200).send({ message: "Notification added to user successfully." });
 };
+
+exports.setReadNotification = async (req, res) => {
+    try {
+        const notification = await Notification.findOne({
+            sender: req.body.sender,
+            receiver: req.body.receiver,
+            createdAt: req.body.createdAt
+        }).exec();
+
+        try {
+            notification.read = true;
+            await notification.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "Notification set to read." });
+};
+
+exports.setReadNotifications = async (req, res) => {
+    let notifications = req.body.notifications;
+    for (const obj of notifications) {
+        try {
+            const notification = await Notification.findOne({
+                sender: obj.sender,
+                receiver: obj.receiver,
+                createdAt: obj.createdAt
+            }).exec();
+
+            try {
+                notification.read = true;
+                await notification.save();
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    }
+    res.status(200).send({ message: "Notifications set to read." });
+};
+

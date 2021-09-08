@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import { Helmet } from "react-helmet";
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import ItemService from "../../services/item.service";
@@ -152,40 +152,22 @@ export default class ItemDetails extends Component {
     }
 
     makeTransaction = () => {
-        TransactionService.createTransaction(
+        TransactionService.createTransactionWithNotification(
             this.state.item,
             AuthService.getCurrentUser().id
         ).then(
             response => {
-                const transaction = response.data.transaction;
-                const item = response.data.item;
-
-                const sender = {
-                    id: AuthService.getCurrentUser().id,
-                    username: AuthService.getCurrentUser().username
-                };
-                let receiverId = null;
-                if (sender.id == transaction.user_seller) {
-                    receiverId = transaction.user_buyer;
-                } else if (sender.id == transaction.user_buyer) {
-                    receiverId = transaction.user_seller;
+                if (response.status == 200) {
+                    this.setState({
+                        message: response.data.message,
+                        successful: true
+                    });
+                } else {
+                    this.setState({
+                        message: response.data.message,
+                        successful: false
+                    });
                 }
-            
-                const data = {
-                    type: "transaction",
-                    sender: sender.id,
-                    receiver: receiverId,
-                    url: `/transaction/${transaction._id}`,
-                    message: `User ${sender.username} has requested to trade with your item "${item.name}. Click here for more details."`,
-                    createdAt: new Date()
-                };
-                socket.emit("notifyUser", data);
-                UserService.addNotification(data);
-
-                this.setState({
-                    message: response.data.message,
-                    successful: true
-                });
             },
             error => {
                 const resMessage =
@@ -213,40 +195,41 @@ export default class ItemDetails extends Component {
                         </h1>
                     </div>
                 ) : (
-                    <div className="container">
-                        <h1>Item details</h1>
-                        <br />
-                        <div className="row">
-                            <div className="col-sm-6">
+                    <div className="page-container">
+                        <Helmet>
+                            <title>{this.state.item.name} | Details</title>
+                        </Helmet>
+                        <div className="title">Item Details</div>
+                        <hr className="section-line" />
+                        <div className="item white-container">
+                            <div className="item-image-box">
                                 <div className="item-image">
-                                    {this.state.images.map((image, index) =>
+                                    {this.state.item.images.map((image, index) =>
                                         image.cover && (
-                                            <div key={index} className="item-image">
-                                                <img id="main-image" className="active" src={image.data_url} alt={image.file.name} />
-                                            </div>
+                                            <img id="main-image" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                         )
                                     )}
                                 </div>
+
                                 <ul className="image-list">
                                     {/* show cover first */}
-                                    {this.state.images.map((image, index) =>
+                                    {this.state.item.images.map((image, index) =>
                                         image.cover && (
-                                            <li key={index} className="image-item" onClick={(e) => changeImage(e)}><img src={image.data_url} /></li>
+                                            <li key={index} className="image-item" onClick={changeImage}><img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} /></li>
                                         )
                                     )}
                                     {/* then show other images */}
-                                    {this.state.images.map((image, index) =>
+                                    {this.state.item.images.map((image, index) =>
                                         !image.cover && (
-                                            <li key={index} className="image-item" onClick={(e) => changeImage(e)}><img src={image.data_url} /></li>
+                                            <li key={index} className="image-item" onClick={changeImage}><img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} /></li>
                                         )
                                     )}
                                 </ul>
                             </div>
 
-                            <div className="col-sm-6">
+                            <div>
                                 <h2>{this.state.item.name}</h2>
-                                <br />
-                                <table className="table">
+                                <table>
                                     <tbody>
                                         <tr>
                                             <td>Type:</td>
@@ -294,9 +277,8 @@ export default class ItemDetails extends Component {
                                 )}
                             </div>
                         </div>
-                    </div >
-                )
-                }
+                    </div>
+                )}
             </div>
         );
     }

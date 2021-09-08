@@ -17,10 +17,10 @@ const sendNotification = (transaction, msg) => {
     }
 
     const data = {
-        type: "transaction",
+        type: "trade",
         sender: sender.id,
         receiver: receiverId,
-        url: `/transaction/${transaction._id}`,
+        url: `/trade/${transaction._id}`,
         message: msg,
         createdAt: new Date()
     };
@@ -47,10 +47,48 @@ class TransactionService {
         });
     }
 
+    createTransactionWithNotification(itemid, userid) {
+        return axiosTokenHeader.post(API_URL + "transaction", {
+            itemid,
+            userid
+        }).then(
+            response => {
+                const transaction = response.data.transaction;
+                const item = response.data.item;
+
+                const sender = {
+                    id: AuthService.getCurrentUser().id,
+                    username: AuthService.getCurrentUser().username
+                };
+                let receiverId = null;
+                if (sender.id == transaction.user_seller) {
+                    receiverId = transaction.user_buyer;
+                } else if (sender.id == transaction.user_buyer) {
+                    receiverId = transaction.user_seller;
+                }
+
+                const data = {
+                    type: "trade",
+                    sender: sender.id,
+                    receiver: receiverId,
+                    url: `/trade/${transaction._id}`,
+                    message: `User <b>${sender.username}</b> has requested to trade with your item <b>${item.name}</b>. Click here for more details.`,
+                    createdAt: new Date()
+                };
+                socket.emit("notifyUser", data);
+                UserService.addNotification(data);
+                return response;
+            },
+            error => {
+                return error.response;
+            }
+        );
+    }
+
     deleteTransactionWithNotification(transaction, id) {
         sendNotification(
             transaction,
-            `Your transaction ${transaction._id} has been deleted. Click here for more details.`
+            `Your transaction <b>${transaction._id}</b> has been deleted. Click here for more details.`
         );
         return axiosTokenHeader.delete(API_URL + "transaction/" + id);
     }
@@ -58,7 +96,7 @@ class TransactionService {
     cancelTransactionWithNotification(transaction) {
         sendNotification(
             transaction,
-            `User ${AuthService.getCurrentUser().username} has requested for a trade cancellation. Click here for more details.`
+            `User <b>${AuthService.getCurrentUser().username}</b> has requested for a trade cancellation. Click here for more details.`
         );
         return axiosTokenHeader.patch(API_URL + "cancel/transaction", {
             itemid: transaction.item._id,

@@ -17,7 +17,7 @@ const User = mongoose.model(
         },
         location: {
             type: [String],
-            validate: [arrayLimit, '{PATH} exceeds the limit of 2']
+            validate: [arrayLimit, '{PATH} needs 2 items in array']
         },
         password: {
             type: String,
