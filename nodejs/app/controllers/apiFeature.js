@@ -1,6 +1,6 @@
 const model = require("../models");
 const ItemCategory = model.itemCategory;
-const Transaction = model.transaction;
+const Conversation = model.conversation;
 
 
 // ============= Duong Work for Advanced API  =============
@@ -20,7 +20,7 @@ class APIFeatures {
     // less than, less than or equal to
     filter() {
         const queryObj = { ...this.queryString };
-        const excludedFields = ["page", "sort", "limit", "fields", "category"];
+        const excludedFields = ["page", "sort", "limit", "fields", "category","conversation"];
         excludedFields.forEach(el => delete queryObj[el]);
 
         let queryStr = JSON.stringify(queryObj);
@@ -80,6 +80,7 @@ class APIFeatures {
         return this;
     }
 
+    
 
 }
 

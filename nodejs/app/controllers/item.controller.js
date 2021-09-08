@@ -422,7 +422,7 @@ exports.getAllItems = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!items) return res.status(404).send({ message: "Items not found." });
+    if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
 
     res.status(200).json({
         result: items.length,

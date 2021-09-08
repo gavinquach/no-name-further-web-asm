@@ -2,6 +2,7 @@ const model = require("../models");
 const User = model.user;
 const Conversation = model.conversation;
 const Message = model.message;
+const APIFeatures = require("./apiFeature");
 
 // add message 
 exports.postMessage = async (req, res) => {
@@ -30,9 +31,9 @@ exports.postMessage = async (req, res) => {
     }
     if (!conversation) return res.status(404).send({ message: "Conversation not found." });
     if (!conversation.members.includes(sender._id) || !conversation.members.includes(receiver._id)) return res.status(404).send({ message: "User Id not match with conversation" });
-   
 
-    
+
+
 
     const newMessage = new Message({
         conversationId: conversation._id,
@@ -57,6 +58,12 @@ exports.getMessages = async (req, res) => {
     // intialize 
     let messages = [];
     let conversation = null;
+    let total = 0;
+    let limit = 1
+    // validate value
+    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
 
     // check if conversation is available in database
     try {
@@ -71,10 +78,25 @@ exports.getMessages = async (req, res) => {
 
     // find list of messages in database to see if any message exists and retrieve
     try {
-        messages = await Message.find({
-            conversationId: conversation._id,
-        });
-        res.status(200).json(messages);
+        const features = new APIFeatures(
+            Message.find({
+                conversationId: conversation._id,
+            })
+            , req.query);
+
+        //count retrieved total data before pagination
+        total = await Message.countDocuments(features.query);
+
+        // paginating data
+        messages = await features.paginate().query;
+
+        if (!messages || messages.length < 1) return res.status(404).send({ message: "Messages not found." });
+
+        await res.status(200).json({
+            result: messages.length,
+            totalPages: Math.ceil(total / limit),
+            messages: messages
+        });;
     } catch (err) {
         res.status(500).json(err);
     }
