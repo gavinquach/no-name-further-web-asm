@@ -79,23 +79,26 @@ exports.getConversations = async (req, res) => {
 }
 
 
-
 // get a conversation between two userId
 exports.getConversation = async (req, res) => {
 
+    let firstUser = null;
+    let secondUser = null;
+
     // find  users in database to see if it exists
     try {
-        firstUser = await User.findById(req.body.data.firstUserId).exec()
-        secondUser = await User.findById(req.body.data.secondUserId).exec();
+        firstUser = await User.findById(req.params.firstUserId).exec()
+        secondUser = await User.findById(req.params.secondUserId).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!user) return res.status(404).send({ message: "Users not found." });
+    if (!firstUser) return res.status(404).send({ message: "First User not found." });
+    if (!secondUser) return res.status(404).send({ message: "Second User not found." });
 
     // check if conversation is already available and get it 
     try {
         const conversation = await Conversation.findOne({
-            members: { $all: [req.params.firstUserId, req.params.secondUserId] },
+            members: { $all: [firstUser._id, secondUser._id] },
         }).exec();
 
         if (!conversation) return res.status(401).send({ message: "Conversation does not exist!" });

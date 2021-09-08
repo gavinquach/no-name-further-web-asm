@@ -17,8 +17,8 @@ router.get("/conversations/:id", [
 
 // get conversation between two user
 router.get("/conversation/:firstUserId/:secondUserId", [
-    authJwt.verifyToken,
-    authJwt.isUser
+    // authJwt.verifyToken,
+    // authJwt.isUser
 ], controller.getConversation);
 
 module.exports = router;
