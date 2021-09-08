@@ -18,7 +18,7 @@ export default class Categories extends Component {
                                 {/* <span className="category-image" style={{ backgroundImage: 'url("' + category.image + '")' }} /> */}
                                 <li key={index}>
                                     <p activeClassName="category-name-active" className={category.cName} >
-                                        {category.title}
+                                        <b>{category.title}</b>
                                     </p>
                                 </li>
                             </Link>
