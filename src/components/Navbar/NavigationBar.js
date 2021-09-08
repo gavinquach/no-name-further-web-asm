@@ -222,7 +222,7 @@ export default class NavigationBar extends Component {
                                         </div>
                                     ))}
                                     {this.state.unreadList.length > 5 ? (
-                                        <Nav.Link href="/notifications/unread" id="notification-view-more">
+                                        <Nav.Link href="/notifications#unread" id="notification-view-more">
                                             View more unread notifications here
                                         </Nav.Link>
                                     ) : (
