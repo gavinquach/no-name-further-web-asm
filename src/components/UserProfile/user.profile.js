@@ -4,14 +4,10 @@ import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
-import {Helmet} from "react-helmet";
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 
 import '../../css/Profile.css';
-
-
-import ProfileSideBar from "./user.profile.sidebar"
 
 const required = value => {
     if (!value) {
@@ -237,96 +233,90 @@ export default class UserProfile extends Component {
     render() {
         // const currentUser = AuthService.getCurrentUser();
         return (
-                <div className="page-container my-profile">
-                <Helmet>
-                    <title>{this.state.username}'s Profile</title>
-                </Helmet>
-                    <ProfileSideBar />
-                    <div className="profile-page">
-                        <div className="title">My profile</div>
-                        <hr className="section-line" />
-                        <div className = "form white-container">
-                        <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
-                            <div className="labels">
-                                <label className="label row"> Username: </label>
-                                <label className="label row"> Email: </label>
-                                <label className="label row"> Phone number: </label>
-                                <label className="label row"> Location: </label>
-                            </div>
-                            <div>
-                                <span className="prow">
-                                    <div id = "profile-name">
-                                        {this.state.username}
-                                    </div>
-                                </span>
-                                <span className="prow">
-                                    <Input
-                                        id="email"
-                                        name="email"
-                                        className="profile-input"
-                                        type="text"
-                                        placeholder="Email"
-                                        value={this.state.email}
-                                        onChange={this.onChangeEmail}
-                                        validations={[requiredInline, email]}>
-                                    </Input>
-                                </span>
-                                <span className="prow">
-                                    <Input
-                                        id="phone"
-                                        name="phone"
-                                        className="profile-input"
-                                        type="text"
-                                        value={this.state.phone}
-                                        onChange={this.onChangePhone}
-                                        validations={[requiredInline, vphone]}
-                                        placeholder="Phone number" />
-                                </span>
-                                <span className="location-row">
-                                    <Select
-                                        id="location"
-                                        name="location"
-                                        className="profile-input"
-                                        value={this.state.location}
-                                        onChange={this.onChangeLocation}
-                                        validations={[required]}>
-                                        <option value="">Choose city</option>
-                                        {
-                                            this.state.vnLocations.map(location =>
-                                                <option key={location.city}>{location.city}</option>
-                                            )
-                                        }
-                                    </Select>
-
-                                    <Select
-                                        id="district-select"
-                                        name="district"
-                                        className="profile-input"
-                                        value={this.state.district}
-                                        onChange={this.onChangeDistrict}
-                                        validations={[required]}>
-                                        <option value="">Choose district</option>
-                                        {
-                                            this.state.districts.map(name =>
-                                                <option key={name}>{name}</option>
-                                            )
-                                        }
-                                    </Select>
-                                </span>
-                            </div>
-
-                            <button className="Create-btn">Save</button>
-
-                            {this.state.message && (
-                                <h5 className={this.state.successful ? "update-msg success" : "update-msg fail"} role="alert">
-                                    {this.state.message}
-                                </h5>
-                            )}
-                            <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
-                        </Form>
+            <div>
+                <div className="title">My profile</div>
+                <hr className="section-line" />
+                <div className="form white-container">
+                    <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
+                        <div className="labels">
+                            <label className="label row"> Username: </label>
+                            <label className="label row"> Email: </label>
+                            <label className="label row"> Phone number: </label>
+                            <label className="label row"> Location: </label>
                         </div>
-                    </div>
-                    {/* <p>
+                        <div>
+                            <span className="prow">
+                                <div id="profile-name">
+                                    {this.state.username}
+                                </div>
+                            </span>
+                            <span className="prow">
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    className="profile-input"
+                                    type="text"
+                                    placeholder="Email"
+                                    value={this.state.email}
+                                    onChange={this.onChangeEmail}
+                                    validations={[requiredInline, email]}>
+                                </Input>
+                            </span>
+                            <span className="prow">
+                                <Input
+                                    id="phone"
+                                    name="phone"
+                                    className="profile-input"
+                                    type="text"
+                                    value={this.state.phone}
+                                    onChange={this.onChangePhone}
+                                    validations={[requiredInline, vphone]}
+                                    placeholder="Phone number" />
+                            </span>
+                            <span className="location-row">
+                                <Select
+                                    id="location"
+                                    name="location"
+                                    className="profile-input"
+                                    value={this.state.location}
+                                    onChange={this.onChangeLocation}
+                                    validations={[required]}>
+                                    <option value="">Choose city</option>
+                                    {
+                                        this.state.vnLocations.map(location =>
+                                            <option key={location.city}>{location.city}</option>
+                                        )
+                                    }
+                                </Select>
+
+                                <Select
+                                    id="district-select"
+                                    name="district"
+                                    className="profile-input"
+                                    value={this.state.district}
+                                    onChange={this.onChangeDistrict}
+                                    validations={[required]}>
+                                    <option value="">Choose district</option>
+                                    {
+                                        this.state.districts.map(name =>
+                                            <option key={name}>{name}</option>
+                                        )
+                                    }
+                                </Select>
+                            </span>
+                        </div>
+
+                        <button className="Create-btn">Save</button>
+
+                        {this.state.message && (
+                            <h5 className={this.state.successful ? "update-msg success" : "update-msg fail"} role="alert">
+                                {this.state.message}
+                            </h5>
+                        )}
+                        <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
+                    </Form>
+                </div>
+                {/* <p>
                         <strong>Token:</strong>{" "}
                         {currentUser.accessToken.substring(0, 20)} ...{" "}
                         {currentUser.accessToken.substr(currentUser.accessToken.length - 20)}
@@ -341,8 +331,7 @@ export default class UserProfile extends Component {
                                 ))}
                         </p>
                     } */}
-                </div>
-
+            </div>
         );
     }
 }

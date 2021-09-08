@@ -2,14 +2,10 @@ import React, { Component } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
-import {Helmet} from "react-helmet";
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 
 import '../..//css/Profile.css'
-
-
-import ProfileSideBar from "./user.profile.sidebar";
 
 export default class UserEditPassword extends Component {
     constructor(props) {
@@ -31,7 +27,7 @@ export default class UserEditPassword extends Component {
             successful: false,
             message: "",
             errors: []
-        }; 
+        };
     }
 
     onChangeOldPassword = (e) => {
@@ -141,79 +137,73 @@ export default class UserEditPassword extends Component {
     }
 
     render() {
-        return (             
-                <div className="page-container my-profile">
-                <Helmet>
-                    <title>Change Password</title>
-                </Helmet>
-                    <ProfileSideBar />
-                    <div className="profile-page">
-                    <div className="title">Change Password</div>
-                    <hr className="section-line" />
-                    <div className = "form white-container">
-                        <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
-                            <div className="labels">
-                                <label className="label row"> Old password: </label>
-                                <label className="label row"> New password: </label>
-                                <label className="label row"> Confirm new password: </label>
-                            </div>
-                            <div>
-                                <span className="prow">
-                                    <Input
-                                        id="oldpassword"
-                                        name="oldfpassword"
-                                        className="profile-input"
-                                        type="password"
-                                        placeholder="Old Password"
-                                        value={this.state.oldpassword}
-                                        onChange={this.onChangeOldPassword}>
-                                    </Input>
-                                </span>
-                                <span className="prow">
-                                    <Input
-                                        id="newpassword"
-                                        name="newpassword"
-                                        className="profile-input"
-                                        type="password"
-                                        placeholder="New Password"
-                                        value={this.state.newpassword}
-                                        onChange={this.onChangeNewPassword}
-                                        disabled>
-                                    </Input>
-                                </span>
-                                <span className="prow">
-                                    <Input
-                                        id="confirm-new-password"
-                                        name="confirm-new-password"
-                                        className="profile-input"
-                                        type="password"
-                                        placeholder="Confirm New Password"
-                                        value={this.state.confirm_new_password}
-                                        onChange={this.onChangeConfirmNewPassword}
-                                        disabled>
-                                    </Input>
-                                </span>
-                            </div>
+        return (
+            <div>
+                <div className="title">Change Password</div>
+                <hr className="section-line" />
+                <div className="form white-container">
+                    <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
+                        <div className="labels">
+                            <label className="label row"> Old password: </label>
+                            <label className="label row"> New password: </label>
+                            <label className="label row"> Confirm new password: </label>
+                        </div>
+                        <div>
+                            <span className="prow">
+                                <Input
+                                    id="oldpassword"
+                                    name="oldfpassword"
+                                    className="profile-input"
+                                    type="password"
+                                    placeholder="Old Password"
+                                    value={this.state.oldpassword}
+                                    onChange={this.onChangeOldPassword}>
+                                </Input>
+                            </span>
+                            <span className="prow">
+                                <Input
+                                    id="newpassword"
+                                    name="newpassword"
+                                    className="profile-input"
+                                    type="password"
+                                    placeholder="New Password"
+                                    value={this.state.newpassword}
+                                    onChange={this.onChangeNewPassword}
+                                    disabled>
+                                </Input>
+                            </span>
+                            <span className="prow">
+                                <Input
+                                    id="confirm-new-password"
+                                    name="confirm-new-password"
+                                    className="profile-input"
+                                    type="password"
+                                    placeholder="Confirm New Password"
+                                    value={this.state.confirm_new_password}
+                                    onChange={this.onChangeConfirmNewPassword}
+                                    disabled>
+                                </Input>
+                            </span>
+                        </div>
 
-                            <button id="save-btn" className="Create-btn not-allowed" disabled='true'>Save</button>
+                        <button id="save-btn" className="Create-btn not-allowed" disabled='true'>Save</button>
 
-                            <h5 style={{ color: 'red' }}>
-                                {
-                                    this.state.errors.map(err =>
-                                    (<p>
-                                        {err}
-                                    </p>)
-                                    )
-                                }
-                                {this.state.message && (
-                                    <p className={this.state.successful ? "success" : "fail"}>{this.state.message}</p>
-                                )}
-                            </h5>
-                            <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
-                        </Form>
-                    </div>
-                    </div>
+                        <h5 style={{ color: 'red' }}>
+                            {
+                                this.state.errors.map(err =>
+                                (<p>
+                                    {err}
+                                </p>)
+                                )
+                            }
+                            {this.state.message && (
+                                <p className={this.state.successful ? "success" : "fail"}>{this.state.message}</p>
+                            )}
+                        </h5>
+                        <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
+                    </Form>
                 </div>
+            </div>
         );
     }
 }
