@@ -60,6 +60,7 @@ exports.getMessages = async (req, res) => {
     let conversation = null;
     let total = 0;
     let limit = 1
+
     // validate value
     if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
         limit = parseInt(req.query.limit);
@@ -78,7 +79,7 @@ exports.getMessages = async (req, res) => {
 
     // find list of messages in database to see if any message exists and retrieve
     try {
-        const features = new APIFeatures(
+        const features = await new APIFeatures(
             Message.find({
                 conversationId: conversation._id,
             })
@@ -97,6 +98,7 @@ exports.getMessages = async (req, res) => {
             totalPages: Math.ceil(total / limit),
             messages: messages
         });;
+        
     } catch (err) {
         res.status(500).json(err);
     }
