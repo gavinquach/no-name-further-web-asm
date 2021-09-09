@@ -9,6 +9,7 @@ exports.postConversation = async (req, res) => {
     let sender = null
     let reiceiver = null;
 
+    
     // check if receiver available
     try {
         sender = await User.findById(req.body.senderId).exec();
@@ -82,7 +83,8 @@ exports.getConversations = async (req, res) => {
             Conversation.find({
                 members: { $in: [user._id] },
             })
-            , req.query);
+            , req.query)
+            .sort();
 
         //count retrieved total data before pagination
         total = await Conversation.countDocuments(features.query);
@@ -132,6 +134,7 @@ exports.getConversation = async (req, res) => {
         if (!conversation) return res.status(401).send({ message: "Conversation does not exist!" });
 
         res.status(200).json(conversation)
+        
     } catch (err) {
         return res.status(500).send(err);
     }

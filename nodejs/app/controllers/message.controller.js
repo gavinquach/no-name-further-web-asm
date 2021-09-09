@@ -83,7 +83,8 @@ exports.getMessages = async (req, res) => {
             Message.find({
                 conversationId: conversation._id,
             })
-            , req.query);
+            , req.query)
+            .sort();
 
         //count retrieved total data before pagination
         total = await Message.countDocuments(features.query);
