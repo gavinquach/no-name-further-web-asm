@@ -165,8 +165,12 @@ export default class AdminEditAdmin extends Component {
             }, error => {
                 this.props.history.push("/admin/index");
             })
-            .catch(function (error) {
-                console.log(error);
+            .catch((error) => {
+                if (error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             })
     }
 

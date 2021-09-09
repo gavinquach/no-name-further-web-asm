@@ -86,7 +86,11 @@ export default class Chat extends Component {
                         });
                     })
                 .catch((error) => {
-                    console.log(error);
+                    if (error.response.status != 500) {
+                        console.log(error.response.data.message);
+                    } else {
+                        console.log(error);
+                    }
                     this.setChatPanelState();
                 });
         } else {
@@ -142,11 +146,14 @@ export default class Chat extends Component {
                     });
                 })
             .catch((error) => {
-                if (error.response.status == 404) {
-                    this.setState({
-                        messages: []
-                    });
+                if (error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
                 }
+                this.setState({
+                    messages: []
+                });
             });
     }
 
@@ -214,7 +221,11 @@ export default class Chat extends Component {
                     });
                 })
             .catch((error) => {
-                console.log(error);
+                if (error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             });
     }
 

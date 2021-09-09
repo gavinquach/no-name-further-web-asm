@@ -138,7 +138,11 @@ export default class NavigationBar extends Component {
                     }
                 })
             .catch((error) => {
-                console.log(error);
+                if (error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             });
 
         socket.on("receiveNotifications", data => {
@@ -173,7 +177,11 @@ export default class NavigationBar extends Component {
 
             })
             .catch((error) => {
-                console.log(error);
+                if (error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             });
     }
 
@@ -191,7 +199,11 @@ export default class NavigationBar extends Component {
 
             })
             .catch((error) => {
-                console.log(error);
+                if (error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             });
     }
 

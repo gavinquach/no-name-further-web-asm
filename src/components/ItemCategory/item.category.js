@@ -3,7 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 
 import ItemService from "../../services/item.service";
 import { CategoryList } from './item-categories.js';
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import '../../css/ItemCategories.css';
 import '../../css/ItemMenu.css'
 
@@ -49,8 +49,12 @@ export default class ItemCategory extends Component {
                 results: response.data.results,
                 items: response.data.items
             }, () => this.loadPageButtons());
-        }).catch(function (error) {
-            console.log(error);
+        }).catch((error) => {
+            if (error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
         });
     }
 
@@ -125,7 +129,7 @@ export default class ItemCategory extends Component {
         // ========== end of GET param validation ==========
         return (
             <div className="page-container">
-                 <Helmet>
+                <Helmet>
                     <title>{this.state.category}</title>
                 </Helmet>
                 <div className="title">{this.state.category}</div>
@@ -154,11 +158,11 @@ export default class ItemCategory extends Component {
                             </div>
                         )
                     }
-                    </div >
-                    <div className="page-buttons">
-                        {this.state.pageButtons}
-                    </div>
-                
+                </div >
+                <div className="page-buttons">
+                    {this.state.pageButtons}
+                </div>
+
             </div >
         )
     }

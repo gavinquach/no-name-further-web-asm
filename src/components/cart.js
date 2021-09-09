@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import AuthService from "../services/auth.service";
 import UserService from "../services/user.service";
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
 
@@ -16,15 +16,19 @@ export default class Cart extends Component {
         this.setState({ cart: [] });
         UserService.viewUserCart(AuthService.getCurrentUser().id).then(response => {
             this.setState({ cart: response.data });
-        }).catch(function (error) {
-            console.log(error);
+        }).catch((error) => {
+            if (error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
         })
     }
 
     componentDidMount() {
         this.load();
     }
-    
+
     removeFromCart = (itemid) => {
         if (window.confirm("Are you sure you want to remove item " + itemid + " from cart?")) {
             UserService.deleteItemFromCart(
@@ -50,8 +54,8 @@ export default class Cart extends Component {
 
     render() {
         return (
-            <div className ="page-container">
-                 <Helmet>
+            <div className="page-container">
+                <Helmet>
                     <title>Cart</title>
                 </Helmet>
                 <div className="title">Cart</div>

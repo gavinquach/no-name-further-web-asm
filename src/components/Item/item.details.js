@@ -99,10 +99,14 @@ export default class ItemDetails extends Component {
                 }, () => this.addImages());
             })
             .catch((error) => {
-                console.log(error);
                 this.setState({
                     notfound: true
                 });
+                if (error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             })
     }
 

@@ -54,7 +54,11 @@ export default class Transactions extends Component {
             // something went wrong while getting transaction),
             // redirect to home page
             this.props.history.push("/");
-            console.log(error);
+            if (error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
         });
     }
 
@@ -122,7 +126,7 @@ export default class Transactions extends Component {
                         <p>Trade expiration date: {formatDate(transaction.expiration_date)}</p>
                         <br />
                         <button className="TradeButton" onClick={() => this.requestCancel(transaction)}>Request trade cancellation</button>
-                        <button className="TradeButton" onClick={() => {}}>Chat with owner</button>
+                        <button className="TradeButton" onClick={() => { }}>Chat with owner</button>
                     </div>
                 )}
             </div>

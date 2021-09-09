@@ -17,8 +17,12 @@ export default class Transactions extends Component {
             AuthService.getCurrentUser().id
         ).then(response => {
             this.setState({ transactions: response.data });
-        }).catch(function (error) {
-            console.log(error);
+        }).catch((error) => {
+            if (error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
         })
     }
 
