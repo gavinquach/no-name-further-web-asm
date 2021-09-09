@@ -52,10 +52,10 @@ export default class NavigationBar extends Component {
         UserService.getUserNotifications(AuthService.getCurrentUser().id)
             .then(
                 response => {
-                    if (response.data) {
+                    if (response.data.notifications) {
                         // user has more than 5 total notifications
-                        if (response.data.length > 5) {
-                            const temp = response.data;
+                        if (response.data.notifications.length > 5) {
+                            const temp = response.data.notifications;
 
                             // create array for all unread notifications
                             const unreadList = [];
@@ -67,7 +67,7 @@ export default class NavigationBar extends Component {
                             // display notifications normally
                             if (unreadList.length == 0) {
                                 this.setState({
-                                    notifications: response.data,
+                                    notifications: response.data.notifications,
                                     unreadCount: unreadList.length
                                 });
                             }
@@ -127,11 +127,11 @@ export default class NavigationBar extends Component {
                         else {
                             //get unread count
                             let count = 0;
-                            response.data.map(notification => {
+                            response.data.notifications.map(notification => {
                                 !notification.read && count++;
                             });
                             this.setState({
-                                notifications: response.data,
+                                notifications: response.data.notifications,
                                 unreadCount: count
                             });
                         }

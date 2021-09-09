@@ -47,7 +47,7 @@ export default class Notifications extends Component {
             if (hash == "unread") {
                 // create array for all unread notifications
                 const list = [];
-                response.data.map(notification => {
+                response.data.notifications.map(notification => {
                     !notification.read && list.push(notification);
                 });
 
@@ -61,7 +61,7 @@ export default class Notifications extends Component {
             else if (hash == "system") {
                 // create array for all unread notifications
                 const list = [];
-                response.data.map(notification => {
+                response.data.notifications.map(notification => {
                     notification.type == "system" && list.push(notification);
                 });
 
@@ -75,7 +75,7 @@ export default class Notifications extends Component {
             else if (hash == "trade") {
                 // create array for all unread notifications
                 const list = [];
-                response.data.map(notification => {
+                response.data.notifications.map(notification => {
                     notification.type == "trade" && list.push(notification);
                 });
 
@@ -88,11 +88,11 @@ export default class Notifications extends Component {
             // all notifications
             else {
                 this.setState({
-                    notifications: response.data,
+                    notifications: response.data.notifications,
                     message: "You have no notifications."
                 });
             }
-        }).catch(function (error) {
+        }).catch((error) => {
             console.log(error);
         })
     }
@@ -133,7 +133,7 @@ export default class Notifications extends Component {
                         if (hash == "unread") {
                             // create array for all unread notifications
                             const list = [];
-                            response.data.map(notification => {
+                            response.data.notifications.map(notification => {
                                 !notification.read && list.push(notification);
                             });
 
@@ -147,7 +147,7 @@ export default class Notifications extends Component {
                         else if (hash == "system") {
                             // create array for all unread notifications
                             const list = [];
-                            response.data.map(notification => {
+                            response.data.notifications.map(notification => {
                                 notification.type == "system" && list.push(notification);
                             });
 
@@ -161,7 +161,7 @@ export default class Notifications extends Component {
                         else if (hash == "trade") {
                             // create array for all unread notifications
                             const list = [];
-                            response.data.map(notification => {
+                            response.data.notifications.map(notification => {
                                 notification.type == "trade" && list.push(notification);
                             });
 
@@ -174,7 +174,7 @@ export default class Notifications extends Component {
                         // all notifications
                         else {
                             this.setState({
-                                notifications: response.data,
+                                notifications: response.data.notifications,
                                 message: "You have no notifications."
                             });
                         }
