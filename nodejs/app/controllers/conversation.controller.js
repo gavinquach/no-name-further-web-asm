@@ -8,15 +8,15 @@ exports.postConversation = async (req, res) => {
     let sender = null
     let receiver = null;
 
-    // check if receiver exists
+    // check if sender and receiver exist
     try {
         sender = await User.findById(req.body.senderId).exec();
         receiver = await User.findById(req.body.receiverId).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!receiver) return res.status(404).send({ message: "Reiceiver not found." });
     if (!sender) return res.status(404).send({ message: "Sender not found." });
+    if (!receiver) return res.status(404).send({ message: "Receiver not found." });
 
     // check if conversation is already available
     try {
@@ -69,7 +69,9 @@ exports.getConversations = async (req, res) => {
         const features = new APIFeatures(
             Conversation.find({
                 members: { $in: [user._id] },
-            }), req.query)
+            })
+            .populate("members", "-__v")
+            , req.query)
             .sort();
 
         //count retrieved total data before pagination
