@@ -5,6 +5,7 @@ import ItemService from "../../services/item.service";
 import TransactionService from "../../services/transaction.service";
 
 import "../../css/TradeDetails.css"
+import { Link } from "react-router-dom";
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -96,7 +97,7 @@ export default class Transactions extends Component {
                         <p>ID: {transaction._id}</p>
                         <p>Trader: {transaction.user_buyer.username}</p>
                         <p>Owner: {transaction.user_seller.username}</p>
-                        <a href={"/item/" + item._id} className="ItemPanel">
+                        <Link to={"/item/" + item._id} className="ItemPanel">
                             {item.images.map(image =>
                                 image.cover && (
                                     <img className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
@@ -115,7 +116,7 @@ export default class Transactions extends Component {
                                 <h5>Type: <b>{item.forItemType.name}</b></h5>
                                 <h5>Quantity: <b>{item.forItemQty}</b></h5>
                             </div>
-                        </a>
+                        </Link>
                         <p>Trade status: {transaction.status}</p>
                         <p>Trade creation date: {formatDate(transaction.creation_date)}</p>
                         <p>Trade expiration date: {formatDate(transaction.expiration_date)}</p>

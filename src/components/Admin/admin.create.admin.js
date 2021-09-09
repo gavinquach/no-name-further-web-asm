@@ -3,7 +3,7 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
@@ -179,9 +179,9 @@ export default class AdminCreateAdmin extends Component {
         }
         return (
             <div>
-                <a href="/admin/view/admin" style={{ marginLeft: "15em" }}>
+                <Link to="/admin/view/admin" style={{ marginLeft: "15em" }}>
                     <button className="Redirect-btn">View admins</button>
-                </a>
+                </Link>
                 <Form className="container" style={{ width: "30em" }} onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
                     <h1 className="Big-text">Create admin</h1>
                     <br />

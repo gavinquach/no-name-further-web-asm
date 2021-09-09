@@ -1,7 +1,9 @@
 import { React, Component } from 'react';
-import { Navbar, Nav, Image } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBell } from '@fortawesome/free-solid-svg-icons'
+import { Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell, faUserAlt } from '@fortawesome/free-solid-svg-icons';
+import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons';
+import { Link } from "react-router-dom";
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css';
@@ -96,9 +98,11 @@ export default class NavigationBar extends Component {
                                     notification.read && readList.push(notification);
                                 });
 
+                                const length = 5 - finalList.length;
+
                                 // fill up the empty slots with
                                 // the latest read notification(s)
-                                for (let i = 0; i < 5 - finalList.length; i++) {
+                                for (let i = 0; i < length; i++) {
                                     finalList.push(readList[i]);
                                 }
 
@@ -151,27 +155,43 @@ export default class NavigationBar extends Component {
 
     logOut = () => {
         AuthService.logout();
+        window.location.reload();
+    }
+
+    setReadNotification = (notification) => {
+        // reduce unread count
+        const count = this.state.unreadCount - 1;
+        this.setState({
+            unreadCount: count < 0 ? 0 : count
+        });
+
+        UserService.setReadNotification(
+            notification
+        )
+            .then(() => {
+
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }
 
     setReadAllNotifcations = () => {
-        // add delay to sync up with CSS 0.3s animation
-        this.openTime = setTimeout(() => {
-            // reduce unread count
-            const count = this.state.unreadCount - 5;
-            this.setState({
-                unreadCount: count < 0 ? 0 : count
+        // reduce unread count
+        const count = this.state.unreadCount - 5;
+        this.setState({
+            unreadCount: count < 0 ? 0 : count
+        });
+
+        UserService.setReadNotifications(
+            this.state.notifications
+        )
+            .then(() => {
+
+            })
+            .catch((error) => {
+                console.log(error);
             });
-
-            UserService.setReadNotifications(
-                this.state.notifications
-            )
-                .then(() => {
-
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        }, 300);
     }
 
     countPanelOpenTime = () => {
@@ -208,33 +228,42 @@ export default class NavigationBar extends Component {
 
     render = () => {
         const currentUser = this.props.obj;
+
+        const user = <FontAwesomeIcon icon={faUserAlt} />
+        const facebook = <FontAwesomeIcon icon={faFacebookF} />
+        const google = <FontAwesomeIcon icon={faGoogle} />
+
         return (
             <div>
                 <Navbar className="navbar" expand="lg" >
-                    <Navbar.Brand href="/"><Image src={logo} fluid style={{ marginLeft: '1em', width: '3em', maxWidth: '3em', height: "100%" }} /></Navbar.Brand>
+                    <Navbar.Brand>
+                        <Link to="/">
+                            <Image src={logo} fluid style={{ marginLeft: '1em', width: '3em', maxWidth: '3em', height: "100%" }} />
+                        </Link>
+                    </Navbar.Brand>
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>
                         <Nav className="nav">
-                            <Nav.Link className="navbar-text navbar-item" href="/trades" >Trades</Nav.Link>
-                            <Nav.Link className="navbar-text navbar-item" href="/cart">Cart</Nav.Link>
+                            <Link className="navbar-text navbar-item" to="/trades" >Trades</Link>
+                            <Link className="navbar-text navbar-item" to="/cart">Cart</Link>
 
                             {/* show user panel user is logged in */}
                             {currentUser && (
-                                <Nav.Link className="navbar-text navbar-item" href="/user">User Panel</Nav.Link>
+                                <Link className="navbar-text navbar-item" to="/user">User Panel</Link>
                             )}
                             {/* show admin panel fi user is admin */}
                             {(currentUser && currentUser.isAdmin) && (
-                                <Nav.Link className="navbar-text navbar-item" href="/admin/index">Admin Panel</Nav.Link>
+                                <Link className="navbar-text navbar-item" to="/admin/index">Admin Panel</Link>
                             )}
                         </Nav>
 
                         <span onMouseEnter={this.countPanelOpenTime} onMouseLeave={this.stopTimer}>
-                            <Nav.Link href="/user/notifications" id="notification">
+                            <Link to="/user/notifications" id="notification">
                                 <div><FontAwesomeIcon icon={faBell} size="1x" /> Notifications</div>
                                 {this.state.unreadCount > 0 &&
                                     <span className="badge">{this.state.unreadCount}</span>
                                 }
-                            </Nav.Link>
+                            </Link>
                             <div id="notification-panel">
                                 {/* display if there are notifications in list */}
                                 {this.state.notifications.length > 0 ? (
@@ -247,21 +276,26 @@ export default class NavigationBar extends Component {
                                                     <Nav.Link
                                                         href={notification.url}
                                                         className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
+                                                        onClick={() => this.setReadNotification(notification)}
                                                     >
-                                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }}></div>
+                                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }} />
                                                         <div className="notification-date">{formatDate(notification.createdAt)}</div>
                                                     </Nav.Link>
                                                 )}
                                             </div>
                                         ))}
                                         {this.state.unreadList.length > 5 ? (
-                                            <Nav.Link href="/user/notifications#unread" id="notification-view-more">
-                                                View more unread notifications here
-                                            </Nav.Link>
+                                            <Link to="/user/notifications#unread">
+                                                <div id="notification-view-more">
+                                                    View more unread notifications here
+                                                </div>
+                                            </Link>
                                         ) : (
-                                            <Nav.Link href="/user/notifications" id="notification-view-more">
-                                                View more
-                                            </Nav.Link>
+                                            <Link to="/user/notifications">
+                                                <div id="notification-view-more">
+                                                    View more
+                                                </div>
+                                            </Link>
                                         )}
                                     </div>
                                 ) : (
@@ -276,31 +310,71 @@ export default class NavigationBar extends Component {
                         {/* show username and logout button if logged in, otherwise, show log in and sign up buttons */}
                         <Nav>
                             {currentUser ? (
-                                <span className="navbar-item">
-                                    <button className="button1">
-                                        <Nav.Link href="/user" id="username-text" className="button-text">
-                                            {currentUser.username}
-                                        </Nav.Link>
-                                    </button>
+                                <span className="Nav-bar-item Push-left">
+                                    <NavDropdown className="Nav-bar-text Nav-bar-item" title={
+                                        <Link to="/user" id="username-text">
+                                            <button className="Nav-bar-text button1" >
+                                                {currentUser.username}
+                                            </button>
+                                        </Link>
+                                    } id="basic-nav-dropdown" renderMenuOnMount={true}>
+                                        <NavDropdown.Item>
+                                            <Link to="/user" className="text-dark">
+                                                <button className="btn-warning Sign-up-btn nav-btn button-spec Nav-link">
+                                                    Profile
+                                                </button>
+                                            </Link>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Divider />
+                                        <NavDropdown.Item>
+                                            <Link to="/" className="text-white">
+                                                <button className="btn-danger Sign-up-btn nav-btn button-spec Nav-link" onClick={this.logOut}>
+                                                    Log Out
+                                                </button>
+                                            </Link>
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
                                 </span>
                             ) : (
-                                <span className="navbar-item">
-                                    <button className="button1">
-                                        <Nav.Link href="/login" className="button-text">Log In</Nav.Link>
-                                    </button>
-                                </span>
-                            )}
-                            {currentUser ? (
-                                <span className="navbar-item">
-                                    <button className="button2" onClick={this.logOut}>
-                                        <Nav.Link href="/" className="button-text">Log Out</Nav.Link>
-                                    </button>
-                                </span>
-                            ) : (
-                                <span className="navbar-item">
-                                    <button className="button2">
-                                        <Nav.Link href="/signup" className="button-text">Sign Up</Nav.Link>
-                                    </button>
+                                <span className="Nav-bar-item Push-left">
+                                    <NavDropdown className="Nav-bar-text Nav-bar-item"
+                                        title={
+                                            <button className="Nav-bar-text button1">
+                                                {user} Log In
+                                            </button>
+                                        }
+                                        id="basic-nav-dropdown"
+                                        renderMenuOnMount={true}>
+                                        <NavDropdown.Item>
+                                            <Link to="/login" className="text-dark">
+                                                <button className="btn-warning Log-in-out-btn nav-btn button-spec Nav-link">
+                                                    Log In
+                                                </button>
+                                            </Link>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item>
+                                            <Link to="/signup" className="text-dark">
+                                                <button className="btn-warning Sign-up-btn nav-btn button-spec Nav-link">
+                                                    Sign Up
+                                                </button>
+                                            </Link>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Divider />
+                                        <NavDropdown.Item>
+                                            <Link to="#" id="username-text" className="text-white">
+                                                <button className="btn p-2 btn-primary nav-btn button-spec Nav-link">
+                                                    {facebook} Login with Facebook
+                                                </button>
+                                            </Link>
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item>
+                                            <Link to="#" id="username-text" className="text-white">
+                                                <button className="btn p-2 btn-danger nav-btn button-spec Nav-link">
+                                                    {google} Sign in with Google+
+                                                </button>
+                                            </Link>
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
                                 </span>
                             )}
                         </Nav>

@@ -98,12 +98,8 @@ class UserService {
         });
     }
 
-    setReadNotification(sender, receiver, createdAt) {
-        return axiosTokenHeader.patch(API_URL + "user/read/notification", {
-            sender,
-            receiver,
-            createdAt
-        });
+    setReadNotification(notification) {
+        return axiosTokenHeader.patch(API_URL + "user/read/notification", notification);
     }
 
     setReadNotifications(notifications) {

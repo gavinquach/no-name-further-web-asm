@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 import ItemService from "../../services/item.service";
 import '../../css/ItemMenu.css';
@@ -25,15 +26,16 @@ export default class Offers extends Component {
     render() {
         return (
             <div>
-                <div className="title">Popular Offers
-                    <a id="more" href="/popular?page=1">
+                <div className="title">
+                    Popular Offers
+                    <Link id="more" to="/popular?page=1">
                         {"More >>"}
-                    </a>
+                    </Link>
                 </div>
                 <hr className="section-line" />
                 <div className="menu">
                     {this.state.items.map((item, index) =>
-                        <a className="item-box" key={index} href={"item/" + item._id}>
+                        <Link className="item-box" key={index} to={"/item/" + item._id}>
                             <div className="item-box-img">
                                 {item.images.map(image =>
                                     image.cover && (
@@ -47,7 +49,7 @@ export default class Offers extends Component {
                                 <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
                                 <p><b>Offers</b>: {item.offers}</p>
                             </div>
-                        </a>
+                        </Link>
                     )}
                 </div>
             </div>

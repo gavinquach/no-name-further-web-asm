@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import AuthService from "../services/auth.service";
 import UserService from "../services/user.service";
 import {Helmet} from "react-helmet";
+import { Link } from "react-router-dom";
 
 
 export default class Cart extends Component {
@@ -59,7 +60,7 @@ export default class Cart extends Component {
                     {this.state.cart.map(item =>
                         <div>
                             <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
-                                <a href={"item/" + item._id}>
+                                <Link to={"/item/" + item._id}>
                                     <div className="ItemPanel">
                                         {item.images.map(image =>
                                             image.cover && (
@@ -68,7 +69,7 @@ export default class Cart extends Component {
                                         )}
                                         <h4>{item.name} for {item.forItemName}</h4>
                                     </div>
-                                </a>
+                                </Link>
                             </div>
                             <button onClick={() => this.removeFromCart(item._id)}>Remove from cart</button>
                         </div>
