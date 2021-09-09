@@ -143,6 +143,10 @@ export default class Chat extends Component {
                 response => {
                     this.setState({
                         messages: response.data.messages
+                    }, () => {
+                        // automatically scroll chat to bottom
+                        const elem = document.getElementById("chat-bubbles");
+                        elem.scrollTop = elem.scrollHeight;
                     });
                 })
             .catch((error) => {
@@ -247,7 +251,7 @@ export default class Chat extends Component {
             // there's no bubble above it
             else if ((index < messages.length - 1 && message.sender == messages[index + 1].sender)
                 && (index - 1 < 0 || (index > 0 && message.sender != messages[index - 1].sender))) {
-                    classes = classes.concat("SquareBottomRight ");
+                classes = classes.concat("SquareBottomRight ");
             }
             // bubble is below another bubble and 
             // there's no bubble below it
@@ -264,7 +268,7 @@ export default class Chat extends Component {
             // there's no bubble above it
             else if ((index < messages.length - 1 && message.receiver == messages[index + 1].receiver)
                 && (index - 1 < 0 || (index > 0 && message.receiver != messages[index - 1].receiver))) {
-                    classes = classes.concat("SquareBottomLeft ");
+                classes = classes.concat("SquareBottomLeft ");
             }
             // bubble is below another bubble and 
             // there's no bubble below it
@@ -272,7 +276,6 @@ export default class Chat extends Component {
                 classes = classes.concat("SquareTopLeft ");
             }
         }
-        console.log(classes);
         return classes;
     }
 
