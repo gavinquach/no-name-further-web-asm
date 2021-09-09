@@ -128,7 +128,8 @@ export default class Chat extends Component {
                 const elem = elems[i];
                 elem.classList.remove("HighlightItem");
             }
-            document.getElementById(this.state.conversationId).classList.add("HighlightItem");
+            const elem = document.getElementById(this.state.conversationId);
+            if (elem) document.getElementById(this.state.conversationId).classList.add("HighlightItem");
         }
     }
 
