@@ -139,11 +139,16 @@
 
 #chat-box {
     width: 70%;
-    padding: 0 6px 6px 6px; /* top, right, bottom, left */
+    padding: 0 0 6px 6px; /* top, right, bottom, left */
 }
 
 #chat-bubbles {
-    height: 90%
+    height: 90%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 6px 4px 0 0;
+    list-style: none;
+    margin: 0;
 }
 
 #input-area {
@@ -173,20 +178,74 @@
     font-size: 24px;
 }
 
-#error-text {
+#text-for-user {
     text-align: center;
     margin: auto;
 }
 
+.ChatBubble {
+    display:inline-block;
+    clear: both;
+    border-radius: 18px;
+    padding: 4px 10px;
+    text-align: center;
+}
+
 .SentMessages {
-    color: black;
-    background-color: rgb(200, 200, 200);
+    float: right;
+    color: white;
+    background-color: rgb(0, 65, 206);
+    margin-left: auto;
+    margin-right: 0;
 }
 
 .ReceivedMessages {
-    color: white;
-    background-color: rgb(6, 0, 95);
+    float: left;
+    color: black;
+    background-color: rgb(230, 230, 230);
 }
+
+/* ================ */
+/* gaps for bubbles */
+.SmallGap {
+    margin-bottom: 2px;
+}
+
+.BigGap {
+    margin-bottom: 4px;
+}
+/* ================ */
+
+
+/* ================================ */
+/* bubble formatting like Messenger */
+.SquareBothLeft {
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.SquareBottomLeft {
+    border-bottom-left-radius: 5px;
+}
+
+.SquareTopLeft {
+    border-top-left-radius: 5px;
+}
+
+.SquareBothRight {
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.SquareBottomRight {
+    border-bottom-right-radius: 5px;
+}
+
+.SquareTopRight {
+    border-top-right-radius: 5px;
+}
+/* ================================ */
+
 
 /* responsive chat box */
 @media screen and (max-width: 575px) {

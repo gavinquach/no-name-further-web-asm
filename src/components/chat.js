@@ -78,7 +78,12 @@ export default class Chat extends Component {
                         this.setState({
                             conversations: convoList,
                             conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
-                        }, () => this.setChatPanelState());
+                        }, () => {
+                            this.setChatPanelState();
+                            if (this.state.conversationId) {
+                                this.getMessages(this.state.conversationId);
+                            }
+                        });
                     })
                 .catch((error) => {
                     console.log(error);
@@ -115,7 +120,7 @@ export default class Chat extends Component {
             panel.classList.remove("ShowChatPanel");
             panel.classList.add("HideChatPanel");
         }
-        
+
         if (this.state.conversationId || this.state.conversationId != "") {
             // highlight user list item
             const elems = document.getElementsByClassName("UserListItems");
@@ -127,37 +132,43 @@ export default class Chat extends Component {
         }
     }
 
-    setChatTarget = (id) => {
+    getMessages = (conversationId) => {
+        ChatService.getMessages(conversationId)
+            .then(
+                response => {
+                    this.setState({
+                        messages: response.data.messages
+                    });
+                })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    setChatTarget = (conversationId) => {
         // if target is not already highlighted/chosen
         // to prevent being able to reload the same data
-        if (!document.getElementById(id).classList.contains("HighlightItem")) {
+        if (!document.getElementById(conversationId).classList.contains("HighlightItem")) {
             // highlight user list item
             const elems = document.getElementsByClassName("UserListItems");
             for (let i = 0; i < elems.length; i++) {
                 const elem = elems[i];
                 elem.classList.remove("HighlightItem");
             }
-            document.getElementById(id).classList.add("HighlightItem");
+            document.getElementById(conversationId).classList.add("HighlightItem");
 
             // set localstorage so the page can remember
             // which user the user was chatting with
             if (localStorage.getItem("conversationId")) {
-                localStorage.conversationId = id;
+                localStorage.conversationId = conversationId;
             } else {
-                localStorage.setItem("conversationId", id);
+                localStorage.setItem("conversationId", conversationId);
             }
 
-            ChatService.getMessages(id)
-                .then(
-                    response => {
-                        this.setState({
-                            conversationId: id,
-                            messages: response.data.messages
-                        }, () => console.log(this.state.messages));
-                    })
-                .catch((error) => {
-                    console.log(error);
-                });
+            this.setState({
+                conversationId: conversationId,
+            });
+            this.getMessages(conversationId);
         }
     }
 
@@ -202,6 +213,53 @@ export default class Chat extends Component {
             });
     }
 
+    formatBubble = (messages, message, index, user) => {
+        let classes = "";
+        if (index < messages.length - 1 && message.sender == messages[index + 1].sender) {
+            classes = classes.concat("SmallGap ");
+        } else {
+            classes = classes.concat("BigGap ");
+        }
+
+        if (user == "sent") {
+            // bubble is in between two bubbles
+            if ((index < messages.length - 1 && message.sender == messages[index + 1].sender)
+                && (index > 0 && message.sender == messages[index - 1].sender)) {
+                classes = classes.concat("SquareBothRight ");
+            }
+            // bubble is on top of another bubble and 
+            // there's no bubble above it
+            else if ((index < messages.length - 1 && message.sender == messages[index + 1].sender)
+                && (index - 1 < 0 || (index > 0 && message.sender != messages[index - 1].sender))) {
+                    classes = classes.concat("SquareBottomRight ");
+            }
+            // bubble is below another bubble and 
+            // there's no bubble below it
+            else {
+                classes = classes.concat("SquareTopRight ");
+            }
+        } else if (user == "received") {
+            // bubble is in between two bubbles
+            if ((index < messages.length - 1 && message.receiver == messages[index + 1].receiver)
+                && (index > 0 && message.receiver == messages[index - 1].receiver)) {
+                classes = classes.concat("SquareBothLeft ");
+            }
+            // bubble is on top of another bubble and 
+            // there's no bubble above it
+            else if ((index < messages.length - 1 && message.receiver == messages[index + 1].receiver)
+                && (index - 1 < 0 || (index > 0 && message.receiver != messages[index - 1].receiver))) {
+                    classes = classes.concat("SquareBottomLeft ");
+            }
+            // bubble is below another bubble and 
+            // there's no bubble below it
+            else {
+                classes = classes.concat("SquareTopLeft ");
+            }
+        }
+        console.log(classes);
+        return classes;
+    }
+
     render() {
         return (
             <div>
@@ -219,7 +277,7 @@ export default class Chat extends Component {
 
                 {!this.state.currentUser && (
                     <div id="chat-panel" className="HideChatPanel">
-                        <h3 id="error-text">Please log in to start chatting</h3>
+                        <h3 id="text-for-user">Please log in to start chatting</h3>
                     </div>
                 )}
                 {(this.state.currentUser && this.state.conversations.length > 0) && (
@@ -233,15 +291,26 @@ export default class Chat extends Component {
                             ))}
                         </div>
                         <div id="chat-box">
-                            <div id="chat-bubbles">
-                                {this.state.messages.map((message, index) => {
-                                    if (message.receiver != this.state.currentUser) {
-
-                                    } else {
-
-                                    }
-                                })}
-                            </div>
+                            <ul id="chat-bubbles">
+                                {this.state.messages.map((message, index) => (
+                                    message.receiver != this.state.currentUser.id ? (
+                                        // other user's message
+                                        <li className={"ChatBubble ReceivedMessages ".concat(
+                                            this.formatBubble(this.state.messages, message, index, "received")
+                                        )}>
+                                            {message.text}
+                                        </li>
+                                    ) : (
+                                        // current user's message
+                                        <li className={"ChatBubble SentMessages ".concat(
+                                            this.formatBubble(this.state.messages, message, index, "sent")
+                                        )}>
+                                            {message.text}
+                                        </li>
+                                    )
+                                ))
+                                }
+                            </ul>
                             <div id="input-area">
                                 <input
                                     id="input"
@@ -259,7 +328,7 @@ export default class Chat extends Component {
 
                 {(this.state.currentUser && this.state.conversations.length < 1) && (
                     <div id="chat-panel" className="HideChatPanel">
-                        <h3 id="error-text">No conversations found.</h3>
+                        <h3 id="text-for-user">No conversations found.</h3>
                     </div>
                 )}
             </div>
