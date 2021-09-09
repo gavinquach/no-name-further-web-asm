@@ -1,5 +1,6 @@
 import { React, Component } from 'react';
 import { Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faUserAlt } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons';
@@ -319,19 +320,19 @@ export default class NavigationBar extends Component {
                                         </Link>
                                     } id="basic-nav-dropdown" renderMenuOnMount={true}>
                                         <NavDropdown.Item>
-                                            <Link to="/user" className="text-dark">
+                                            <LinkContainer to="/user" className="text-dark">
                                                 <button className="btn-warning Sign-up-btn nav-btn button-spec Nav-link">
                                                     Profile
                                                 </button>
-                                            </Link>
+                                            </LinkContainer>
                                         </NavDropdown.Item>
                                         <NavDropdown.Divider />
                                         <NavDropdown.Item>
-                                            <Link to="/" className="text-white">
+                                            <LinkContainer to="/" className="text-white">
                                                 <button className="btn-danger Sign-up-btn nav-btn button-spec Nav-link" onClick={this.logOut}>
                                                     Log Out
                                                 </button>
-                                            </Link>
+                                            </LinkContainer>
                                         </NavDropdown.Item>
                                     </NavDropdown>
                                 </span>
@@ -346,33 +347,33 @@ export default class NavigationBar extends Component {
                                         id="basic-nav-dropdown"
                                         renderMenuOnMount={true}>
                                         <NavDropdown.Item>
-                                            <Link to="/login" className="text-dark">
+                                            <LinkContainer to="/login" className="text-dark">
                                                 <button className="btn-warning Log-in-out-btn nav-btn button-spec Nav-link">
                                                     Log In
                                                 </button>
-                                            </Link>
+                                            </LinkContainer>
                                         </NavDropdown.Item>
                                         <NavDropdown.Item>
-                                            <Link to="/signup" className="text-dark">
+                                            <LinkContainer to="/signup" className="text-dark">
                                                 <button className="btn-warning Sign-up-btn nav-btn button-spec Nav-link">
                                                     Sign Up
                                                 </button>
-                                            </Link>
+                                            </LinkContainer>
                                         </NavDropdown.Item>
                                         <NavDropdown.Divider />
                                         <NavDropdown.Item>
-                                            <Link to="#" id="username-text" className="text-white">
+                                            <LinkContainer to="#" id="username-text" className="text-white">
                                                 <button className="btn p-2 btn-primary nav-btn button-spec Nav-link">
                                                     {facebook} Login with Facebook
                                                 </button>
-                                            </Link>
+                                            </LinkContainer>
                                         </NavDropdown.Item>
                                         <NavDropdown.Item>
-                                            <Link to="#" id="username-text" className="text-white">
+                                            <LinkContainer to="#" id="username-text" className="text-white">
                                                 <button className="btn p-2 btn-danger nav-btn button-spec Nav-link">
                                                     {google} Sign in with Google+
                                                 </button>
-                                            </Link>
+                                            </LinkContainer>
                                         </NavDropdown.Item>
                                     </NavDropdown>
                                 </span>
