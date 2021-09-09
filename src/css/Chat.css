@@ -112,6 +112,13 @@
     width: 30%;
     border-right: 1px solid rgb(156, 156, 156);
     overflow-y: scroll;
+    overflow-x: scroll;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .UserListItems {
@@ -124,6 +131,10 @@
     font-size: 13px;
     text-align: right;
     padding-right: 5px;
+}
+
+.HighlightItem {
+    background-color:rgb(204, 204, 204);
 }
 
 #chat-box {
@@ -160,6 +171,21 @@
 #fa-icon-send:hover {
     cursor: pointer;
     font-size: 24px;
+}
+
+#error-text {
+    text-align: center;
+    margin: auto;
+}
+
+.SentMessages {
+    color: black;
+    background-color: rgb(200, 200, 200);
+}
+
+.ReceivedMessages {
+    color: white;
+    background-color: rgb(6, 0, 95);
 }
 
 /* responsive chat box */
