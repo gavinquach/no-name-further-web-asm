@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const Message = mongoose.model(
     "Message",
     new mongoose.Schema({
-
         conversationId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Conversation",
@@ -23,8 +22,18 @@ const Message = mongoose.model(
         text: {
             type: String,
         },
-    },
-        { timestamps: true })
+        status: {
+            type: String,
+        },
+        read: {
+            type: Boolean,
+            default: false
+        },
+        markUnread: {
+            type: Boolean,
+            default: false
+        },
+    }, { timestamps: true })
 );
 
 module.exports = Message;
