@@ -146,7 +146,7 @@
     height: 90%;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding: 6px 4px 0 0;
+    padding: 6px 6px 0 0;
     list-style: none;
     margin: 0;
 }
@@ -170,6 +170,7 @@
     font-size: 22px;
     width: 10%;
     margin-left: 5px;
+    color: blue;
     transition: font-size 0.1s linear;
 }
 
