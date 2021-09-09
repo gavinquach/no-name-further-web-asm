@@ -158,6 +158,24 @@ export default class NavigationBar extends Component {
         window.location.reload();
     }
 
+    setReadNotification = (notification) => {
+        // reduce unread count
+        const count = this.state.unreadCount - 1;
+        this.setState({
+            unreadCount: count < 0 ? 0 : count
+        });
+
+        UserService.setReadNotification(
+            notification
+        )
+            .then(() => {
+
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     setReadAllNotifcations = () => {
         // reduce unread count
         const count = this.state.unreadCount - 5;
@@ -258,6 +276,7 @@ export default class NavigationBar extends Component {
                                                     <Nav.Link
                                                         href={notification.url}
                                                         className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
+                                                        onClick={() => this.setReadNotification(notification)}
                                                     >
                                                         <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }} />
                                                         <div className="notification-date">{formatDate(notification.createdAt)}</div>
