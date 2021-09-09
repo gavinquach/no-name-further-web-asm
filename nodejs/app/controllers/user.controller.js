@@ -139,7 +139,7 @@ exports.viewAllUsers = async (req, res) => {
     }
 
     try {
-        const features =  await new APIFeatures(
+        const features = await new APIFeatures(
             User.find()
                 .populate("roles", "-__v")
                 .populate("items", "-__v")
@@ -153,7 +153,7 @@ exports.viewAllUsers = async (req, res) => {
         // paginating data
         users = await features.paginate().query;
 
-    
+
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -206,7 +206,7 @@ exports.viewAdmins = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    
+
     if (!admins || admins.length < 1) return res.status(404).send({ message: "Admins not found in this page." });
 
 
@@ -475,21 +475,48 @@ exports.editPassword = async (req, res) => {
 };
 
 exports.getUserItems = async (req, res) => {
+
+    // initialize
     let items = [];
+    let total = 0;
+    let limit = 1
+
+    // validate value
+    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
+    
     try {
-        items = await Item.find({
-            seller: req.params.id
-        })
-            .populate("type", "-__v")
-            .populate("forItemType", "-__v")
-            .populate("images", "-__v")
-            .populate("seller", "-__v")
-            .exec();
+        // Execute query from Feature API object
+        const features = await new APIFeatures(
+            Item.find({
+                seller: req.params.id
+            })
+                .populate("type", "-__v")
+                .populate("forItemType", "-__v")
+                .populate("images", "-__v")
+                .populate("seller", "-__v")
+            , req.query);
+
+        //count retrieved total data before pagination
+        total = await Item.countDocuments(features.query);
+
+        // paginating data
+        items = await features.paginate().query;
+
+
     } catch (err) {
         return res.status(500).send(err);
     }
 
-    res.json(items);
+    if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
+
+    res.status(200).json({
+        result: items.length,
+        totalPages: Math.ceil(total / limit),
+        items: items
+    });
+
 };
 
 exports.getUserCart = async (req, res) => {
