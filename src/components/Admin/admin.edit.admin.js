@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import Select from "react-validation/build/select";
@@ -400,9 +400,9 @@ export default class AdminEditAdmin extends Component {
         }
         return (
             <div>
-                <a href="/admin/view/admin" style={{ marginLeft: "15em" }}>
+                <Link to="/admin/view/admin" style={{ marginLeft: "15em" }}>
                     <button className="Redirect-btn">View admins</button>
-                </a>
+                </Link>
                 <div className="container" style={{ width: "30em" }}>
                     <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
                         <h1 className="Big-text">Edit admin</h1>

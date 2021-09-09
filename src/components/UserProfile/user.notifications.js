@@ -10,6 +10,7 @@ import UserService from "../../services/user.service";
 import socket from '../../services/socket';
 
 import ProfileSideBar from "./user.profile.sidebar"
+import { Link } from 'react-router-dom';
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -259,11 +260,11 @@ export default class Notifications extends Component {
 
                                     <div className="NotificationButtonContainer">
                                         {notification.type == "trade" && (
-                                            <a href={notification.url}>
+                                            <Link to={notification.url}>
                                                 <button className="NotificationButton">
                                                     Check trade details
                                                 </button>
-                                            </a>
+                                            </Link>
                                         )}
                                     </div>
                                 </div>

@@ -4,17 +4,18 @@ import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
 import '../../css/UserPages.css'
+import { Link } from 'react-router-dom';
 
 const manageAdmin = (
     <div className="Flexbox-item Center-text">
         <h2 className="Center-text">Manage admins</h2>
-        <a href="/admin/view/admin" className="Button-item">
+        <Link to="/admin/view/admin" className="Button-item">
             <button className="user-button">View admins</button>
-        </a>
+        </Link>
         {AuthService.isRoot() || AuthService.getRoles().includes("ROLE_CREATE_ADMIN") && (
-            <a href="/admin/create/admin" className="Button-item">
+            <Link to="/admin/create/admin" className="Button-item">
                 <button className="user-button">Create admin</button>
-            </a>
+            </Link>
         )}
     </div>
 )
@@ -22,13 +23,13 @@ const manageAdmin = (
 const manageUser = (
     <div className="Flexbox-item Center-text">
         <h2 className="Center-text">Manage users</h2>
-        <a href="/admin/view/user" className="Button-item">
+        <Link to="/admin/view/user" className="Button-item">
             <button className="user-button">View users</button>
-        </a>
+        </Link>
         {AuthService.isRoot() || AuthService.getRoles().includes("ROLE_CREATE_USER") && (
-            <a href="/admin/create/user" className="Button-item">
+            <Link to="/admin/create/user" className="Button-item">
                 <button className="user-button">Create user</button>
-            </a>
+            </Link>
         )}
     </div>
 )
@@ -79,7 +80,7 @@ export default class AdminIndex extends Component {
                     <br />
                     {AuthService.hasManageAdminRole() && this.state.items.map((item, index) =>
                         (item.seller != AuthService.getCurrentUser().id) &&
-                        <a key={index} href={"item/" + item._id}>
+                        <Link key={index} to={"/item/" + item._id}>
                             <div className="Dashboard">
                                 <div className="Dashboard-img">
                                     {item.images.map(image =>
@@ -95,7 +96,7 @@ export default class AdminIndex extends Component {
                                 <p></p>
                                 <button className="delete-item-btn">Delete</button>
                             </div>
-                        </a>
+                        </Link>
                     )}
                 </div>
                 <div>

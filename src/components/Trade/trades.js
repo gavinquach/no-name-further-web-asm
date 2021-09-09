@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Helmet } from "react-helmet";
+import { Link } from "react-router-dom";
 
 import AuthService from "../../services/auth.service";
 import TransactionService from "../../services/transaction.service";
@@ -59,7 +60,7 @@ export default class Transactions extends Component {
                 {this.state.transactions.map((transaction, index) =>
                     transaction.status === "Pending" &&
                     <div key={index + "-div1"} style={{ backgroundColor: 'lightgrey', width: '60em', height: '10em', marginBottom: '4em' }}>
-                        <a href={"/trade/" + transaction._id}>
+                        <Link to={"/trade/" + transaction._id}>
                             <div key={index + "-ItemPanel"} className="ItemPanel" style={{ width: '60em', height: '10em' }}>
                                 {/* {transaction.item.images.map(image =>
                                     image.cover && (
@@ -68,7 +69,7 @@ export default class Transactions extends Component {
                                 )} */}
                                 <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
                             </div>
-                        </a>
+                        </Link>
                         <button onClick={() => this.cancelTransaction(transaction)}>Cancel transaction</button>
                     </div>
                 )}
@@ -78,11 +79,11 @@ export default class Transactions extends Component {
                     transaction.status === "Cancelled" && (
                         <div key={index + "-div2"} style={{ width: '40em', height: '10em', marginTop: '2em' }}>
                             {transaction.item ? (
-                                <a href={"/trade/" + transaction._id}>
+                                <Link to={"/trade/" + transaction._id}>
                                     <div key={index + "-ItemPanel"} className="ItemPanel">
                                         <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
                                     </div>
-                                </a>
+                                </Link>
                             ) : (
                                 <div className="ItemPanel">
                                     <h4>(Item removed by trader)</h4>
@@ -97,11 +98,11 @@ export default class Transactions extends Component {
                     transaction.status === "Expired" && (
                         <div key={index + "-div2"} style={{ width: '40em', height: '10em', marginTop: '2em' }}>
                             {transaction.item ? (
-                                <a href={"/trade/" + transaction._id}>
+                                <Link to={"/trade/" + transaction._id}>
                                     <div key={index + "-ItemPanel"} className="ItemPanel">
                                         <h4>{transaction.item.name} for {transaction.item.forItemName}</h4>
                                     </div>
-                                </a>
+                                </Link>
                             ) : (
                                 <div className="ItemPanel">
                                     <h4>(Item removed by trader)</h4>

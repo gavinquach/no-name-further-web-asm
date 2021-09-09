@@ -1,19 +1,20 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 export default class ProfileSideBar extends Component {
     render() {
         return (
             <div className="profile-sidebar">
                 <ul className="profile-list">
-                    <a style={{ textDecoration: "black" }} href="/user/profile#myprofile"><li>
+                    <Link style={{ textDecoration: "black" }} to="/user/profile#myprofile"><li>
                         Info</li>
-                    </a>
-                    <a style={{ textDecoration: "black" }} href="/user/profile#password">
+                    </Link>
+                    <Link style={{ textDecoration: "black" }} to="/user/profile#password">
                         <li>Change Password</li>
-                    </a>
-                    <a style={{ textDecoration: "black" }} href="/user/notifications">
+                    </Link>
+                    <Link style={{ textDecoration: "black" }} to="/user/notifications">
                         <li>Notifications</li>
-                    </a>
+                    </Link>
                 </ul>
             </div>
         );
