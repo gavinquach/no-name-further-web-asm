@@ -390,7 +390,8 @@ exports.getMostOfferItems = (req, res, next) => {
 exports.getAllItems = async (req, res) => {
     let items = [];
     let total = 0;
-    let limit = 1
+    let limit = 6
+
     // validate value
     if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
         limit = parseInt(req.query.limit);
@@ -400,10 +401,10 @@ exports.getAllItems = async (req, res) => {
         // Execute query from Feature API object
         const features = await new APIFeatures(
             Item.find()
-                .populate("type", "-__v")
-                .populate("forItemType", "-__v")
-                .populate("images", "-__v")
-                .populate("seller", "-__v")
+                // .populate("type", "-__v")
+                // .populate("forItemType", "-__v")
+                // .populate("images", "-__v")
+                // .populate("seller", "-__v")
             , req.query)
             .filter()
             .sort()
