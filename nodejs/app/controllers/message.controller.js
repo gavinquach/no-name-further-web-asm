@@ -6,11 +6,8 @@ const APIFeatures = require("./apiFeature");
 
 // add message 
 exports.postMessage = async (req, res) => {
-
     let sender = null
     let receiver = null;
-    let conversation = null;
-
 
     // check if sender and receiver available
     try {
@@ -22,7 +19,7 @@ exports.postMessage = async (req, res) => {
     if (!sender) return res.status(404).send({ message: "Sender not found." });
     if (!receiver) return res.status(404).send({ message: "Receiver not found." });
 
-
+    let conversation = null;
     // check if conversation exists
     try {
         conversation = await Conversation.findById(req.body.conversationId);
@@ -44,6 +41,9 @@ exports.postMessage = async (req, res) => {
         }
     }
 
+    if (!conversation.members.includes(sender._id) || !conversation.members.includes(receiver._id)) {
+        return res.status(404).send({ message: "Invalid user ID!" });
+    }
 
     const newMessage = new Message({
         conversationId: conversation._id,
@@ -51,7 +51,6 @@ exports.postMessage = async (req, res) => {
         receiver: receiver._id,
         text: req.body.text
     });
-
 
     try {
         const savedMessage = await newMessage.save();
@@ -61,10 +60,8 @@ exports.postMessage = async (req, res) => {
     }
 }
 
-
 // get messages by Id conversation
 exports.getMessages = async (req, res) => {
-
     // intialize 
     let messages = [];
     let conversation = null;
@@ -79,21 +76,17 @@ exports.getMessages = async (req, res) => {
     // check if conversation is available in database
     try {
         conversation = await Conversation.findById({ _id: req.params.conversationId }).exec();
-
         if (!conversation) return res.status(404).send({ message: "Conversation not found." });
-
     } catch (err) {
         return res.status(500).send(err);
     }
 
-
     // find list of messages in database to see if any message exists and retrieve
     try {
-        const features = await new APIFeatures(
+        const features = new APIFeatures(
             Message.find({
                 conversationId: conversation._id,
-            })
-            , req.query)
+            }), req.query)
             .sort();
 
         //count retrieved total data before pagination
@@ -101,7 +94,6 @@ exports.getMessages = async (req, res) => {
 
         // paginating data
         messages = await features.paginate().query;
-
         if (!messages || messages.length < 1) return res.status(404).send({ message: "Messages not found." });
 
         await res.status(200).json({
@@ -109,7 +101,6 @@ exports.getMessages = async (req, res) => {
             totalPages: Math.ceil(total / limit),
             messages: messages
         });;
-        
     } catch (err) {
         res.status(500).json(err);
     }

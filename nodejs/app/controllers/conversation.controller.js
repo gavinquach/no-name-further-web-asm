@@ -5,21 +5,18 @@ const APIFeatures = require("./apiFeature");
 
 // Post new conversation
 exports.postConversation = async (req, res) => {
-
     let sender = null
-    let reiceiver = null;
+    let receiver = null;
 
-    
-    // check if receiver available
+    // check if receiver exists
     try {
         sender = await User.findById(req.body.senderId).exec();
-        reiceiver = await User.findById(req.body.receiverId).exec();
+        receiver = await User.findById(req.body.receiverId).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!reiceiver) return res.status(404).send({ message: "Reiceiver not found." });
+    if (!receiver) return res.status(404).send({ message: "Reiceiver not found." });
     if (!sender) return res.status(404).send({ message: "Sender not found." });
-
 
     // check if conversation is already available
     try {
@@ -32,14 +29,12 @@ exports.postConversation = async (req, res) => {
         return res.status(500).send(err);
     }
 
-
     // save conversation
     const newConversation = new Conversation({
-        members: [sender._id, reiceiver._id],
+        members: [sender._id, receiver._id],
     });
 
     // const newConversation = new Conversation(req.body.data);
-
     try {
         const savedConversation = await newConversation.save();
         res.status(200).json(savedConversation);
@@ -48,17 +43,13 @@ exports.postConversation = async (req, res) => {
     }
 }
 
-
 // get conversations of a user 
 exports.getConversations = async (req, res) => {
-
-
     // intialize 
     let total = 0;
     let limit = 1
     let conversations = [];
     let user = null
-
 
     // validate value
     if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
@@ -68,50 +59,41 @@ exports.getConversations = async (req, res) => {
     // check if user is available in database
     try {
         user = await User.findById({ _id: req.params.id }).exec();
-
         if (!user) return res.status(404).send({ message: "User not found." });
-
     } catch (err) {
         return res.status(500).send(err);
     }
 
-
     // find list of conversations in database to see if any conversation exists
     try {
-
-        const features = await new APIFeatures(
+        const features = new APIFeatures(
             Conversation.find({
                 members: { $in: [user._id] },
-            })
-            , req.query)
+            }), req.query)
             .sort();
 
         //count retrieved total data before pagination
         total = await Conversation.countDocuments(features.query);
 
-
         // paginating data
         conversations = await features.paginate().query;
-
-        if (!conversations || conversations.length < 1) return res.status(404).send({ message: "Conversations not found." });
-
+        if (!conversations || conversations.length < 1) {
+            return res.status(404).send({ message: "Conversations not found." });
+        }
 
         await res.status(200).json({
             result: conversations.length,
             totalPages: Math.ceil(total / limit),
             conversations: conversations
-        });;
-
+        });
     } catch (err) {
         res.status(500).json(err);
     }
- 
 }
 
 
 // get a conversation between two userId
 exports.getConversation = async (req, res) => {
-
     let firstUser = null;
     let secondUser = null;
 
@@ -134,12 +116,10 @@ exports.getConversation = async (req, res) => {
         if (!conversation) return res.status(401).send({ message: "Conversation does not exist!" });
 
         res.status(200).json(conversation)
-        
+
     } catch (err) {
         return res.status(500).send(err);
     }
-
-
 }
 
 
