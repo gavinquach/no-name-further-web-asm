@@ -313,11 +313,9 @@ export default class NavigationBar extends Component {
                             {currentUser ? (
                                 <span className="Nav-bar-item Push-left">
                                     <NavDropdown className="Nav-bar-text Nav-bar-item" title={
-                                        <Link to="/user" id="username-text">
-                                            <button className="Nav-bar-text button1" >
-                                                {currentUser.username}
-                                            </button>
-                                        </Link>
+                                        <button className="Nav-bar-text button1" >
+                                            {currentUser.username}
+                                        </button>
                                     } id="basic-nav-dropdown" renderMenuOnMount={true}>
                                         <NavDropdown.Item>
                                             <LinkContainer to="/user" className="text-dark">
