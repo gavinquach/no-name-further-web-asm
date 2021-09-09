@@ -98,9 +98,11 @@ export default class NavigationBar extends Component {
                                     notification.read && readList.push(notification);
                                 });
 
+                                const length = 5 - finalList.length;
+
                                 // fill up the empty slots with
                                 // the latest read notification(s)
-                                for (let i = 0; i < 5 - finalList.length; i++) {
+                                for (let i = 0; i < length; i++) {
                                     finalList.push(readList[i]);
                                 }
 
@@ -253,23 +255,27 @@ export default class NavigationBar extends Component {
                                             <div key={index}>
                                                 {/* display up to 5 items */}
                                                 {index < 5 && (
-                                                    <Link
-                                                        to={notification.url}
+                                                    <Nav.Link
+                                                        href={notification.url}
                                                         className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
                                                     >
-                                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }}></div>
+                                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }} />
                                                         <div className="notification-date">{formatDate(notification.createdAt)}</div>
-                                                    </Link>
+                                                    </Nav.Link>
                                                 )}
                                             </div>
                                         ))}
                                         {this.state.unreadList.length > 5 ? (
-                                            <Link to="/user/notifications#unread" id="notification-view-more">
-                                                View more unread notifications here
+                                            <Link to="/user/notifications#unread">
+                                                <div id="notification-view-more">
+                                                    View more unread notifications here
+                                                </div>
                                             </Link>
                                         ) : (
-                                            <Link to="/user/notifications" id="notification-view-more">
-                                                View more
+                                            <Link to="/user/notifications">
+                                                <div id="notification-view-more">
+                                                    View more
+                                                </div>
                                             </Link>
                                         )}
                                     </div>
