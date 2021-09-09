@@ -17,7 +17,7 @@ export default class AdminViewUser extends Component {
         UserService.viewUsers()
             .then(response => {
                 // console.log(response.data);
-                this.setState({ users: response.data });
+                this.setState({ users: response.data.users });
             }).catch(function (error) {
                 console.log(error);
             })

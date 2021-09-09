@@ -17,7 +17,7 @@ export default class AdminViewAdmin extends Component {
         UserService.viewAdmins()
             .then(response => {
                 // console.log(response.data);
-                this.setState({ users: response.data });
+                this.setState({ users: response.data.admins });
             })
             .catch(function (error) {
                 console.log(error);

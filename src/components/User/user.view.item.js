@@ -22,7 +22,7 @@ export default class UserViewItem extends Component {
             AuthService.getCurrentUser().id
         ).then(response => {
             // console.log(response.data);
-            this.setState({ items: response.data });
+            this.setState({ items: response.data.items });
         }).catch(function (error) {
             console.log(error);
         })
