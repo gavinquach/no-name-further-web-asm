@@ -29,10 +29,20 @@ exports.postMessage = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!conversation) return res.status(404).send({ message: "Conversation not found." });
-    if (!conversation.members.includes(sender._id) || !conversation.members.includes(receiver._id)) return res.status(404).send({ message: "User Id not match with conversation" });
 
-
+    // conversation not found, create one
+    if (!conversation) {
+        // return res.status(404).send({ message: "Conversation not found." });
+        conversation = new Conversation({
+            members: [sender._id, receiver._id],
+        });
+        
+        try {
+            await conversation.save();
+        } catch (err) {
+            return res.status(500).json(err);
+        }
+    }
 
 
     const newMessage = new Message({
