@@ -11,7 +11,7 @@ export default class Offers extends Component {
     }
 
     loadItems = () => {
-        ItemService.getItemsByTransaction("-offers")
+        ItemService.getMostOffersItems()
             .then(response => {
                 this.setState({ items: response.data.items });
             }).catch(function (error) {

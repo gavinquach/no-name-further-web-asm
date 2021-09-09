@@ -8,6 +8,7 @@ const Role = model.role;
 const Token = model.tokenSchema;
 const Transaction = model.transaction;
 const Notification = model.notification;
+const APIFeatures = require("./apiFeature");
 
 const bcrypt = require("bcryptjs");
 
@@ -49,13 +50,13 @@ exports.signup = async (req, res) => {
             user: user._id,
             token: crypto.randomBytes(16).toString('hex')
         });
-    
+
         try {
             await token.save();
         } catch (err) {
             return res.status(500).send(err);
         }
-    
+
         // Send email (use verified sender's email address & the generated API_KEY on SendGrid)
         const transporter = nodemailer.createTransport(
             sendgridTransport({
@@ -64,7 +65,7 @@ exports.signup = async (req, res) => {
                 }
             })
         );
-    
+
         try {
             await transporter.sendMail({
                 from: '0nametrading@gmail.com',
@@ -125,70 +126,150 @@ exports.createUserWithRoles = async (req, res) => {
 };
 
 exports.viewAllUsers = async (req, res) => {
-    try {
-        const users = await User.find()
-            .populate("roles", "-__v")
-            .populate("items", "-__v")
-            .populate("cart", "-__v")
-            .exec();
 
-        if (!users) return res.status(404).send({ message: "Users not found." });
-        res.json(users);
+
+    // intialize 
+    let total = 0;
+    let limit = 1
+    let users = [];
+
+    // validate value
+    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
+
+    try {
+        const features = await new APIFeatures(
+            User.find()
+                .populate("roles", "-__v")
+                .populate("items", "-__v")
+                .populate("cart", "-__v")
+            , req.query);
+
+
+        //count retrieved total data before pagination
+        total = await User.countDocuments(features.query);
+
+        // paginating data
+        users = await features.paginate().query;
+
+
     } catch (err) {
         return res.status(500).send(err);
     }
+
+    if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
+
+    await res.status(200).json({
+        result: users.length,
+        totalPages: Math.ceil(total / limit),
+        users: users
+    });
+
 };
 
 exports.viewAdmins = async (req, res) => {
-    let users = [];
+
+
+    // intialize 
+    let total = 0;
+    let limit = 1
+    let adminRoles = [];
+    let admins = [];
+
+    // validate value
+    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
+
+    // find all admin roles 
     try {
-        users = await User.find()
-            .populate("roles", "-__v")
-            .populate("items", "-__v")
-            .populate("cart", "-__v")
-            .exec();
+        adminRoles = await Role.find({ name: { $ne: "user" } })
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!users) return res.status(404).send({ message: "Users not found." });
 
-    const adminList = [];
-    for (const user of users) {
-        for (const role of user.roles) {
-            if (role.name !== "user") {
-                adminList.push(user);
-                break;
-            }
-        }
+    try {
+        const features = await new APIFeatures(
+            User.find({ roles: { $in: adminRoles } })
+                .populate("roles", "-__v")
+                .populate("items", "-__v")
+                .populate("cart", "-__v")
+            , req.query);
+
+        //count retrieved total data before pagination
+        total = await User.countDocuments(features.query);
+
+        // paginating data
+        admins = await features.paginate().query;
+
+    } catch (err) {
+        return res.status(500).send(err);
     }
 
-    res.json(adminList);
+    if (!admins || admins.length < 1) return res.status(404).send({ message: "Admins not found in this page." });
+
+
+    res.status(200).json({
+        result: admins.length,
+        totalPages: Math.ceil(total / limit),
+        admins: admins
+    });
+
 };
 
 exports.viewUsers = async (req, res) => {
+
+    // intialize 
+    let total = 0;
+    let limit = 1
     let users = [];
+    let userRole = null;
+
+
+    // validate value
+    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
+
+    // find all admin roles 
     try {
-        users = await User.find()
-            .populate("roles", "-__v")
-            .populate("items", "-__v")
-            .populate("cart", "-__v")
-            .exec();
+        userRole = await Role.find({ name: "user" });
+
+        if (!userRole) return res.status(404).send({ message: "User Role not found." });
+
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!users) return res.status(404).send({ message: "Users not found." });
 
-    const userList = [];
-    for (const user of users) {
-        for (const role of user.roles) {
-            if (role.name === "user") {
-                userList.push(user);
-                break;
-            }
-        }
+
+    try {
+
+        const features = await new APIFeatures(
+            User.find({ roles: { $in: userRole } })
+                .populate("roles", "-__v")
+                .populate("items", "-__v")
+                .populate("cart", "-__v")
+            , req.query);
+
+
+        //count retrieved total data before pagination
+        total = await User.countDocuments(features.query);
+
+        // paginating data
+        users = await features.paginate().query;
+
+    } catch (err) {
+        return res.status(500).send(err);
     }
 
-    res.json(userList);
+    if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
+
+    res.status(200).json({
+        result: users.length,
+        totalPages: Math.ceil(total / limit),
+        users: users
+    });
 };
 
 exports.viewOneUser = async (req, res) => {
@@ -394,21 +475,48 @@ exports.editPassword = async (req, res) => {
 };
 
 exports.getUserItems = async (req, res) => {
+
+    // initialize
     let items = [];
+    let total = 0;
+    let limit = 1
+
+    // validate value
+    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
+    
     try {
-        items = await Item.find({
-            seller: req.params.id
-        })
-            .populate("type", "-__v")
-            .populate("forItemType", "-__v")
-            .populate("images", "-__v")
-            .populate("seller", "-__v")
-            .exec();
+        // Execute query from Feature API object
+        const features = await new APIFeatures(
+            Item.find({
+                seller: req.params.id
+            })
+                .populate("type", "-__v")
+                .populate("forItemType", "-__v")
+                .populate("images", "-__v")
+                .populate("seller", "-__v")
+            , req.query);
+
+        //count retrieved total data before pagination
+        total = await Item.countDocuments(features.query);
+
+        // paginating data
+        items = await features.paginate().query;
+
+
     } catch (err) {
         return res.status(500).send(err);
     }
 
-    res.json(items);
+    if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
+
+    res.status(200).json({
+        result: items.length,
+        totalPages: Math.ceil(total / limit),
+        items: items
+    });
+
 };
 
 exports.getUserCart = async (req, res) => {
@@ -505,29 +613,97 @@ exports.deleteItemFromCart = async (req, res) => {
 };
 
 exports.getUserNotifications = async (req, res) => {
+
+    // intialize 
+    let total = 0;
+    let limit = 1
+    let notifications = [];
+    let reiceiver = null
+
+    // validate value
+    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
+
+    // check if receiver is available in database
     try {
-        const notifications = await Notification.find({
-            receiver: req.params.id
-        }) 
-            .sort("-createdAt")
-            .exec();
+        receiver = await User.findById({ _id: req.params.id }).exec();
+
+        if (!reiceiver) return res.status(404).send({ message: "Reiceiver not found." });
+
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // find list of notifications in database to see if any conversation exists
+    try {
+        const features = await new APIFeatures(
+            Notification.find({
+                receiver: reiceiver._id
+            })
+                .sort("-createdAt")
+            , req.query);
+
+
+        //count retrieved total data before pagination
+        total = await Notification.countDocuments(features.query);
+
+
+        // paginating data
+        notifications = await features.paginate().query;
 
         if (!notifications) return res.status(404).send({ message: "Notifications not found." });
-        res.status(200).json(notifications);
+
+        await res.status(200).json({
+            result: conversations.length,
+            totalPages: Math.ceil(total / limit),
+            notifications: notifications
+        });;
+
+
     } catch (err) {
         return res.status(500).send(err);
     }
 };
 
+
 exports.getUserUnreadNotifications = async (req, res) => {
+
+    // intialize 
+    let total = 0;
+    let limit = 1
+    let notifications = [];
+    let reiceiver = null
+
+    // validate value
+    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
+        limit = parseInt(req.query.limit);
+    }
+
     try {
-        const notifications = await Notification.find({
-            receiver: req.params.id,
-            read: false
-        }).exec();
+        const features = await new APIFeatures(
+            Notification.find({
+                receiver: req.params.id,
+                read: false
+            })
+            , req.query);
+
+        //count retrieved total data before pagination
+        total = await Notification.countDocuments(features.query);
+
+
+        // paginating data
+        notifications = await features.paginate().query;
+
 
         if (!notifications) return res.status(404).send({ message: "Notifications not found." });
-        res.status(200).json(notifications);
+
+        await res.status(200).json({
+            result: conversations.length,
+            totalPages: Math.ceil(total / limit),
+            notifications: notifications
+        });;
+
     } catch (err) {
         return res.status(500).send(err);
     }
