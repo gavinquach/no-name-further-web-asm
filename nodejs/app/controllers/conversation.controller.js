@@ -97,14 +97,13 @@ exports.getConversations = async (req, res) => {
         await res.status(200).json({
             result: conversations.length,
             totalPages: Math.ceil(total / limit),
-            messages: conversations
+            conversations: conversations
         });;
 
     } catch (err) {
         res.status(500).json(err);
     }
-    if (conversations.length < 1) return res.status(404).send({ message: "Conversations not found." });
-
+ 
 }
 
 
