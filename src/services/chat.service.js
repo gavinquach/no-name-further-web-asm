@@ -2,16 +2,19 @@ import { axiosTokenHeader } from "./AxiosInstance"
 const API_URL = require("./index");
 
 class ChatService {
-    postMessage() {
-        return axiosTokenHeader.post(API_URL + "message");
+    postMessage(messageObj) {
+        return axiosTokenHeader.post(API_URL + "message", messageObj);
     }
 
     getMessages(conversationId) {
-        return axiosTokenHeader.get(API_URL + "message/", conversationId);
+        return axiosTokenHeader.get(API_URL + "message/" + conversationId);
     }
 
-    postConversation() {
-        return axiosTokenHeader.post(API_URL + "conversation");
+    postConversation(senderId, receiverId) {
+        return axiosTokenHeader.post(API_URL + "conversation", {
+            senderId,
+            receiverId
+        });
     }
 
     getConversations(userid) {
