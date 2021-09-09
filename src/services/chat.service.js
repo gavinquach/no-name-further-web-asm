@@ -7,7 +7,7 @@ class ChatService {
     }
 
     getMessages(conversationId) {
-        return axiosTokenHeader.get(API_URL + "message/" + conversationId);
+        return axiosTokenHeader.get(API_URL + "messages/" + conversationId);
     }
 
     postConversation(senderId, receiverId) {

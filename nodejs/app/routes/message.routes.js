@@ -10,7 +10,7 @@ router.post("/message", [
 
 
 // get messages from conversation
-router.get("/message/:conversationId", [
+router.get("/messages/:conversationId", [
     // authJwt.verifyToken,
     // authJwt.isUser
 ], controller.getMessages);
