@@ -126,9 +126,7 @@ exports.createUserWithRoles = async (req, res) => {
 };
 
 exports.viewAllUsers = async (req, res) => {
-
-
-    // intialize 
+    // intialize
     let total = 0;
     let limit = 1
     let users = [];
@@ -139,21 +137,18 @@ exports.viewAllUsers = async (req, res) => {
     }
 
     try {
-        const features = await new APIFeatures(
+        const features = new APIFeatures(
             User.find()
                 .populate("roles", "-__v")
                 .populate("items", "-__v")
                 .populate("cart", "-__v")
             , req.query);
 
-
         //count retrieved total data before pagination
         total = await User.countDocuments(features.query);
 
         // paginating data
         users = await features.paginate().query;
-
-
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -165,7 +160,6 @@ exports.viewAllUsers = async (req, res) => {
         totalPages: Math.ceil(total / limit),
         users: users
     });
-
 };
 
 exports.viewAdmins = async (req, res) => {
@@ -190,7 +184,7 @@ exports.viewAdmins = async (req, res) => {
     }
 
     try {
-        const features = await new APIFeatures(
+        const features = new APIFeatures(
             User.find({ roles: { $in: adminRoles } })
                 .populate("roles", "-__v")
                 .populate("items", "-__v")
@@ -219,13 +213,11 @@ exports.viewAdmins = async (req, res) => {
 };
 
 exports.viewUsers = async (req, res) => {
-
-    // intialize 
+    // intialize
     let total = 0;
     let limit = 1
     let users = [];
     let userRole = null;
-
 
     // validate value
     if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
@@ -235,30 +227,24 @@ exports.viewUsers = async (req, res) => {
     // find all admin roles 
     try {
         userRole = await Role.find({ name: "user" });
-
         if (!userRole) return res.status(404).send({ message: "User Role not found." });
-
     } catch (err) {
         return res.status(500).send(err);
     }
 
-
     try {
-
-        const features = await new APIFeatures(
+        const features = new APIFeatures(
             User.find({ roles: { $in: userRole } })
                 .populate("roles", "-__v")
                 .populate("items", "-__v")
                 .populate("cart", "-__v")
             , req.query);
 
-
         //count retrieved total data before pagination
         total = await User.countDocuments(features.query);
 
         // paginating data
         users = await features.paginate().query;
-
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -475,7 +461,6 @@ exports.editPassword = async (req, res) => {
 };
 
 exports.getUserItems = async (req, res) => {
-
     // initialize
     let items = [];
     let total = 0;
@@ -485,10 +470,10 @@ exports.getUserItems = async (req, res) => {
     if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
         limit = parseInt(req.query.limit);
     }
-    
+
     try {
         // Execute query from Feature API object
-        const features = await new APIFeatures(
+        const features = new APIFeatures(
             Item.find({
                 seller: req.params.id
             })
@@ -503,8 +488,6 @@ exports.getUserItems = async (req, res) => {
 
         // paginating data
         items = await features.paginate().query;
-
-
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -516,7 +499,6 @@ exports.getUserItems = async (req, res) => {
         totalPages: Math.ceil(total / limit),
         items: items
     });
-
 };
 
 exports.getUserCart = async (req, res) => {
@@ -613,12 +595,11 @@ exports.deleteItemFromCart = async (req, res) => {
 };
 
 exports.getUserNotifications = async (req, res) => {
-
-    // intialize 
+    // intialize
     let total = 0;
     let limit = 1
     let notifications = [];
-    let reiceiver = null
+    let receiver = null
 
     // validate value
     if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
@@ -628,52 +609,45 @@ exports.getUserNotifications = async (req, res) => {
     // check if receiver is available in database
     try {
         receiver = await User.findById({ _id: req.params.id }).exec();
-
-        if (!reiceiver) return res.status(404).send({ message: "Reiceiver not found." });
-
+        if (!receiver) return res.status(404).send({ message: "Receiver not found." });
     } catch (err) {
         return res.status(500).send(err);
     }
 
     // find list of notifications in database to see if any conversation exists
     try {
-        const features = await new APIFeatures(
+        const features = new APIFeatures(
             Notification.find({
-                receiver: reiceiver._id
+                receiver: receiver._id
             })
                 .sort("-createdAt")
             , req.query);
 
-
         //count retrieved total data before pagination
         total = await Notification.countDocuments(features.query);
-
 
         // paginating data
         notifications = await features.paginate().query;
 
         if (!notifications) return res.status(404).send({ message: "Notifications not found." });
 
-        await res.status(200).json({
-            result: conversations.length,
+        return res.status(200).json({
+            result: notifications.length,
             totalPages: Math.ceil(total / limit),
             notifications: notifications
-        });;
-
-
+        });
     } catch (err) {
+        console.log(err);
         return res.status(500).send(err);
     }
 };
 
-
 exports.getUserUnreadNotifications = async (req, res) => {
-
-    // intialize 
+    // intialize
     let total = 0;
     let limit = 1
     let notifications = [];
-    let reiceiver = null
+    let receiver = null
 
     // validate value
     if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
@@ -681,7 +655,7 @@ exports.getUserUnreadNotifications = async (req, res) => {
     }
 
     try {
-        const features = await new APIFeatures(
+        const features = new APIFeatures(
             Notification.find({
                 receiver: req.params.id,
                 read: false
@@ -691,19 +665,16 @@ exports.getUserUnreadNotifications = async (req, res) => {
         //count retrieved total data before pagination
         total = await Notification.countDocuments(features.query);
 
-
         // paginating data
         notifications = await features.paginate().query;
 
-
         if (!notifications) return res.status(404).send({ message: "Notifications not found." });
 
-        await res.status(200).json({
-            result: conversations.length,
+        return res.status(200).json({
+            result: notifications.length,
             totalPages: Math.ceil(total / limit),
             notifications: notifications
-        });;
-
+        });
     } catch (err) {
         return res.status(500).send(err);
     }
