@@ -337,8 +337,9 @@ export default class Chat extends Component {
                         <div id="chat-box">
                             <ul id="chat-bubbles">
                                 {this.state.messages.map((message, index) => (
-                                    message.receiver != this.state.currentUser.id ? (
-                                        // other user's message
+                                    // receiver is current user
+                                    message.receiver == this.state.currentUser.id ? (
+                                        // format and display other user's message
                                         <li key={`${index}-${message.receiver}`}
                                             className={"ChatBubble ReceivedMessages ".concat(
                                                 this.formatBubble(this.state.messages, message, index, "received")
@@ -346,7 +347,7 @@ export default class Chat extends Component {
                                                 {message.text}
                                         </li>
                                     ) : (
-                                        // current user's message
+                                        // format and display current user's message
                                         <li key={`${index}-${message.sender}`}
                                             className={"ChatBubble SentMessages ".concat(
                                                 this.formatBubble(this.state.messages, message, index, "sent")
