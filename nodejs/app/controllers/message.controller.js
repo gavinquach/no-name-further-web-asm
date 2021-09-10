@@ -53,9 +53,22 @@ exports.postMessage = async (req, res) => {
         status: "Sending"
     });
 
+    // save message on database
+    let savedMessage = null;
     try {
-        const savedMessage = await newMessage.save();
-        res.status(200).json(savedMessage);
+        savedMessage = await newMessage.save();
+    } catch (err) {
+        res.status(500).json(err);
+    }
+
+    // attempt to find message on database, if it's there, set status to "Sent"
+    try {
+        const message = await Message.findById(savedMessage._id);
+        if (!message) return res.status(500).send({ message: "Something went wrong, please try again."});
+
+        savedMessage.status = "Sent";
+        const savedSentMessage = await savedMessage.save();
+        res.status(200).json(savedSentMessage);
     } catch (err) {
         res.status(500).json(err);
     }
