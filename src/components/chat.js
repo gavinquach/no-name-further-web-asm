@@ -47,7 +47,8 @@ export default class Chat extends Component {
             messages: [],
             conversationId: null,
             receiver: null,
-            currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null
+            currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null,
+            page: 1
         };
     }
 
@@ -197,7 +198,12 @@ export default class Chat extends Component {
 
     // get messages and set them to read
     getMessages = (conversationId) => {
-        ChatService.getMessages(conversationId)
+        ChatService.getMessages(
+            conversationId,
+            "updatedAt",
+            this.state.page,
+            10,
+        )
             .then(
                 response => {
                     this.setState({

@@ -1,7 +1,6 @@
 import { axiosTokenHeader } from "./AxiosInstance"
-import socket from './socket';
 const API_URL = require("./index");
-
+import socket from './socket';
 
 class ChatService {
     postMessage(messageObj) {
@@ -14,7 +13,9 @@ class ChatService {
             });
     }
 
-    getMessages(conversationId) {
+    getMessages(conversationId, sort, page, limit) {
+        const url = `${conversationId}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "messages/" + url);
     }
 
     setMessageToRead(messageId) {
