@@ -381,43 +381,45 @@ export default class Chat extends Component {
         }
         // don't allow sending empty strings
         if (this.state.message != "") {
-            const message = {
-                conversationId: this.state.conversationId,
-                sender: this.state.currentUser.id,
-                receiver: this.state.receiver,
-                text: this.state.message
-            };
-
-            ChatService.postMessage(message)
-                .then(
-                    response => {
-                        // push message 
-                        const temp = this.state.messages;
-                        temp.push(message);
-
-                        // set conversation id and update to display the newest messages
-                        this.setState({
-                            conversationId: response.data.conversationId,
-                            message: "",
-                            messages: temp
-                        }, () => {
-                            // automatically scroll chat to bottom
-                            const chat = document.getElementById("chat-bubbles");
-                            chat.scrollTop = chat.scrollHeight;
-
-                            // clear input field
-                            const input = document.getElementById("input");
-                            input.value = "";
-                        });
-                    })
-                .catch((error) => {
-                    if (error.response && error.response.status != 500) {
-                        console.log(error.response.data.message);
-                    } else {
-                        console.log(error);
-                    }
-                });
+            return;
         }
+
+        const message = {
+            conversationId: this.state.conversationId,
+            sender: this.state.currentUser.id,
+            receiver: this.state.receiver,
+            text: this.state.message
+        };
+
+        ChatService.postMessage(message)
+            .then(
+                response => {
+                    // push message 
+                    const temp = this.state.messages;
+                    temp.push(message);
+
+                    // set conversation id and update to display the newest messages
+                    this.setState({
+                        conversationId: response.data.conversationId,
+                        message: "",
+                        messages: temp
+                    }, () => {
+                        // automatically scroll chat to bottom
+                        const chat = document.getElementById("chat-bubbles");
+                        chat.scrollTop = chat.scrollHeight;
+
+                        // clear input field
+                        const input = document.getElementById("input");
+                        input.value = "";
+                    });
+                })
+            .catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
     }
 
     formatBubble = (messages, message, index, user) => {
