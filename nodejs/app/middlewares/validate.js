@@ -150,7 +150,6 @@ checkEmptyConversations = async (req, res, next) => {
                     await Conversation.findByIdAndRemove(
                         conversation._id
                     ).exec();
-                    console.log('deleted');
                 } catch (err) {
                     return res.status(500).json(err);
                 }
