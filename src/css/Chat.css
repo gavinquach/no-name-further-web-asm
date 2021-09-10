@@ -178,6 +178,7 @@
     border: none;
     background: none;
     padding: 0;
+    outline: none;
 }
 
 #fa-icon-send:hover {
