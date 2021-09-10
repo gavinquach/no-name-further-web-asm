@@ -144,21 +144,24 @@ exports.viewAllUsers = async (req, res) => {
 
         // paginating data
         users = await features.paginate().query;
+
+        if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+        await res.status(200).json({
+            result: users.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            users: users
+        });
+
     } catch (err) {
         return res.status(500).send(err);
     }
 
-    if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
 
-    if (features.queryString.limit == null) {
-        features.queryString.limit = 1;
-    }
-
-    await res.status(200).json({
-        result: users.length,
-        totalPages: Math.ceil(total / features.queryString.limit),
-        users: users
-    });
 };
 
 exports.viewAdmins = async (req, res) => {
@@ -191,22 +194,24 @@ exports.viewAdmins = async (req, res) => {
         // paginating data
         admins = await features.paginate().query;
 
+        if (!admins || admins.length < 1) return res.status(404).send({ message: "Admins not found in this page." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+
+        res.status(200).json({
+            result: admins.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            admins: admins
+        });
+
     } catch (err) {
         return res.status(500).send(err);
     }
 
-    if (!admins || admins.length < 1) return res.status(404).send({ message: "Admins not found in this page." });
 
-    if (features.queryString.limit == null) {
-        features.queryString.limit = 1;
-    }
-
-
-    res.status(200).json({
-        result: admins.length,
-        totalPages: Math.ceil(total / features.queryString.limit),
-        admins: admins
-    });
 
 };
 
@@ -237,22 +242,24 @@ exports.viewUsers = async (req, res) => {
 
         // paginating data
         users = await features.paginate().query;
+
+        if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+
+        res.status(200).json({
+            result: users.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            users: users
+        });
+
     } catch (err) {
         return res.status(500).send(err);
     }
 
-    if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
-
-    if (features.queryString.limit == null) {
-        features.queryString.limit = 1;
-    }
-
-
-    res.status(200).json({
-        result: users.length,
-        totalPages: Math.ceil(total / features.queryString.limit),
-        users: users
-    });
 };
 
 exports.viewOneUser = async (req, res) => {
