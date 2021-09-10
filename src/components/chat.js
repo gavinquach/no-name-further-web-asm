@@ -70,6 +70,10 @@ export default class Chat extends Component {
         const chat = document.getElementById("chat-bubbles");
 
         if (chat) {
+            // no scroll bar available
+            if (chat.scrollHeight <= chat.clientHeight) {
+                return;
+            }
             if (chat.scrollTop < 50) {
                 if (this.state.loadingMore) {
                     return;
