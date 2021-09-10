@@ -136,6 +136,15 @@ export default class Chat extends Component {
                     const temp = this.state.messages;
                     temp.push(message);
 
+                    // automatically scroll down after set state
+                    // if user's scroll is already at the bottom
+                    let isScrolledToBottom = false;
+                    // check if user's scroll is at the bottom
+                    const chat = document.getElementById("chat-bubbles");
+                    if (chat && chat.scrollHeight - chat.scrollTop == chat.clientHeight) {
+                        isScrolledToBottom = true;
+                    }
+
                     // update to display the newest messages
                     this.setState({
                         messages: temp,
@@ -144,21 +153,25 @@ export default class Chat extends Component {
                         // set messages to read only when the chat
                         // is scrolled all the way down or close to that
                         const chat = document.getElementById("chat-bubbles");
-                        if (chat && chat.scrollTop > chat.scrollHeight - 350) {
-                            ChatService.setMessagesToRead(message.conversationId)
-                                .then(() => {
-                                    this.setState({
-                                        unreadCount: 0
+                        if (chat) {
+                            if (isScrolledToBottom) {
+                                chat.scrollTop = chat.scrollHeight;
+                            } else if (chat.scrollTop > chat.scrollHeight - 350) {
+                                ChatService.setMessagesToRead(message.conversationId)
+                                    .then(() => {
+                                        this.setState({
+                                            unreadCount: 0
+                                        });
+                                    })
+                                    .catch((error) => {
+                                        if (error.response && error.response.status != 500) {
+                                            console.log(error.response.data.message);
+                                        } else {
+                                            console.log(error);
+                                        }
+                                        this.setChatPanelState();
                                     });
-                                })
-                                .catch((error) => {
-                                    if (error.response && error.response.status != 500) {
-                                        console.log(error.response.data.message);
-                                    } else {
-                                        console.log(error);
-                                    }
-                                    this.setChatPanelState();
-                                });
+                            }
                         }
                     });
                 }
