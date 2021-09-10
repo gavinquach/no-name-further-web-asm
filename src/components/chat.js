@@ -80,7 +80,7 @@ export default class Chat extends Component {
                 if (this.state.totalPages > 0 && this.state.page >= this.state.totalPages) {
                     return;
                 }
-                
+
                 if (!this.waitTimeInterval) {
                     this.waitTimeInterval = setInterval(() => {
                         this.waitTime += 100;
@@ -102,13 +102,13 @@ export default class Chat extends Component {
                                         response => {
                                             const messages = response.data.messages;
                                             const temp = this.state.messages;
-    
+
                                             // insert new messages to the start
                                             // of current messages array
                                             messages.map((message) => {
                                                 temp.unshift(message);
                                             });
-    
+
                                             this.setState({
                                                 messages: temp,
                                                 page: this.state.page + 1,
@@ -202,51 +202,7 @@ export default class Chat extends Component {
 
     componentDidMount = () => {
         if (AuthService.isLoggedIn()) {
-            ChatService.getConversations(this.state.currentUser.id)
-                .then(
-                    response => {
-                        const temp = response.data.conversations;
-                        const conversationList = [];
-                        temp.map((obj,) => {
-                            obj.members.map((user) => {
-                                if (user._id != this.state.currentUser.id) {
-                                    conversationList.push({
-                                        _id: obj._id,
-                                        user: user,
-                                        updatedAt: obj.updatedAt
-                                    });
-                                }
-                            });
-                        });
-
-                        this.setState({
-                            conversations: conversationList,
-                            conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
-                        }, () => {
-                            this.getUnreadCount();
-                            this.setChatPanelState();
-                            // has conversation id, get messages and receiver id
-                            if (this.state.conversationId) {
-                                this.getMessages(this.state.conversationId);
-
-                                // set receiver id
-                                for (const conversation of conversationList) {
-                                    if (conversation._id == this.state.conversationId) {
-                                        this.setState({ receiver: conversation.user._id });
-                                        break;
-                                    }
-                                }
-                            }
-                        });
-                    })
-                .catch((error) => {
-                    if (error.response && error.response.status != 500) {
-                        console.log(error.response.data.message);
-                    } else {
-                        console.log(error);
-                    }
-                    this.setChatPanelState();
-                });
+            this.getConversations();
 
             // when user receives a message
             socket.on("receiveMessage", message => {
@@ -284,6 +240,7 @@ export default class Chat extends Component {
                             }
                         });
                     } else {
+                        this.getConversations();
                         this.getUnreadCount();
                     }
                 }
@@ -295,9 +252,132 @@ export default class Chat extends Component {
                     });
                 }
             });
+
+            // when user receives a message
+            socket.on("receivechatWithUserRequest", data => {
+                // open chat panel
+                if (!this.state.chatOpened) {
+                    this.setState({ chatOpened: true });
+                    const panel = document.getElementById("chat-panel");
+                    panel.classList.remove("HideChatPanel");
+                    panel.classList.add("ShowChatPanel");
+
+                    // store in local storage to keep track
+                    // when users go to another page
+                    localStorage.chatOpened = true;
+                }
+
+                ChatService.postConversation(
+                    data.user,
+                    data.receiver
+                ).then(
+                    (response) => {
+                        ChatService.getConversationsRequest(this.state.currentUser.id)
+                            .then(
+                                response => {
+                                    const temp = response.data.conversations;
+                                    const conversationList = [];
+                                    temp.map((obj,) => {
+                                        obj.members.map((user) => {
+                                            if (user._id != this.state.currentUser.id) {
+                                                conversationList.push({
+                                                    _id: obj._id,
+                                                    user: user,
+                                                    updatedAt: obj.updatedAt
+                                                });
+                                            }
+                                        });
+                                    });
+
+                                    this.setState({
+                                        conversations: conversationList,
+                                        conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
+                                    }, () => {
+                                        this.getUnreadCount();
+                                        this.setChatPanelState();
+                                        // has conversation id, get messages and receiver id
+                                        if (this.state.conversationId) {
+                                            this.getMessages(this.state.conversationId);
+
+                                            // set receiver id
+                                            for (const conversation of conversationList) {
+                                                if (conversation._id == this.state.conversationId) {
+                                                    this.setChatTarget(conversation);
+                                                    this.setState({ receiver: conversation.user._id });
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    });
+                                })
+                            .catch((error) => {
+                                if (error.response && error.response.status != 500) {
+                                    console.log(error.response.data.message);
+                                } else {
+                                    console.log(error);
+                                }
+                                this.setChatPanelState();
+                            });
+                    }
+                ).catch((error) => {
+                    if (error.response && error.response.status != 500) {
+                        console.log(error.response.data.message);
+                    } else {
+                        console.log(error);
+                    }
+                });
+            });
         } else {
             this.setChatPanelState();
         }
+    }
+
+    getConversations = () => {
+        ChatService.getConversations(this.state.currentUser.id)
+            .then(
+                response => {
+                    const temp = response.data.conversations;
+                    const conversationList = [];
+                    temp.map((obj,) => {
+                        obj.members.map((user) => {
+                            if (user._id != this.state.currentUser.id) {
+                                conversationList.push({
+                                    _id: obj._id,
+                                    user: user,
+                                    updatedAt: obj.updatedAt
+                                });
+                            }
+                        });
+                    });
+
+                    this.setState({
+                        conversations: conversationList,
+                        conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
+                    }, () => {
+                        this.getUnreadCount();
+                        this.setChatPanelState();
+                        // has conversation id, get messages and receiver id
+                        if (this.state.conversationId) {
+                            this.getMessages(this.state.conversationId);
+
+                            // set receiver id
+                            for (const conversation of conversationList) {
+                                if (conversation._id == this.state.conversationId) {
+                                    this.setState({ receiver: conversation.user._id });
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                })
+            .catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+                this.setChatPanelState();
+            });
     }
 
     //  get localstorage item and open chat or close chat panel
@@ -353,7 +433,7 @@ export default class Chat extends Component {
 
             this.setState({
                 conversationId: conversationId,
-                receiver: conversation.user._id,
+                receiver: conversation.user._id ? conversation.user._id : conversation.user,
                 page: 1
             });
             this.getMessages(conversationId);

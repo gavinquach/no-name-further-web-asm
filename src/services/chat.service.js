@@ -39,6 +39,10 @@ class ChatService {
         return axiosTokenHeader.get(API_URL + "conversations/" + userid);
     }
 
+    getConversationsRequest(userid) {
+        return axiosTokenHeader.get(API_URL + "request/conversations/" + userid);
+    }
+
     getConversation(firstUserId, secondUserId) {
         const url = `${firstUserId}/${secondUserId}`;
         return axiosTokenHeader.get(API_URL + "conversation/" + url);

@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 import TransactionService from "../../services/transaction.service";
+import socket from '../../services/socket';
 
 import "../../css/TradeDetails.css"
 import { Link } from "react-router-dom";
@@ -73,20 +74,24 @@ export default class Transactions extends Component {
             ).then(
                 () => {
                     this.load();
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
-                    console.log(resMessage);
                 }
-            );
-
+            ).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
         }
+    }
+
+    chatWithUser = (transaction) => {
+        const data = {
+            user: AuthService.getCurrentUser().id,
+            receiver: transaction.user_seller._id == AuthService.getCurrentUser().id ? transaction.user_buyer._id : transaction.user_seller._id,
+            transaction: transaction
+        };
+        socket.emit("chatWithUserRequest", data);
     }
 
     render() {
@@ -126,7 +131,7 @@ export default class Transactions extends Component {
                         <p>Trade expiration date: {formatDate(transaction.expiration_date)}</p>
                         <br />
                         <button className="TradeButton" onClick={() => this.requestCancel(transaction)}>Request trade cancellation</button>
-                        <button className="TradeButton" onClick={() => { }}>Chat with owner</button>
+                        <button className="TradeButton" onClick={() => this.chatWithUser(transaction)}>Chat with user</button>
                     </div>
                 )}
             </div>

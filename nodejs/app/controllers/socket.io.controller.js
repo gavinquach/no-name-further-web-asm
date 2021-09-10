@@ -30,5 +30,9 @@ module.exports = (io) => {
         socket.on("sendMessage", (msg) => {
             io.to(users[msg.receiver]).emit("receiveMessage", msg);
         });
+
+        socket.on("chatWithUserRequest", (data) => {
+            io.to(users[data.user]).emit("receivechatWithUserRequest", data);
+        });
     });
 }

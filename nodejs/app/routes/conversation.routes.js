@@ -1,5 +1,5 @@
 const controller = require("../controllers/conversation.controller");
-const { authJwt } = require("../middlewares");
+const { authJwt, validate } = require("../middlewares");
 const router = require("../routes");
 
 // add conversation
@@ -12,7 +12,14 @@ router.post("/conversation", [
 // get conversations
 router.get("/conversations/:id", [
     // authJwt.verifyToken,
-    // authJwt.isUser
+    // authJwt.isUser,
+    validate.checkEmptyConversations
+], controller.getConversations);
+
+// get conversations
+router.get("/request/conversations/:id", [
+    // authJwt.verifyToken,
+    // authJwt.isUser,
 ], controller.getConversations);
 
 // get conversation between two user
