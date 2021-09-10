@@ -306,7 +306,8 @@ export default class Chat extends Component {
             }
             // bubble is below another bubble and 
             // there's no bubble below it
-            else {
+            else if ((index > 1 && message.sender == messages[index - 1].sender)
+                && (index == messages.length - 1 || (index < messages.length - 1 && message.sender != messages[index + 1].sender))) {
                 classes = classes.concat("SquareTopRight ");
             }
         } else if (user == "received") {
@@ -323,7 +324,8 @@ export default class Chat extends Component {
             }
             // bubble is below another bubble and 
             // there's no bubble below it
-            else {
+            else if ((index > 1 && message.receiver == messages[index - 1].receiver)
+            && (index == messages.length - 1 || (index < messages.length - 1 && message.receiver != messages[index + 1].receiver))) {
                 classes = classes.concat("SquareTopLeft ");
             }
         }
