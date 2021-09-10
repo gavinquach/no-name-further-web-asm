@@ -375,6 +375,10 @@ export default class Chat extends Component {
     sendMessage = (e) => {
         e.preventDefault();
 
+        // require user to have a user selected in order to send message
+        if (this.state.conversationId == null || this.state.conversationId == "") {
+            return;
+        }
         // don't allow sending empty strings
         if (this.state.message != "") {
             const message = {
@@ -524,17 +528,31 @@ export default class Chat extends Component {
                                 ))
                                 }
                             </ul>
-                            <form id="input-area" onSubmit={this.sendMessage}>
-                                <input
-                                    id="input"
-                                    type="text"
-                                    placeholder="Type your message..."
-                                    onChange={this.onChangeMessage}
-                                />
-                                <button type="submit" id="fa-icon-send">
-                                    <FontAwesomeIcon icon={faPaperPlane} />
-                                </button>
-                            </form>
+                            {this.state.conversationId ? (
+                                <form id="input-area" onSubmit={this.sendMessage}>
+                                    <input
+                                        id="input"
+                                        type="text"
+                                        placeholder="Type your message..."
+                                        onChange={this.onChangeMessage}
+                                    />
+                                    <button type="submit" id="fa-icon-send">
+                                        <FontAwesomeIcon icon={faPaperPlane} />
+                                    </button>
+                                </form>
+                            ) : (
+                                <div id="input-area" disabled>
+                                    <input
+                                        id="input"
+                                        type="text"
+                                        placeholder="Type your message..."
+                                        disabled
+                                    />
+                                    <button id="fa-icon-send-disabled">
+                                        <FontAwesomeIcon icon={faPaperPlane} id="#fa-icon-send-disabled" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

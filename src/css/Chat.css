@@ -205,6 +205,20 @@
     font-size: 24px;
 }
 
+#fa-icon-send-disabled {
+    position: absolute;
+    right: -5px;
+    font-size: 22px;
+    width: 10%;
+    cursor: default;
+    color: silver;
+    transition: none;
+    border: none;
+    background: none;
+    padding: 0;
+    outline: none;
+}
+
 #text-for-user {
     text-align: center;
     margin: auto;
