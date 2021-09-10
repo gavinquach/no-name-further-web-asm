@@ -84,8 +84,7 @@
 
 .ShowChatPanel {
     opacity: 1;
-    max-width: 25em;
-    width: 100%;
+    width: 25em;
     min-width: 17em;
     height: 18em;
 }
