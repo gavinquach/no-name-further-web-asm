@@ -18,7 +18,7 @@ export default class Transactions extends Component {
         ).then(response => {
             this.setState({ transactions: response.data });
         }).catch((error) => {
-            if (error.response.status != 500) {
+            if (error.response && error.response.status != 500) {
                 console.log(error.response.data.message);
             } else {
                 console.log(error);

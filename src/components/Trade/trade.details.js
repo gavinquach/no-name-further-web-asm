@@ -54,7 +54,7 @@ export default class Transactions extends Component {
             // something went wrong while getting transaction),
             // redirect to home page
             this.props.history.push("/");
-            if (error.response.status != 500) {
+            if (error.response && error.response.status != 500) {
                 console.log(error.response.data.message);
             } else {
                 console.log(error);

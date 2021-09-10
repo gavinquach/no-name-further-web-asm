@@ -20,7 +20,7 @@ export default class AdminViewAdmin extends Component {
                 this.setState({ users: response.data.admins });
             })
             .catch((error) => {
-                if (error.response.status != 500) {
+                if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
                     console.log(error);
