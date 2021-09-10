@@ -350,6 +350,9 @@ export default class Chat extends Component {
                         });
                     });
 
+                    // sort from newest date to oldest
+                    conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
                     this.setState({
                         conversations: conversationList,
                         conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
