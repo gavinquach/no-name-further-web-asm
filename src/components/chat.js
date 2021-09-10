@@ -280,14 +280,7 @@ export default class Chat extends Component {
                             }
                         });
                     } else {
-                        this.state.conversations.map((conversation) => {
-                            if (conversation._id == message.conversationId) {
-                                conversation.unreadCount++;
-                            }
-                            this.setState({
-                                totalUnreadCount: this.state.totalUnreadCount + 1
-                            });
-                        });
+                        this.getUnreadCount();
                     }
                 }
                 // user is not opening chat panel
