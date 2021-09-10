@@ -23,7 +23,6 @@
 
 .Center-text-header {
     text-align: center;
-    color: royalblue;
 }
 
 .admin-control-header {
@@ -120,7 +119,6 @@
     margin-left: 0;
     margin-right: 1em;
     display: inline-block;
-    /* border: 2px solid black; */
 }
 
 .ImagePanels img {
@@ -182,9 +180,9 @@
 }
 
 .title {
-    color: #484e10;
+    color: #e68b02;
     font-weight: bold;
-    font-size: 3em;
+    font-size: 1.7em;
 }
 
 .section-line {
@@ -192,7 +190,6 @@
     margin-top: 0.5em;
     margin-bottom: 1em;
     width: 14.5em;
-    height: 0.05em;
     color: #484e10;
     background-color: #484e10;
 }
@@ -201,7 +198,6 @@
     padding-left: 6vw;
     padding-right: 6vw;
     padding-bottom: 4em;
-    padding-top: 2em;
     min-height: 100vh;
 }
 
@@ -304,7 +300,7 @@
 .section-line {
     display: inline-block;
     width: 14.5em;
-    height: 0.2em;
+    height: 0.05em;
     color: #151414;
     background-color: #151414;
 }
