@@ -105,9 +105,14 @@ export default class Chat extends Component {
                     this.setChatPanelState();
                 });
 
-            socket.on("receiveMessage", msg => {
-                if (this.state.conversationId == msg.conversationId) {
-                    this.getMessages(msg.conversationId);
+            socket.on("receiveMessage", message => {
+                if (this.state.conversationId == message.conversationId) {
+                    // push message 
+                    const temp = this.state.messages;
+                    temp.push(message);
+
+                    // update to display the newest messages
+                    this.setState({ messages: temp });
                 }
             });
         } else {
