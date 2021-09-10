@@ -191,11 +191,13 @@
 }
 
 .ChatBubble {
-    display:inline-block;
     clear: both;
+    max-width: 60%;
+    min-height: 2em;
     border-radius: 18px;
     padding: 4px 10px;
-    text-align: center;
+    text-align: left;
+    word-wrap: break-word;
 }
 
 .SentMessages {
