@@ -84,7 +84,9 @@
 
 .ShowChatPanel {
     opacity: 1;
-    width: 25em;
+    max-width: 25em;
+    width: 100%;
+    min-width: 17em;
     height: 18em;
 }
 
@@ -261,7 +263,7 @@
 @media screen and (max-width: 485px) {
     .ShowChatPanel {
         opacity: 1;
-        width: 15em;
+        width: 23em;
         height: 18em;
     }
 
@@ -276,5 +278,29 @@
     
     #fa-icon-send {
         right: 0;
+    }
+}
+
+@media screen and (max-width: 445px) {
+    .ShowChatPanel {
+        width: 22em;
+    }
+}
+
+@media screen and (max-width: 425px) {
+    .ShowChatPanel {
+        width: 20em;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .ShowChatPanel {
+        width: 19em;
+    }
+}
+
+@media screen and (max-width: 370px) {
+    .ShowChatPanel {
+        width: 17em;
     }
 }
