@@ -255,15 +255,23 @@ export default class Chat extends Component {
             ChatService.postMessage(message)
                 .then(
                     response => {
-                        // set conversation id, clear input field,
-                        // and update to display the newest messages
+                        // push message 
+                        const temp = this.state.messages;
+                        temp.push(message);
+
+                        // set conversation id update to display the newest messages
                         this.setState({
                             conversationId: response.data.conversationId,
-                            message: ""
+                            message: "",
+                            messages: temp
                         }, () => {
-                            this.getMessages(response.data.conversationId);
-                            const elem = document.getElementById("input");
-                            elem.value = "";
+                            // automatically scroll chat to bottom
+                            const chat = document.getElementById("chat-bubbles");
+                            chat.scrollTop = chat.scrollHeight;
+
+                            // clear input field
+                            const input = document.getElementById("input");
+                            input.value = "";
                         });
                     })
                 .catch((error) => {
