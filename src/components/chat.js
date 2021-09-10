@@ -48,14 +48,39 @@ export default class Chat extends Component {
             conversationId: null,
             receiver: null,
             currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null,
-            page: 1
+            page: 1,
+            unreadCount: 0
         };
     }
 
-    onChangeMessage(e) {
+    onChangeMessage = (e) => {
         this.setState({
             message: e.target.value
         });
+    }
+
+    onScrollSetToRead = () => {
+        // set messages to read when user scrolls in chat
+        // this will also set messages to read when new messages
+        const chat = document.getElementById("chat-bubbles");
+        let count = this.state.unreadCount;
+        if (chat && chat.scrollTop > chat.scrollHeight - 350 && count > 0) {
+            count = 0;
+            ChatService.setMessagesToRead(this.state.conversationId)
+                .then(() => {
+                    this.setState({
+                        unreadCount: 0
+                    });
+                })
+                .catch((error) => {
+                    if (error.response && error.response.status != 500) {
+                        console.log(error.response.data.message);
+                    } else {
+                        console.log(error);
+                    }
+                    this.setChatPanelState();
+                });
+        }
     }
 
     componentDidMount = () => {
@@ -112,7 +137,30 @@ export default class Chat extends Component {
                     temp.push(message);
 
                     // update to display the newest messages
-                    this.setState({ messages: temp });
+                    this.setState({
+                        messages: temp,
+                        unreadCount: this.state.unreadCount + 1
+                    }, () => {
+                        // set messages to read only when the chat
+                        // is scrolled all the way down or close to that
+                        const chat = document.getElementById("chat-bubbles");
+                        if (chat && chat.scrollTop > chat.scrollHeight - 350) {
+                            ChatService.setMessagesToRead(message.conversationId)
+                                .then(() => {
+                                    this.setState({
+                                        unreadCount: 0
+                                    });
+                                })
+                                .catch((error) => {
+                                    if (error.response && error.response.status != 500) {
+                                        console.log(error.response.data.message);
+                                    } else {
+                                        console.log(error);
+                                    }
+                                    this.setChatPanelState();
+                                });
+                        }
+                    });
                 }
             });
         } else {
@@ -211,13 +259,24 @@ export default class Chat extends Component {
         )
             .then(
                 response => {
+                    // sort to display messages in the correct order
+                    const messages = response.data.messages.sort((a, b) =>
+                        new Date(a.updatedAt) - new Date(b.updatedAt)
+                    );
+
+                    // count unread messages
+                    let count = 0;
+                    messages.map((message) => {
+                        !message.read && count++;
+                    });
+
                     this.setState({
-                        // sort to display messages in the correct order
-                        messages: response.data.messages.sort((a, b) =>
-                            new Date(a.updatedAt) - new Date(b.updatedAt)
-                        )
+                        messages: messages,
+                        unreadCount: count
                     }, () => {
                         // automatically scroll chat to bottom
+                        // which will also set all messages to read
+                        // from onScrollSetToRead() function
                         const elem = document.getElementById("chat-bubbles");
                         elem.scrollTop = elem.scrollHeight;
                     });
@@ -231,17 +290,6 @@ export default class Chat extends Component {
                 this.setState({
                     messages: []
                 });
-            });
-
-        ChatService.setMessagesToRead(conversationId)
-            .then(() => { })
-            .catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-                this.setChatPanelState();
             });
     }
 
@@ -330,7 +378,7 @@ export default class Chat extends Component {
             // bubble is below another bubble and 
             // there's no bubble below it
             else if ((index > 1 && message.receiver == messages[index - 1].receiver)
-            && (index == messages.length - 1 || (index < messages.length - 1 && message.receiver != messages[index + 1].receiver))) {
+                && (index == messages.length - 1 || (index < messages.length - 1 && message.receiver != messages[index + 1].receiver))) {
                 classes = classes.concat("SquareTopLeft ");
             }
         }
@@ -368,7 +416,7 @@ export default class Chat extends Component {
                             ))}
                         </div>
                         <div id="chat-box">
-                            <ul id="chat-bubbles">
+                            <ul id="chat-bubbles" onScroll={this.onScrollSetToRead}>
                                 {this.state.messages.map((message, index) => (
                                     // receiver is current user
                                     message.receiver == this.state.currentUser.id ? (
@@ -377,7 +425,7 @@ export default class Chat extends Component {
                                             className={"ChatBubble ReceivedMessages ".concat(
                                                 this.formatBubble(this.state.messages, message, index, "received")
                                             )}>
-                                                {message.text}
+                                            {message.text}
                                         </li>
                                     ) : (
                                         // format and display current user's message
@@ -385,7 +433,7 @@ export default class Chat extends Component {
                                             className={"ChatBubble SentMessages ".concat(
                                                 this.formatBubble(this.state.messages, message, index, "sent")
                                             )}>
-                                                {message.text}
+                                            {message.text}
                                         </li>
                                     )
                                 ))
