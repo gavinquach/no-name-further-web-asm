@@ -222,7 +222,9 @@ export default class Chat extends Component {
             });
     }
 
-    sendMessage = () => {
+    sendMessage = (e) => {
+        e.preventDefault();
+
         // don't allow sending empty strings
         if (this.state.message != "") {
             const message = {
@@ -337,33 +339,35 @@ export default class Chat extends Component {
                                 {this.state.messages.map((message, index) => (
                                     message.receiver != this.state.currentUser.id ? (
                                         // other user's message
-                                        <li className={"ChatBubble ReceivedMessages ".concat(
-                                            this.formatBubble(this.state.messages, message, index, "received")
-                                        )}>
-                                            {message.text}
+                                        <li key={`${index}-${message.receiver}`}
+                                            className={"ChatBubble ReceivedMessages ".concat(
+                                                this.formatBubble(this.state.messages, message, index, "received")
+                                            )}>
+                                                {message.text}
                                         </li>
                                     ) : (
                                         // current user's message
-                                        <li className={"ChatBubble SentMessages ".concat(
-                                            this.formatBubble(this.state.messages, message, index, "sent")
-                                        )}>
-                                            {message.text}
+                                        <li key={`${index}-${message.sender}`}
+                                            className={"ChatBubble SentMessages ".concat(
+                                                this.formatBubble(this.state.messages, message, index, "sent")
+                                            )}>
+                                                {message.text}
                                         </li>
                                     )
                                 ))
                                 }
                             </ul>
-                            <div id="input-area">
+                            <form id="input-area" onSubmit={this.sendMessage}>
                                 <input
                                     id="input"
                                     type="text"
                                     placeholder="Type your message..."
                                     onChange={this.onChangeMessage}
                                 />
-                                <span id="fa-icon-send" onClick={this.sendMessage}>
+                                <button type="submit" id="fa-icon-send">
                                     <FontAwesomeIcon icon={faPaperPlane} />
-                                </span>
-                            </div>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 )}
