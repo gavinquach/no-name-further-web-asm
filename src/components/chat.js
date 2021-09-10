@@ -259,7 +259,7 @@ export default class Chat extends Component {
                         const temp = this.state.messages;
                         temp.push(message);
 
-                        // set conversation id update to display the newest messages
+                        // set conversation id and update to display the newest messages
                         this.setState({
                             conversationId: response.data.conversationId,
                             message: "",
