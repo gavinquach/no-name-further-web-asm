@@ -51,6 +51,7 @@ export default class Chat extends Component {
             receiver: null,
             currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null,
             page: 1,
+            totalPages: 0,
             unreadList: [],
             totalUnreadCount: 0,
             loadingMore: false
@@ -73,6 +74,10 @@ export default class Chat extends Component {
                 if (this.state.loadingMore) {
                     return;
                 }
+                if (this.state.totalPages > 0 && this.state.page >= this.state.totalPages) {
+                    return;
+                }
+                
                 if (!this.waitTimeInterval) {
                     this.waitTimeInterval = setInterval(() => {
                         this.waitTime += 100;
@@ -104,6 +109,7 @@ export default class Chat extends Component {
                                             this.setState({
                                                 messages: temp,
                                                 page: this.state.page + 1,
+                                                totalPages: response.data.totalPages,
                                                 loadingMore: false
                                             }, () => {
                                                 // move scroll down to the current
