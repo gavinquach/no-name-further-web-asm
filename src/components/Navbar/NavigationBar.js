@@ -244,8 +244,8 @@ export default class NavigationBar extends Component {
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>
                         <Nav className="nav">
-                            <Link className="navbar-text navbar-item" to="/trades" >Trades</Link>
-                            <Link className="navbar-text navbar-item" to="/cart">Cart</Link>
+                            <Link className="navbar-text navbar-item" to="/trades" >My Trades</Link>
+                            <Link className="navbar-text navbar-item" to="/cart">My Cart</Link>
 
                             {/* show user panel user is logged in */}
                             {currentUser && (
