@@ -52,7 +52,6 @@ export default class Chat extends Component {
             currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null,
             page: 1,
             totalPages: 0,
-            unreadList: [],
             totalUnreadCount: 0,
             loadingMore: false
         };
@@ -139,6 +138,8 @@ export default class Chat extends Component {
                 }
             }
             // lots of nesting here, disgusting, i know, but oh well...
+            // user's scroll position at the bottom or around the bottom,
+            // set messages to read
             else {
                 this.stopTimer();
                 for (const conversation of this.state.conversations) {
@@ -270,7 +271,6 @@ export default class Chat extends Component {
                         // update to display the newest messages
                         this.setState({
                             messages: temp,
-                            unreadList: this.state.unreadList + 1
                         }, () => {
                             // set messages to read only when the chat
                             // is scrolled all the way down or close to that
@@ -357,6 +357,7 @@ export default class Chat extends Component {
                 page: 1
             });
             this.getMessages(conversationId);
+            this.setMessagesToRead(conversationId);
         }
     }
 
@@ -392,9 +393,6 @@ export default class Chat extends Component {
             )
                 .then(() => {
                     this.getUnreadCount();
-                    this.setState({
-                        unreadList: 0
-                    });
                 })
                 .catch((error) => {
                     if (error.response && error.response.status != 500) {
@@ -422,16 +420,10 @@ export default class Chat extends Component {
                         new Date(a.createdAt) - new Date(b.createdAt)
                     );
 
-                    // count unread messages
-                    let count = 0;
-                    messages.map((message) => {
-                        !message.read && count++;
-                    });
-
                     this.setState({
                         messages: messages,
-                        unreadList: count,
-                        page: 1
+                        page: 1,
+                        totalPages: response.data.totalPages
                     }, () => {
                         // automatically scroll chat to bottom
                         // which will also set all messages to read
