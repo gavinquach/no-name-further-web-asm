@@ -103,6 +103,12 @@ export default class Chat extends Component {
                     }
                     this.setChatPanelState();
                 });
+
+            socket.on("receiveMessage", msg => {
+                if (this.state.conversationId == msg.conversationId) {
+                    this.getMessages(msg.conversationId);
+                }
+            });
         } else {
             this.setChatPanelState();
         }

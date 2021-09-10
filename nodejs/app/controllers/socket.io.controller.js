@@ -26,5 +26,9 @@ module.exports = (io) => {
         socket.on("notifyUser", (data) => {
             io.to(users[data.receiver]).emit("receiveNotifications", data);
         });
+
+        socket.on("sendMessage", (msg) => {
+            io.to(users[msg.receiver]).emit("receiveMessage", msg);
+        });
     });
 }
