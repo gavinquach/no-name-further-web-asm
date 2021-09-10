@@ -380,7 +380,7 @@ export default class Chat extends Component {
             return;
         }
         // don't allow sending empty strings
-        if (this.state.message != "") {
+        if (this.state.message == "") {
             return;
         }
 
