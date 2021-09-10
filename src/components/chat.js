@@ -195,6 +195,7 @@ export default class Chat extends Component {
         }
     }
 
+    // get messages and set them to read
     getMessages = (conversationId) => {
         ChatService.getMessages(conversationId)
             .then(
@@ -217,6 +218,17 @@ export default class Chat extends Component {
                     messages: []
                 });
             });
+
+        ChatService.setMessagesToRead(conversationId)
+            .then(() => { })
+            .catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+                this.setChatPanelState();
+            });
     }
 
     sendMessage = (e) => {
@@ -237,7 +249,7 @@ export default class Chat extends Component {
                         // set conversation id, clear input field,
                         // and update to display the newest messages
                         this.setState({
-                            conversationId: response.data.conversationId, 
+                            conversationId: response.data.conversationId,
                             message: ""
                         }, () => {
                             this.getMessages(response.data.conversationId);

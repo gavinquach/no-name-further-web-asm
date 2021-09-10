@@ -106,3 +106,52 @@ exports.getMessages = async (req, res) => {
         res.status(500).json(err);
     }
 }
+
+exports.setMessageToRead = async (req, res) => {
+    let message = null;
+    try {
+        message = await Message.findById(req.params.messageId);
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+    if (!message) return res.status(404).send({ message: "Message not found." });
+    if (message.read) return res.status(409).send({ message: "Message already set to read." });
+
+    try {
+        message.read = true;
+        const userMessage = await message.save();
+        res.status(200).send({
+            message: "Message set to read successfully!",
+            userMessage: userMessage
+        });
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+}
+
+exports.setMessagesToRead = async (req, res) => {
+    let messages = [];
+    try {
+        messages = await Message.find({
+            conversationId: req.params.conversationId
+        });
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+    if (!messages || messages.length < 1) return res.status(404).send({ message: "Messages not found." });
+
+    for (const message of messages) {
+        if (message.read) continue;
+        try {
+            message.read = true;
+            await message.save();
+        } catch (err) {
+            return res.status(500).json(err);
+        }
+    }
+
+    res.status(200).send({
+        message: "Messages set to read successfully!",
+        messages: messages
+    });
+}
