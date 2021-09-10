@@ -84,7 +84,7 @@ export default class Chat extends Component {
 
                         // user keeps the scroll at the top for 1 second,
                         // load new messages
-                        if (this.waitTime >= 1000) {
+                        if (this.waitTime >= 500) {
                             this.stopTimer();
                             this.setState({
                                 loadingMore: true
