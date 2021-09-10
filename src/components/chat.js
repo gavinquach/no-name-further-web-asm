@@ -112,15 +112,6 @@ export default class Chat extends Component {
         } else {
             this.setChatPanelState();
         }
-
-        socket.on("receiveMessages", data => {
-            // push new message to first index
-            const temp = this.state.messages;
-            temp.unshift(data);
-            this.setState({
-                messages: temp
-            });
-        });
     }
 
     //  get localstorage item and open chat or close chat panel
