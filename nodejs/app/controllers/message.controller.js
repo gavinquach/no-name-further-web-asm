@@ -149,7 +149,8 @@ exports.setMessagesToRead = async (req, res) => {
     let messages = [];
     try {
         messages = await Message.find({
-            conversationId: req.params.conversationId
+            conversationId: req.params.conversationId,
+            receiver: req.body.receiverId
         });
     } catch (err) {
         return res.status(500).json(err);

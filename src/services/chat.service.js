@@ -22,8 +22,10 @@ class ChatService {
         return axiosTokenHeader.patch(API_URL + "read-message/" + messageId);
     }
 
-    setMessagesToRead(conversationId) {
-        return axiosTokenHeader.patch(API_URL + "read-messages/" + conversationId);
+    setMessagesToRead(conversationId, receiverId) {
+        return axiosTokenHeader.patch(API_URL + "read-messages/" + conversationId, {
+            receiverId
+        });
     }
 
     postConversation(senderId, receiverId) {

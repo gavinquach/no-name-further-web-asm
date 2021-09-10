@@ -33,6 +33,19 @@
     transition: width 0.1s linear, height 0.1s linear;
 }
 
+.ChatButton .badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  padding: 5px 7.5px;
+  border-radius: 50%;
+  background-color: red;
+  color: white;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 18px;
+}
+
 .CloseChatButton {
     background-color: rgb(0, 87, 200);
 }
@@ -136,6 +149,12 @@
 
 .HighlightItem {
     background-color:rgb(204, 204, 204);
+}
+
+.UnreadMessageText {
+    position: absolute;
+    font-size: 13px;
+    color: red;
 }
 
 #chat-box {

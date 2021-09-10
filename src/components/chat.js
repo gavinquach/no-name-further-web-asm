@@ -49,7 +49,8 @@ export default class Chat extends Component {
             receiver: null,
             currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null,
             page: 1,
-            unreadCount: 0
+            unreadList: [],
+            totalUnreadCount: 0
         };
     }
 
@@ -63,24 +64,54 @@ export default class Chat extends Component {
         // set messages to read when user scrolls in chat
         // this will also set messages to read when new messages
         const chat = document.getElementById("chat-bubbles");
-        let count = this.state.unreadCount;
-        if (chat && chat.scrollTop > chat.scrollHeight - 350 && count > 0) {
-            count = 0;
-            ChatService.setMessagesToRead(this.state.conversationId)
-                .then(() => {
-                    this.setState({
-                        unreadCount: 0
-                    });
-                })
+        if (chat) {
+            for (const conversation of this.state.conversations) {
+                if (conversation._id == this.state.conversationId) {
+                    if (chat.scrollTop > chat.scrollHeight - 350 && conversation.unreadCount > 0) {
+                        conversation.unreadCount = 0;
+                        this.setMessagesToRead(this.state.conversationId);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    getUnreadCount = () => {
+        let totalUnread = 0;
+        this.state.conversations.map((conversation, index) => {
+            ChatService.getMessages(
+                conversation._id,
+                "-updatedAt",
+                1,
+                50,
+            )
+                .then(
+                    response => {
+                        const messages = response.data.messages;
+                        let count = 0;
+                        messages.map((message) => {
+                            if (message.receiver == this.state.currentUser.id && !message.read) {
+                                count++;
+                            }
+                        });
+                        totalUnread += count;
+                        conversation.unreadCount = count;
+
+                        if (index == this.state.conversations.length - 1) {
+                            this.setState({
+                                totalUnreadCount: totalUnread
+                            });
+                        }
+                    })
                 .catch((error) => {
                     if (error.response && error.response.status != 500) {
                         console.log(error.response.data.message);
                     } else {
                         console.log(error);
                     }
-                    this.setChatPanelState();
                 });
-        }
+        });
     }
 
     componentDidMount = () => {
@@ -106,6 +137,7 @@ export default class Chat extends Component {
                             conversations: conversationList,
                             conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
                         }, () => {
+                            this.getUnreadCount();
                             this.setChatPanelState();
                             // has conversation id, get messages and receiver id
                             if (this.state.conversationId) {
@@ -130,49 +162,55 @@ export default class Chat extends Component {
                     this.setChatPanelState();
                 });
 
+            // when user receives a message
             socket.on("receiveMessage", message => {
-                if (this.state.conversationId == message.conversationId) {
-                    // push message 
-                    const temp = this.state.messages;
-                    temp.push(message);
+                // user has chat panel opened
+                if (document.getElementById("chat-panel").classList.contains("ShowChatPanel")) {
+                    // user is chatting with the person/opening the chat box
+                    // that has same conversation id as message sent
+                    if (this.state.conversationId == message.conversationId) {
+                        // push message 
+                        const temp = this.state.messages;
+                        temp.push(message);
 
-                    // automatically scroll down after set state
-                    // if user's scroll is already at the bottom
-                    let isScrolledToBottom = false;
-                    // check if user's scroll is at the bottom
-                    const chat = document.getElementById("chat-bubbles");
-                    if (chat && chat.scrollHeight - chat.scrollTop == chat.clientHeight) {
-                        isScrolledToBottom = true;
-                    }
-
-                    // update to display the newest messages
-                    this.setState({
-                        messages: temp,
-                        unreadCount: this.state.unreadCount + 1
-                    }, () => {
-                        // set messages to read only when the chat
-                        // is scrolled all the way down or close to that
+                        // automatically scroll down after set state
+                        // if user's scroll is already at the bottom
+                        let isScrolledToBottom = false;
+                        // check if user's scroll is at the bottom
                         const chat = document.getElementById("chat-bubbles");
-                        if (chat) {
-                            if (isScrolledToBottom) {
-                                chat.scrollTop = chat.scrollHeight;
-                            } else if (chat.scrollTop > chat.scrollHeight - 350) {
-                                ChatService.setMessagesToRead(message.conversationId)
-                                    .then(() => {
-                                        this.setState({
-                                            unreadCount: 0
-                                        });
-                                    })
-                                    .catch((error) => {
-                                        if (error.response && error.response.status != 500) {
-                                            console.log(error.response.data.message);
-                                        } else {
-                                            console.log(error);
-                                        }
-                                        this.setChatPanelState();
-                                    });
-                            }
+                        if (chat && chat.scrollHeight - chat.scrollTop == chat.clientHeight) {
+                            isScrolledToBottom = true;
                         }
+
+                        // update to display the newest messages
+                        this.setState({
+                            messages: temp,
+                            unreadList: this.state.unreadList + 1
+                        }, () => {
+                            // set messages to read only when the chat
+                            // is scrolled all the way down or close to that
+                            const chat = document.getElementById("chat-bubbles");
+                            if (chat) {
+                                if (isScrolledToBottom) {
+                                    chat.scrollTop = chat.scrollHeight;
+                                } else if (chat.scrollTop > chat.scrollHeight - 350) {
+                                    this.setMessagesToRead(message.conversationId);
+                                }
+                            }
+                        });
+                    } else {
+                        this.state.conversations.map((conversation) => {
+                            if (conversation._id == message.conversationId) {
+                                conversation.unreadCount++;
+                            }
+                        });
+                    }
+                }
+                // user is not opening chat panel
+                else {
+                    this.getMessages(this.state.conversationId);
+                    this.setState({
+                        totalUnreadCount: this.state.totalUnreadCount + 1
                     });
                 }
             });
@@ -262,11 +300,36 @@ export default class Chat extends Component {
         }
     }
 
+    setMessagesToRead = (conversationId) => {
+        // check if the panel is currently opened
+        if (document.getElementById("chat-panel").classList.contains("ShowChatPanel")
+            && document.getElementById(conversationId)) {
+            ChatService.setMessagesToRead(
+                conversationId,
+                this.state.currentUser.id
+            )
+                .then(() => {
+                    this.getUnreadCount();
+                    this.setState({
+                        unreadList: 0
+                    });
+                })
+                .catch((error) => {
+                    if (error.response && error.response.status != 500) {
+                        console.log(error.response.data.message);
+                    } else {
+                        console.log(error);
+                    }
+                    this.setChatPanelState();
+                });
+        }
+    }
+
     // get messages and set them to read
     getMessages = (conversationId) => {
         ChatService.getMessages(
             conversationId,
-            "-updatedAt",
+            "-createdAt",
             this.state.page,
             10,
         )
@@ -274,7 +337,7 @@ export default class Chat extends Component {
                 response => {
                     // sort to display messages in the correct order
                     const messages = response.data.messages.sort((a, b) =>
-                        new Date(a.updatedAt) - new Date(b.updatedAt)
+                        new Date(a.createdAt) - new Date(b.createdAt)
                     );
 
                     // count unread messages
@@ -285,7 +348,7 @@ export default class Chat extends Component {
 
                     this.setState({
                         messages: messages,
-                        unreadCount: count
+                        unreadList: count
                     }, () => {
                         // automatically scroll chat to bottom
                         // which will also set all messages to read
@@ -405,6 +468,9 @@ export default class Chat extends Component {
                     {this.state.chatOpened === false ? (
                         <div className="ChatButton CloseChatButton">
                             <FontAwesomeIcon id="fa-icon-comment" icon={faCommentDots} />
+                            {this.state.totalUnreadCount > 0 && (
+                                <span className="badge">{this.state.totalUnreadCount}</span>
+                            )}
                         </div>
                     ) : (
                         <div className="ChatButton OpenChatButton">
@@ -424,6 +490,9 @@ export default class Chat extends Component {
                             {this.state.conversations.map((conversation) => (
                                 <div key={conversation._id} id={conversation._id} className="UserListItems" onClick={() => this.setChatTarget(conversation)}>
                                     <b>{conversation.user.username}</b>
+                                    {conversation.unreadCount > 0 && (
+                                        <div className="UnreadMessageText"><b>{conversation.unreadCount} unread</b></div>
+                                    )}
                                     <div className="UserListItemsDate">{formatDate(conversation.updatedAt)}</div>
                                 </div>
                             ))}
