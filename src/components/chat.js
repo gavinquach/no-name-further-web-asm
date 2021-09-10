@@ -203,6 +203,9 @@ export default class Chat extends Component {
                             if (conversation._id == message.conversationId) {
                                 conversation.unreadCount++;
                             }
+                            this.setState({
+                                totalUnreadCount: this.state.totalUnreadCount + 1
+                            });
                         });
                     }
                 }
