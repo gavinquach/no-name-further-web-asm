@@ -643,7 +643,6 @@ exports.getUserNotifications = async (req, res) => {
             notifications: notifications
         });
     } catch (err) {
-        console.log(err);
         return res.status(500).send(err);
     }
 };
@@ -653,7 +652,6 @@ exports.getUserUnreadNotifications = async (req, res) => {
     let total = 0;
     let limit = 1
     let notifications = [];
-    let receiver = null
 
     // validate value
     if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
@@ -676,11 +674,55 @@ exports.getUserUnreadNotifications = async (req, res) => {
 
         if (!notifications) return res.status(404).send({ message: "Notifications not found." });
 
-
         if (features.queryString.limit == null) {
             features.queryString.limit = 1;
         }
 
+        return res.status(200).json({
+            result: notifications.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            notifications: notifications
+        });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
+exports.getUserNotificationsByType = async (req, res) => {
+    // intialize
+    let total = 0;
+    let notifications = [];
+    let receiver = null
+
+    // check if receiver is available in database
+    try {
+        receiver = await User.findById({ _id: req.params.userid }).exec();
+        if (!receiver) return res.status(404).send({ message: "Receiver not found." });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // find list of notifications in database to see if any conversation exists
+    try {
+        const features = new APIFeatures(
+            Notification.find({
+                receiver: receiver._id,
+                type: req.params.type
+            })
+                .sort("-createdAt")
+            , req.query);
+
+        //count retrieved total data before pagination
+        total = await Notification.countDocuments(features.query);
+
+        // paginating data
+        notifications = await features.paginate().query;
+
+        if (!notifications) return res.status(404).send({ message: "Notifications not found." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
 
         return res.status(200).json({
             result: notifications.length,

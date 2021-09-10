@@ -11,6 +11,8 @@ router.post("/signup", [
     controller.signup
 );
 
+// ==========================================
+// =========== USER =========== 
 // View all users
 router.get("/users", [
     authJwt.verifyToken,
@@ -70,7 +72,20 @@ router.patch("/user/edit/password/:id", [
     authJwt.verifyToken,
     authJwt.isUser
 ], controller.editPassword);
+// ==========================================
 
+
+// ======================================
+// =========== ITEM =========== 
+router.get("/user/items/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.getUserItems);
+// ==========================================
+
+
+// ======================================
+// =========== CART =========== 
 // add and delete item from cart
 router.post("/user/cart", [
     authJwt.verifyToken,
@@ -87,23 +102,28 @@ router.post("/user/cart/view", [
     authJwt.verifyToken,
     authJwt.isUser,
 ], controller.getUserCart);
+// ======================================
 
-router.get("/user/items/:id", [
-    authJwt.verifyToken,
-    authJwt.isUser,
-], controller.getUserItems);
 
+// =============================================
+// =========== NOTIFICATIONS =========== 
 // get notifications
 router.get("/user/notifications/:id", [
     authJwt.verifyToken,
     authJwt.isUser,
 ], controller.getUserNotifications);
 
-// get unreadnotifications
+// get unread notifications
 router.get("/user/unreadnotifications/:id", [
     authJwt.verifyToken,
     authJwt.isUser,
 ], controller.getUserUnreadNotifications);
+
+// get notifications by type
+router.get("/user/notifications/:userid/:type", [
+    authJwt.verifyToken,
+    authJwt.isUser,
+], controller.getUserNotificationsByType);
 
 // add notification
 router.post("/user/notification", [
@@ -122,5 +142,7 @@ router.patch("/user/read/notifications", [
     authJwt.verifyToken,
     authJwt.isUser
 ], controller.setReadNotifications);
+// =============================================
+
 
 module.exports = router;

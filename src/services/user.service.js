@@ -84,12 +84,19 @@ class UserService {
         return axiosTokenHeader.get(API_URL + "user/items/" + userid);
     }
 
-    getUserNotifications(userid) {
-        return axiosTokenHeader.get(API_URL + "user/notifications/" + userid);
+    getUserNotifications(userid, sort, page, limit) {
+        const url = `${userid}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "user/notifications/" + url);
     }
 
-    getUserUnreadNotifications(userid) {
-        return axiosTokenHeader.get(API_URL + "user/unreadnotifications/" + userid);
+    getUserUnreadNotifications(userid, sort, page, limit) {
+        const url = `${userid}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "user/unreadnotifications/" + url);
+    }
+
+    getUserNotificationsByType(userid, type, sort, page, limit) {
+        const url = `${userid}/${type}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "user/notifications/" + url);
     }
 
     addNotification(data) {

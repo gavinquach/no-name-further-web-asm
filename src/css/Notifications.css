@@ -110,3 +110,23 @@
 .active:hover {
     background-color: rgba(200, 214, 0, 0.85);
 }
+
+.page-buttons {
+    text-align: center;
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+.page-buttons button {
+    border: none;
+    border-radius: 2px;
+    padding: 3px 9px;
+    color: black;
+    background-color: rgba(125, 139, 17, 0.5);
+}
+
+.page-buttons button:hover {
+    border: none;
+    color: white;
+    background-color: rgba(125, 139, 17, 0.8);
+}
