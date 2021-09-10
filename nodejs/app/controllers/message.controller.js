@@ -33,7 +33,7 @@ exports.postMessage = async (req, res) => {
         conversation = new Conversation({
             members: [sender._id, receiver._id],
         });
-        
+
         try {
             await conversation.save();
         } catch (err) {
@@ -49,7 +49,8 @@ exports.postMessage = async (req, res) => {
         conversationId: conversation._id,
         sender: sender._id,
         receiver: receiver._id,
-        text: req.body.text
+        text: req.body.text,
+        status: "Sending"
     });
 
     try {
@@ -85,7 +86,7 @@ exports.getMessages = async (req, res) => {
     try {
         const features = new APIFeatures(
             Message.find({
-                conversationId: conversation._id,
+                conversationId: conversation._id
             }), req.query)
             .sort();
 

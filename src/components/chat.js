@@ -46,6 +46,7 @@ export default class Chat extends Component {
             message: "",
             messages: [],
             conversationId: null,
+            receiver: null,
             currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null
         };
     }
@@ -62,11 +63,11 @@ export default class Chat extends Component {
                 .then(
                     response => {
                         const temp = response.data.conversations;
-                        const convoList = [];
+                        const conversationList = [];
                         temp.map((obj,) => {
                             obj.members.map((user) => {
                                 if (user._id != this.state.currentUser.id) {
-                                    convoList.push({
+                                    conversationList.push({
                                         _id: obj._id,
                                         user: user,
                                         updatedAt: obj.updatedAt
@@ -76,12 +77,21 @@ export default class Chat extends Component {
                         });
 
                         this.setState({
-                            conversations: convoList,
+                            conversations: conversationList,
                             conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
                         }, () => {
                             this.setChatPanelState();
+                            // has conversation id, get messages and receiver id
                             if (this.state.conversationId) {
                                 this.getMessages(this.state.conversationId);
+
+                                // set receiver id
+                                for (const conversation of conversationList) {
+                                    if (conversation._id == this.state.conversationId) {
+                                        this.setState({ receiver: conversation.user._id });
+                                        break;
+                                    }
+                                }
                             }
                         });
                     })
@@ -137,31 +147,8 @@ export default class Chat extends Component {
         }
     }
 
-    getMessages = (conversationId) => {
-        ChatService.getMessages(conversationId)
-            .then(
-                response => {
-                    this.setState({
-                        messages: response.data.messages
-                    }, () => {
-                        // automatically scroll chat to bottom
-                        const elem = document.getElementById("chat-bubbles");
-                        elem.scrollTop = elem.scrollHeight;
-                    });
-                })
-            .catch((error) => {
-                if (error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-                this.setState({
-                    messages: []
-                });
-            });
-    }
-
-    setChatTarget = (conversationId) => {
+    setChatTarget = (conversation) => {
+        const conversationId = conversation._id;
         // if target is not already highlighted/chosen
         // to prevent being able to reload the same data
         if (!document.getElementById(conversationId).classList.contains("HighlightItem")) {
@@ -183,6 +170,7 @@ export default class Chat extends Component {
 
             this.setState({
                 conversationId: conversationId,
+                receiver: conversation.user._id
             });
             this.getMessages(conversationId);
         }
@@ -210,18 +198,16 @@ export default class Chat extends Component {
         }
     }
 
-    sendMessage = () => {
-        const message = {
-            conversationId: this.state.currentUser.id,
-            sender: this.state.currentUser.id,
-            receiver: this.state.conversationId,
-            text: this.state.message
-        };
-        ChatService.postMessage(message)
+    getMessages = (conversationId) => {
+        ChatService.getMessages(conversationId)
             .then(
                 response => {
                     this.setState({
-                        conversations: response.data.conversations
+                        messages: response.data.messages
+                    }, () => {
+                        // automatically scroll chat to bottom
+                        const elem = document.getElementById("chat-bubbles");
+                        elem.scrollTop = elem.scrollHeight;
                     });
                 })
             .catch((error) => {
@@ -230,7 +216,44 @@ export default class Chat extends Component {
                 } else {
                     console.log(error);
                 }
+                this.setState({
+                    messages: []
+                });
             });
+    }
+
+    sendMessage = () => {
+        // don't allow sending empty strings
+        if (this.state.message != "") {
+            const message = {
+                conversationId: this.state.conversationId,
+                sender: this.state.currentUser.id,
+                receiver: this.state.receiver,
+                text: this.state.message
+            };
+
+            ChatService.postMessage(message)
+                .then(
+                    response => {
+                        // set conversation id, clear input field,
+                        // and update to display the newest messages
+                        this.setState({
+                            conversationId: response.data.conversationId, 
+                            message: ""
+                        }, () => {
+                            this.getMessages(response.data.conversationId);
+                            const elem = document.getElementById("input");
+                            elem.value = "";
+                        });
+                    })
+                .catch((error) => {
+                    if (error.response.status != 500) {
+                        console.log(error.response.data.message);
+                    } else {
+                        console.log(error);
+                    }
+                });
+        }
     }
 
     formatBubble = (messages, message, index, user) => {
@@ -303,7 +326,7 @@ export default class Chat extends Component {
                     <div id="chat-panel" className="HideChatPanel">
                         <div id="user-list">
                             {this.state.conversations.map((conversation) => (
-                                <div key={conversation._id} id={conversation._id} className="UserListItems" onClick={() => this.setChatTarget(conversation._id)}>
+                                <div key={conversation._id} id={conversation._id} className="UserListItems" onClick={() => this.setChatTarget(conversation)}>
                                     <b>{conversation.user.username}</b>
                                     <div className="UserListItemsDate">{formatDate(conversation.updatedAt)}</div>
                                 </div>
