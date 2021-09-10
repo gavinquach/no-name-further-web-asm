@@ -1,6 +1,8 @@
-const db = require("../models");
-const ROLES = db.ROLES;
-const User = db.user;
+const model = require("../models");
+const ROLES = model.ROLES;
+const User = model.user;
+const Conversation = model.conversation;
+const Message = model.message;
 
 const fs = require('fs');
 const img = require("../config/img.config");
@@ -83,7 +85,7 @@ checkUploadPath = (req, res, next) => {
         next();
     }
     else {
-        fs.mkdir(img.path, function (err) {
+        fs.mkdir(img.path, (err) => {
             if (err) {
                 console.log('Error in folder creation');
                 next();
@@ -122,12 +124,52 @@ validateError = (req, res, next) => {
     })
 }
 
+// Remove empty conversations with no messages
+checkEmptyConversations = async (req, res, next) => {
+    // check if user is available in database
+    let user = null;
+    try {
+        user = await User.findById({ _id: req.params.id }).exec();
+        if (!user) return res.status(404).send({ message: "User not found." });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // find list of conversations in database to see if any conversation exists
+    try {
+        conversations = await Conversation.find({
+            members: { $in: [user._id] },
+        }).exec();
+
+        for (const conversation of conversations) {
+            const messages = await Message.find({
+                conversationId: conversation._id
+            }).exec();
+            if (!messages || messages.length < 1) {
+                try {
+                    await Conversation.findByIdAndRemove(
+                        conversation._id
+                    ).exec();
+                    console.log('deleted');
+                } catch (err) {
+                    return res.status(500).json(err);
+                }
+            }
+        }
+
+        next();
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+}
+
 const validate = {
     checkDuplicateUsernameOrEmail,
     checkRolesExisted,
     checkUploadPath,
     userValidationRules,
-    validateError
+    validateError,
+    checkEmptyConversations
 };
 
 module.exports = validate;
