@@ -22,7 +22,7 @@ class ItemService {
     }
 
     getItemsByCategory = (category, page) => {
-        const url = `?category=${category.replace("/", "-")}&page=${page}`
+        const url = `?category=${category.replace("/", "-")}&page=${page}&limit=6`
         return axiosTokenHeader.get(API_URL + "items" + url);
     }
 

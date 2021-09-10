@@ -12,7 +12,7 @@ class APIFeatures {
     constructor(query, queryString) {
         this.query = query;
         this.queryString = queryString;
-        this.totalPage = 0;
+
     }
 
     // Advanced filtering with
@@ -58,18 +58,10 @@ class APIFeatures {
 
     // // Pagination with param page, and object limit per page
     paginate() {
-        // current page
-        let page = 1;
-        // validate value
-        if (this.queryString.page && this.queryString.page !== 'undefined' && parseInt(this.queryString.page) > 0) {
-            page = parseInt(this.queryString.page);
-        }
-        // amount of results per page
-        let limit = 6;
-        // validate value
-        if (this.queryString.limit && this.queryString.limit === 'undefined' && parseInt(this.queryString.limit) > 0) {
-            limit = parseInt(this.queryString.limit);
-        }
+  
+        const page = this.queryString.page * 1 || 1;
+        let limit = this.queryString.limit * 1 || 100;
+
         const skip = (page - 1) * limit;
 
 

@@ -128,13 +128,8 @@ exports.createUserWithRoles = async (req, res) => {
 exports.viewAllUsers = async (req, res) => {
     // intialize
     let total = 0;
-    let limit = 1
     let users = [];
 
-    // validate value
-    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     try {
         const features = new APIFeatures(
@@ -155,9 +150,13 @@ exports.viewAllUsers = async (req, res) => {
 
     if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
 
+    if (features.queryString.limit == null) {
+        features.queryString.limit = 1;
+    }
+
     await res.status(200).json({
         result: users.length,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / features.queryString.limit),
         users: users
     });
 };
@@ -167,14 +166,9 @@ exports.viewAdmins = async (req, res) => {
 
     // intialize 
     let total = 0;
-    let limit = 1
     let adminRoles = [];
     let admins = [];
 
-    // validate value
-    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     // find all admin roles 
     try {
@@ -203,10 +197,14 @@ exports.viewAdmins = async (req, res) => {
 
     if (!admins || admins.length < 1) return res.status(404).send({ message: "Admins not found in this page." });
 
+    if (features.queryString.limit == null) {
+        features.queryString.limit = 1;
+    }
+
 
     res.status(200).json({
         result: admins.length,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / features.queryString.limit),
         admins: admins
     });
 
@@ -215,14 +213,8 @@ exports.viewAdmins = async (req, res) => {
 exports.viewUsers = async (req, res) => {
     // intialize
     let total = 0;
-    let limit = 1
     let users = [];
     let userRole = null;
-
-    // validate value
-    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     // find all admin roles 
     try {
@@ -251,9 +243,14 @@ exports.viewUsers = async (req, res) => {
 
     if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
 
+    if (features.queryString.limit == null) {
+        features.queryString.limit = 1;
+    }
+
+
     res.status(200).json({
         result: users.length,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / features.queryString.limit),
         users: users
     });
 };
@@ -464,12 +461,6 @@ exports.getUserItems = async (req, res) => {
     // initialize
     let items = [];
     let total = 0;
-    let limit = 1
-
-    // validate value
-    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     try {
         // Execute query from Feature API object
@@ -488,17 +479,24 @@ exports.getUserItems = async (req, res) => {
 
         // paginating data
         items = await features.paginate().query;
+
+
+        if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
+
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+        res.status(200).json({
+            result: items.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            items: items
+        });
+
     } catch (err) {
         return res.status(500).send(err);
     }
-
-    if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
-
-    res.status(200).json({
-        result: items.length,
-        totalPages: Math.ceil(total / limit),
-        items: items
-    });
 };
 
 exports.getUserCart = async (req, res) => {
@@ -597,14 +595,9 @@ exports.deleteItemFromCart = async (req, res) => {
 exports.getUserNotifications = async (req, res) => {
     // intialize
     let total = 0;
-    let limit = 1
     let notifications = [];
     let receiver = null
 
-    // validate value
-    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     // check if receiver is available in database
     try {
@@ -631,9 +624,15 @@ exports.getUserNotifications = async (req, res) => {
 
         if (!notifications) return res.status(404).send({ message: "Notifications not found." });
 
+
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
         return res.status(200).json({
             result: notifications.length,
-            totalPages: Math.ceil(total / limit),
+            totalPages: Math.ceil(total / features.queryString.limit),
             notifications: notifications
         });
     } catch (err) {
@@ -670,9 +669,15 @@ exports.getUserUnreadNotifications = async (req, res) => {
 
         if (!notifications) return res.status(404).send({ message: "Notifications not found." });
 
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+
         return res.status(200).json({
             result: notifications.length,
-            totalPages: Math.ceil(total / limit),
+            totalPages: Math.ceil(total / features.queryString.limit),
             notifications: notifications
         });
     } catch (err) {

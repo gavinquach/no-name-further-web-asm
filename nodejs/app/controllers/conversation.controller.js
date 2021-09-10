@@ -51,10 +51,6 @@ exports.getConversations = async (req, res) => {
     let conversations = [];
     let user = null
 
-    // validate value
-    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     // check if user is available in database
     try {
@@ -70,7 +66,7 @@ exports.getConversations = async (req, res) => {
             Conversation.find({
                 members: { $in: [user._id] },
             })
-            .populate("members", "-__v")
+                .populate("members", "-__v")
             , req.query)
             .sort();
 
@@ -83,9 +79,14 @@ exports.getConversations = async (req, res) => {
             return res.status(404).send({ message: "Conversations not found." });
         }
 
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
         await res.status(200).json({
             result: conversations.length,
-            totalPages: Math.ceil(total / limit),
+            totalPages: Math.ceil(total / features.queryString.limit),
             conversations: conversations
         });
     } catch (err) {

@@ -4,11 +4,12 @@ const Item = model.item;
 const ItemCategory = model.itemCategory;
 const Transaction = model.transaction;
 const User = model.user;
-const APIFeatures  = require("./apiFeature");
+const APIFeatures = require("./apiFeature");
 
 const img = require("../config/img.config");
 const fs = require("fs");
 const uploadFile = require("../middlewares/storeImage");
+const { features } = require("process");
 
 exports.createItem = async (req, res) => {
     try {
@@ -390,12 +391,6 @@ exports.getMostOfferItems = (req, res, next) => {
 exports.getAllItems = async (req, res) => {
     let items = [];
     let total = 0;
-    let limit = 6
-
-    // validate value
-    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     try {
         // Execute query from Feature API object
@@ -411,24 +406,29 @@ exports.getAllItems = async (req, res) => {
             // commented out since populate forces it to display everything anyways
             // .limitFields()
             .filterByCategory();
-            
+
 
         //count retrieved total data before pagination
         total = await Item.countDocuments(features.query);
 
         // paginating data
         items = await features.paginate().query;
-        
-        // console.log(total)
+
+        if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+        res.status(200).json({
+            result: items.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            items: items
+        });
+
+
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
 
-    res.status(200).json({
-        result: items.length,
-        totalPages: Math.ceil(total/limit),
-        items: items
-    });
 };
-

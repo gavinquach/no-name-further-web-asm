@@ -33,7 +33,7 @@ exports.postMessage = async (req, res) => {
         conversation = new Conversation({
             members: [sender._id, receiver._id],
         });
-        
+
         try {
             await conversation.save();
         } catch (err) {
@@ -66,12 +66,7 @@ exports.getMessages = async (req, res) => {
     let messages = [];
     let conversation = null;
     let total = 0;
-    let limit = 1
 
-    // validate value
-    if (req.query.limit || req.query.limit === 'undefined' || parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     // check if conversation is available in database
     try {
@@ -96,9 +91,14 @@ exports.getMessages = async (req, res) => {
         messages = await features.paginate().query;
         if (!messages || messages.length < 1) return res.status(404).send({ message: "Messages not found." });
 
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+
         await res.status(200).json({
             result: messages.length,
-            totalPages: Math.ceil(total / limit),
+            totalPages: Math.ceil(total / features.queryString.limit),
             messages: messages
         });;
     } catch (err) {
