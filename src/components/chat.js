@@ -271,7 +271,7 @@ export default class Chat extends Component {
                     data.user,
                     data.receiver
                 ).then(
-                    (response) => {
+                    () => {
                         ChatService.getConversationsRequest(this.state.currentUser.id)
                             .then(
                                 response => {
@@ -289,25 +289,17 @@ export default class Chat extends Component {
                                         });
                                     });
 
+                                    // sort from newest date to oldest
+                                    conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
                                     this.setState({
-                                        conversations: conversationList,
-                                        conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
+                                        conversations: conversationList
                                     }, () => {
                                         this.getUnreadCount();
                                         this.setChatPanelState();
-                                        // has conversation id, get messages and receiver id
-                                        if (this.state.conversationId) {
-                                            this.getMessages(this.state.conversationId);
-
-                                            // set receiver id
-                                            for (const conversation of conversationList) {
-                                                if (conversation._id == this.state.conversationId) {
-                                                    this.setChatTarget(conversation);
-                                                    this.setState({ receiver: conversation.user._id });
-                                                    break;
-                                                }
-                                            }
-                                        }
+                                        const conversation = this.state.conversations[0];
+                                        this.setChatTarget(conversation);
+                                        this.setState({ receiver: conversation.user._id });
                                     });
                                 })
                             .catch((error) => {
