@@ -15,7 +15,7 @@ export default class Offers extends Component {
             .then(response => {
                 this.setState({ items: response.data.items });
             }).catch((error) => {
-                if (error.response.status != 500) {
+                if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
                     console.log(error);

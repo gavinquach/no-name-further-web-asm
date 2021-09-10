@@ -102,7 +102,7 @@ export default class ItemDetails extends Component {
                 this.setState({
                     notfound: true
                 });
-                if (error.response.status != 500) {
+                if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
                     console.log(error);

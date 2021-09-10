@@ -30,8 +30,15 @@ const Message = mongoose.model(
             default: false
         },
         markUnread: {
-            type: Boolean,
-            default: false
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                default: null
+            },
+            isMarked: {
+                type: Boolean,
+                default: false
+            }
         },
     }, { timestamps: true })
 );
