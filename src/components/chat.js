@@ -200,14 +200,17 @@ export default class Chat extends Component {
     getMessages = (conversationId) => {
         ChatService.getMessages(
             conversationId,
-            "updatedAt",
+            "-updatedAt",
             this.state.page,
             10,
         )
             .then(
                 response => {
                     this.setState({
-                        messages: response.data.messages
+                        // sort to display messages in the correct order
+                        messages: response.data.messages.sort((a, b) =>
+                            new Date(a.updatedAt) - new Date(b.updatedAt)
+                        )
                     }, () => {
                         // automatically scroll chat to bottom
                         const elem = document.getElementById("chat-bubbles");
