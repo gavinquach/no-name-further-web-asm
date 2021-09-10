@@ -165,6 +165,15 @@ export default class Notifications extends Component {
     }
 
     getNotifications = () => {
+        this.setState({
+            currentPage: 1
+        }, () => {
+            const url = new URL(window.location.href);
+            const search_params = url.searchParams;
+            search_params.set("page", 1);
+            const pageURL = url.pathname + "?" + search_params.toString();
+            this.props.history.push(pageURL);
+        });
         setTimeout(() => {
             this.load();
         }, 100);
