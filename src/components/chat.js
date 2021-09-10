@@ -38,6 +38,8 @@ const formatDate = (d) => {
 export default class Chat extends Component {
     constructor(props) {
         super(props);
+        this.waitTime = 0;
+        this.waitTimeInterval = null;
         this.onChangeMessage = this.onChangeMessage.bind(this);
 
         this.state = {
@@ -50,7 +52,8 @@ export default class Chat extends Component {
             currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null,
             page: 1,
             unreadList: [],
-            totalUnreadCount: 0
+            totalUnreadCount: 0,
+            loadingMore: false
         };
     }
 
@@ -64,17 +67,89 @@ export default class Chat extends Component {
         // set messages to read when user scrolls in chat
         // this will also set messages to read when new messages
         const chat = document.getElementById("chat-bubbles");
+
         if (chat) {
-            for (const conversation of this.state.conversations) {
-                if (conversation._id == this.state.conversationId) {
-                    if (chat.scrollTop > chat.scrollHeight - 350 && conversation.unreadCount > 0) {
-                        conversation.unreadCount = 0;
-                        this.setMessagesToRead(this.state.conversationId);
-                        break;
+            if (chat.scrollTop < 50) {
+                if (this.state.loadingMore) {
+                    return;
+                }
+                if (!this.waitTimeInterval) {
+                    this.waitTimeInterval = setInterval(() => {
+                        this.waitTime += 100;
+
+                        // user keeps the scroll at the top for 1 second,
+                        // load new messages
+                        if (this.waitTime >= 1000) {
+                            this.stopTimer();
+                            this.setState({
+                                loadingMore: true
+                            }, () => {
+                                ChatService.getMessages(
+                                    this.state.conversationId,
+                                    "-createdAt",
+                                    this.state.page + 1,
+                                    10,
+                                )
+                                    .then(
+                                        response => {
+                                            const messages = response.data.messages;
+                                            const temp = this.state.messages;
+    
+                                            // insert new messages to the start
+                                            // of current messages array
+                                            messages.map((message) => {
+                                                temp.unshift(message);
+                                            });
+    
+                                            this.setState({
+                                                messages: temp,
+                                                page: this.state.page + 1,
+                                                loadingMore: false
+                                            }, () => {
+                                                // move scroll down to the current
+                                                // message, value retrieved through
+                                                // trial and error
+                                                chat.scrollTop += 280;
+                                            });
+                                        })
+                                    .catch((error) => {
+                                        if (error.response && error.response.status != 500) {
+                                            console.log(error.response.data.message);
+                                        } else {
+                                            console.log(error);
+                                        }
+                                        this.setState({
+                                            messages: []
+                                        });
+                                    });
+                            });
+
+                        }
+                    }, 100);
+                }
+            }
+            // lots of nesting here, disgusting, i know, but oh well...
+            else {
+                this.stopTimer();
+                for (const conversation of this.state.conversations) {
+                    if (conversation._id == this.state.conversationId) {
+                        if (chat.scrollTop > chat.scrollHeight - 350 && conversation.unreadCount > 0) {
+                            conversation.unreadCount = 0;
+                            this.setMessagesToRead(this.state.conversationId);
+                            break;
+                        }
                     }
                 }
             }
         }
+    }
+
+    stopTimer = () => {
+        if (this.waitTimeInterval) {
+            clearInterval(this.waitTimeInterval);
+            this.waitTimeInterval = null;
+        }
+        this.waitTime = 0;
     }
 
     getUnreadCount = () => {
@@ -275,7 +350,8 @@ export default class Chat extends Component {
 
             this.setState({
                 conversationId: conversationId,
-                receiver: conversation.user._id
+                receiver: conversation.user._id,
+                page: 1
             });
             this.getMessages(conversationId);
         }
@@ -333,7 +409,7 @@ export default class Chat extends Component {
         ChatService.getMessages(
             conversationId,
             "-createdAt",
-            this.state.page,
+            1,
             10,
         )
             .then(
@@ -351,7 +427,8 @@ export default class Chat extends Component {
 
                     this.setState({
                         messages: messages,
-                        unreadList: count
+                        unreadList: count,
+                        page: 1
                     }, () => {
                         // automatically scroll chat to bottom
                         // which will also set all messages to read
