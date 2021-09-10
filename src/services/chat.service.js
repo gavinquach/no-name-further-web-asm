@@ -6,7 +6,7 @@ class ChatService {
     postMessage(messageObj) {
         return axiosTokenHeader.post(API_URL + "message", messageObj)
             .then(response => {
-                socket.emit("sendMessage", messageObj);
+                socket.emit("sendMessage", response.data);
                 return response;
             }).catch((error) => {
                 return error;
