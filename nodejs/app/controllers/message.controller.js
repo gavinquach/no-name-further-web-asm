@@ -64,7 +64,10 @@ exports.postMessage = async (req, res) => {
     // attempt to find message on database, if it's there, set status to "Sent"
     try {
         const message = await Message.findById(savedMessage._id);
-        if (!message) return res.status(500).send({ message: "Something went wrong, please try again."});
+        if (!message) return res.status(500).send({ message: "Something went wrong, please try again." });
+
+        conversation.updatedAt = new Date();
+        await conversation.save();
 
         savedMessage.status = "Sent";
         const savedSentMessage = await savedMessage.save();
