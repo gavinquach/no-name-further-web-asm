@@ -24,7 +24,10 @@ exports.postConversation = async (req, res) => {
             members: [req.body.senderId, req.body.receiverId]
         }).exec();
 
-        if (conversation) return res.status(401).send({ message: "Conversation already exists!" });
+        if (conversation) return res.status(401).send({
+            message: "Conversation already exists!",
+            conversation: conversation
+        });
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -107,19 +110,17 @@ exports.getConversation = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!firstUser) return res.status(404).send({ message: "First User not found." });
-    if (!secondUser) return res.status(404).send({ message: "Second User not found." });
+    if (!firstUser) return res.status(404).send({ message: "First user not found." });
+    if (!secondUser) return res.status(404).send({ message: "Second user not found." });
 
     // check if conversation is already available and get it 
     try {
         const conversation = await Conversation.findOne({
             members: { $all: [firstUser._id, secondUser._id] },
         }).exec();
-
-        if (!conversation) return res.status(401).send({ message: "Conversation does not exist!" });
+        if (!conversation) return res.status(404).send({ message: "Conversation not found." });
 
         res.status(200).json(conversation)
-
     } catch (err) {
         return res.status(500).send(err);
     }
