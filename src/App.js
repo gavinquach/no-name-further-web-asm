@@ -149,12 +149,12 @@ export default class App extends Component {
                         <Route path="/items" component={ItemCategory} />
                         <Route path="/item/:id" component={ItemDetails} />
                         <Route path="/popular" component={PopularOffers} />
+                        <Route exact path='/trader/:username' component={UserPage} />
 
                         {/* user pages */}
                         <UserProtectedRoute exact path="/cart" component={Cart} />
                         <UserProtectedRoute exact path="/trades" component={Trades} />
                         <UserProtectedRoute path="/trade/:id" component={TradeDetails} />
-                        <UserProtectedRoute exact path='/trader/:username' component={UserPage} />
                         <UserProtectedRoute exact path='/user' component={UserIndex} />
                         <UserProtectedRoute exact path='/user/profile' component={UserProfileIndex} />
                         <UserProtectedRoute exact path="/user/notifications" component={Notifications} />
