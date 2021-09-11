@@ -116,9 +116,9 @@ export default class Chat extends Component {
                                                 loadingMore: false
                                             }, () => {
                                                 // move scroll down to the current
-                                                // message, value retrieved through
-                                                // trial and error
-                                                chat.scrollTop += 280;
+                                                // message after loading older messages,
+                                                // value retrieved through trial and error
+                                                chat.scrollTop += chat.scrollHeight*0.30;
                                             });
                                         })
                                     .catch((error) => {
