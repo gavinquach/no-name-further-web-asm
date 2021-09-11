@@ -4,7 +4,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faUserAlt } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons';
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css';
@@ -269,8 +269,8 @@ export default class NavigationBar extends Component {
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>
                         <Nav className="nav">
-                            <Link className="navbar-text navbar-item" to="/trades" >Trades</Link>
-                            <Link className="navbar-text navbar-item" to="/cart">Cart</Link>
+                            <Link className="navbar-text navbar-item" to="/trades" >My Trades</Link>
+                            <Link className="navbar-text navbar-item" to="/cart">My Cart</Link>
 
                             {/* show user panel user is logged in */}
                             {currentUser && (
@@ -336,25 +336,30 @@ export default class NavigationBar extends Component {
                         <Nav>
                             {currentUser ? (
                                 <span className="Nav-bar-item Push-left">
-                                    <NavDropdown className="Nav-bar-text Nav-bar-item" title={
-                                        <button className="Nav-bar-text button1" >
-                                            {currentUser.username}
-                                        </button>
-                                    } id="basic-nav-dropdown" renderMenuOnMount={true}>
-                                        <NavDropdown.Item>
-                                            <LinkContainer to="/user" className="text-dark">
+                                    <NavDropdown className="Nav-bar-text Nav-bar-item"
+                                        title={
+                                            <Link to="/user">
+                                                <button className="Nav-bar-text button1" >
+                                                    {currentUser.username}
+                                                </button>
+                                            </Link>
+                                        }
+                                        id="basic-nav-dropdown"
+                                        renderMenuOnMount={true}>
+                                        <NavDropdown.Item as={Link} to="/user" >
+                                            <span to="/user" className="text-dark">
                                                 <button className="btn-warning Sign-up-btn nav-btn button-spec Nav-link">
                                                     Profile
                                                 </button>
-                                            </LinkContainer>
+                                            </span>
                                         </NavDropdown.Item>
                                         <NavDropdown.Divider />
-                                        <NavDropdown.Item>
-                                            <LinkContainer to="/" className="text-white">
+                                        <NavDropdown.Item as={Link} to="/">
+                                            <span to="/" className="text-white">
                                                 <button className="btn-danger Sign-up-btn nav-btn button-spec Nav-link" onClick={this.logOut}>
                                                     Log Out
                                                 </button>
-                                            </LinkContainer>
+                                            </span>
                                         </NavDropdown.Item>
                                     </NavDropdown>
                                 </span>
@@ -362,40 +367,42 @@ export default class NavigationBar extends Component {
                                 <span className="Nav-bar-item Push-left">
                                     <NavDropdown className="Nav-bar-text Nav-bar-item"
                                         title={
-                                            <button className="Nav-bar-text button1">
-                                                {user} Log In
-                                            </button>
+                                            <Link to="/login">
+                                                <button className="Nav-bar-text button1">
+                                                    {user} Log In
+                                                </button>
+                                            </Link>
                                         }
                                         id="basic-nav-dropdown"
                                         renderMenuOnMount={true}>
-                                        <NavDropdown.Item>
-                                            <LinkContainer to="/login" className="text-dark">
+                                        <NavDropdown.Item as={Link} to="/login">
+                                            <span to="/login" className="text-dark">
                                                 <button className="btn-warning Log-in-out-btn nav-btn button-spec Nav-link">
                                                     Log In
                                                 </button>
-                                            </LinkContainer>
+                                            </span>
                                         </NavDropdown.Item>
-                                        <NavDropdown.Item>
-                                            <LinkContainer to="/signup" className="text-dark">
+                                        <NavDropdown.Item as={Link} to="/signup">
+                                            <span to="/signup" className="text-dark">
                                                 <button className="btn-warning Sign-up-btn nav-btn button-spec Nav-link">
                                                     Sign Up
                                                 </button>
-                                            </LinkContainer>
+                                            </span>
                                         </NavDropdown.Item>
                                         <NavDropdown.Divider />
-                                        <NavDropdown.Item>
-                                            <LinkContainer to="#" id="username-text" className="text-white">
+                                        <NavDropdown.Item as={Link} to="#">
+                                            <span to="#" id="username-text" className="text-white">
                                                 <button className="btn p-2 btn-primary nav-btn button-spec Nav-link">
                                                     {facebook} Login with Facebook
                                                 </button>
-                                            </LinkContainer>
+                                            </span>
                                         </NavDropdown.Item>
-                                        <NavDropdown.Item>
-                                            <LinkContainer to="#" id="username-text" className="text-white">
+                                        <NavDropdown.Item as={Link} to="#">
+                                            <span to="#" id="username-text" className="text-white">
                                                 <button className="btn p-2 btn-danger nav-btn button-spec Nav-link">
                                                     {google} Sign in with Google+
                                                 </button>
-                                            </LinkContainer>
+                                            </span>
                                         </NavDropdown.Item>
                                     </NavDropdown>
                                 </span>

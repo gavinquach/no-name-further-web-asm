@@ -1,162 +1,257 @@
 .main-section {
-    margin: 10px;
+  margin: 10px;
 }
 
 .item {
-    display: grid;
-    grid-template-columns: 40% 60%;
-    gap: 3em
+  display: grid;
+  grid-template-columns: 40% 60%;
+  gap: 3em;
 }
 
 .ItemImage {
-    width: 20em;
-    height: 20em;
-    border: 1px solid black;
-    margin-right: 1em;
+  width: 20em;
+  height: 20em;
+  border: 1px solid black;
+  margin-right: 1em;
 }
 
 .item-image-box {
-    display: block;
+  display: block;
 }
 
 .item-image {
-    width: 30vw;
-    height: 25vw;
-    border: 0.1em solid black;
+  width: 30vw;
+  height: 25vw;
+  border: 0.1em solid black;
 }
 
 .add-to-cart {
-    background: black;
-    color: white;
-    border: none;
-    border-radius: 0.25em;
-    padding: 1.25rem 2.5rem;
-    font-size: 1.5em;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease;
+  text-transform: uppercase;
+  padding: 0.8rem 3.2rem;
 }
 
 .add-to-cart:hover {
-    background-color: rgb(49, 49, 49);
+  background-color: rgb(49, 49, 49);
 }
 
 .make-transaction {
-    background: green;
-    color: white;
-    border: none;
-    border-radius: 0.25em;
-    padding: 1em 2em;
-    font-size: 1.25em;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease;
+  text-transform: uppercase;
+  padding: 0.8rem 1.9rem;
 }
 /* make button slightly darker when hovering mouse over */
 
 .make-transaction:hover {
-    background-color: rgb(14, 95, 0);
+  background-color: rgb(14, 95, 0);
 }
 
 .item-image {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 33em;
-    height: 33em;
-    display: block;
-    background-color: lightgray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 33em;
+  height: 33em;
+  display: block;
+  background-color: lightgray;
 }
-.item-image img, .image-list img {
-    max-width: 100%;
-    height: auto;
+.item-image img,
+.image-list img {
+  max-width: 100%;
+  height: auto;
 }
 
 .image-list {
-    list-style-type: none;
-    padding: 1em 0em;
+  list-style-type: none;
+  padding: 1em 0em;
 }
 
 .image-list li {
-    display: inline-block;
-    width: 6.2em;
-    height: 6.2em;
-    background-color: lightgray;
-    cursor: pointer;
-    margin-right: 8px;
-    margin-bottom: 8px;
+  display: inline-block;
+  width: 6.2em;
+  height: 6.2em;
+  background-color: lightgray;
+  cursor: pointer;
+  margin-right: 8px;
+  margin-bottom: 8px;
 }
 
 .image-list img {
-    width: 6.2em;
-    height: 6.2em;
-    transition: opacity 0.2s ease;
+  width: 6.2em;
+  height: 6.2em;
+  transition: opacity 0.2s ease;
 }
 
 /* for javascript attach border when selected */
 .image-list-img-border {
-    outline-width: 2.5px;
-    outline-color: black;
-    outline-style: solid;
+  outline-width: 2.5px;
+  outline-color: black;
+  outline-style: solid;
 }
 
 /* make image slightly transparent when hovering mouse over */
 .image-list img:hover {
-    opacity: 0.7;
+  opacity: 0.7;
 }
 
 /*Product Quantity Box */
 .qtySelector {
-    border: 1px solid #ddd;
-    width: 107px;
-    height: 35px;
-    margin: 10px auto 0;
+  border: 1px solid #ddd;
+  width: 107px;
+  height: 35px;
+  margin: 10px auto 0;
 }
 
 .qtySelector .qtyBtn {
-    padding: 10px 5px;
-    width: 35px;
-    height: 100%;
-    float: left;
-    cursor: pointer;
+  padding: 10px 5px;
+  width: 35px;
+  height: 100%;
+  float: left;
+  cursor: pointer;
 }
 
 .qtySelector .qtyBtn.clicked {
-    font-size: 12px;
-    padding: 12px 5px;
+  font-size: 12px;
+  padding: 12px 5px;
 }
 
 .qtySelector .minus {
-    border-right: 1px solid #ddd;
+  border-right: 1px solid #ddd;
 }
 
 .qtySelector .plus {
-    border-left: 1px solid #ddd;
+  border-left: 1px solid #ddd;
 }
 
 .qtySelector .qtyValue {
-    border: none;
-    padding: 5px;
-    width: 35px;
-    height: 100%;
-    float: left;
-    text-align: center
+  border: none;
+  padding: 5px;
+  width: 35px;
+  height: 100%;
+  float: left;
+  text-align: center;
 }
 
 .statusMsg {
-    margin-top: 1em;
-    width: 15em;
-    text-align: center;
+  margin-top: 1em;
+  width: 15em;
+  text-align: center;
 }
 
 .delete-item-btn {
-    background-color: #fc6969;
-    /* Green */
-    border: none;
-    color: white;
-    padding: 7px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: flex;
-    float: right;
-    font-size: 15px;
-    border-radius: 5%;
+  background-color: #fc6969;
+  /* Green */
+  border: none;
+  color: white;
+  padding: 7px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  float: right;
+  font-size: 15px;
+  border-radius: 5%;
+}
+
+/* CAROUSEL */
+.carousel {
+  background-color: transparent;
+}
+
+.carousel__item {
+  width: 1000px !important;
+  height: 500px !important;
+  background-color: black;
+}
+
+.carousel-inner {
+  border-radius: 15px;
+}
+
+.pic {
+  border-radius: 10px !important;
+}
+
+.carousel-indicators {
+  margin-bottom: 10px;
+}
+
+.carousel-indicators button {
+  /* border: none; */
+  border-radius: 3px;
+  padding: 3px 20px;
+  margin-right: 10px;
+}
+
+.carousel-indicators .active {
+  background-color: black;
+}
+
+.carousel-control-prev .visually-hidden,
+.carousel-control-next .visually-hidden {
+  display: none;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: 8% !important;
+  background-color: rgb(0, 0, 0, 0.5);
+}
+
+.carousel-control-prev {
+  border-bottom-left-radius: 15px;
+  border-top-left-radius: 15px;
+}
+
+.carousel-control-next {
+  border-bottom-right-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.divide {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0.05em;
+}
+
+.avatar-detail {
+  vertical-align: middle;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  margin-left: 2.8em;
+  margin-top: 0.8em;
+}
+
+.address-name {
+  margin-right: 6em;
+  float: right;
+}
+
+.description-table {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: 1.2rem;
+}
+
+.description-section {
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.user-description {
+  display: flex;
+  justify-content: space-between;
+}
+
+.diff-text {
+  font-size: 1.3em;
+  margin: 0;
+}
+
+.diff-text-2 {
+  font-size: 1.3em;
+  margin: 0;
+  margin-top: 1em;
+}
+
+.history-text {
+  font-size: 0.8em !important;
+  font-weight: lighter;
 }

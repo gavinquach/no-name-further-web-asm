@@ -3,7 +3,7 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { Redirect } from "react-router-dom";
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 
 import AuthService from '../services/auth.service'
 
@@ -161,13 +161,15 @@ export default class Login extends Component {
         }
         return (
             <div className='page-container'>
-                 <Helmet>
+                <Helmet>
                     <title>Login</title>
                 </Helmet>
-                <div className="title">Login</div>
-                <hr className="section-line" />
                 <div className="form white-container">
-                    <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em", marginTop: '7em', marginBottom: '7em' }}>
+                    <div className="container login-title">
+                        <div className="title">Login</div>
+                        <hr className="section-line " />
+                    </div>
+                    <Form onSubmit={this.handleLogin} ref={c => { this.form = c; }} className="container" style={{ width: "30em" }}>
                         <Input
                             className="Input"
                             type="text"
