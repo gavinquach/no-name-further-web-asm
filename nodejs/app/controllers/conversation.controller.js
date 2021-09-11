@@ -20,14 +20,23 @@ exports.postConversation = async (req, res) => {
 
     // check if conversation is already available
     try {
-        const conversation = await Conversation.findOne({
+        let conversation = await Conversation.findOne({
             members: [req.body.senderId, req.body.receiverId]
         }).exec();
 
-        if (conversation) return res.status(401).send({
-            message: "Conversation already exists!",
-            conversation: conversation
-        });
+        // conversation does not exist, swap ids and try again
+        if (!conversation) {
+            conversation = await Conversation.findOne({
+                members: [req.body.receiverId, req.body.senderId]
+            }).exec();
+        }
+
+        if (conversation) {
+            return res.status(401).send({
+                message: "Conversation already exists!",
+                conversation: conversation
+            });
+        }
     } catch (err) {
         return res.status(500).send(err);
     }
