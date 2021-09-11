@@ -49,6 +49,34 @@ export default class NavigationBar extends Component {
         if (!AuthService.isLoggedIn()) {
             return;
         }
+        this.loadNotifications();
+
+        socket.on("receiveNotifications", data => {
+            const temp = this.state.notifications;
+            // push new notification to first index
+            temp.unshift(data);
+            // add to unread notification count
+            const unreadCountCount = this.state.unreadCount + 1;
+            this.setState({
+                notifications: temp,
+                unreadCount: unreadCountCount
+            });
+        });
+
+        // user selects "Mark all as read" or "Mark all as unread"
+        // on user notifications page, reload notifications on
+        // navigation bar
+        socket.on("receiveNavBarReloadRequest", () => {
+            this.loadNotifications();
+        });
+    }
+
+    logOut = () => {
+        AuthService.logout();
+        window.location.reload();
+    }
+
+    loadNotifications = () => {
         UserService.getUserNotifications(AuthService.getCurrentUser().id)
             .then(
                 response => {
@@ -144,23 +172,6 @@ export default class NavigationBar extends Component {
                     console.log(error);
                 }
             });
-
-        socket.on("receiveNotifications", data => {
-            const temp = this.state.notifications;
-            // push new notification to first index
-            temp.unshift(data);
-            // add to unread notification count
-            const unreadCountCount = this.state.unreadCount + 1;
-            this.setState({
-                notifications: temp,
-                unreadCount: unreadCountCount
-            });
-        });
-    }
-
-    logOut = () => {
-        AuthService.logout();
-        window.location.reload();
     }
 
     setReadNotification = (notification) => {

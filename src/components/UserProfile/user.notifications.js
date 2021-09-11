@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Helmet } from "react-helmet";
 import DOMPurify from 'dompurify';
+import { Link, Redirect } from 'react-router-dom';
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/Notifications.css';
@@ -10,7 +11,6 @@ import UserService from "../../services/user.service";
 import socket from '../../services/socket';
 
 import ProfileSideBar from "./user.profile.sidebar"
-import { Link, Redirect } from 'react-router-dom';
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -164,6 +164,12 @@ export default class Notifications extends Component {
         });
     }
 
+    // send socket io data to NavigationBar.js file
+    // and reload notifications on navigation bar
+    sendReloadNavBarRequest = () => {
+        socket.emit("requestReloadNavBar", AuthService.getCurrentUser().id)
+    }
+
     getNotifications = () => {
         this.setState({
             currentPage: 1
@@ -174,6 +180,8 @@ export default class Notifications extends Component {
             const pageURL = url.pathname + "?" + search_params.toString();
             this.props.history.push(pageURL);
         });
+        // timer because hash is undefined in URL
+        // if retrieved too early
         setTimeout(() => {
             this.load();
         }, 100);
@@ -185,6 +193,7 @@ export default class Notifications extends Component {
         )
             .then(() => {
                 this.load();
+                this.sendReloadNavBarRequest();
             }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
@@ -200,6 +209,7 @@ export default class Notifications extends Component {
         )
             .then(() => {
                 this.load();
+                this.sendReloadNavBarRequest();
             }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
