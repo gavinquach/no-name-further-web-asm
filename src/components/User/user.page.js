@@ -218,7 +218,7 @@ export default class UserPage extends Component {
             return <Redirect to={url.pathname + "?" + search_params.toString()} />
         }
 
-        // check if there are page and sort query params in URL
+        // check if there is page query params in URL
         if (items.length > 0) {
             let pageURL = url.pathname + "?";
             if (!page || page == "") {
@@ -227,12 +227,12 @@ export default class UserPage extends Component {
                 return <Redirect to={pageURL} />
             }
 
-            const sort = search_params.get("sort");
-            if (!sort || sort == "") {
-                search_params.set("sort", "none");
-                pageURL = pageURL.concat(search_params.toString());
-                return <Redirect to={pageURL} />
-            }
+            // const sort = search_params.get("sort");
+            // if (!sort || sort == "") {
+            //     search_params.set("sort", "none");
+            //     pageURL = pageURL.concat(search_params.toString());
+            //     return <Redirect to={pageURL} />
+            // }
         }
 
         return (
