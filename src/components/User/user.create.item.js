@@ -8,7 +8,6 @@ import { Helmet } from "react-helmet";
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertToRaw } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import draftToHtml from 'draftjs-to-html';
 
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
