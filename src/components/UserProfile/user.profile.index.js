@@ -44,7 +44,7 @@ export default class UserProfileIndex extends Component {
                     {(this.state.hash == "myprofile" || this.state.hash == "") && (
                         <div>
                             <Helmet>
-                                <title>{AuthService.getCurrentUser().username}'s Profile</title>
+                                <title>My Profile</title>
                             </Helmet>
                             <UserProfile />
                         </div>
@@ -56,15 +56,6 @@ export default class UserProfileIndex extends Component {
                                 <title>Change Password</title>
                             </Helmet>
                             <UserEditPassword />
-                        </div>
-                    )}
-
-                    {this.state.hash == "notifications" && (
-                        <div>
-                            <Helmet>
-                                <title>{AuthService.getCurrentUser().username}'s Notifications</title>
-                            </Helmet>
-                            <Notifications />
                         </div>
                     )}
                 </div>

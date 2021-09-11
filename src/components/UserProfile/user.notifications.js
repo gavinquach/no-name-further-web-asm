@@ -296,7 +296,7 @@ export default class Notifications extends Component {
         return (
             <div className="page-container my-profile">
                 <Helmet>
-                    <title>{AuthService.getCurrentUser().username}'s Notifications</title>
+                    <title>Notifications</title>
                 </Helmet>
                 <ProfileSideBar />
                 <div className="profile-page">
