@@ -500,11 +500,18 @@ export default class Chat extends Component {
                         page: 1,
                         totalPages: response.data.totalPages
                     }, () => {
-                        // automatically scroll chat to bottom
-                        // which will also set all messages to read
-                        // from onScrollSetToRead() function
-                        const elem = document.getElementById("chat-bubbles");
-                        elem.scrollTop = elem.scrollHeight;
+                        const chat = document.getElementById("chat-bubbles");
+                        // chat has no scrollwheel
+                        if (chat && chat.scrollHeight <= chat.clientHeight) {
+                            this.setMessagesToRead(conversationId);
+                        }
+                        // chat has scrollwheel
+                        else {
+                            // automatically scroll chat to bottom
+                            // which will also set all messages to read
+                            // from onScrollSetToRead() function
+                            chat.scrollTop = chat.scrollHeight;
+                        }
                     });
                 })
             .catch((error) => {
