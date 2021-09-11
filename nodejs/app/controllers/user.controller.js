@@ -277,10 +277,12 @@ exports.viewOneUser = async (req, res) => {
     }
 };
 
-exports.publicgetUser = async (req, res) => {
+exports.publicGetUser = async (req, res) => {
     try {
+        const role = await Role.findOne({ name: "user" });
         const temp = await User.findOne({
-            username: req.params.username
+            username: req.params.username,
+            roles: [role._id]
         }).exec();
 
         if (!temp) return res.status(404).send({ message: "User not found." });

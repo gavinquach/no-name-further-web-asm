@@ -74,7 +74,7 @@ router.patch("/user/edit/password/:id", [
 ], controller.editPassword);
 
 // Get user (public info)
-router.get("/public/user/:username", controller.publicgetUser);
+router.get("/public/user/:username", controller.publicGetUser);
 // ==========================================
 
 
