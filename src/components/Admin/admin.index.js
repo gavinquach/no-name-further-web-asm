@@ -39,7 +39,7 @@ const manageUser = (
 
 const viewTrade = (
     <div>
-        <h3 className="admin-control-header">View trade</h3>
+        <h3 className="admin-control-header">View trades</h3>
     </div>
 )
 
@@ -164,7 +164,7 @@ export default class AdminIndex extends Component {
                 </div>
                 </div>
                 <div>
-                    <div className = "title">Transaction</div>
+                    <div className = "title">Trades</div>
                     <hr className="section-line" />
                     {AuthService.hasManageAdminRole() ? viewTrade : null}
                 </div>
