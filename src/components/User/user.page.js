@@ -31,44 +31,63 @@ export default class UserPage extends Component {
     }
 
     componentDidMount() {
+        if (window.innerWidth > 1380) {
+                this.setState({
+                    limit: 15
+                });
+        } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
+            this.setState({
+                limit: 12
+            });
+        } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
+            this.setState({
+                limit: 9
+            });
+        } else if (window.innerWidth <= 830) {
+            this.setState({
+                limit: 6
+            });
+        }
         this.loadUser();
 
         window.addEventListener('resize', () => {
-            if (window.innerWidth > 1380) {
-                if (this.widthChangeExecced != 0) {
-                    this.setState({
-                        limit: 15
-                    }, () => {
-                        this.loadUserItems();
-                        this.widthChangeExecced = 0;
-                    });
-                }
-            } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
-                if (this.widthChangeExecced != 1) {
-                    this.setState({
-                        limit: 12
-                    }, () => {
-                        this.loadUserItems();
-                        this.widthChangeExecced = 1;
-                    });
-                }
-            } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
-                if (this.widthChangeExecced != 2) {
-                    this.setState({
-                        limit: 9
-                    }, () => {
-                        this.loadUserItems();
-                        this.widthChangeExecced = 2;
-                    });
-                }
-            } else if (window.innerWidth <= 830) {
-                if (this.widthChangeExecced != 3) {
-                    this.setState({
-                        limit: 6
-                    }, () => {
-                        this.loadUserItems();
-                        this.widthChangeExecced = 3;
-                    });
+            if (this.state.items.length > 0) {
+                if (window.innerWidth > 1380) {
+                    if (this.widthChangeExecced != 0) {
+                        this.setState({
+                            limit: 15
+                        }, () => {
+                            this.loadUserItems();
+                            this.widthChangeExecced = 0;
+                        });
+                    }
+                } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
+                    if (this.widthChangeExecced != 1) {
+                        this.setState({
+                            limit: 12
+                        }, () => {
+                            this.loadUserItems();
+                            this.widthChangeExecced = 1;
+                        });
+                    }
+                } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
+                    if (this.widthChangeExecced != 2) {
+                        this.setState({
+                            limit: 9
+                        }, () => {
+                            this.loadUserItems();
+                            this.widthChangeExecced = 2;
+                        });
+                    }
+                } else if (window.innerWidth <= 830) {
+                    if (this.widthChangeExecced != 3) {
+                        this.setState({
+                            limit: 6
+                        }, () => {
+                            this.loadUserItems();
+                            this.widthChangeExecced = 3;
+                        });
+                    }
                 }
             }
         });
