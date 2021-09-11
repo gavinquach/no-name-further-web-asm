@@ -466,9 +466,13 @@ export default class Chat extends Component {
             // scrollwheel to read upon open
             const chat = document.getElementById("chat-bubbles");
             if (chat) {
+                // set timer because of CSS transition delay
                 setTimeout(() => {
                     // chat has no scrollwheel
                     if (chat.scrollHeight <= chat.clientHeight) {
+                        this.setMessagesToRead(this.state.conversationId);
+                    } else {
+                        chat.scrollTop = chat.scrollHeight;
                         this.setMessagesToRead(this.state.conversationId);
                     }
                 }, 400);
