@@ -107,9 +107,9 @@ export default class Transactions extends Component {
                         <p>Trader: {transaction.user_buyer.username}</p>
                         <p>Owner: {transaction.user_seller.username}</p>
                         <Link to={"/item/" + item._id} className="ItemPanel">
-                            {item.images.map(image =>
+                            {item.images.map((image, index) =>
                                 image.cover && (
-                                    <img className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
+                                    <img key={index + "-img"} className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                 )
                             )}
                             <div className="ItemDetails">
