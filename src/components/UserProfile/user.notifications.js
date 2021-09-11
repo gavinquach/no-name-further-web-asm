@@ -307,7 +307,7 @@ export default class Notifications extends Component {
                             <a href="#all"
                                 className={"NotificationTypesCell ".concat(
                                     (window.location.hash == "" || window.location.hash == "#all") && (
-                                        "active"
+                                        "SectionActive"
                                     )
                                 )}>
                                 All
@@ -315,7 +315,7 @@ export default class Notifications extends Component {
                             <a href="#system"
                                 className={"NotificationTypesCell ".concat(
                                     (window.location.hash == "#system") && (
-                                        "active"
+                                        "SectionActive"
                                     )
                                 )}>
                                 System
@@ -323,7 +323,7 @@ export default class Notifications extends Component {
                             <a href="#trade"
                                 className={"NotificationTypesCell ".concat(
                                     (window.location.hash == "#trade") && (
-                                        "active"
+                                        "SectionActive"
                                     )
                                 )}>
                                 Trade
@@ -331,7 +331,7 @@ export default class Notifications extends Component {
                             <a href="#unread"
                                 className={"NotificationTypesCell ".concat(
                                     (window.location.hash == "#unread") && (
-                                        "active"
+                                        "SectionActive"
                                     )
                                 )}>
                                 Unread
@@ -343,7 +343,7 @@ export default class Notifications extends Component {
 
                     {/* display if there are notifications in list */}
                     {this.state.notifications.length > 0 ? (
-                        <div>
+                        <div className="NotificationsContainer">
                             <div className="page-buttons">
                                 {this.state.pageButtons}
                             </div>
