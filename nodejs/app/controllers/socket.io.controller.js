@@ -35,8 +35,12 @@ module.exports = (io) => {
             io.to(users[data.user]).emit("receivechatWithUserRequest", data);
         });
 
-        socket.on("requestReloadNavBar", (user) => {
-            io.to(users[user]).emit("receiveNavBarReloadRequest", user);
+        socket.on("requestReloadNavBarNotifications", (user) => {
+            io.to(users[user]).emit("receiveNavBarNotificationsReloadRequest", user);
+        });
+
+        socket.on("requestReloadNotifications", (user) => {
+            io.to(users[user]).emit("receiveNotificationsReloadRequest", user);
         });
     });
 }

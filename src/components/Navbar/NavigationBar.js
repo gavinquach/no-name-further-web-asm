@@ -66,7 +66,7 @@ export default class NavigationBar extends Component {
         // user selects "Mark all as read" or "Mark all as unread"
         // on user notifications page, reload notifications on
         // navigation bar
-        socket.on("receiveNavBarReloadRequest", () => {
+        socket.on("receiveNavBarNotificationsReloadRequest", () => {
             this.loadNotifications();
         });
     }
@@ -207,7 +207,8 @@ export default class NavigationBar extends Component {
             this.state.notifications
         )
             .then(() => {
-
+                // send request to reload notifications to user notifications page
+                socket.emit("requestReloadNotifications", AuthService.getCurrentUser().id);
             })
             .catch((error) => {
                 if (error.response && error.response.status != 500) {

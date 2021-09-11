@@ -162,12 +162,17 @@ export default class Notifications extends Component {
                 }
             }
         });
+
+        // Navigation bar notifications get set to read
+        socket.on("receiveNotificationsReloadRequest", () => {
+            this.getNotifications();
+        });
     }
 
     // send socket io data to NavigationBar.js file
     // and reload notifications on navigation bar
     sendReloadNavBarRequest = () => {
-        socket.emit("requestReloadNavBar", AuthService.getCurrentUser().id)
+        socket.emit("requestReloadNavBarNotifications", AuthService.getCurrentUser().id);
     }
 
     getNotifications = () => {
