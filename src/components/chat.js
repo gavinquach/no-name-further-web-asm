@@ -118,7 +118,7 @@ export default class Chat extends Component {
                                                 // move scroll down to the current
                                                 // message after loading older messages,
                                                 // value retrieved through trial and error
-                                                chat.scrollTop += chat.scrollHeight*0.30;
+                                                chat.scrollTop += chat.scrollHeight * 0.30;
                                             });
                                         })
                                     .catch((error) => {
@@ -248,7 +248,9 @@ export default class Chat extends Component {
                 }
                 // user is not opening chat panel
                 else {
-                    this.getMessages(this.state.conversationId);
+                    if (this.state.conversationId) {
+                        this.getMessages(this.state.conversationId);
+                    }
                     this.setState({
                         totalUnreadCount: this.state.totalUnreadCount + 1
                     });
