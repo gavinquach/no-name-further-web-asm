@@ -55,6 +55,23 @@
     background-color: rgba(125, 139, 17, 0.7);
 }
 
+.admin-menu-button{
+    border-radius: 0.5em;
+    background-color: rgb(0, 71, 165);
+    border: none;
+    width: 15em;
+    height: 4em;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    color: white;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.admin-menu-button:hover {
+    background-color: rgba(2, 84, 236, 0.459);
+}
+
 .danger-zone-container {
     margin-bottom: 3em;
 }
@@ -124,6 +141,74 @@
     padding-right: 15px;
     margin-top: 0.5em;
     text-decoration: none;
+}
+
+.UserInfo p {
+    font-size: 20px;
+}
+
+.menu {
+    grid-template-columns: repeat(5, auto);
+}
+
+@media screen and (max-width: 1380px) {
+    .menu {
+        grid-template-columns: repeat(4, auto);
+    }
+}
+
+@media screen and (max-width: 1090px) {
+    .menu {
+        grid-template-columns: repeat(3, auto);
+    }
+}
+
+@media screen and (max-width: 830px) {
+    .menu {
+        grid-template-columns: repeat(2, auto);
+    }
+}
+
+@media screen and (max-width: 545px) {
+    .menu {
+        text-align: center;
+        display: block;
+    }
+}
+
+.page-buttons {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.page-buttons button {
+    border: none;
+    border-radius: 2px;
+    padding: 3px 9px;
+    color: black;
+    background-color: rgba(125, 139, 17, 0.5);
+}
+
+.page-buttons button:hover {
+    border: none;
+    color: white;
+    background-color: rgba(125, 139, 17, 0.8);
+}
+
+.ResultsAndSort {
+    display: flex;
+    margin-bottom: -2em;
+}
+
+#results {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+#select-sort {
+    margin-left: auto;
+    margin-right: 0;
 }
 
 @media screen and (max-width: 760px) {

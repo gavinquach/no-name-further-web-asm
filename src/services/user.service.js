@@ -6,13 +6,8 @@ class UserService {
         return axiosTokenHeader.post(API_URL + "signup", user);
     }
 
-    createUserWithRoles(username, email, password, roles) {
-        return axiosTokenHeader.post(API_URL + "user", {
-            username,
-            email,
-            password,
-            roles
-        });
+    createUserWithRoles(user) {
+        return axiosTokenHeader.post(API_URL + "user", user);
     }
 
     viewAllUsers() {
@@ -80,16 +75,24 @@ class UserService {
         return axiosTokenHeader.post(API_URL + "user/cart/view", { userid });
     }
 
-    viewUserItems(userid) {
-        return axiosTokenHeader.get(API_URL + "user/items/" + userid);
+    viewUserItems(userid, sort, page, limit) {
+        const url = `${userid}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "user/items/" + url);
     }
 
-    getUserNotifications(userid) {
-        return axiosTokenHeader.get(API_URL + "user/notifications/" + userid);
+    getUserNotifications(userid, sort, page, limit) {
+        const url = `${userid}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "user/notifications/" + url);
     }
 
-    getUserUnreadNotifications(userid) {
-        return axiosTokenHeader.get(API_URL + "user/unreadnotifications/" + userid);
+    getUserUnreadNotifications(userid, sort, page, limit) {
+        const url = `${userid}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "user/unreadnotifications/" + url);
+    }
+
+    getUserNotificationsByType(userid, type, sort, page, limit) {
+        const url = `${userid}/${type}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "user/notifications/" + url);
     }
 
     addNotification(data) {
@@ -106,6 +109,16 @@ class UserService {
         return axiosTokenHeader.patch(API_URL + "user/read/notifications", {
             notifications
         });
+    }
+
+    setUnreadNotifications(notifications) {
+        return axiosTokenHeader.patch(API_URL + "user/unread/notifications", {
+            notifications
+        });
+    }
+
+    publicgetUser(username) {
+        return axiosTokenHeader.get(API_URL + "public/user/" + username);
     }
 }
 

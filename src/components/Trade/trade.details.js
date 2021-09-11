@@ -1,11 +1,13 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 import TransactionService from "../../services/transaction.service";
+import socket from '../../services/socket';
 
 import "../../css/TradeDetails.css"
-import { Link } from "react-router-dom";
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -54,7 +56,11 @@ export default class Transactions extends Component {
             // something went wrong while getting transaction),
             // redirect to home page
             this.props.history.push("/");
-            console.log(error);
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
         });
     }
 
@@ -69,27 +75,34 @@ export default class Transactions extends Component {
             ).then(
                 () => {
                     this.load();
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
-                    console.log(resMessage);
                 }
-            );
-
+            ).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
         }
+    }
+
+    chatWithUser = (transaction) => {
+        const data = {
+            user: AuthService.getCurrentUser().id,
+            receiver: transaction.user_seller._id == AuthService.getCurrentUser().id ? transaction.user_buyer._id : transaction.user_seller._id,
+            transaction: transaction
+        };
+        socket.emit("chatWithUserRequest", data);
     }
 
     render() {
         const transaction = this.state.transaction && this.state.transaction;
         const item = this.state.item && this.state.item;
         return (
-            <div className="container">
+            <div className="page-container">
+                <Helmet>
+                    <title>Trade Details</title>
+                </Helmet>
                 <h1>Trade Details</h1>
                 <br />
                 {(transaction && item) && (
@@ -98,9 +111,9 @@ export default class Transactions extends Component {
                         <p>Trader: {transaction.user_buyer.username}</p>
                         <p>Owner: {transaction.user_seller.username}</p>
                         <Link to={"/item/" + item._id} className="ItemPanel">
-                            {item.images.map(image =>
+                            {item.images.map((image, index) =>
                                 image.cover && (
-                                    <img className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
+                                    <img key={index + "-img"} className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                 )
                             )}
                             <div className="ItemDetails">
@@ -122,7 +135,7 @@ export default class Transactions extends Component {
                         <p>Trade expiration date: {formatDate(transaction.expiration_date)}</p>
                         <br />
                         <button className="TradeButton" onClick={() => this.requestCancel(transaction)}>Request trade cancellation</button>
-                        <button className="TradeButton" onClick={() => {}}>Chat with owner</button>
+                        <button className="TradeButton" onClick={() => this.chatWithUser(transaction)}>Chat with user</button>
                     </div>
                 )}
             </div>

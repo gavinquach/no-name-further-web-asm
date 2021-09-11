@@ -4,8 +4,8 @@ const router = require("../routes");
 
 
 router
-    .route("/most-items-quantity")
-    .get(controller.aliasTopItemQuantity, controller.getAllItems);
+    .route("/most-offers-items")
+    .get(controller.getMostOfferItems, controller.getAllItems);
 
 router
     .route("/item/:id")

@@ -17,9 +17,13 @@ export default class AdminViewUser extends Component {
         UserService.viewUsers()
             .then(response => {
                 // console.log(response.data);
-                this.setState({ users: response.data });
-            }).catch(function (error) {
-                console.log(error);
+                this.setState({ users: response.data.users });
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             })
     }
 

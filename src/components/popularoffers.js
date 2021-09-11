@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import ItemService from "../services/item.service";
 import '../css/ItemCategories.css';
 import '../css/ItemMenu.css'
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 
 export default class PopularOffers extends Component {
     constructor(props) {
@@ -39,8 +39,12 @@ export default class PopularOffers extends Component {
                 results: response.data.results,
                 items: response.data.items
             }, () => this.loadPageButtons());
-        }).catch(function (error) {
-            console.log(error);
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
         });
     }
 
@@ -142,11 +146,10 @@ export default class PopularOffers extends Component {
                                 <h2 style={{ textAlign: "center" }}>No items found.</h2>
                             </div>
                         )}
-                     </div>
-                    <div className="page-buttons">
-                        {this.state.pageButtons}
-                    </div>
-               
+                </div>
+                <div className="page-buttons">
+                    {this.state.pageButtons}
+                </div>
             </div>
         )
     }

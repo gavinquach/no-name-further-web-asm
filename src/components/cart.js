@@ -2,9 +2,10 @@ import React, { Component } from "react";
 
 import AuthService from "../services/auth.service";
 import UserService from "../services/user.service";
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
+import "../css/Cart.css";
 
 export default class Cart extends Component {
     constructor(props) {
@@ -16,15 +17,19 @@ export default class Cart extends Component {
         this.setState({ cart: [] });
         UserService.viewUserCart(AuthService.getCurrentUser().id).then(response => {
             this.setState({ cart: response.data });
-        }).catch(function (error) {
-            console.log(error);
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
         })
     }
 
     componentDidMount() {
         this.load();
     }
-    
+
     removeFromCart = (itemid) => {
         if (window.confirm("Are you sure you want to remove item " + itemid + " from cart?")) {
             UserService.deleteItemFromCart(
@@ -41,41 +46,48 @@ export default class Cart extends Component {
                             error.response.data.message) ||
                         error.message ||
                         error.toString();
-
-                    // console.log(resMessage);
                 }
             );
         }
     }
 
+    renderHTML() {
+        if (this.state.cart) {
+            return this.state.cart.map((item, index) => {
+                return (
+                    <div key={index} className="cart-item" >
+                        <div className="cart-row">
+                            <Link to={"/item/" + item._id}>
+                                <div className="ItemPanel">
+                                    {item.images.map((image, index) => {
+                                        return (
+                                            image.cover && (<img key={index} className="d-block w-50 h-50" src="https://cdn.tgdd.vn/2020/10/CookProduct/Sushi-la-gi-co-tot-khong-nhung-loai-sushi-tot-va-khong-tot-cho-suc-khoe-1-1200x676.jpg" alt={image.name} />)
+                                        )
+                                    })}
+                                    <h4 className="text-cart">{item.name} for {item.forItemName}</h4>
+                                </div>
+                            </Link>
+                        </div>
+                        <button className="btn btn-danger remove-cart" onClick={() => this.removeFromCart(item._id)}>Remove</button>
+                    </div>
+                )
+            })
+        }
+    }
+
     render() {
+        console.log(this.state)
         return (
-            <div className ="page-container">
-                 <Helmet>
+            <div className="page-container">
+                <Helmet>
                     <title>Cart</title>
                 </Helmet>
                 <div className="title">Cart</div>
                 <hr className="section-line" />
                 <div className="white-container">
-                    {this.state.cart.map(item =>
-                        <div>
-                            <div style={{ width: '40em', height: '10em', marginTop: '2em' }}>
-                                <Link to={"/item/" + item._id}>
-                                    <div className="ItemPanel">
-                                        {item.images.map(image =>
-                                            image.cover && (
-                                                <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} alt={image.name} />
-                                            )
-                                        )}
-                                        <h4>{item.name} for {item.forItemName}</h4>
-                                    </div>
-                                </Link>
-                            </div>
-                            <button onClick={() => this.removeFromCart(item._id)}>Remove from cart</button>
-                        </div>
-                    )}
+                    {this.renderHTML()}
                 </div>
-            </div>
+            </div >
         );
     }
 }

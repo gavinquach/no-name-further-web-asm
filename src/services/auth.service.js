@@ -4,6 +4,8 @@ const API_URL = require("./index");
 class AuthService {
     logout = () => {
         localStorage.removeItem("user");
+        localStorage.removeItem("chatOpened");
+        localStorage.removeItem("conversationId");
     }
 
     getCurrentUser = () => {

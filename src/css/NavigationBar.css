@@ -1,9 +1,10 @@
 .navbar {
-    background-color: #7d8b11;
-    margin-bottom: 2em;
+    background-color: rgb(250, 248, 248);
+    margin-bottom: 1em;
     position: fixed;
     top: 0;
     width: 100%;
+    border-bottom:1px solid gray;
   }
   
   .nav {
@@ -11,15 +12,16 @@
   }
   
   .navbar-text {
-    font-size: 1.5em;
+    font-size: 1.1em;
     font-weight: bold;
-    color: white !important;
+    color: rgb(68, 67, 67) !important;
     transition: 0.3s;
   }
   
   .navbar-text:hover {
     font-weight: bold;
-    color: #f3e0c2 !important;
+    color: #ff9d00 !important;
+    text-decoration: none;
   }
   
   .navbar-item {
@@ -34,17 +36,17 @@
   .button1 {
     border-radius: 0.3em;
     background-color: white;
-    border: 2px solid white;
-    width: 7em;
-    height: 2.9em;
+    border: 1px solid black;
+    width: 6em;
+    height: 2.5em;
     font-weight: bold;
     transition: 0.3s;
   }
   
   .button2 {
-    border-radius: 0.5em;
+    border-radius: 0.3em;
     background-color: white;
-    border: 2px solid white;
+    border: 1px solid black;
     width: 7em;
     height: 2.8em;
     font-weight: bold;
@@ -52,12 +54,12 @@
   }
   
   .button1:hover {
-    background-color: #f3e0c2;
+    background-color: white;
     border: 2px solid #484e10;
   }
   
   .button2:hover {
-    background-color: #f3e0c2;
+    background-color: #000000;
     border: 2px solid #484e10;
   }
   
@@ -82,7 +84,8 @@
     color: black;
     text-decoration: none;
     font-weight: 500;
-    padding: 10px 20px;
+    border: 1px solid black;
+    padding: 7px 18px;
     margin-right: 1em;
     position: relative;
     display: inline-block;

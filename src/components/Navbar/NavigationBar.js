@@ -1,9 +1,10 @@
 import { React, Component } from 'react';
 import { Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faUserAlt } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons';
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css';
@@ -48,13 +49,41 @@ export default class NavigationBar extends Component {
         if (!AuthService.isLoggedIn()) {
             return;
         }
+        this.loadNotifications();
+
+        socket.on("receiveNotifications", data => {
+            const temp = this.state.notifications;
+            // push new notification to first index
+            temp.unshift(data);
+            // add to unread notification count
+            const unreadCountCount = this.state.unreadCount + 1;
+            this.setState({
+                notifications: temp,
+                unreadCount: unreadCountCount
+            });
+        });
+
+        // user selects "Mark all as read" or "Mark all as unread"
+        // on user notifications page, reload notifications on
+        // navigation bar
+        socket.on("receiveNavBarNotificationsReloadRequest", () => {
+            this.loadNotifications();
+        });
+    }
+
+    logOut = () => {
+        AuthService.logout();
+        window.location.reload();
+    }
+
+    loadNotifications = () => {
         UserService.getUserNotifications(AuthService.getCurrentUser().id)
             .then(
                 response => {
-                    if (response.data) {
+                    if (response.data.notifications) {
                         // user has more than 5 total notifications
-                        if (response.data.length > 5) {
-                            const temp = response.data;
+                        if (response.data.notifications.length > 5) {
+                            const temp = response.data.notifications;
 
                             // create array for all unread notifications
                             const unreadList = [];
@@ -66,7 +95,7 @@ export default class NavigationBar extends Component {
                             // display notifications normally
                             if (unreadList.length == 0) {
                                 this.setState({
-                                    notifications: response.data,
+                                    notifications: response.data.notifications,
                                     unreadCount: unreadList.length
                                 });
                             }
@@ -126,36 +155,23 @@ export default class NavigationBar extends Component {
                         else {
                             //get unread count
                             let count = 0;
-                            response.data.map(notification => {
+                            response.data.notifications.map(notification => {
                                 !notification.read && count++;
                             });
                             this.setState({
-                                notifications: response.data,
+                                notifications: response.data.notifications,
                                 unreadCount: count
                             });
                         }
                     }
                 })
             .catch((error) => {
-                console.log(error);
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             });
-
-        socket.on("receiveNotifications", data => {
-            const temp = this.state.notifications;
-            // push new notification to first index
-            temp.unshift(data);
-            // add to unread notification count
-            const unreadCountCount = this.state.unreadCount + 1;
-            this.setState({
-                notifications: temp,
-                unreadCount: unreadCountCount
-            });
-        });
-    }
-
-    logOut = () => {
-        AuthService.logout();
-        window.location.reload();
     }
 
     setReadNotification = (notification) => {
@@ -172,7 +188,11 @@ export default class NavigationBar extends Component {
 
             })
             .catch((error) => {
-                console.log(error);
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             });
     }
 
@@ -187,10 +207,15 @@ export default class NavigationBar extends Component {
             this.state.notifications
         )
             .then(() => {
-
+                // send request to reload notifications to user notifications page
+                socket.emit("requestReloadNotifications", AuthService.getCurrentUser().id);
             })
             .catch((error) => {
-                console.log(error);
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             });
     }
 
@@ -244,8 +269,8 @@ export default class NavigationBar extends Component {
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>
                         <Nav className="nav">
-                            <Link className="navbar-text navbar-item" to="/trades" >Trades</Link>
-                            <Link className="navbar-text navbar-item" to="/cart">Cart</Link>
+                            <Link className="navbar-text navbar-item" to="/trades" >My Trades</Link>
+                            <Link className="navbar-text navbar-item" to="/cart">My Cart</Link>
 
                             {/* show user panel user is logged in */}
                             {currentUser && (
@@ -311,27 +336,30 @@ export default class NavigationBar extends Component {
                         <Nav>
                             {currentUser ? (
                                 <span className="Nav-bar-item Push-left">
-                                    <NavDropdown className="Nav-bar-text Nav-bar-item" title={
-                                        <Link to="/user" id="username-text">
-                                            <button className="Nav-bar-text button1" >
-                                                {currentUser.username}
-                                            </button>
-                                        </Link>
-                                    } id="basic-nav-dropdown" renderMenuOnMount={true}>
-                                        <NavDropdown.Item>
-                                            <Link to="/user" className="text-dark">
+                                    <NavDropdown className="Nav-bar-text Nav-bar-item"
+                                        title={
+                                            <Link to="/user">
+                                                <button className="Nav-bar-text button1" >
+                                                    {currentUser.username}
+                                                </button>
+                                            </Link>
+                                        }
+                                        id="basic-nav-dropdown"
+                                        renderMenuOnMount={true}>
+                                        <NavDropdown.Item as={Link} to="/user" >
+                                            <span to="/user" className="text-dark">
                                                 <button className="btn-warning Sign-up-btn nav-btn button-spec Nav-link">
                                                     Profile
                                                 </button>
-                                            </Link>
+                                            </span>
                                         </NavDropdown.Item>
                                         <NavDropdown.Divider />
-                                        <NavDropdown.Item>
-                                            <Link to="/" className="text-white">
+                                        <NavDropdown.Item as={Link} to="/">
+                                            <span to="/" className="text-white">
                                                 <button className="btn-danger Sign-up-btn nav-btn button-spec Nav-link" onClick={this.logOut}>
                                                     Log Out
                                                 </button>
-                                            </Link>
+                                            </span>
                                         </NavDropdown.Item>
                                     </NavDropdown>
                                 </span>
@@ -339,40 +367,42 @@ export default class NavigationBar extends Component {
                                 <span className="Nav-bar-item Push-left">
                                     <NavDropdown className="Nav-bar-text Nav-bar-item"
                                         title={
-                                            <button className="Nav-bar-text button1">
-                                                {user} Log In
-                                            </button>
+                                            <Link to="/login">
+                                                <button className="Nav-bar-text button1">
+                                                    {user} Log In
+                                                </button>
+                                            </Link>
                                         }
                                         id="basic-nav-dropdown"
                                         renderMenuOnMount={true}>
-                                        <NavDropdown.Item>
-                                            <Link to="/login" className="text-dark">
+                                        <NavDropdown.Item as={Link} to="/login">
+                                            <span to="/login" className="text-dark">
                                                 <button className="btn-warning Log-in-out-btn nav-btn button-spec Nav-link">
                                                     Log In
                                                 </button>
-                                            </Link>
+                                            </span>
                                         </NavDropdown.Item>
-                                        <NavDropdown.Item>
-                                            <Link to="/signup" className="text-dark">
+                                        <NavDropdown.Item as={Link} to="/signup">
+                                            <span to="/signup" className="text-dark">
                                                 <button className="btn-warning Sign-up-btn nav-btn button-spec Nav-link">
                                                     Sign Up
                                                 </button>
-                                            </Link>
+                                            </span>
                                         </NavDropdown.Item>
                                         <NavDropdown.Divider />
-                                        <NavDropdown.Item>
-                                            <Link to="#" id="username-text" className="text-white">
+                                        <NavDropdown.Item as={Link} to="#">
+                                            <span to="#" id="username-text" className="text-white">
                                                 <button className="btn p-2 btn-primary nav-btn button-spec Nav-link">
                                                     {facebook} Login with Facebook
                                                 </button>
-                                            </Link>
+                                            </span>
                                         </NavDropdown.Item>
-                                        <NavDropdown.Item>
-                                            <Link to="#" id="username-text" className="text-white">
+                                        <NavDropdown.Item as={Link} to="#">
+                                            <span to="#" id="username-text" className="text-white">
                                                 <button className="btn p-2 btn-danger nav-btn button-spec Nav-link">
                                                     {google} Sign in with Google+
                                                 </button>
-                                            </Link>
+                                            </span>
                                         </NavDropdown.Item>
                                     </NavDropdown>
                                 </span>

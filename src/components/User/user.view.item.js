@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom'
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
@@ -22,9 +22,13 @@ export default class UserViewItem extends Component {
             AuthService.getCurrentUser().id
         ).then(response => {
             // console.log(response.data);
-            this.setState({ items: response.data });
-        }).catch(function (error) {
-            console.log(error);
+            this.setState({ items: response.data.items });
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
         })
     }
 
@@ -62,7 +66,6 @@ export default class UserViewItem extends Component {
 
     showListings = () => {
         return (
-            
             <table className="container table table-striped" style={{ marginTop: 20 }}>
                 <thead>
                     <tr>
@@ -112,15 +115,15 @@ export default class UserViewItem extends Component {
 
     render() {
         return (
-            <div className ="page-container">
-                 <Helmet>
+            <div className="page-container">
+                <Helmet>
                     <title>Item Listing</title>
                 </Helmet>
-                 <div className = "title">Listings</div>
-                    <hr className="section-line" />
-                    <div className="menu white-container">
-                { this.state.items.length == 0 ? this.displayCreateItem() : this.showListings() }
-            </div>
+                <div className="title">Listings</div>
+                <hr className="section-line" />
+                <div className="menu white-container">
+                    {this.state.items.length == 0 ? this.displayCreateItem() : this.showListings()}
+                </div>
             </div>
         );
     }

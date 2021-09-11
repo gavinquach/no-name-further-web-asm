@@ -11,11 +11,15 @@ export default class Offers extends Component {
     }
 
     loadItems = () => {
-        ItemService.getItemsByTransaction("-offers")
+        ItemService.getMostOffersItems()
             .then(response => {
                 this.setState({ items: response.data.items });
-            }).catch(function (error) {
-                console.log(error);
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             })
     }
 

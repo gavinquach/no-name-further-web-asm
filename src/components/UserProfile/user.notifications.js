@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Helmet } from "react-helmet";
 import DOMPurify from 'dompurify';
+import { Link, Redirect } from 'react-router-dom';
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/Notifications.css';
@@ -10,7 +11,6 @@ import UserService from "../../services/user.service";
 import socket from '../../services/socket';
 
 import ProfileSideBar from "./user.profile.sidebar"
-import { Link } from 'react-router-dom';
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -34,67 +34,105 @@ export default class Notifications extends Component {
         super(props);
         this.state = {
             notifications: [],
-            message: "You have no notifications."
+            message: "You have no notifications.",
+            currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
+            totalPages: 0,
+            pageButtons: [],
+            limit: 10
         };
     }
 
     load = () => {
         // get hash value in URL
         const hash = window.location.hash.replace("#", "");
-        UserService.getUserNotifications(
-            AuthService.getCurrentUser().id
-        ).then(response => {
-            if (hash == "unread") {
-                // create array for all unread notifications
-                const list = [];
-                response.data.map(notification => {
-                    !notification.read && list.push(notification);
-                });
-
+        if (hash == "unread") {
+            UserService.getUserUnreadNotifications(
+                AuthService.getCurrentUser().id,
+                "-createdAt",
+                this.state.currentPage,
+                this.state.limit
+            ).then(response => {
                 this.setState({
-                    notifications: list,
+                    totalPages: response.data.totalPages,
+                    notifications: response.data.notifications,
                     message: "No unread notifications."
-                });
-            }
+                }, () => this.loadPageButtons());
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+        }
 
-            // system notifications
-            else if (hash == "system") {
-                // create array for all unread notifications
-                const list = [];
-                response.data.map(notification => {
-                    notification.type == "system" && list.push(notification);
-                });
-
+        // system notifications
+        else if (hash == "system") {
+            UserService.getUserNotificationsByType(
+                AuthService.getCurrentUser().id,
+                hash,
+                "-createdAt",
+                this.state.currentPage,
+                this.state.limit
+            ).then(response => {
                 this.setState({
-                    notifications: list,
-                    message: "You have no system notifications."
-                });
-            }
+                    totalPages: response.data.totalPages,
+                    notifications: response.data.notifications,
+                    message: `You have no ${hash} notifications.`
+                }, () => this.loadPageButtons());
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+        }
 
-            // trade notifications
-            else if (hash == "trade") {
-                // create array for all unread notifications
-                const list = [];
-                response.data.map(notification => {
-                    notification.type == "trade" && list.push(notification);
-                });
-
+        // trade notifications
+        else if (hash == "trade") {
+            UserService.getUserNotificationsByType(
+                AuthService.getCurrentUser().id,
+                hash,
+                "-createdAt",
+                this.state.currentPage,
+                this.state.limit
+            ).then(response => {
                 this.setState({
-                    notifications: list,
-                    message: "You have no trade notifications."
-                });
-            }
+                    totalPages: response.data.totalPages,
+                    notifications: response.data.notifications,
+                    message: `You have no ${hash} notifications.`
+                }, () => this.loadPageButtons());
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+        }
 
-            // all notifications
-            else {
+        // all notifications
+        else {
+            UserService.getUserNotifications(
+                AuthService.getCurrentUser().id,
+                "-createdAt",
+                this.state.currentPage,
+                this.state.limit
+            ).then(response => {
                 this.setState({
-                    notifications: response.data,
-                    message: "You have no notifications."
-                });
-            }
-        }).catch(function (error) {
-            console.log(error);
-        })
+                    totalPages: response.data.totalPages,
+                    notifications: response.data.notifications,
+                    message: `You have no notifications.`
+                }, () => this.loadPageButtons());
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+        }
     }
 
     componentDidMount() {
@@ -102,6 +140,9 @@ export default class Notifications extends Component {
 
         // get hash value in URL
         const hash = window.location.hash.replace("#", "");
+
+        // update notification list in real-time
+        // when user receives one
         socket.on("receiveNotifications", data => {
             if (hash == "" || hash == "all" || hash == "system") {
                 if (data.type == "system") {
@@ -121,75 +162,141 @@ export default class Notifications extends Component {
                 }
             }
         });
+
+        // Navigation bar notifications get set to read
+        socket.on("receiveNotificationsReloadRequest", () => {
+            this.getNotifications();
+        });
+    }
+
+    // send socket io data to NavigationBar.js file
+    // and reload notifications on navigation bar
+    sendReloadNavBarRequest = () => {
+        socket.emit("requestReloadNavBarNotifications", AuthService.getCurrentUser().id);
     }
 
     getNotifications = () => {
+        this.setState({
+            currentPage: 1
+        }, () => {
+            const url = new URL(window.location.href);
+            const search_params = url.searchParams;
+            search_params.set("page", 1);
+            const pageURL = url.pathname + "?" + search_params.toString();
+            this.props.history.push(pageURL);
+        });
+        // timer because hash is undefined in URL
+        // if retrieved too early
         setTimeout(() => {
-            // get hash value in URL
-            const hash = window.location.hash.replace("#", "");
-            UserService.getUserNotifications(AuthService.getCurrentUser().id)
-                .then(
-                    response => {
-                        if (hash == "unread") {
-                            // create array for all unread notifications
-                            const list = [];
-                            response.data.map(notification => {
-                                !notification.read && list.push(notification);
-                            });
-
-                            this.setState({
-                                notifications: list,
-                                message: "No unread notifications."
-                            });
-                        }
-
-                        // system notifications
-                        else if (hash == "system") {
-                            // create array for all unread notifications
-                            const list = [];
-                            response.data.map(notification => {
-                                notification.type == "system" && list.push(notification);
-                            });
-
-                            this.setState({
-                                notifications: list,
-                                message: "You have no system notifications."
-                            });
-                        }
-
-                        // trade notifications
-                        else if (hash == "trade") {
-                            // create array for all unread notifications
-                            const list = [];
-                            response.data.map(notification => {
-                                notification.type == "trade" && list.push(notification);
-                            });
-
-                            this.setState({
-                                notifications: list,
-                                message: "You have no trade notifications."
-                            });
-                        }
-
-                        // all notifications
-                        else {
-                            this.setState({
-                                notifications: response.data,
-                                message: "You have no notifications."
-                            });
-                        }
-                    })
-                .catch((error) => {
-                    console.log(error);
-                });
+            this.load();
         }, 100);
     }
 
+    setNotificationsToRead = () => {
+        UserService.setReadNotifications(
+            this.state.notifications
+        )
+            .then(() => {
+                this.load();
+                this.sendReloadNavBarRequest();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+    }
+
+    setNotificationsToUnread = () => {
+        UserService.setUnreadNotifications(
+            this.state.notifications
+        )
+            .then(() => {
+                this.load();
+                this.sendReloadNavBarRequest();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+    }
+
+    updatePage = (page) => {
+        this.setState({
+            currentPage: page
+        }, () => this.load());
+    }
+
+    loadPageButtons = () => {
+        if (this.state.currentPage > this.state.totalPages) {
+            return;
+        }
+
+        // get URL for redirect
+        const url = new URL(window.location.href);
+        const search_params = url.searchParams;
+
+        const buttons = [];
+        if (this.state.currentPage > 1) {
+            const prevPage = this.state.currentPage - 1;
+            search_params.set("page", prevPage);
+            const pageURL = url.pathname + "?" + search_params.toString();
+
+            buttons.push(
+                <Link to={pageURL} onClick={() => this.updatePage(prevPage)}>
+                    <button>Previous</button>
+                </Link>
+            );
+        }
+        for (let i = 1; i <= this.state.totalPages; i++) {
+            // replace page number with index number
+            search_params.set("page", i);
+            const pageURL = url.pathname + "?" + search_params.toString();
+
+            if (i === this.state.currentPage) {
+                buttons.push(
+                    <button disabled>{i}</button>
+                )
+            } else {
+                buttons.push(
+                    <Link to={pageURL} onClick={() => this.updatePage(i)}>
+                        <p className="page-button" style={{ display: "inline", margin: '0px 8px' }}>{i}</p>
+                    </Link>
+                )
+            }
+        }
+        if (this.state.currentPage < this.state.totalPages) {
+            const nextPage = this.state.currentPage + 1;
+            search_params.set("page", nextPage);
+            const pageURL = url.pathname + "?" + search_params.toString();
+
+            buttons.push(
+                <Link to={pageURL} onClick={() => this.updatePage(nextPage)}>
+                    <button>Next</button>
+                </Link>
+            );
+        }
+        this.setState({ pageButtons: buttons });
+    }
+
     render() {
+        // ========== validate GET parameters ==========
+        const url = new URL(window.location.href);
+        const search_params = url.searchParams;
+        const page = search_params.get("page");
+        if (!page || page === "") {
+            search_params.set("page", 1);
+            const pageURL = url.pathname + "?" + search_params.toString();
+            return <Redirect to={pageURL} />
+        }
+        // ========== end of GET param validation ==========
         return (
             <div className="page-container my-profile">
                 <Helmet>
-                    <title>{AuthService.getCurrentUser().username}'s Notifications</title>
+                    <title>Notifications</title>
                 </Helmet>
                 <ProfileSideBar />
                 <div className="profile-page">
@@ -213,14 +320,6 @@ export default class Notifications extends Component {
                                 )}>
                                 System
                             </a>
-                            <a href="#unread"
-                                className={"NotificationTypesCell ".concat(
-                                    (window.location.hash == "#unread") && (
-                                        "active"
-                                    )
-                                )}>
-                                Unread
-                            </a>
                             <a href="#trade"
                                 className={"NotificationTypesCell ".concat(
                                     (window.location.hash == "#trade") && (
@@ -229,6 +328,14 @@ export default class Notifications extends Component {
                                 )}>
                                 Trade
                             </a>
+                            <a href="#unread"
+                                className={"NotificationTypesCell ".concat(
+                                    (window.location.hash == "#unread") && (
+                                        "active"
+                                    )
+                                )}>
+                                Unread
+                            </a>
                         </div>
                     </div>
 
@@ -236,39 +343,54 @@ export default class Notifications extends Component {
 
                     {/* display if there are notifications in list */}
                     {this.state.notifications.length > 0 ? (
-                        <div className="NotificationList">
-                            {/* loop through to list out the notifications */}
-                            {this.state.notifications.map((notification, index) => (
-                                <div key={index} className={notification.read ? "NotificationItem NotificationRead" : "NotificationItem NotificationUnread"}>
-                                    <div className="NotificationImageContainer">
-                                        {notification.type == "trade" && (
-                                            <img className="NotificationImage" src={logo} />
-                                        )}
-                                        {notification.type == "system" && (
-                                            <img className="NotificationImage" src={logo} />
-                                        )}
+                        <div>
+                            <div className="page-buttons">
+                                {this.state.pageButtons}
+                            </div>
+                            <div className="MarkNotifications">
+                                <div className="NotificationTypesRow">
+                                    <div className="MarkNotificationsCell" onClick={this.setNotificationsToRead}>
+                                        Mark all as read
                                     </div>
-
-                                    <div className="NotificationMessage">
-                                        <div
-                                            dangerouslySetInnerHTML={{
-                                                __html: DOMPurify.sanitize(notification.message.split(".")[0])
-                                            }}
-                                        />
-                                        <div className="NotificationDate">{formatDate(notification.createdAt)}</div>
-                                    </div>
-
-                                    <div className="NotificationButtonContainer">
-                                        {notification.type == "trade" && (
-                                            <Link to={notification.url}>
-                                                <button className="NotificationButton">
-                                                    Check trade details
-                                                </button>
-                                            </Link>
-                                        )}
+                                    <div className="MarkNotificationsCell" onClick={this.setNotificationsToUnread}>
+                                        Mark all as unread
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+                            <div className="NotificationList">
+                                {/* loop through to list out the notifications */}
+                                {this.state.notifications.map((notification, index) => (
+                                    <div key={index} className={notification.read ? "NotificationItem NotificationRead" : "NotificationItem NotificationUnread"}>
+                                        <div className="NotificationImageContainer">
+                                            {notification.type == "trade" && (
+                                                <img className="NotificationImage" src={logo} />
+                                            )}
+                                            {notification.type == "system" && (
+                                                <img className="NotificationImage" src={logo} />
+                                            )}
+                                        </div>
+
+                                        <div className="NotificationMessage">
+                                            <div
+                                                dangerouslySetInnerHTML={{
+                                                    __html: DOMPurify.sanitize(notification.message.split(".")[0])
+                                                }}
+                                            />
+                                            <div className="NotificationDate">{formatDate(notification.createdAt)}</div>
+                                        </div>
+
+                                        <div className="NotificationButtonContainer">
+                                            {notification.type == "trade" && (
+                                                <Link to={notification.url}>
+                                                    <button className="NotificationButton">
+                                                        Check trade details
+                                                    </button>
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ) : (
                         // no notifications, display text

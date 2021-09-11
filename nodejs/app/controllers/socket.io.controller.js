@@ -26,5 +26,21 @@ module.exports = (io) => {
         socket.on("notifyUser", (data) => {
             io.to(users[data.receiver]).emit("receiveNotifications", data);
         });
+
+        socket.on("sendMessage", (msg) => {
+            io.to(users[msg.receiver]).emit("receiveMessage", msg);
+        });
+
+        socket.on("chatWithUserRequest", (data) => {
+            io.to(users[data.user]).emit("receivechatWithUserRequest", data);
+        });
+
+        socket.on("requestReloadNavBarNotifications", (user) => {
+            io.to(users[user]).emit("receiveNavBarNotificationsReloadRequest", user);
+        });
+
+        socket.on("requestReloadNotifications", (user) => {
+            io.to(users[user]).emit("receiveNotificationsReloadRequest", user);
+        });
     });
 }

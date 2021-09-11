@@ -4,10 +4,12 @@ const Item = model.item;
 const ItemCategory = model.itemCategory;
 const Transaction = model.transaction;
 const User = model.user;
+const APIFeatures = require("./apiFeature");
 
 const img = require("../config/img.config");
 const fs = require("fs");
 const uploadFile = require("../middlewares/storeImage");
+const { features } = require("process");
 
 exports.createItem = async (req, res) => {
     try {
@@ -367,76 +369,6 @@ exports.getItem = async (req, res) => {
 // ============= Duong Work for Advanced API  =============
 // Duong'version with Pagination/ Filtering / Sorting  from Duong development branch
 
-// Create API Features object to implement in other model if needed
-// The default sorting is sort by _id
-class APIFeatures {
-    constructor(query, queryString) {
-        this.query = query;
-        this.queryString = queryString;
-    }
-
-    // Advanced filtering with
-    // greater than, greater than or equal to,
-    // less than, less than or equal to
-    filter() {
-        const queryObj = { ...this.queryString };
-        const excludedFields = ["page", "sort", "limit", "fields", "category"];
-        excludedFields.forEach(el => delete queryObj[el]);
-
-        let queryStr = JSON.stringify(queryObj);
-
-        // Replace all case with new string including $ sign before for mongoose query
-        queryStr = queryStr.replace(/\b(gte|gt|lt|lte)\b/g, match => `$${match}`);
-
-        // initialize query based on param
-        this.query = this.query.find(JSON.parse(queryStr))
-        return this;
-    }
-
-    // Sorting (sort a field by ascending or descending)
-    sort() {
-        if (this.queryString.sort) {
-            // split elements to sort
-            const sortBy = this.queryString.sort.split(',').join(' ');
-            this.query = this.query.sort(sortBy)
-        } else {
-            this.query = this.query.sort('_id');
-        }
-        return this;
-    }
-
-    // Field limiting
-    limitFields() {
-        if (this.queryString.fields) {
-            const fields = this.queryString.fields.split(',').join(' ');
-            this.query = this.query.select(fields);
-        } else {
-            this.query = this.query.select('-__v');
-        }
-        return this;
-    }
-
-    // Pagination with param page, and object limit per page
-    paginate() {
-        // current page
-        let page = 1;
-        // validate value
-        if (this.queryString.page && this.queryString.page !== 'undefined' && parseInt(this.queryString.page) > 0) {
-            page = parseInt(this.queryString.page);
-        }
-
-        // amount of results per page
-        let limit = 6;
-        // validate value
-        if (this.queryString.limit && this.queryString.limit === 'undefined' && parseInt(this.queryString.limit) > 0) {
-            limit = parseInt(this.queryString.limit);
-        }
-        const skip = (page - 1) * limit;
-
-        this.query = this.query.skip(skip).limit(limit);
-        return this;
-    }
-}
 
 // This is Alias to shorten URL, standard mechanism instead of custom params
 // Can be applied to other features such as Least Quantity, Most Transaction, etc,... based on use cases
@@ -448,29 +380,22 @@ exports.aliasTopItemQuantity = (req, res, next) => {
     next();
 }
 
+exports.getMostOfferItems = (req, res, next) => {
+    req.query.limit = "6";
+    req.query.sort = "-offers"
+    next();
+}
+
+
 // Advanced get all items function with Pagination/ Filtering / Sorting 
 exports.getAllItems = async (req, res) => {
     let items = [];
-    let limit = 6;
     let total = 0;
-    // validate value
-    if (req.query.limit && req.query.limit === 'undefined' && parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
 
     try {
-        let queryString = "{}";
-        // has category in GET param
-        if (req.query.category && req.query.category !== "undefined") {
-            const category = await ItemCategory.findOne({
-                name: req.query.category.replace("-", "/")
-            }).exec();
-            queryString = `{"type":"${category._id}"}`
-        }
-
         // Execute query from Feature API object
-        const features = new APIFeatures(
-            Item.find(JSON.parse(queryString))
+        const features = await new APIFeatures(
+            Item.find()
                 .populate("type", "-__v")
                 .populate("forItemType", "-__v")
                 .populate("images", "-__v")
@@ -480,63 +405,30 @@ exports.getAllItems = async (req, res) => {
             .sort()
             // commented out since populate forces it to display everything anyways
             // .limitFields()
-            .paginate();
+            .filterByCategory();
 
-        items = await features.query;
-        // get total amount of results to calculate total pages
-        total = await Item.countDocuments(JSON.parse(queryString));
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-    if (items.length < 1) return res.status(404).send({ message: "Items not found." });
 
-    res.status(200).json({
-        result: items.length,
-        totalPages: Math.ceil(total / limit),
-        items: items
-    });
-};
+        //count retrieved total data before pagination
+        total = await Item.countDocuments(features.query);
 
-// Get items by category
-exports.getItemsByCategory = async (req, res) => {
-    let items = [];
-    let limit = 6;
-    let total = 0;
-    // validate value
-    if (req.query.limit && req.query.limit === 'undefined' && parseInt(req.query.limit) > 0) {
-        limit = parseInt(req.query.limit);
-    }
-    try {
-        const category = await ItemCategory.findOne({
-            name: req.params.category.replace("-", "/")
-        }).exec();
+        // paginating data
+        items = await features.paginate().query;
 
-        // Execute query from Feature API object
-        const features = new APIFeatures(
-            Item.find({
-                type: category
-            })
-                .populate("type", "-__v")
-                .populate("forItemType", "-__v")
-                .populate("images", "-__v")
-                .populate("seller", "-__v")
-            , req.query)
-            .filter()
-            .sort()
-            .limitFields()
-            .paginate();
+        if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
 
-        items = await features.query;
-        total = await Item.countDocuments({ type: category });
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+        res.status(200).json({
+            result: items.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            items: items
+        });
+
 
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (items.length < 1) return res.status(404).send({ message: "Items not found." });
 
-    res.status(200).json({
-        results: items.length,
-        totalPages: Math.ceil(total / limit),
-        items: items
-    });
 };

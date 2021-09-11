@@ -1,0 +1,342 @@
+/* Custom scrollbar
+** Source: https://www.w3schools.com/howto/howto_css_custom_scrollbar.asp
+*/
+/* width */
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+.ChatButton {
+    position: fixed;
+    right: 1.25em;
+    bottom: 1.25em;
+    width: 4em;
+    height: 4em;
+    border-radius: 50%;
+    box-shadow: 2px 2px 7px black;
+    z-index: 999;
+    transition: width 0.1s linear, height 0.1s linear;
+}
+
+.ChatButton .badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  padding: 5px 7.5px;
+  border-radius: 50%;
+  background-color: red;
+  color: white;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 18px;
+}
+
+.CloseChatButton {
+    background-color: rgb(0, 87, 200);
+}
+
+.CloseChatButton:hover {
+    cursor: pointer;
+    /* width: 5em;
+    height: 5em; */
+}
+
+#fa-icon-comment {
+    font-size: 36px; /* 12px, 24px, 36px, 48px, ... */
+    color: white;
+    position: relative;
+    left: 17px;
+    top: 14px;
+    /* transition: font-size 0.1s linear; */
+    transition: top 0.1s linear;
+}
+
+.CloseChatButton:hover #fa-icon-comment {
+    /* font-size: 48px; */
+    top: 9px;
+}
+
+.OpenChatButton {
+    background-color: rgb(170, 0, 0);
+}
+
+.OpenChatButton:hover {
+    cursor: pointer;
+}
+
+#fa-icon-cross {
+    font-size: 36px; /* 12px, 24px, 36px, 48px, ... */
+    color: white;
+    position: relative;
+    left: 20px;
+    top: 14px;
+    text-align: center;
+    transition: font-size 0.1s linear, left 0.1s linear, top 0.1s linear;
+}
+
+.OpenChatButton:hover #fa-icon-cross {
+    font-size: 48px;
+    left: 16px;
+    top: 9px;
+}
+
+.ShowChatPanel {
+    opacity: 1;
+    width: 25em;
+    min-width: 17em;
+    height: 18em;
+}
+
+.HideChatPanel {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+#chat-panel {
+    display: flex;
+    position: fixed;
+    font-size: 18px;
+    right: 6em;
+    bottom: 1.25em;
+    z-index: 999;
+    background-color: white;
+    border: 1px solid rgb(156, 156, 156);
+    border-radius: 3px;
+    box-shadow: 2px 2px 5px black;
+    transition: opacity 0.2s linear, width 0.2s linear, height 0.2s linear;
+}
+
+#user-list {
+    width: 30%;
+    border-right: 1px solid rgb(156, 156, 156);
+    overflow-y: scroll;
+    overflow-x: scroll;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.UserListItems {
+    height: 3em;
+    border-bottom: 1px solid rgb(156, 156, 156);
+    padding-left: 5px;
+}
+
+.UserListItemsDate {
+    font-size: 13px;
+    text-align: right;
+    padding-right: 5px;
+}
+
+.HighlightItem {
+    background-color:rgb(204, 204, 204);
+}
+
+.UnreadMessageText {
+    position: absolute;
+    font-size: 13px;
+    color: red;
+}
+
+#chat-box {
+    width: 70%;
+    padding: 0 0 6px 6px; /* top, right, bottom, left */
+}
+
+#chat-bubbles {
+    height: 90%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 6px 6px 0 0;
+    list-style: none;
+    margin: 0;
+    font-size: 16px;
+}
+
+#input-area {
+    height: 10%;
+}
+
+#input {
+    font-size: 15px;
+    width: 90%;
+    height: 2em;
+    border: 1px solid rgb(156, 156, 156);
+    border-radius: 12px;
+    padding: 3px 6px;
+    outline: none;
+}
+
+#fa-icon-send {
+    position: absolute;
+    right: -5px;
+    font-size: 22px;
+    width: 10%;
+    margin-left: 5px;
+    color: blue;
+    transition: font-size 0.1s linear;
+    border: none;
+    background: none;
+    padding: 0;
+    outline: none;
+}
+
+#fa-icon-send:hover {
+    cursor: pointer;
+    font-size: 24px;
+}
+
+#fa-icon-send-disabled {
+    position: absolute;
+    right: -5px;
+    font-size: 22px;
+    width: 10%;
+    cursor: default;
+    color: silver;
+    transition: none;
+    border: none;
+    background: none;
+    padding: 0;
+    outline: none;
+}
+
+#text-for-user {
+    text-align: center;
+    margin: auto;
+}
+
+.ChatBubble {
+    clear: both;
+    max-width: 60%;
+    min-height: 2em;
+    border-radius: 18px;
+    padding: 4px 10px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.SentMessages {
+    float: right;
+    color: white;
+    background-color: rgb(0, 65, 206);
+}
+
+.ReceivedMessages {
+    float: left;
+    color: black;
+    background-color: rgb(230, 230, 230);
+}
+
+/* ================ */
+/* gaps for bubbles */
+.SmallGap {
+    margin-bottom: 2px;
+}
+
+.BigGap {
+    margin-bottom: 4px;
+}
+/* ================ */
+
+
+/* ================================ */
+/* bubble formatting like Messenger */
+.SquareBothLeft {
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.SquareBottomLeft {
+    border-bottom-left-radius: 5px;
+}
+
+.SquareTopLeft {
+    border-top-left-radius: 5px;
+}
+
+.SquareBothRight {
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.SquareBottomRight {
+    border-bottom-right-radius: 5px;
+}
+
+.SquareTopRight {
+    border-top-right-radius: 5px;
+}
+/* ================================ */
+
+
+/* responsive chat box */
+@media screen and (max-width: 575px) {
+    #chat-panel {
+        right: 1em;
+        bottom: 6em;
+    }
+}
+
+@media screen and (max-width: 485px) {
+    .ShowChatPanel {
+        opacity: 1;
+        width: 23em;
+        height: 18em;
+    }
+
+    #user-list {
+        visibility: hidden;
+        width: 0%;
+    }
+
+    #chat-box {
+        width: 100%;
+    }
+    
+    #fa-icon-send {
+        right: 0;
+    }
+}
+
+@media screen and (max-width: 445px) {
+    .ShowChatPanel {
+        width: 22em;
+    }
+}
+
+@media screen and (max-width: 425px) {
+    .ShowChatPanel {
+        width: 20em;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .ShowChatPanel {
+        width: 19em;
+    }
+}
+
+@media screen and (max-width: 370px) {
+    .ShowChatPanel {
+        width: 17em;
+    }
+}

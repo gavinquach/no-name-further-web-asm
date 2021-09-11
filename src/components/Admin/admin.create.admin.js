@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
+import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 import { Link, Redirect } from 'react-router-dom'
@@ -50,23 +51,104 @@ const vpassword = value => {
     }
 };
 
+const vphone = value => {
+    let phone_regex = /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/;
+    if (phone_regex.test(value) == false) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                Wrong phone number format!
+            </div>
+        );
+    }
+};
+
+const hideDistrictField = () => {
+    const container = document.getElementsByClassName("district-hide-container");
+    for (let i = 0; i < container.length; i++) {
+        let delButtonOpen = container[i];
+        delButtonOpen.classList.remove("show");
+    }
+}
+
+const showDistrictField = () => {
+    const container = document.getElementsByClassName("district-hide-container");
+    for (let i = 0; i < container.length; i++) {
+        let delButtonOpen = container[i];
+        delButtonOpen.classList.add("show");
+    }
+}
+
 export default class AdminCreateAdmin extends Component {
     constructor(props) {
         super(props);
         this.handleRegister = this.handleRegister.bind(this);
         this.onChangeUsername = this.onChangeUsername.bind(this);
         this.onChangeEmail = this.onChangeEmail.bind(this);
+        this.onChangePhone = this.onChangePhone.bind(this);
+        this.onChangeLocation = this.onChangeLocation.bind(this);
+        this.onChangeDistrict = this.onChangeDistrict.bind(this);
         this.onChangePassword = this.onChangePassword.bind(this);
 
         this.state = {
+            data: [],
+            vnLocations: [],
+            districts: [],
             username: '',
             email: '',
+            phone: "",
+            location: "",
+            district: "",
             password: '',
             roles: [],
             successful: false,
             message: "",
             checkedState: new Array(12).fill(false)
         }
+    }
+
+    componentDidMount() {
+        this.getVietnamGeoData();
+    }
+
+    getVietnamGeoData() {
+        try {
+            fetch('/vn-geo.json', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(jsonData => {
+                    this.setState({ data: jsonData.data }, () => this.getVietnamLocations());
+                });
+            // console.log("fetched vn location data");
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    getVietnamLocations() {
+        let locationList = [];
+        this.state.data.map(location => {
+            if (location.type == "Thành phố Trung ương" || location.type == "Tỉnh") {
+                locationList.push({
+                    city: location.name.replace(location.type + " ", ""),
+                    district:
+                        location.level2s.map(dist => {
+                            return dist.name;
+                        })
+
+                });
+            }
+        });
+
+        locationList.sort((a, b) => a.city.localeCompare(b.city));
+        locationList.map(location => {
+            location.district.sort();
+        });
+
+        this.setState({ vnLocations: locationList });
     }
 
     // enable multiple checkboxes to be checked
@@ -102,6 +184,42 @@ export default class AdminCreateAdmin extends Component {
     onChangeEmail = (e) => {
         this.setState({
             email: e.target.value
+        });
+    }
+
+    onChangePhone(e) {
+        this.setState({
+            phone: e.target.value
+        });
+    }
+
+    onChangeLocation(e) {
+        this.setState({
+            location: e.target.value
+        });
+        if (e.target.value === "") {
+            hideDistrictField();
+        }
+        else {
+            const districtList = [];
+            this.state.vnLocations.map(location => {
+                if (location.city == e.target.value) {
+                    location.district.map(name => {
+                        districtList.push(name);
+                    })
+                }
+            });
+            this.setState({
+                districts: districtList,
+                district: ""
+            });
+            showDistrictField()
+        }
+    }
+
+    onChangeDistrict(e) {
+        this.setState({
+            district: e.target.value
         });
     }
 
@@ -143,32 +261,34 @@ export default class AdminCreateAdmin extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            UserService.createUserWithRoles(
-                this.state.username,
-                this.state.email,
-                this.state.password,
-                roles_submit
-            ).then(
-                response => {
+            const user = {
+                username: this.state.username,
+                email: this.state.email,
+                phone: this.state.phone,
+                location: [this.state.location, this.state.district],
+                password: this.state.password,
+                roles: roles_submit,
+                verified: true
+            };
+            UserService.createUserWithRoles(user)
+                .then((response) => {
                     this.setState({
                         message: response.data.message,
                         successful: true
                     });
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
-                    this.setState({
-                        successful: false,
-                        message: resMessage
-                    });
-                }
-            );
+                }).catch((error) => {
+                    if (error.response && error.response.status != 500) {
+                        this.setState({
+                            message: error.response.data.message,
+                            successful: false
+                        });
+                    } else {
+                        this.setState({
+                            message: error,
+                            successful: false
+                        });
+                    }
+                });
         }
     }
 
@@ -206,6 +326,47 @@ export default class AdminCreateAdmin extends Component {
                         onChange={this.onChangeEmail}
                         validations={[required, email]}>
                     </Input>
+
+                    <Input
+                        id="phone"
+                        name="phone"
+                        className="Input"
+                        type="text"
+                        value={this.state.phone}
+                        onChange={this.onChangePhone}
+                        validations={[required, vphone]}
+                        placeholder="Phone number" />
+
+                    <Select
+                        id="location"
+                        name="location"
+                        className="Input"
+                        onChange={this.onChangeLocation}
+                        validations={[required]}>
+                        <option value="">Choose city</option>
+                        {
+                            this.state.vnLocations.map(location =>
+                                <option key={location.city}>{location.city}</option>
+                            )
+                        }
+                    </Select>
+
+                    <div className="hide district-hide-container">
+                        <Select
+                            id="district"
+                            name="district"
+                            className="Input"
+                            value={this.state.district}
+                            onChange={this.onChangeDistrict}
+                            validations={[required]}>
+                            <option value="">Choose district</option>
+                            {
+                                this.state.districts.map(name =>
+                                    <option key={name}>{name}</option>
+                                )
+                            }
+                        </Select>
+                    </div>
 
                     <Input
                         id="password"

@@ -70,13 +70,16 @@ const userRoutes = require('./app/routes/user.routes');
 const itemRoutes = require('./app/routes/item.routes');
 const imageRoutes = require('./app/routes/image.routes');
 const transactionRoutes = require('./app/routes/transaction.routes');
-
+const conversationRoutes = require('./app/routes/conversation.routes');
+const messageRoutes = require('./app/routes/message.routes');
 // routes
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(itemRoutes);
 app.use(imageRoutes);
 app.use(transactionRoutes);
+app.use(conversationRoutes);
+app.use(messageRoutes);
 
 // set port, listen for requests
 app.listen(PORT, () => {

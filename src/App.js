@@ -23,12 +23,14 @@ import Trades from './components/Trade/trades';
 import TradeDetails from './components/Trade/trade.details';
 import ItemCategory from "./components/ItemCategory/item.category"
 import PopularOffers from "./components/popularoffers"
+import Chat from './components/chat';
 
 import NavigationBar from './components/Navbar/NavigationBar';
 import Footer from './components/Footer/Footer'
 
 import UserProfileIndex from './components/UserProfile/user.profile.index';
 import Notifications from "./components/UserProfile/user.notifications"
+import UserPage from './components/User/user.page';
 import UserIndex from './components/User/user.index';
 import UserCreateItem from './components/User/user.create.item';
 import UserEditItem from './components/User/user.edit.item';
@@ -135,43 +137,45 @@ export default class App extends Component {
 
     render = () => {
         return (
-        <div className = "app">
-            <Router>
-                <NavigationBar obj={this.state.currentUser}/>
-                <Switch>
-                    {/* public pages */}
-                    <Route exact path="/" component={Home} />
-                    <Route exact path="/signup" component={Signup} />
-                    <Route exact path="/login/:email/:token" component={Login} />
-                    <Route exact path="/login" component={Login} />
-                    <Route path="/items" component={ItemCategory} />
-                    <Route path="/item/:id" component={ItemDetails} />
-                    <Route path="/popular" component={PopularOffers} />
+            <div className="app">
+                <Router>
+                    <NavigationBar obj={this.state.currentUser} />
+                    <Switch>
+                        {/* public pages */}
+                        <Route exact path="/" component={Home} />
+                        <Route exact path="/signup" component={Signup} />
+                        <Route exact path="/login/:email/:token" component={Login} />
+                        <Route exact path="/login" component={Login} />
+                        <Route path="/items" component={ItemCategory} />
+                        <Route path="/item/:id" component={ItemDetails} />
+                        <Route path="/popular" component={PopularOffers} />
+                        <Route exact path='/trader/:username' component={UserPage} />
 
-                    {/* user pages */}
-                    <UserProtectedRoute exact path="/cart" component={Cart} />
-                    <UserProtectedRoute exact path="/trades" component={Trades} />
-                    <UserProtectedRoute path="/trade/:id" component={TradeDetails} />
-                    <UserProtectedRoute exact path='/user' component={UserIndex} />
-                    <UserProtectedRoute exact path='/user/profile' component={UserProfileIndex} />
-                    <UserProtectedRoute exact path="/user/notifications" component={Notifications} />
-                    <UserProtectedRoute exact path='/user/create' component={UserCreateItem} />
-                    <UserProtectedRoute path='/user/edit/item/:id' component={UserEditItem} />
-                    <UserProtectedRoute exact path='/user/items' component={UserViewItem} />
-                    
-                    {/* admin pages */}
-                    <AdminProtectedRoute exact path='/admin/index' component={AdminIndex} />
-                    <AdminProtectedRoute exact path='/admin/view/admin' component={AdminViewAdmin} />
-                    <AdminProtectedRoute exact path='/admin/view/user' component={AdminViewUser} />
-                    <AdminProtectedRoute exact path='/admin/create/admin' component={AdminCreateAdmin} />
-                    <AdminProtectedRoute exact path='/admin/create/user' component={AdminCreateUser} />
-                    <AdminProtectedRoute path='/admin/edit/admin/:id' component={AdminEditAdmin} />
-                    <AdminProtectedRoute path='/admin/edit/user/:id' component={AdminEditUser} />
-                    <Route component={NotFound} />
-                </Switch>
-                <AuthVerify logOut={this.logOut} />
-                <Footer />
-            </Router>
+                        {/* user pages */}
+                        <UserProtectedRoute exact path="/cart" component={Cart} />
+                        <UserProtectedRoute exact path="/trades" component={Trades} />
+                        <UserProtectedRoute path="/trade/:id" component={TradeDetails} />
+                        <UserProtectedRoute exact path='/user' component={UserIndex} />
+                        <UserProtectedRoute exact path='/user/profile' component={UserProfileIndex} />
+                        <UserProtectedRoute exact path="/user/notifications" component={Notifications} />
+                        <UserProtectedRoute exact path='/user/create' component={UserCreateItem} />
+                        <UserProtectedRoute path='/user/edit/item/:id' component={UserEditItem} />
+                        <UserProtectedRoute exact path='/user/items' component={UserViewItem} />
+
+                        {/* admin pages */}
+                        <AdminProtectedRoute exact path='/admin/index' component={AdminIndex} />
+                        <AdminProtectedRoute exact path='/admin/view/admin' component={AdminViewAdmin} />
+                        <AdminProtectedRoute exact path='/admin/view/user' component={AdminViewUser} />
+                        <AdminProtectedRoute exact path='/admin/create/admin' component={AdminCreateAdmin} />
+                        <AdminProtectedRoute exact path='/admin/create/user' component={AdminCreateUser} />
+                        <AdminProtectedRoute path='/admin/edit/admin/:id' component={AdminEditAdmin} />
+                        <AdminProtectedRoute path='/admin/edit/user/:id' component={AdminEditUser} />
+                        <Route component={NotFound} />
+                    </Switch>
+                    <Chat />
+                    <Footer />
+                    <AuthVerify logOut={this.logOut} />
+                </Router>
             </div>
         );
     }

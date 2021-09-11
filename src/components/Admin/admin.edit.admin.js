@@ -162,11 +162,14 @@ export default class AdminEditAdmin extends Component {
                     district: response.data.location[1],
                     roles: response.data.roles
                 }, () => this.fillCheckBoxes());
-            }, error => {
-                this.props.history.push("/admin/index");
             })
-            .catch(function (error) {
-                console.log(error);
+            .catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+                this.props.history.push("/admin/index");
             })
     }
 
@@ -367,21 +370,19 @@ export default class AdminEditAdmin extends Component {
 
                     // // redirect to index page after update
                     // this.props.history.push('/admin/index');
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
-                    this.setState({
-                        successful: false,
-                        message: resMessage
-                    });
-                }
-            );
+                }).catch((error) => {
+                    if (error.response && error.response.status != 500) {
+                        this.setState({
+                            message: error.response.data.message,
+                            successful: false
+                        });
+                    } else {
+                        this.setState({
+                            message: error,
+                            successful: false
+                        });
+                    }
+                });
         }
     }
 
