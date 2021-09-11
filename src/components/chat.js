@@ -319,7 +319,6 @@ export default class Chat extends Component {
                 ).catch((error) => {
                     // conversation already exists
                     if (error.response && error.response.status == 401) {
-                        console.log(error.response);
                         // has conversation with this user already,
                         // switch chat target to this conversation
                         const temp = error.response.data.conversation;
