@@ -6,6 +6,10 @@ import ItemService from "../../services/item.service";
 import TransactionService from "../../services/transaction.service";
 import socket from '../../services/socket';
 
+import { Container, Row, Carousel, Col } from "react-bootstrap";
+
+import Offers from "./item.offers";
+
 import "../../css/ItemDetails.css"
 
 // const updateQty = (id) => {
@@ -195,90 +199,114 @@ export default class ItemDetails extends Component {
                         </h1>
                     </div>
                 ) : (
-                    <div className="page-container">
+                    <div className="">
                         <Helmet>
-                            <title>{this.state.item.name} | Details</title>
+                            <title>Detail Page</title>
                         </Helmet>
-                        <div className="title">Item Details</div>
-                        <hr className="section-line" />
-                        <div className="item white-container">
-                            <div className="item-image-box">
-                                <div className="item-image">
-                                    {this.state.item.images.map((image, index) =>
-                                        image.cover && (
-                                            <img id="main-image" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
+
+                        <Container>
+                            <div className="title">Item Details</div>
+                            <hr className="section-line" />
+                            <Row>
+                                <Carousel className="m-5" fade>
+                                    {this.state.item.images.map((image, index) => {
+                                        return (
+                                            <Carousel.Item key={index} className="carousel__item" >
+                                                <img className="d-block w-100 h-100 pic" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} alt={"Slide" + index} />
+                                            </Carousel.Item>
                                         )
-                                    )}
-                                </div>
+                                    })}
+                                </Carousel>
+                            </Row>
 
-                                <ul className="image-list">
-                                    {/* show cover first */}
-                                    {this.state.item.images.map((image, index) =>
-                                        image.cover && (
-                                            <li key={index} className="image-item" onClick={changeImage}><img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} /></li>
-                                        )
-                                    )}
-                                    {/* then show other images */}
-                                    {this.state.item.images.map((image, index) =>
-                                        !image.cover && (
-                                            <li key={index} className="image-item" onClick={changeImage}><img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} /></li>
-                                        )
-                                    )}
-                                </ul>
-                            </div>
+                            <Row>
+                                <Col>
+                                    <div>
+                                        <img className="avatar-detail" src="https://media.dayoftheshirt.com/images/shirts/uuaFB/qwertee_chubby-penguin_1478643177.large.png" alt="Avatar" />
 
-                            <div>
-                                <h2>{this.state.item.name}</h2>
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <td>Type:</td>
-                                            <td>{this.state.item.type}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Quantity:</td>
-                                            <td>{this.state.item.quantity}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>For item:</td>
-                                            <td>{this.state.item.forItemName}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>For item type:</td>
-                                            <td>{this.state.item.forItemType}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>For item quantity:</td>
-                                            <td>{this.state.item.forItemQty}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                                {/* <div className="qtySelector text-center">
-                                <i className="qtyBtn minus decreaseQty" id="decrease-qty" onClick={() => updateQty(this.id)}></i>
-                                <input type="text" className="qtyValue" id="qty-value" value="1" />
-                                <i className="qtyBtn plus increaseQty" id="increase-qty" onClick={() => updateQty(this.id)}></i>
-                            </div> */}
-
-                                <br />
-                                <br />
-
-                                <button id="addToCart" className="add-to-cart" onClick={this.addToCart}>Add To Cart</button>
-                                <br />
-                                <br />
-                                <button id="makeTransaction" className="make-transaction" onClick={this.makeTransaction}>Request trade</button>
-                                <br />
-                                {this.state.message && (
-                                    <div className="statusMsg">
-                                        <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
-                                            {this.state.message}
+                                        <div className="address-name">
+                                            <h3>{this.state.item.name}</h3>
+                                            <h3>Address</h3>
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                        </div>
+                                </Col>
+                                <Col></Col>
+                                <Col>
+                                    <div className="add-cart-transaction">
+                                        <div>
+                                            <button id="addToCart" className="btn btn-success add-to-cart" onClick={this.addToCart}>Add Cart</button>
+                                        </div>
+                                        <div>
+                                            <button id="makeTransaction" className="btn btn-primary mt-2 make-transaction" onClick={this.makeTransaction}>Request trade</button>
+                                        </div>
+                                        {this.state.message && (
+                                            <div className="statusMsg">
+                                                <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
+                                                    {this.state.message}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Col>
+                            </Row>
+                            <hr className="divide" />
+                            <Row>
+                                <div>
+                                    <div className="title">Description</div>
+                                    <hr className="section-line" />
+                                    <Container>
+                                        <div className="description-table">
+                                            <table>
+                                                <tbody>
+                                                    <tr>
+                                                        <td className="description-section">Type:</td>
+                                                        <td className="">{this.state.item.type}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="description-section">Quantity:</td>
+                                                        <td>{this.state.item.quantity}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="description-section">For item:</td>
+                                                        <td>{this.state.item.forItemName}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="description-section">For item type:</td>
+                                                        <td>{this.state.item.forItemType}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="description-section">For item quantity:</td>
+                                                        <td>{this.state.item.forItemQty}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </Container>
+                                </div>
+                            </Row>
+                            <Row>
+                                <div className="ml-3">
+                                    <div>
+                                        <div>
+                                            <div className="user-description">
+                                                <p className="diff-text">I want to trade Dried Fish</p>
+                                                <p className="diff-text ">View 321 Offered 5 Cart 10</p>
+                                            </div>
+                                            <p className="diff-text history-text">Uploaded 2 days ago</p>
+                                        </div>
+                                    </div>
+                                    <div className="diff-text-2">2kg</div>
+                                    <div className="diff-text-2">I'm willing to trade with some vegetable. I can pick up your food if you are in D7</div>
+                                </div>
+                            </Row>
+                            <hr className="divide" />
+                            <Row>
+                                <Offers />
+                            </Row>
+                        </Container>
                     </div>
-                )}
+                )
+                }
             </div>
         );
     }
