@@ -5,6 +5,7 @@
     top: 0;
     width: 100%;
     border-bottom:1px solid gray;
+    z-index: 999;
   }
   
   .nav {
