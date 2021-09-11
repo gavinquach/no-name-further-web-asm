@@ -72,15 +72,15 @@ router.patch("/user/edit/password/:id", [
     authJwt.verifyToken,
     authJwt.isUser
 ], controller.editPassword);
+
+// Get user (public info)
+router.get("/public/user/:username", controller.publicgetUser);
 // ==========================================
 
 
 // ======================================
 // =========== ITEM =========== 
-router.get("/user/items/:id", [
-    authJwt.verifyToken,
-    authJwt.isUser,
-], controller.getUserItems);
+router.get("/user/items/:id", controller.getUserItems);
 // ==========================================
 
 

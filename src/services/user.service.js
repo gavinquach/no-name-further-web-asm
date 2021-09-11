@@ -120,6 +120,10 @@ class UserService {
             notifications
         });
     }
+
+    publicgetUser(username) {
+        return axiosTokenHeader.get(API_URL + "public/user/" + username);
+    }
 }
 
 export default new UserService();

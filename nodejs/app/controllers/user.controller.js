@@ -277,6 +277,28 @@ exports.viewOneUser = async (req, res) => {
     }
 };
 
+exports.publicgetUser = async (req, res) => {
+    try {
+        const temp = await User.findOne({
+            username: req.params.username
+        }).exec();
+
+        if (!temp) return res.status(404).send({ message: "User not found." });
+
+        const user = {
+            _id: temp._id,
+            username: temp.username,
+            email: temp.email,
+            location: temp.location,
+            items: temp.items
+        }
+
+        res.json(user);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
 exports.deleteUser = async (req, res) => {
     let user = null;
     try {
