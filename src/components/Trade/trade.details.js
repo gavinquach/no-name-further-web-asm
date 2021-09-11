@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
@@ -6,7 +8,6 @@ import TransactionService from "../../services/transaction.service";
 import socket from '../../services/socket';
 
 import "../../css/TradeDetails.css"
-import { Link } from "react-router-dom";
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -99,6 +100,9 @@ export default class Transactions extends Component {
         const item = this.state.item && this.state.item;
         return (
             <div className="page-container">
+                <Helmet>
+                    <title>Trade Details</title>
+                </Helmet>
                 <h1>Trade Details</h1>
                 <br />
                 {(transaction && item) && (
