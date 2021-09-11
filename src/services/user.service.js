@@ -6,13 +6,8 @@ class UserService {
         return axiosTokenHeader.post(API_URL + "signup", user);
     }
 
-    createUserWithRoles(username, email, password, roles) {
-        return axiosTokenHeader.post(API_URL + "user", {
-            username,
-            email,
-            password,
-            roles
-        });
+    createUserWithRoles(user) {
+        return axiosTokenHeader.post(API_URL + "user", user);
     }
 
     viewAllUsers() {
