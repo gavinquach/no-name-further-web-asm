@@ -5,6 +5,11 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
 import { Helmet } from "react-helmet";
+import { Editor } from 'react-draft-wysiwyg';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
+
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
@@ -52,6 +57,7 @@ export default class UserEditItem extends Component {
             forItemType: "",
             successful: false,
             message: "",
+            editorState: EditorState.createEmpty()
         };
     }
 
@@ -63,6 +69,9 @@ export default class UserEditItem extends Component {
     load = () => {
         ItemService.viewOneItem(this.props.match.params.id)
             .then(response => {
+                const contentState = convertFromRaw(JSON.parse(response.data.description));
+                const editorState = EditorState.createWithContent(contentState);
+
                 this.setState({
                     name: response.data.name,
                     quantity: response.data.quantity,
@@ -70,18 +79,20 @@ export default class UserEditItem extends Component {
                     forItemName: response.data.forItemName,
                     forItemQty: response.data.forItemQty,
                     forItemType: response.data.forItemType.name,
-                    oldImgList: response.data.images
+                    oldImgList: response.data.images,
+                    editorState: editorState
                 }, () => this.addImages());
-            }, error => {
-                this.props.history.push("/user/items");
-            })
-            .catch((error) => {
-                if (error.response && error.response.status != 500) {
+            }).catch((error) => {
+                // item not found
+                if (error.response && error.response.status == 404) {
+                    console.log(error.response.data.message);
+                    this.props.history.push("/user/items");
+                } else if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
                     console.log(error);
                 }
-            })
+            });
     }
 
     addImages = () => {
@@ -118,29 +129,29 @@ export default class UserEditItem extends Component {
     delete = () => {
         if (window.confirm("Are you sure you want to delete this listing?")) {
             ItemService.deleteItem(this.props.match.params.id)
-                .then(
-                    response => {
+                .then((response) => {
+                    this.setState({
+                        message: response.data.message,
+                        successful: true
+                    });
+
+                    // redirect to view item page after delete
+                    this.props.history.push('/user/items');
+                }).catch((error) => {
+                    // item not found
+                    if (error.response && error.response.status != 500) {
                         this.setState({
-                            message: response.data.message,
-                            successful: true
+                            message: error.response.data.message,
+                            successful: false
                         });
-
-                        // redirect to view item page after delete
-                        this.props.history.push('/user/items');
-                    }, error => {
-                        const resMessage =
-                            (error.response &&
-                                error.response.data &&
-                                error.response.data.message) ||
-                            error.message ||
-                            error.toString();
-
+                    } else {
+                        console.log(error);
                         this.setState({
-                            successful: false,
-                            message: resMessage
+                            message: error,
+                            successful: false
                         });
                     }
-                );
+                });
         }
     }
 
@@ -179,6 +190,12 @@ export default class UserEditItem extends Component {
             forItemType: e.target.value
         });
     }
+
+    onEditorStateChange = (editorState) => {
+        this.setState({
+            editorState,
+        });
+    };
 
     onChangeUploadImage = (imageList) => {
         const list = [];
@@ -268,6 +285,9 @@ export default class UserEditItem extends Component {
         }
 
         if (this.checkBtn.context._errors.length === 0) {
+            const contentState = this.state.editorState.getCurrentContent();
+            const rawContent = JSON.stringify(convertToRaw(contentState));
+
             // need to upload item then images can be uploaded with this item id
             const item = {
                 name: this.state.name,
@@ -276,6 +296,7 @@ export default class UserEditItem extends Component {
                 forItemName: this.state.forItemName,
                 forItemQty: this.state.forItemQty,
                 forItemType: this.state.forItemType,
+                description: rawContent
             };
 
             // create list of removed images
@@ -469,6 +490,19 @@ export default class UserEditItem extends Component {
                                     validations={[required, vquantity]}
                                 />
                             </div>
+                        </div>
+
+                        <br />
+                        <hr />
+
+                        <h2>Item description:</h2>
+                        <div>
+                            <Editor
+                                wrapperClassName="DescriptionWrapper"
+                                editorClassName="DescriptionEditor"
+                                editorState={this.state.editorState}
+                                onEditorStateChange={this.onEditorStateChange}
+                            />
                         </div>
 
                         <br />
