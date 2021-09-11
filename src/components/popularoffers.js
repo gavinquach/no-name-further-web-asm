@@ -1,20 +1,24 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 import ItemService from "../services/item.service";
 import '../css/ItemCategories.css';
 import '../css/ItemMenu.css'
-import { Helmet } from "react-helmet";
 
 export default class PopularOffers extends Component {
     constructor(props) {
         super(props);
+        this.widthChangeExecced = -1;
+        this.resultLimit = 10;
+
         this.state = {
-            currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
+            currentPage: 1,
             totalPages: 0,
             results: 0,
             items: [],
-            pageButtons: []
+            pageButtons: [],
+            notfound: false
         };
     }
 
@@ -26,13 +30,59 @@ export default class PopularOffers extends Component {
 
     componentDidMount = () => {
         this.load();
+
+        window.addEventListener('resize', () => {
+            if (this.state.items.length > 0) {
+                if (window.innerWidth > 1380) {
+                    if (this.widthChangeExecced != 0) {
+                        this.resultLimit = 15;
+                        this.load();
+                        this.widthChangeExecced = 0;
+                    }
+                } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
+                    if (this.widthChangeExecced != 1) {
+                        this.resultLimit = 12;
+                        this.load();
+                        this.widthChangeExecced = 1;
+                    }
+                } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
+                    if (this.widthChangeExecced != 2) {
+                        this.resultLimit = 9;
+                        this.load();
+                        this.widthChangeExecced = 2;
+                    }
+                } else if (window.innerWidth <= 830) {
+                    if (this.widthChangeExecced != 3) {
+                        this.resultLimit = 6;
+                        this.load();
+                        this.widthChangeExecced = 3;
+                    }
+                }
+            }
+        });
     }
 
     load = () => {
+        if (window.innerWidth > 1380) {
+            this.resultLimit = 15;
+        } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
+            this.resultLimit = 12;
+        } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
+            this.resultLimit = 9;
+        } else if (window.innerWidth <= 830) {
+            this.resultLimit = 6;
+        }
+
+        // item details page is using this file,
+        // reduce results per page
+        if (this.props.obj) {
+            this.resultLimit = this.resultLimit / 3 * 2;
+        }
+
         ItemService.getItemsByTransaction(
             "-offers",
             this.state.currentPage,
-            9
+            this.resultLimit
         ).then(response => {
             this.setState({
                 totalPages: response.data.totalPages,
@@ -45,6 +95,9 @@ export default class PopularOffers extends Component {
             } else {
                 console.log(error);
             }
+            this.setState({
+                notfound: true
+            });
         });
     }
 
@@ -110,10 +163,15 @@ export default class PopularOffers extends Component {
         const url = new URL(window.location.href);
         const search_params = url.searchParams;
         const page = search_params.get("page");
+        // redirect to page 1 if user tries to access page with no items
+        if (this.state.totalPages > 0 && page > this.state.totalPages) {
+            search_params.set("page", 1);
+            return <Redirect to={url.pathname + "?" + search_params.toString()} />
+        }
         if (!page || page === "") {
             search_params.set("page", 1);
             const pageURL = url.pathname + "?" + search_params.toString();
-            return window.location.replace(pageURL);
+            return <Redirect to={pageURL} />
         }
         // ========== end of GET param validation ==========
         return (
@@ -125,7 +183,7 @@ export default class PopularOffers extends Component {
                 <hr className="section-line" />
                 <div className="menu white-container">
                     {this.state.items.length > 0
-                        ? this.state.items.map((item, index) => (
+                        && this.state.items.map((item, index) => (
                             <Link className="item-box" key={index} to={"/item/" + item._id}>
                                 <div className="item-box-img">
                                     {item.images.map(image =>
@@ -141,11 +199,13 @@ export default class PopularOffers extends Component {
                                     <p><b>Offers</b>: {item.offers}</p>
                                 </div>
                             </Link>
-                        )) : (
-                            <div>
-                                <h2 style={{ textAlign: "center" }}>No items found.</h2>
-                            </div>
-                        )}
+                        ))}
+
+                    {this.state.notfound && (
+                        <div>
+                            <h2 style={{ textAlign: "center" }}>No items found.</h2>
+                        </div>
+                    )}
                 </div>
                 <div className="page-buttons">
                     {this.state.pageButtons}
