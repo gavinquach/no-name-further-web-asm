@@ -176,9 +176,11 @@ export default class PopularOffers extends Component {
         // ========== end of GET param validation ==========
         return (
             <div className="page-container">
-                <Helmet>
-                    <title>Popular Offers</title>
-                </Helmet>
+                {(!this.props.obj || this.props.obj == false) && (
+                    <Helmet>
+                        <title>Popular Offers</title>
+                    </Helmet>
+                )}
                 <div className="title">Popular Offers</div>
                 <hr className="section-line" />
                 <div className="menu white-container">
