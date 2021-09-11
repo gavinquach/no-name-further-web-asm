@@ -1,0 +1,32 @@
+.cart-item {
+  display: flex;
+}
+
+.cart-row {
+  width: 40em;
+  height: 10em;
+  margin-bottom: 4em;
+}
+
+.remove-cart {
+  margin-bottom: 1.6em;
+}
+
+.text-cart {
+  text-transform: uppercase;
+  /* text-align: center; */
+  margin-left: 2.5em;
+}
+
+.text-cart:hover {
+  text-decoration: none;
+  color: #0099ff;
+}
+
+.cart-row a:link {
+  text-decoration: none;
+}
+
+.cart-row a:visited {
+  text-decoration: none;
+}
