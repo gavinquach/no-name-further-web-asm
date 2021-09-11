@@ -98,7 +98,7 @@ export default class Transactions extends Component {
         const transaction = this.state.transaction && this.state.transaction;
         const item = this.state.item && this.state.item;
         return (
-            <div className="container">
+            <div className="page-container">
                 <h1>Trade Details</h1>
                 <br />
                 {(transaction && item) && (
