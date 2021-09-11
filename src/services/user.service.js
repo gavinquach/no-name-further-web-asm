@@ -114,6 +114,12 @@ class UserService {
             notifications
         });
     }
+
+    setUnreadNotifications(notifications) {
+        return axiosTokenHeader.patch(API_URL + "user/unread/notifications", {
+            notifications
+        });
+    }
 }
 
 export default new UserService();

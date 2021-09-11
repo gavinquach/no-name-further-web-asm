@@ -179,6 +179,36 @@ export default class Notifications extends Component {
         }, 100);
     }
 
+    setNotificationsToRead = () => {
+        UserService.setReadNotifications(
+            this.state.notifications
+        )
+            .then(() => {
+                this.load();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+    }
+
+    setNotificationsToUnread = () => {
+        UserService.setUnreadNotifications(
+            this.state.notifications
+        )
+            .then(() => {
+                this.load();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+    }
+
     updatePage = (page) => {
         this.setState({
             currentPage: page
@@ -301,6 +331,16 @@ export default class Notifications extends Component {
                         <div>
                             <div className="page-buttons">
                                 {this.state.pageButtons}
+                            </div>
+                            <div className="MarkNotifications">
+                                <div className="NotificationTypesRow">
+                                    <div className="MarkNotificationsCell" onClick={this.setNotificationsToRead}>
+                                        Mark all as read
+                                    </div>
+                                    <div className="MarkNotificationsCell" onClick={this.setNotificationsToUnread}>
+                                        Mark all as unread
+                                    </div>
+                                </div>
                             </div>
                             <div className="NotificationList">
                                 {/* loop through to list out the notifications */}

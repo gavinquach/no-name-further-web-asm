@@ -803,3 +803,26 @@ exports.setReadNotifications = async (req, res) => {
     res.status(200).send({ message: "Notifications set to read." });
 };
 
+exports.setUnreadNotifications = async (req, res) => {
+    let notifications = req.body.notifications;
+    for (const obj of notifications) {
+        try {
+            const notification = await Notification.findOne({
+                sender: obj.sender,
+                receiver: obj.receiver,
+                createdAt: obj.createdAt
+            }).exec();
+
+            try {
+                notification.read = false;
+                await notification.save();
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    }
+    res.status(200).send({ message: "Notifications set to unread." });
+};
+

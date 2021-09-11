@@ -142,6 +142,12 @@ router.patch("/user/read/notifications", [
     authJwt.verifyToken,
     authJwt.isUser
 ], controller.setReadNotifications);
+
+// set many notifcations to unread
+router.patch("/user/unread/notifications", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.setUnreadNotifications);
 // =============================================
 
 

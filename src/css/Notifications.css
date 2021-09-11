@@ -1,5 +1,5 @@
 .NotificationTypes {
-    display:table;
+    display: table;
     color: black;
     text-decoration: none;
     border: 1px solid rgba(0, 0, 0, 0.5);
@@ -7,7 +7,7 @@
 }
 
 .NotificationTypesRow {
-    display:table-row;
+    display: table-row;
 }
 
 .NotificationTypesCell {
@@ -33,6 +33,38 @@
     color: black;
     text-decoration: none;
     background-color: rgba(0, 0, 0, 0.15);
+}
+
+.MarkNotifications {
+    display: table;
+    color: black;
+    text-decoration: none;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-bottom: none;
+    margin-right: 0;
+    margin-left: auto;
+}
+
+.MarkNotificationsCell {
+    display: table-cell;
+    color: black;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+    width: 10em;
+    height: 2.5em;
+    font-weight: 400;
+}
+
+.MarkNotificationsCell:not(:last-child) {
+    border-right: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.MarkNotificationsCell:hover {
+    color: black;
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.15);
+    cursor: pointer;
 }
 
 .NotificationList {
