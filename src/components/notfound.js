@@ -1,17 +1,21 @@
-
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFrown } from '@fortawesome/free-solid-svg-icons';
+
 const NotFound = () => {
     return (
-
-        <div className ="page-container">
+        <div className="page-container" style={{ textAlign: 'center' }}>
             <Helmet>
-                    <title>Login</title>
+                <title>404 Not Found</title>
             </Helmet>
-        <div className ="white-container" style={{ textAlign: 'center', marginTop: '2em' }}>
-            <h3>404! <br/>Page not found.</h3>
+            <h1>
+                <FontAwesomeIcon id="fa-icon-frown" icon={faFrown} />
+            </h1>
+            <h1 id="four-o-four">404</h1>
+            <h1>Page not found</h1>
+            <br />
             <Link to="/">CLick here to go to homepage</Link>
-        </div>
         </div>
     )
 };
