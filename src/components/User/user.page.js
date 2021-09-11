@@ -13,6 +13,7 @@ import socket from '../../services/socket';
 export default class UserPage extends Component {
     constructor(props) {
         super(props);
+        this.widthChangeExecced = -1;
 
         this.state = {
             user: null,
@@ -20,16 +21,57 @@ export default class UserPage extends Component {
             successful: false,
             message: "",
             notfound: false,
-            currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
+            sort: "none",
+            currentPage: 1,
+            limit: 15,
             totalPages: 0,
             totalResults: 0,
-            pageButtons: [],
-            sort: "none"
+            pageButtons: []
         }
     }
 
     componentDidMount() {
         this.loadUser();
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1380) {
+                if (this.widthChangeExecced != 0) {
+                    this.setState({
+                        limit: 15
+                    }, () => {
+                        this.loadUserItems();
+                        this.widthChangeExecced = 0;
+                    });
+                }
+            } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
+                if (this.widthChangeExecced != 1) {
+                    this.setState({
+                        limit: 12
+                    }, () => {
+                        this.loadUserItems();
+                        this.widthChangeExecced = 1;
+                    });
+                }
+            } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
+                if (this.widthChangeExecced != 2) {
+                    this.setState({
+                        limit: 9
+                    }, () => {
+                        this.loadUserItems();
+                        this.widthChangeExecced = 2;
+                    });
+                }
+            } else if (window.innerWidth <= 830) {
+                if (this.widthChangeExecced != 3) {
+                    this.setState({
+                        limit: 6
+                    }, () => {
+                        this.loadUserItems();
+                        this.widthChangeExecced = 3;
+                    });
+                }
+            }
+        });
     }
 
     loadUser = () => {
@@ -39,7 +81,7 @@ export default class UserPage extends Component {
             this.setState({
                 user: response.data
             });
-            this.loadUserItems(response.data._id);
+            this.loadUserItems();
         }).catch((error) => {
             this.setState({
                 notfound: true
@@ -57,9 +99,12 @@ export default class UserPage extends Component {
             this.state.user._id,
             this.state.sort == "none" ? "name" : this.state.sort,
             this.state.currentPage,
-            6
+            this.state.limit
         ).then(response => {
             this.setState({
+                sort: new URLSearchParams(window.location.search).get('sort') != undefined
+                    ? new URLSearchParams(window.location.search).get('sort')
+                    : "none",
                 totalPages: response.data.totalPages,
                 totalResults: response.data.totalResults,
                 items: response.data.items
@@ -148,24 +193,28 @@ export default class UserPage extends Component {
         };
         const items = this.state.items.length > 0 ? this.state.items : [];
 
+        const url = new URL(window.location.href);
+        const search_params = url.searchParams;
+        const page = search_params.get("page");
+        if (this.state.totalPages > 0 && page > this.state.totalPages) {
+            search_params.set("page", 1);
+            return <Redirect to={url.pathname + "?" + search_params.toString()} />
+        }
+
         // ========== validate GET parameters ==========
         if (items.length > 0) {
-            const url = new URL(window.location.href);
-            const search_params = url.searchParams;
-
-            const page = search_params.get("page");
             let pageURL = url.pathname + "?";
             if (!page || page == "") {
                 search_params.set("page", 1);
                 pageURL = pageURL.concat(search_params.toString());
-                return <Redirect to={pageURL} />
+                // return <Redirect to={pageURL} />
             }
 
             const sort = search_params.get("sort");
             if (!sort || sort == "") {
                 search_params.set("sort", "none");
                 pageURL = pageURL.concat(search_params.toString());
-                return <Redirect to={pageURL} />
+                // return <Redirect to={pageURL} />
             }
         }
         // ========== end of GET param validation ==========
@@ -228,6 +277,9 @@ export default class UserPage extends Component {
                                                 </div>
                                             </Link>
                                         )}
+                                    </div>
+                                    <div className="page-buttons">
+                                        {this.state.pageButtons}
                                     </div>
                                 </div>
                             </span>
