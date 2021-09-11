@@ -8,12 +8,23 @@ router.post("/message", [
     authJwt.isUser
 ], controller.postMessage);
 
-
 // get messages from conversation
 router.get("/messages/:conversationId", [
     authJwt.verifyToken,
     authJwt.isUser
 ], controller.getMessages);
+
+// get unread messages from conversation
+router.get("/unreadmessages/conversation/:conversationId/:userid", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.getUserConversationUnreadMessages);
+
+// get unread messages from userid
+router.get("/unreadmessages/user/:userid", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.getUserUnreadMessages);
 
 // set a message to read
 router.patch("/read-message/:messageId", [

@@ -18,6 +18,15 @@ class ChatService {
         return axiosTokenHeader.get(API_URL + "messages/" + url);
     }
 
+    getUserConversationUnreadMessages(conversationId, userid) {
+        const url = `${conversationId}/${userid}`
+        return axiosTokenHeader.get(API_URL + "unreadmessages/conversation/" + url);
+    }
+
+    getUserUnreadMessages(userid) {
+        return axiosTokenHeader.get(API_URL + "unreadmessages/user/" + userid);
+    }
+
     setMessageToRead(messageId) {
         return axiosTokenHeader.patch(API_URL + "read-message/" + messageId);
     }

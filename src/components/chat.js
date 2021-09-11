@@ -164,31 +164,33 @@ export default class Chat extends Component {
     }
 
     getUnreadCount = () => {
-        let totalUnread = 0;
-        this.state.conversations.map((conversation, index) => {
-            ChatService.getMessages(
+        // get total unread count for user
+        ChatService.getUserUnreadMessages(
+            this.state.currentUser.id,
+        )
+            .then(
+                (response) => {
+                    this.setState({
+                        totalUnreadCount: response.data.total
+                    });
+                })
+            .catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+
+        // get unread count for each conversation
+        this.state.conversations.map((conversation) => {
+            ChatService.getUserConversationUnreadMessages(
                 conversation._id,
-                "-updatedAt",
-                1,
-                50,
+                this.state.currentUser.id
             )
                 .then(
-                    response => {
-                        const messages = response.data.messages;
-                        let count = 0;
-                        messages.map((message) => {
-                            if (message.receiver == this.state.currentUser.id && !message.read) {
-                                count++;
-                            }
-                        });
-                        totalUnread += count;
-                        conversation.unreadCount = count;
-
-                        if (index == this.state.conversations.length - 1) {
-                            this.setState({
-                                totalUnreadCount: totalUnread
-                            });
-                        }
+                    (response) => {
+                        conversation.unreadCount = response.data.total
                     })
                 .catch((error) => {
                     if (error.response && error.response.status != 500) {
@@ -351,7 +353,7 @@ export default class Chat extends Component {
                     }, () => {
                         this.getUnreadCount();
                         this.setChatPanelState();
-                        // has conversation id, get messages and receiver id
+                        // has conversation id, get messages and set receiver id
                         if (this.state.conversationId) {
                             this.getMessages(this.state.conversationId);
 
@@ -382,15 +384,19 @@ export default class Chat extends Component {
                 chatOpened: true
             });
             const panel = document.getElementById("chat-panel");
-            panel.classList.remove("HideChatPanel");
-            panel.classList.add("ShowChatPanel");
+            if (panel) {
+                panel.classList.remove("HideChatPanel");
+                panel.classList.add("ShowChatPanel");
+            }
         } else {
             this.setState({
                 chatOpened: false
             });
             const panel = document.getElementById("chat-panel");
-            panel.classList.remove("ShowChatPanel");
-            panel.classList.add("HideChatPanel");
+            if (panel) {
+                panel.classList.remove("ShowChatPanel");
+                panel.classList.add("HideChatPanel");
+            }
         }
 
         if (this.state.conversationId || this.state.conversationId != "") {
@@ -455,6 +461,18 @@ export default class Chat extends Component {
             // store in local storage to keep track
             // when users go to another page
             localStorage.chatOpened = true;
+
+            // automatically set messages in chat boxes with no
+            // scrollwheel to read upon open
+            const chat = document.getElementById("chat-bubbles");
+            if (chat) {
+                setTimeout(() => {
+                    // chat has no scrollwheel
+                    if (chat.scrollHeight <= chat.clientHeight) {
+                        this.setMessagesToRead(this.state.conversationId);
+                    }
+                }, 400);
+            }
         }
     }
 

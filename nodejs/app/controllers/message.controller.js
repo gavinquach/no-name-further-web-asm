@@ -77,13 +77,12 @@ exports.postMessage = async (req, res) => {
     }
 }
 
-// get messages by Id conversation
+// get messages by conversation id
 exports.getMessages = async (req, res) => {
     // intialize 
     let messages = [];
     let conversation = null;
     let total = 0;
-
 
     // check if conversation is available in database
     try {
@@ -112,12 +111,98 @@ exports.getMessages = async (req, res) => {
             features.queryString.limit = 1;
         }
 
-
         await res.status(200).json({
             result: messages.length,
             totalPages: Math.ceil(total / features.queryString.limit),
             messages: messages
         });;
+    } catch (err) {
+        res.status(500).json(err);
+    }
+}
+
+// get unread messages by conversation id  and user id
+exports.getUserConversationUnreadMessages = async (req, res) => {
+    // intialize 
+    let messages = [];
+    let conversation = null;
+    let total = 0;
+
+    // check if conversation is available in database
+    try {
+        conversation = await Conversation.findById({ _id: req.params.conversationId }).exec();
+        if (!conversation) return res.status(404).send({ message: "Conversation not found." });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    // find list of messages in database to see if any message exists and retrieve
+    try {
+        messages = await Message.find({
+            conversationId: conversation._id,
+            receiver: req.params.userid,
+            read: false
+        }).exec();
+
+        //count retrieved total data before pagination
+        total = await Message.countDocuments({
+            conversationId: conversation._id,
+            receiver: req.params.userid,
+            read: false
+        });
+
+        res.status(200).json({
+            total: total,
+            messages: messages
+        });
+    } catch (err) {
+        res.status(500).json(err);
+    }
+}
+
+// get unread messages by user id
+exports.getUserUnreadMessages = async (req, res) => {
+    let conversations = [];
+
+    // check if conversation is available in database
+    try {
+        conversations = await Conversation.find().exec();
+        if (!conversations || conversations.length < 1) return res.status(404).send({ message: "Conversation not found." });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    let messages = [];
+    let total = 0;
+    for (const conversation of conversations) {
+        // find list of messages in database to see if any message exists and retrieve
+        try {
+            const temp = await Message.find({
+                conversationId: conversation._id,
+                receiver: req.params.userid,
+                read: false
+            }).exec();
+
+            temp.map((message) => {
+                message && messages.push(message);
+            });
+
+            //count retrieved total data before pagination
+            total += await Message.countDocuments({
+                conversationId: conversation._id,
+                receiver: req.params.userid,
+                read: false
+            });
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    }
+
+    try {
+        res.status(200).json({
+            total: total,
+            messages: messages
+        });
     } catch (err) {
         res.status(500).json(err);
     }
