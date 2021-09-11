@@ -14,7 +14,6 @@ export default class ItemCategory extends Component {
             category: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
-            results: 0,
             items: [],
             pageButtons: []
         };
@@ -46,7 +45,6 @@ export default class ItemCategory extends Component {
         ).then(response => {
             this.setState({
                 totalPages: response.data.totalPages,
-                results: response.data.results,
                 items: response.data.items
             }, () => this.loadPageButtons());
         }).catch((error) => {
