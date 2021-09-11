@@ -80,8 +80,9 @@ class UserService {
         return axiosTokenHeader.post(API_URL + "user/cart/view", { userid });
     }
 
-    viewUserItems(userid) {
-        return axiosTokenHeader.get(API_URL + "user/items/" + userid);
+    viewUserItems(userid, sort, page, limit) {
+        const url = `${userid}?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "user/items/" + url);
     }
 
     getUserNotifications(userid, sort, page, limit) {
