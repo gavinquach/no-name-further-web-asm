@@ -520,6 +520,7 @@ exports.getUserItems = async (req, res) => {
         }
 
         res.status(200).json({
+            totalResults: total,
             result: items.length,
             totalPages: Math.ceil(total / features.queryString.limit),
             items: items
