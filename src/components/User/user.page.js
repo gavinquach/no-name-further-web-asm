@@ -14,6 +14,7 @@ export default class UserPage extends Component {
     constructor(props) {
         super(props);
         this.widthChangeExecced = -1;
+        this.resultLimit = 15;
 
         this.state = {
             user: null,
@@ -23,7 +24,6 @@ export default class UserPage extends Component {
             notfound: false,
             sort: "none",
             currentPage: 1,
-            limit: 15,
             totalPages: 0,
             totalResults: 0,
             pageButtons: []
@@ -31,62 +31,33 @@ export default class UserPage extends Component {
     }
 
     componentDidMount() {
-        if (window.innerWidth > 1380) {
-                this.setState({
-                    limit: 15
-                });
-        } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
-            this.setState({
-                limit: 12
-            });
-        } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
-            this.setState({
-                limit: 9
-            });
-        } else if (window.innerWidth <= 830) {
-            this.setState({
-                limit: 6
-            });
-        }
         this.loadUser();
 
         window.addEventListener('resize', () => {
             if (this.state.items.length > 0) {
                 if (window.innerWidth > 1380) {
                     if (this.widthChangeExecced != 0) {
-                        this.setState({
-                            limit: 15
-                        }, () => {
-                            this.loadUserItems();
-                            this.widthChangeExecced = 0;
-                        });
+                        this.resultLimit = 15;
+                        this.loadUserItems();
+                        this.widthChangeExecced = 0;
                     }
                 } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
                     if (this.widthChangeExecced != 1) {
-                        this.setState({
-                            limit: 12
-                        }, () => {
-                            this.loadUserItems();
-                            this.widthChangeExecced = 1;
-                        });
+                        this.resultLimit = 12;
+                        this.loadUserItems();
+                        this.widthChangeExecced = 1;
                     }
                 } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
                     if (this.widthChangeExecced != 2) {
-                        this.setState({
-                            limit: 9
-                        }, () => {
-                            this.loadUserItems();
-                            this.widthChangeExecced = 2;
-                        });
+                        this.resultLimit = 9;
+                        this.loadUserItems();
+                        this.widthChangeExecced = 2;
                     }
                 } else if (window.innerWidth <= 830) {
                     if (this.widthChangeExecced != 3) {
-                        this.setState({
-                            limit: 6
-                        }, () => {
-                            this.loadUserItems();
-                            this.widthChangeExecced = 3;
-                        });
+                        this.resultLimit = 6;
+                        this.loadUserItems();
+                        this.widthChangeExecced = 3;
                     }
                 }
             }
@@ -114,11 +85,21 @@ export default class UserPage extends Component {
     }
 
     loadUserItems = () => {
+        if (window.innerWidth > 1380) {
+            this.resultLimit = 15;
+        } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
+            this.resultLimit = 12;
+        } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
+            this.resultLimit = 9;
+        } else if (window.innerWidth <= 830) {
+            this.resultLimit = 6;
+        }
+
         UserService.viewUserItems(
             this.state.user._id,
-            this.state.sort == "none" ? "name" : this.state.sort,
+            this.state.sort,
             this.state.currentPage,
-            this.state.limit
+            this.resultLimit
         ).then(response => {
             this.setState({
                 sort: new URLSearchParams(window.location.search).get('sort') != undefined
