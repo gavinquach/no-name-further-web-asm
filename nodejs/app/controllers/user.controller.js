@@ -503,7 +503,8 @@ exports.getUserItems = async (req, res) => {
                 .populate("forItemType", "-__v")
                 .populate("images", "-__v")
                 .populate("seller", "-__v")
-            , req.query);
+            , req.query)
+            .sort();
 
         //count retrieved total data before pagination
         total = await Item.countDocuments(features.query);

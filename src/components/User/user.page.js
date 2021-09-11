@@ -184,6 +184,21 @@ export default class UserPage extends Component {
         this.setState({ pageButtons: buttons });
     }
 
+    updateSort = (e) => {
+        const params = ["name", "-name", "offers", "-offers"];
+
+        // invalid value, reload page
+        if (!params.includes(e.target.value)) {
+            return window.location.reload();
+        }
+
+        this.setState({
+            sort: e.target.value
+        }, () => {
+            this.loadUserItems();
+        });
+    }
+
     render() {
         const user = this.state.user && {
             _id: this.state.user._id,
@@ -196,28 +211,29 @@ export default class UserPage extends Component {
         const url = new URL(window.location.href);
         const search_params = url.searchParams;
         const page = search_params.get("page");
+
+        // redirect to page 1 if user tries to access page with no items
         if (this.state.totalPages > 0 && page > this.state.totalPages) {
             search_params.set("page", 1);
             return <Redirect to={url.pathname + "?" + search_params.toString()} />
         }
 
-        // ========== validate GET parameters ==========
+        // check if there are page and sort query params in URL
         if (items.length > 0) {
             let pageURL = url.pathname + "?";
             if (!page || page == "") {
                 search_params.set("page", 1);
                 pageURL = pageURL.concat(search_params.toString());
-                // return <Redirect to={pageURL} />
+                return <Redirect to={pageURL} />
             }
 
             const sort = search_params.get("sort");
             if (!sort || sort == "") {
                 search_params.set("sort", "none");
                 pageURL = pageURL.concat(search_params.toString());
-                // return <Redirect to={pageURL} />
+                return <Redirect to={pageURL} />
             }
         }
-        // ========== end of GET param validation ==========
 
         return (
             <div className="page-container">
@@ -253,11 +269,15 @@ export default class UserPage extends Component {
                                 <div className="title">Item listings</div>
                                 <hr className="section-line" />
                                 <div>
-                                    <div className="page-buttons">
-                                        {this.state.pageButtons}
-                                    </div>
-                                    <div>
-                                        <h3>Results: {this.state.totalResults}</h3>
+                                    <div className="ResultsAndSort">
+                                        <h3 id="results">Results: {this.state.totalResults}</h3>
+                                        <select id="select-sort" onChange={this.updateSort}>
+                                            <option value="">Sort by:</option>
+                                            <option value="name">Name (A-Z)</option>
+                                            <option value="-name">Name (Z-A)</option>
+                                            <option value="offers">Popularity (Least)</option>
+                                            <option value="-offers">Popularity (Most)</option>
+                                        </select>
                                     </div>
                                     <div className="menu">
                                         {items.map((item, index) =>
