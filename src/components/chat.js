@@ -271,57 +271,93 @@ export default class Chat extends Component {
                     localStorage.chatOpened = true;
                 }
 
-                ChatService.postConversation(
+                // check if conversation already exists
+                // (this part has some disgusting callback hell,
+                // but once i find a way to fix that, i will
+                // improve the code)
+                ChatService.getConversation(
                     data.user,
                     data.receiver
-                ).then(
-                    () => {
-                        ChatService.getConversationsRequest(this.state.currentUser.id)
-                            .then(
-                                response => {
-                                    const temp = response.data.conversations;
-                                    const conversationList = [];
-                                    temp.map((obj,) => {
-                                        obj.members.map((user) => {
-                                            if (user._id != this.state.currentUser.id) {
-                                                conversationList.push({
-                                                    _id: obj._id,
-                                                    user: user,
-                                                    updatedAt: obj.updatedAt
-                                                });
-                                            }
-                                        });
-                                    });
+                ).then((response) => {
+                    // has conversation with this user already,
+                    // switch chat target to this conversation
+                    const temp = response.data;
+                    let otherUser = null;
+                    temp.members.map((user) => {
+                        if (user != this.state.currentUser.id) {
+                            otherUser = user;
+                        }
+                    });
 
-                                    // sort from newest date to oldest
-                                    conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                    const conversation = {
+                        _id: temp._id,
+                        user: otherUser,
+                        updatedAt: temp.updatedAt
+                    };
 
-                                    this.setState({
-                                        conversations: conversationList
-                                    }, () => {
-                                        this.getUnreadCount();
-                                        this.setChatPanelState();
-                                        const conversation = this.state.conversations[0];
-                                        this.setChatTarget(conversation);
-                                        this.setState({ receiver: conversation.user._id });
-                                    });
-                                })
-                            .catch((error) => {
-                                if (error.response && error.response.status != 500) {
-                                    console.log(error.response.data.message);
-                                } else {
-                                    console.log(error);
-                                }
-                                this.setChatPanelState();
-                            });
-                    }
-                ).catch((error) => {
+                    this.setChatTarget(conversation);
+                    this.setState({ receiver: conversation.user });
+                }).catch((error) => {
                     if (error.response && error.response.status != 500) {
                         console.log(error.response.data.message);
                     } else {
                         console.log(error);
                     }
-                });
+
+                    // conversation not found, create conversation
+                    ChatService.postConversation(
+                        data.user,
+                        data.receiver
+                    ).then(
+                        () => {
+                            ChatService.getConversationsRequest(this.state.currentUser.id)
+                                .then(
+                                    response => {
+                                        const temp = response.data.conversations;
+                                        const conversationList = [];
+                                        temp.map((obj,) => {
+                                            obj.members.map((user) => {
+                                                if (user._id != this.state.currentUser.id) {
+                                                    conversationList.push({
+                                                        _id: obj._id,
+                                                        user: user,
+                                                        updatedAt: obj.updatedAt
+                                                    });
+                                                }
+                                            });
+                                        });
+
+                                        // sort from newest date to oldest
+                                        conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+                                        this.setState({
+                                            conversations: conversationList
+                                        }, () => {
+                                            this.getUnreadCount();
+                                            this.setChatPanelState();
+                                            const conversation = this.state.conversations[0];
+                                            this.setChatTarget(conversation);
+                                            this.setState({ receiver: conversation.user._id });
+                                        });
+                                    })
+                                .catch((error) => {
+                                    if (error.response && error.response.status != 500) {
+                                        console.log(error.response.data.message);
+                                    } else {
+                                        console.log(error);
+                                    }
+                                    this.setChatPanelState();
+                                });
+                        }
+                    ).catch((error) => {
+                        if (error.response && error.response.status != 500) {
+                            console.log(error.response.data.message);
+                        } else {
+                            console.log(error);
+                        }
+                    });
+                })
+
             });
         } else {
             this.setChatPanelState();
