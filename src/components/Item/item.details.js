@@ -39,6 +39,7 @@ export default class ItemDetails extends Component {
         super(props);
 
         this.state = {
+            selfItem: false,
             notfound: false,
             item: null,
             images: [],
@@ -49,22 +50,29 @@ export default class ItemDetails extends Component {
 
     // get user info and assign to input fields
     componentDidMount() {
-        ItemService.viewOneItem(this.props.match.params.id)
-            .then(response => {
-                this.setState({
-                    item: response.data
-                }, () => this.addImages());
-            })
-            .catch((error) => {
-                this.setState({
-                    notfound: true
-                });
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error.response);
-                }
-            })
+        if (!this.props.obj) {
+            ItemService.viewOneItem(this.props.match.params.id)
+                .then(response => {
+                    if (response.data.seller._id == AuthService.getCurrentUser().id) {
+                        this.setState({
+                            selfItem: true
+                        })
+                    }
+                    this.setState({
+                        item: response.data
+                    }, () => this.addImages());
+                })
+                .catch((error) => {
+                    this.setState({
+                        notfound: true
+                    });
+                    if (error.response && error.response.status != 500) {
+                        console.log(error.response.data.message);
+                    } else {
+                        console.log(error.response);
+                    }
+                })
+        }
     }
 
     addImages = () => {
@@ -112,7 +120,7 @@ export default class ItemDetails extends Component {
         );
     }
 
-    makeTransaction = () => {
+    requestTrade = () => {
         TransactionService.createTransactionWithNotification(
             this.state.item,
             AuthService.getCurrentUser().id
@@ -155,7 +163,12 @@ export default class ItemDetails extends Component {
     }
 
     render() {
-        const item = this.state.item && this.state.item;
+        let item = null;
+        if (this.props.obj) {
+            item = this.props.obj;
+        } else {
+            item = this.state.item && this.state.item;
+        }
 
         // parse description to be able to display in HTML
         let description = null;
@@ -180,19 +193,27 @@ export default class ItemDetails extends Component {
                 )}
                 {item && (
                     <span>
-                        <Helmet>
-                            <title>Item details</title>
-                        </Helmet>
-                        <div className="ItemDetailsContainer">
-                            <div className="title">Item Details</div>
-                            <hr className="section-line" />
+                        {!this.props.obj && (
+                            <Helmet>
+                                <title>Item details</title>
+                            </Helmet>
+                        )}
+                        <div className={!this.props.obj && "ItemDetailsContainer"}>
+                            {!this.props.obj && (
+                                <span>
+                                    <div className="title">Item Details</div>
+                                    <hr className="section-line" />
+                                </span>
+                            )}
                             <Carousel fade>
-                                {item.images.map((image, index) => {
+                                {item.images && item.images.map((image, index) => {
                                     return (
                                         <Carousel.Item key={"carousel-item-" + index}>
                                             <img
                                                 className="CarouselImage"
-                                                src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)}
+                                                src={!this.props.obj
+                                                    ? process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)
+                                                    : image.data_url}
                                                 alt={"Slide" + index}
                                             />
                                         </Carousel.Item>
@@ -209,7 +230,7 @@ export default class ItemDetails extends Component {
                                         <h4><b>City:</b> {item.seller.location[0].replace("Thành phố ", "").replace("Tỉnh ", "")}</h4>
                                         <h4><b>District:</b> {item.seller.location[1].replace("Huyện ", "").replace("Quận ", "")}</h4>
                                     </div>
-                                    <button className="ChatWithUser" onClick={this.chatWithUser}>Chat with user</button>
+                                    <button className="ChatWithUser" onClick={!this.props.obj && this.chatWithUser}>Chat with user</button>
                                 </Col>
                             </Row>
                             <hr className="divide" />
@@ -217,10 +238,17 @@ export default class ItemDetails extends Component {
                                 <div style={{ width: '70%' }}>
                                     <h2 className="SectionHeader">Details:</h2>
                                     <div id="details-section">
-                                        <div id="date-text-container">
-                                            <div>Upload date: {formatDate(item.upload_date)}</div>
-                                            <div>Last updated: {formatDate(item.last_update)}</div>
-                                        </div>
+                                        {!this.props.obj ? (
+                                            <div id="date-text-container">
+                                                <div>Upload date: {formatDate(item.upload_date)}</div>
+                                                <div>Last updated: {formatDate(item.last_update)}</div>
+                                            </div>
+                                        ) : (
+                                            <div id="date-text-container">
+                                                <div>Upload date: {formatDate(new Date())}</div>
+                                                <div>Last updated: {formatDate(new Date())}</div>
+                                            </div>
+                                        )}
                                         <div id="want-to-trade-text">
                                             I want to trade <b>{item.name}</b> with <b>{item.forItemName}</b>
                                         </div>
@@ -235,13 +263,23 @@ export default class ItemDetails extends Component {
                                             </div>
                                             <div className="Column">
                                                 My item:
-                                                <div>{item.type.name}</div>
+                                                <div>
+                                                    {!this.props.obj
+                                                        ? item.type.name
+                                                        : item.type
+                                                    }
+                                                </div>
                                                 <div>{item.quantity}</div>
                                             </div>
                                             <div className="SeparateLine" />
                                             <div className="Column">
                                                 Item I want:
-                                                <div>{item.forItemType.name}</div>
+                                                <div>
+                                                    {!this.props.obj
+                                                        ? item.forItemType.name
+                                                        : item.forItemType
+                                                    }
+                                                </div>
                                                 <div>{item.forItemQty}</div>
                                             </div>
                                         </div>
@@ -253,7 +291,7 @@ export default class ItemDetails extends Component {
                                                 {description ? (
                                                     <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }} />
                                                 ) : (
-                                                    <div>This user doesn't provide any description.</div>
+                                                    <div>This user did not provide any description.</div>
                                                 )}
                                             </div>
                                         </div>
@@ -261,27 +299,35 @@ export default class ItemDetails extends Component {
                                 </div>
                                 <div className="DetailsRightColumn">
                                     <div className="ItemStats">
-                                        <p>Views: . Offers: {item.offers}</p>
-                                    </div>
-                                    <div className="ActionButtons">
-                                        <button className="add-to-cart" onClick={this.addToCart}>Add To Cart</button>
-                                        <br />
-                                        <br />
-                                        <button className="request-trade" onClick={this.makeTransaction}>Request trade</button>
-                                        {this.state.message && (
-                                            <div className="statusMsg">
-                                                <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
-                                                    {this.state.message}
-                                                </div>
-                                            </div>
+                                        {!this.props.obj ? (
+                                            <p>Views: . Offers: {item.offers}</p>
+                                        ) : (
+                                            <p>Views: 99999. Offers: 777</p>
                                         )}
                                     </div>
+                                    {(!this.state.selfItem) && (
+                                        <div className="ActionButtons">
+                                            <button className="add-to-cart" onClick={!this.props.obj && this.addToCart}>Add To Cart</button>
+                                            <br />
+                                            <br />
+                                            <button className="request-trade" onClick={!this.props.obj && this.requestTrade}>Request trade</button>
+                                            {this.state.message && (
+                                                <div className="statusMsg">
+                                                    <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
+                                                        {this.state.message}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <hr className="divide" />
-                            <Row>
-                                <PopularOffers obj={true} />
-                            </Row>
+                            {!this.props.obj && (
+                                <Row>
+                                    <PopularOffers obj={true} />
+                                </Row>
+                            )}
                         </div>
                     </span>
                 )}

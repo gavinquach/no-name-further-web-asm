@@ -12,7 +12,9 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
-import '../../css/UserPages.css'
+import '../../css/UserPages.css';
+
+import ItemDetails from "../Item/item.details";
 
 const required = value => {
     if (!value) {
@@ -270,6 +272,31 @@ export default class UserCreateItem extends Component {
     }
 
     render() {
+        let item = null;
+        if (this.state.coverImage || this.state.otherImages.length > 0) {
+            // convert description to string
+            const contentState = this.state.editorState.getCurrentContent();
+            const rawContent = JSON.stringify(convertToRaw(contentState));
+            const images = [];
+            if (this.state.coverImage) {
+                images.push(this.state.coverImage);
+            }
+            this.state.otherImages.map(image => {
+                images.push(image);
+            });
+            item = {
+                name: this.state.name,
+                quantity: this.state.quantity,
+                type: this.state.type,
+                forItemName: this.state.forItemName,
+                forItemQty: this.state.forItemQty,
+                forItemType: this.state.forItemType,
+                seller: AuthService.getCurrentUser(),
+                images: images,
+                description: rawContent
+            };
+        }
+
         return (
             <div className="page-container">
                 <Helmet>
@@ -540,7 +567,12 @@ export default class UserCreateItem extends Component {
 
                     <div>
                         <h1 className="Big-text">Preview of listing</h1>
-                        <h3>Show preview down here, preview will look like what it will look like on the actual listing page.</h3>
+                        {(item && item.images) && (
+                            <span>
+                                <h3>Your item will look like this on the item details page.</h3>
+                                <ItemDetails obj={item} />
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>

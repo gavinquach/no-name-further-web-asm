@@ -6,13 +6,15 @@ import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
 import { Helmet } from "react-helmet";
 import { Editor } from 'react-draft-wysiwyg';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
 import '../../css/UserPages.css'
+
+import ItemDetails from "../Item/item.details";
 
 const required = value => {
     if (!value) {
@@ -68,8 +70,13 @@ export default class UserEditItem extends Component {
     load = () => {
         ItemService.viewOneItem(this.props.match.params.id)
             .then(response => {
-                const contentState = convertFromRaw(JSON.parse(response.data.description));
-                const editorState = EditorState.createWithContent(contentState);
+                if (response.data.description) {
+                    const contentState = convertFromRaw(JSON.parse(response.data.description));
+                    const editorState = EditorState.createWithContent(contentState);
+                    this.setState({
+                        editorState: editorState
+                    });
+                }
 
                 this.setState({
                     name: response.data.name,
@@ -78,8 +85,7 @@ export default class UserEditItem extends Component {
                     forItemName: response.data.forItemName,
                     forItemQty: response.data.forItemQty,
                     forItemType: response.data.forItemType.name,
-                    oldImgList: response.data.images,
-                    editorState: editorState
+                    oldImgList: response.data.images
                 }, () => this.addImages());
             }).catch((error) => {
                 // item not found
@@ -381,6 +387,31 @@ export default class UserEditItem extends Component {
     }
 
     render() {
+        let item = null;
+        if (this.state.coverImage || this.state.otherImages.length > 0) {
+            // convert description to string
+            const contentState = this.state.editorState.getCurrentContent();
+            const rawContent = JSON.stringify(convertToRaw(contentState));
+            const images = [];
+            if (this.state.coverImage) {
+                images.push(this.state.coverImage);
+            }
+            this.state.otherImages.map(image => {
+                images.push(image);
+            });
+            item = {
+                name: this.state.name,
+                quantity: this.state.quantity,
+                type: this.state.type,
+                forItemName: this.state.forItemName,
+                forItemQty: this.state.forItemQty,
+                forItemType: this.state.forItemType,
+                seller: AuthService.getCurrentUser(),
+                images: images,
+                description: rawContent
+            };
+        }
+
         return (
             <div className="page-container">
                 <Helmet>
@@ -388,7 +419,7 @@ export default class UserEditItem extends Component {
                 </Helmet>
                 <div className="title">Edit Listing</div>
                 <hr className="section-line" />
-                <div className="menu white-container">
+                <div>
                     <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
                         <br />
 
@@ -649,22 +680,26 @@ export default class UserEditItem extends Component {
                         <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
                     </Form>
 
-                    <hr />
-                    <br />
-
-                    <div>
-                        <h1 className="Big-text">Preview of listing</h1>
-                        <h3>Show preview down here, preview will look like what it will look like on the actual listing page.</h3>
-                    </div>
-
-                    <br />
-                    <hr />
                     <br /><br /><br />
 
                     <h1 className="Big-text">Delete listing</h1>
                     <button type="button" onClick={() => this.delete()} className="delete-item-button-single">
-                        Delete item
+                        Delete listing
                     </button>
+
+                    <hr />
+
+                    <br /><br /><br />
+
+                    <div>
+                        <h1 className="Big-text">Preview of listing</h1>
+                        {(item && item.images) && (
+                            <span>
+                                <h3>Your item will look like this on the item details page.</h3>
+                                <ItemDetails obj={item} />
+                            </span>
+                        )}
+                    </div>
 
                     <br /><br /><br />
                 </div>
