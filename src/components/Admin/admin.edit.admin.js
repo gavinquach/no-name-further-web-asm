@@ -112,7 +112,7 @@ export default class AdminEditAdmin extends Component {
         if (window.confirm("Are you sure you want to delete admin " + this.state.username + "?")) {
             UserService.deleteUser(this.props.match.params.id)
                 .then((response) => {
-                    if (response.data.status == 200) {
+                    if (response.status == 200 || response.status == 201) {
                         this.setState({
                             message: response.data.message,
                             successful: true
@@ -365,7 +365,7 @@ export default class AdminEditAdmin extends Component {
                 this.state.confirm_new_password,
                 roles_submit
             ).then((response) => {
-                if (response.data.status == 200) {
+                if (response.status == 200 || response.status == 201) {
                     this.setState({
                         message: response.data.message,
                         successful: true

@@ -135,7 +135,7 @@ export default class UserEditItem extends Component {
         if (window.confirm("Are you sure you want to delete this listing?")) {
             ItemService.deleteItem(this.props.match.params.id)
                 .then((response) => {
-                    if (response.data.status == 200) {
+                    if (response.status == 200 || response.status == 201) {
                         this.setState({
                             message: response.data.message,
                             successful: true

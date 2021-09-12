@@ -99,7 +99,7 @@ export default class ItemDetails extends Component {
                 this.props.match.params.id,
                 AuthService.getCurrentUser().id
             ).then((response) => {
-                if (response.data.status == 200) {
+                if (response.status == 200 || response.status == 201) {
                     this.setState({
                         message: response.data.message,
                         successful: true
@@ -132,7 +132,7 @@ export default class ItemDetails extends Component {
                 this.state.item,
                 AuthService.getCurrentUser().id
             ).then((response) => {
-                if (response.data.status == 200) {
+                if (response.status == 200 || response.status == 201) {
                     this.setState({
                         message: response.data.message,
                         successful: true

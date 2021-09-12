@@ -272,7 +272,7 @@ export default class AdminCreateAdmin extends Component {
             };
             UserService.createUserWithRoles(user)
                 .then((response) => {
-                    if (response.data.status == 200) {
+                    if (response.status == 200 || response.status == 201) {
                         this.setState({
                             message: response.data.message,
                             successful: true
