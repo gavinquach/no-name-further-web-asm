@@ -31,7 +31,8 @@ const io = require("socket.io")(server, {
     cors: {
         origin: process.env.FRONTEND_URL,
         methods: ["GET", "POST"]
-    }
+    },
+    path: '/'
 });
 require('./app/controllers/socket.io.controller')(io);
 
