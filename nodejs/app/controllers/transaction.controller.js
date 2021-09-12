@@ -248,7 +248,7 @@ exports.createTransaction = async (req, res) => {
 
     // user is the owner of item
     if (item.seller == user._id) {
-        return res.status(403).send({ message: "Can't add your own item to cart!" });
+        return res.status(403).send({ message: "Can't trade with your own item!" });
     }
 
     // if item is found in cart, remove it
