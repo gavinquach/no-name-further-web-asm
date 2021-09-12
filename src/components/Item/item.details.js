@@ -8,7 +8,7 @@ import DOMPurify from 'dompurify';
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import ItemService from "../../services/item.service";
-import TransactionService from "../../services/transaction.service";
+import TradeService from "../../services/trade.service";
 import socket from '../../services/socket';
 
 import { Row, Carousel, Col } from "react-bootstrap";
@@ -121,7 +121,7 @@ export default class ItemDetails extends Component {
 
     requestTrade = () => {
         if (!this.state.selfItem) {
-            TransactionService.createTransactionWithNotification(
+            TradeService.createTradeWithNotification(
                 this.state.item,
                 AuthService.getCurrentUser().id
             ).then((response) => {

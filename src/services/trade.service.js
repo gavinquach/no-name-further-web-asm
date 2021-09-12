@@ -4,23 +4,23 @@ import UserService from "./user.service";
 import socket from './socket';
 const API_URL = require("./index");
 
-const sendNotification = (transaction, msg) => {
+const sendNotification = (trade, msg) => {
     const sender = {
         id: AuthService.getCurrentUser().id,
         username: AuthService.getCurrentUser().username
     };
     let receiverId = null;
-    if (sender.id == transaction.user_seller._id) {
-        receiverId = transaction.user_buyer._id
-    } else if (sender.id == transaction.user_buyer._id) {
-        receiverId = transaction.user_seller._id
+    if (sender.id == trade.user_seller._id) {
+        receiverId = trade.user_buyer._id
+    } else if (sender.id == trade.user_buyer._id) {
+        receiverId = trade.user_seller._id
     }
 
     const data = {
         type: "trade",
         sender: sender.id,
         receiver: receiverId,
-        url: `/trade/${transaction._id}`,
+        url: `/trade/${trade._id}`,
         message: msg,
         createdAt: new Date()
     };
@@ -28,32 +28,32 @@ const sendNotification = (transaction, msg) => {
     UserService.addNotification(data);
 }
 
-class TransactionService {
-    createTransaction(itemid, userid) {
+class TradeService {
+    createTrade(itemid, userid) {
         return axiosTokenHeader.post(API_URL + "trade", {
             itemid,
             userid
         });
     }
 
-    deleteTransaction(id) {
+    deleteTrade(id) {
         return axiosTokenHeader.delete(API_URL + "trade/" + id);
     }
 
-    cancelTransaction(itemid, userid) {
+    cancelTrade(itemid, userid) {
         return axiosTokenHeader.patch(API_URL + "cancel/trade", {
             itemid,
             userid
         });
     }
 
-    createTransactionWithNotification(itemid, userid) {
+    createTradeWithNotification(itemid, userid) {
         return axiosTokenHeader.post(API_URL + "trade", {
             itemid,
             userid
         }).then(
             response => {
-                const transaction = response.data.transaction;
+                const trade = response.data.trade;
                 const item = response.data.item;
 
                 const sender = {
@@ -61,17 +61,17 @@ class TransactionService {
                     username: AuthService.getCurrentUser().username
                 };
                 let receiverId = null;
-                if (sender.id == transaction.user_seller) {
-                    receiverId = transaction.user_buyer;
-                } else if (sender.id == transaction.user_buyer) {
-                    receiverId = transaction.user_seller;
+                if (sender.id == trade.user_seller) {
+                    receiverId = trade.user_buyer;
+                } else if (sender.id == trade.user_buyer) {
+                    receiverId = trade.user_seller;
                 }
 
                 const data = {
                     type: "trade",
                     sender: sender.id,
                     receiver: receiverId,
-                    url: `/trade/${transaction._id}`,
+                    url: `/trade/${trade._id}`,
                     message: `User <b>${sender.username}</b> has requested to trade with your item <b>${item.name}</b>. Click here for more details.`,
                     createdAt: new Date()
                 };
@@ -85,40 +85,40 @@ class TransactionService {
         );
     }
 
-    deleteTransactionWithNotification(transaction, id) {
+    deleteTradeWithNotification(trade, id) {
         sendNotification(
-            transaction,
-            `Your transaction <b>${transaction._id}</b> has been deleted. Click here for more details.`
+            trade,
+            `Your trade <b>${trade._id}</b> has been deleted. Click here for more details.`
         );
         return axiosTokenHeader.delete(API_URL + "trade/" + id);
     }
 
-    cancelTransactionWithNotification(transaction) {
+    cancelTradeWithNotification(trade) {
         sendNotification(
-            transaction,
+            trade,
             `User <b>${AuthService.getCurrentUser().username}</b> has requested for a trade cancellation. Click here for more details.`
         );
         return axiosTokenHeader.patch(API_URL + "cancel/trade", {
-            itemid: transaction.item._id,
+            itemid: trade.item._id,
             userid: AuthService.getCurrentUser().id
         });
     }
 
-    getTransaction(id) {
+    getTrade(id) {
         return axiosTokenHeader.get(API_URL + "trade/" + id);
     }
-    getAllTransactions() {
+    getAllTrades() {
         return axiosTokenHeader.get(API_URL + "trades");
     }
-    getTransactionsByBuyer(userid) {
+    getTradesByBuyer(userid) {
         return axiosTokenHeader.get(API_URL + "trades/buyer/" + userid);
     }
-    getTransactionsBySeller(userid) {
+    getTradesBySeller(userid) {
         return axiosTokenHeader.get(API_URL + "trades/seller/" + userid);
     }
-    getTransactionsByItem(itemid) {
+    getTradesByItem(itemid) {
         return axiosTokenHeader.get(API_URL + "trades/item/" + itemid);
     }
 }
 
-export default new TransactionService();
+export default new TradeService();
