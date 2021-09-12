@@ -30,25 +30,25 @@ const sendNotification = (transaction, msg) => {
 
 class TransactionService {
     createTransaction(itemid, userid) {
-        return axiosTokenHeader.post(API_URL + "transaction", {
+        return axiosTokenHeader.post(API_URL + "trade", {
             itemid,
             userid
         });
     }
 
     deleteTransaction(id) {
-        return axiosTokenHeader.delete(API_URL + "transaction/" + id);
+        return axiosTokenHeader.delete(API_URL + "trade/" + id);
     }
 
     cancelTransaction(itemid, userid) {
-        return axiosTokenHeader.patch(API_URL + "cancel/transaction", {
+        return axiosTokenHeader.patch(API_URL + "cancel/trade", {
             itemid,
             userid
         });
     }
 
     createTransactionWithNotification(itemid, userid) {
-        return axiosTokenHeader.post(API_URL + "transaction", {
+        return axiosTokenHeader.post(API_URL + "trade", {
             itemid,
             userid
         }).then(
@@ -90,7 +90,7 @@ class TransactionService {
             transaction,
             `Your transaction <b>${transaction._id}</b> has been deleted. Click here for more details.`
         );
-        return axiosTokenHeader.delete(API_URL + "transaction/" + id);
+        return axiosTokenHeader.delete(API_URL + "trade/" + id);
     }
 
     cancelTransactionWithNotification(transaction) {
@@ -98,26 +98,26 @@ class TransactionService {
             transaction,
             `User <b>${AuthService.getCurrentUser().username}</b> has requested for a trade cancellation. Click here for more details.`
         );
-        return axiosTokenHeader.patch(API_URL + "cancel/transaction", {
+        return axiosTokenHeader.patch(API_URL + "cancel/trade", {
             itemid: transaction.item._id,
             userid: AuthService.getCurrentUser().id
         });
     }
 
     getTransaction(id) {
-        return axiosTokenHeader.get(API_URL + "transaction/" + id);
+        return axiosTokenHeader.get(API_URL + "trade/" + id);
     }
     getAllTransactions() {
-        return axiosTokenHeader.get(API_URL + "transactions");
+        return axiosTokenHeader.get(API_URL + "trades");
     }
     getTransactionsByBuyer(userid) {
-        return axiosTokenHeader.get(API_URL + "transactions/buyer/" + userid);
+        return axiosTokenHeader.get(API_URL + "trades/buyer/" + userid);
     }
     getTransactionsBySeller(userid) {
-        return axiosTokenHeader.get(API_URL + "transactions/seller/" + userid);
+        return axiosTokenHeader.get(API_URL + "trades/seller/" + userid);
     }
     getTransactionsByItem(itemid) {
-        return axiosTokenHeader.get(API_URL + "transactions/item/" + itemid);
+        return axiosTokenHeader.get(API_URL + "trades/item/" + itemid);
     }
 }
 
