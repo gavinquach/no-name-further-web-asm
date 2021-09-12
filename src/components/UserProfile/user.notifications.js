@@ -185,43 +185,55 @@ export default class Notifications extends Component {
             const pageURL = url.pathname + "?" + search_params.toString();
             this.props.history.push(pageURL);
         });
-        // timer because hash is undefined in URL
-        // if retrieved too early
+        
+        // set timer because hash is undefined in URL if retrieved too early
         setTimeout(() => {
             this.load();
         }, 100);
     }
 
+    setNotificationToRead = (notification) => {
+        UserService.setReadNotification(
+            notification
+        ).then(() => {
+
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
+    }
+
     setNotificationsToRead = () => {
         UserService.setReadNotifications(
             this.state.notifications
-        )
-            .then(() => {
-                this.load();
-                this.sendReloadNavBarRequest();
-            }).catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-            });
+        ).then(() => {
+            this.load();
+            this.sendReloadNavBarRequest();
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
     }
 
     setNotificationsToUnread = () => {
         UserService.setUnreadNotifications(
             this.state.notifications
-        )
-            .then(() => {
-                this.load();
-                this.sendReloadNavBarRequest();
-            }).catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-            });
+        ).then(() => {
+            this.load();
+            this.sendReloadNavBarRequest();
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
     }
 
     updatePage = (page) => {
@@ -381,7 +393,7 @@ export default class Notifications extends Component {
 
                                         <div className="NotificationButtonContainer">
                                             {notification.type == "trade" && (
-                                                <Link to={notification.url}>
+                                                <Link to={notification.url} onClick={() => this.setNotificationToRead(notification)}>
                                                     <button className="NotificationButton">
                                                         Check trade details
                                                     </button>
