@@ -65,6 +65,7 @@ exports.createItem = async (req, res) => {
         forItemName: itemObj.forItemName,
         forItemQty: itemObj.forItemQty,
         forItemType: forItemType,
+        description: itemObj.description,
         seller: user._id,
         upload_date: date,
         last_update: date
@@ -267,6 +268,7 @@ exports.editItem = async (req, res) => {
     item.forItemName = itemObj.forItemName;
     item.forItemQty = itemObj.forItemQty;
     item.forItemType = forItemType;
+    item.description = itemObj.description;
     item.last_update = new Date();
 
     // add new images to database

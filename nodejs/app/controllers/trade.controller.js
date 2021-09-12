@@ -1,13 +1,13 @@
 const model = require("../models");
 const User = model.user;
 const Item = model.item;
-const Transaction = model.transaction;
+const Trade = model.trade;
 
-// Get transaction by Id
-exports.getTransaction = async (req, res) => {
-    let transaction = null;
+// Get trade by Id
+exports.getTrade = async (req, res) => {
+    let trade = null;
     try {
-        transaction = await Transaction.findById(req.params.id)
+        trade = await Trade.findById(req.params.id)
             .populate("user_seller", "-__v")
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
@@ -17,14 +17,14 @@ exports.getTransaction = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+    if (!trade) return res.status(404).send({ message: "Trade not found." });
 
-    if (transaction.status === "Pending") {
-        // set transaction to expired if expiration date is before or equal to current date
-        if (transaction.expiration_date <= new Date()) {
+    if (trade.status === "Pending") {
+        // set trade to expired if expiration date is before or equal to current date
+        if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
-                item = await Item.findById(transaction.item).exec();
+                item = await Item.findById(trade.item).exec();
             } catch (err) {
                 return res.status(500).send(err);
             }
@@ -35,21 +35,21 @@ exports.getTransaction = async (req, res) => {
 
             try {
                 await item.save();
-                transaction.status = "Expired";
-                await transaction.save();
+                trade.status = "Expired";
+                await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
             }
         }
     }
-    res.json(transaction);
+    res.json(trade);
 }
 
-// Get all transactions
-exports.viewAllTransactions = async (req, res) => {
-    let transactions = [];
+// Get all trades
+exports.getAllTrades = async (req, res) => {
+    let trades = [];
     try {
-        transactions = await Transaction.find()
+        trades = await Trade.find()
             .populate("user_seller", "-__v")
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
@@ -58,15 +58,15 @@ exports.viewAllTransactions = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
+    if (trades.length < 1) return res.status(404).send({ message: "Trades not found." });
 
-    // set transaction to expired if expiration date is before or equal to current date
-    for (const transaction of transactions) {
-        if (transaction.status != "Pending") continue;
-        if (transaction.expiration_date <= new Date()) {
+    // set trade to expired if expiration date is before or equal to current date
+    for (const trade of trades) {
+        if (trade.status != "Pending") continue;
+        if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
-                item = await Item.findById(transaction.item).exec();
+                item = await Item.findById(trade.item).exec();
             } catch (err) {
                 return res.status(500).send(err);
             }
@@ -77,21 +77,21 @@ exports.viewAllTransactions = async (req, res) => {
 
             try {
                 await item.save();
-                transaction.status = "Expired";
-                await transaction.save();
+                trade.status = "Expired";
+                await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
             }
         }
     }
-    res.json(transactions);
+    res.json(trades);
 };
 
-// Get transactions by buyer id
-exports.getBuyerTransactions = async (req, res) => {
-    let transactions = [];
+// Get trades by buyer id
+exports.getBuyerTrades = async (req, res) => {
+    let trades = [];
     try {
-        transactions = await Transaction.find({
+        trades = await Trade.find({
             user_buyer: req.params.id
         })
             .populate("user_seller", "-__v")
@@ -102,15 +102,15 @@ exports.getBuyerTransactions = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
+    if (trades.length < 1) return res.status(404).send({ message: "Trades not found." });
 
-    // set transaction to expired if expiration date is before or equal to current date
-    for (const transaction of transactions) {
-        if (transaction.status != "Pending") continue;
-        if (transaction.expiration_date <= new Date()) {
+    // set trade to expired if expiration date is before or equal to current date
+    for (const trade of trades) {
+        if (trade.status != "Pending") continue;
+        if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
-                item = await Item.findById(transaction.item).exec();
+                item = await Item.findById(trade.item).exec();
             } catch (err) {
                 return res.status(500).send(err);
             }
@@ -121,21 +121,21 @@ exports.getBuyerTransactions = async (req, res) => {
 
             try {
                 await item.save();
-                transaction.status = "Expired";
-                await transaction.save();
+                trade.status = "Expired";
+                await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
             }
         }
     }
-    res.json(transactions);
+    res.json(trades);
 };
 
-// Get transactions by seller id
-exports.getSellerTransactions = async (req, res) => {
-    let transactions = [];
+// Get trades by seller id
+exports.getSellerTrades = async (req, res) => {
+    let trades = [];
     try {
-        transactions = await Transaction.find({
+        trades = await Trade.find({
             user_seller: req.params.id
         })
             .populate("user_seller", "-__v")
@@ -146,15 +146,15 @@ exports.getSellerTransactions = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
+    if (trades.length < 1) return res.status(404).send({ message: "Trades not found." });
 
-    // set transaction to expired if expiration date is before or equal to current date
-    for (const transaction of transactions) {
-        if (transaction.status != "Pending") continue;
-        if (transaction.expiration_date <= new Date()) {
+    // set trade to expired if expiration date is before or equal to current date
+    for (const trade of trades) {
+        if (trade.status != "Pending") continue;
+        if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
-                item = await Item.findById(transaction.item).exec();
+                item = await Item.findById(trade.item).exec();
             } catch (err) {
                 return res.status(500).send(err);
             }
@@ -165,21 +165,21 @@ exports.getSellerTransactions = async (req, res) => {
 
             try {
                 await item.save();
-                transaction.status = "Expired";
-                await transaction.save();
+                trade.status = "Expired";
+                await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
             }
         }
     }
-    res.json(transactions);
+    res.json(trades);
 };
 
-// Get transactions by item id
-exports.getItemTransactions = async (req, res) => {
-    let transactions = [];
+// Get trades by item id
+exports.getItemTrades = async (req, res) => {
+    let trades = [];
     try {
-        transactions = await Transaction.find({
+        trades = await Trade.find({
             item: req.params.id
         })
             .populate("user_seller", "-__v")
@@ -190,15 +190,15 @@ exports.getItemTransactions = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (transactions.length < 1) return res.status(404).send({ message: "Transactions not found." });
+    if (trades.length < 1) return res.status(404).send({ message: "Trades not found." });
 
-    // set transaction to expired if expiration date is before or equal to current date
-    for (const transaction of transactions) {
-        if (transaction.status != "Pending") continue;
-        if (transaction.expiration_date <= new Date()) {
+    // set trade to expired if expiration date is before or equal to current date
+    for (const trade of trades) {
+        if (trade.status != "Pending") continue;
+        if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
-                item = await Item.findById(transaction.item).exec();
+                item = await Item.findById(trade.item).exec();
             } catch (err) {
                 return res.status(500).send(err);
             }
@@ -209,27 +209,27 @@ exports.getItemTransactions = async (req, res) => {
 
             try {
                 await item.save();
-                transaction.status = "Expired";
-                await transaction.save();
+                trade.status = "Expired";
+                await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
             }
         }
     }
-    res.json(transactions);
+    res.json(trades);
 };
 
-// Post a new transaction
-exports.createTransaction = async (req, res) => {
-    // check if transaction is already available
+// Post a new trade
+exports.createTrade = async (req, res) => {
+    // check if trade is already available
     try {
-        const transaction = await Transaction.findOne({
+        const trade = await Trade.findOne({
             item: req.body.itemid,
             user_buyer: req.body.userid,
             status: "Pending"
         }).exec();
 
-        if (transaction) return res.status(401).send({ message: "Transaction already exists!" });
+        if (trade) return res.status(401).send({ message: "Trade already exists!" });
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -246,6 +246,11 @@ exports.createTransaction = async (req, res) => {
     if (!user) return res.status(404).send({ message: "User not found." });
     if (!item) return res.status(404).send({ message: "Item not found." });
 
+    // user is the owner of item
+    if (item.seller == user._id) {
+        return res.status(403).send({ message: "Can't trade with your own item!" });
+    }
+
     // if item is found in cart, remove it
     const itemIndexInCart = user.cart.indexOf(req.body.itemid);
     if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
@@ -257,8 +262,8 @@ exports.createTransaction = async (req, res) => {
     const expiryDate = new Date();
     expiryDate.setHours(expiryDate.getHours() + 48);
 
-    // create transaction object
-    const transaction = new Transaction({
+    // create trade object
+    const trade = new Trade({
         user_seller: item.seller,
         user_buyer: user._id,
         item: item._id,
@@ -267,32 +272,32 @@ exports.createTransaction = async (req, res) => {
         status: "Pending"
     });
 
-    // add transaction and expire transaction to database
+    // add trade and expire trade to database
     try {
         await item.save();
         await user.save();
-        await transaction.save();
+        await trade.save();
     } catch (err) {
         return res.status(500).send(err);
     }
 
     res.status(200).send({
-        message: "Transaction created successfully!",
-        transaction: transaction,
+        message: "Trade created successfully!",
+        trade: trade,
         item: item
     });
 }
 
-// Delete transaction
-exports.deleteTransaction = (req, res) => {
-    Transaction.findByIdAndRemove(req.params.id,
-        async (err, transaction) => {
+// Delete trade
+exports.deleteTrade = (req, res) => {
+    Trade.findByIdAndRemove(req.params.id,
+        async (err, trade) => {
             if (err) return res.status(500).send(err);
-            if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+            if (!trade) return res.status(404).send({ message: "Trade not found." });
 
             let item = null;
             try {
-                item = await Item.findById(transaction.item).exec();
+                item = await Item.findById(trade.item).exec();
             } catch (err) {
                 return res.status(500).send(err);
             }
@@ -306,92 +311,92 @@ exports.deleteTransaction = (req, res) => {
             } catch (err) {
                 return res.status(500).send(err);
             }
-            res.status(200).send({ message: "Transaction successfully removed" });
+            res.status(200).send({ message: "Trade removed successfully" });
         });
 }
 
-// Cancel transaction, set status to cancelled
-exports.cancelTransaction = async (req, res) => {
-    let transaction = null;
+// Cancel trade, set status to cancelled
+exports.cancelTrade = async (req, res) => {
+    let trade = null;
     let item = null;
     try {
-        transaction = await Transaction.findOne({
+        trade = await Trade.findOne({
             user_buyer: req.body.userid,
             item: req.body.itemid,
             status: "Pending"
         });
-        item = await Item.findById(transaction.item).exec();
+        item = await Item.findById(trade.item).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!transaction) return res.status(401).send({ message: "Transaction not found." });
+    if (!trade) return res.status(401).send({ message: "Trade not found." });
     if (!item) return res.status(404).send({ message: "Item not found." });
 
     // remove 1 from offers in item model
     item.offers -= 1;
 
-    // save item, delete expiration document, and update transaction in database
+    // save item, delete expiration document, and update trade in database
     try {
         await item.save();
-        transaction.status = "Cancelled";
-        await transaction.save();
+        trade.status = "Cancelled";
+        await trade.save();
     } catch (err) {
         return res.status(500).send(err);
     }
-    res.status(200).send({ message: "Transaction cancelled successfully!" });
+    res.status(200).send({ message: "Trade cancelled successfully!" });
 }
 
-// set transaction to finished
-exports.setTransactionToFinished = async (req, res) => {
-    let transaction = null;
+// set trade to finished
+exports.setTradeToFinished = async (req, res) => {
+    let trade = null;
     try {
-        transaction = await Transaction.findById(req.params.id);
+        trade = await Trade.findById(req.params.id);
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+    if (!trade) return res.status(404).send({ message: "Trade not found." });
 
-    // delete expiration document and update transaction in database
+    // delete expiration document and update trade in database
     try {
-        transaction.finalization_date = new Date();
-        transaction.status = "Finished";
-        await transaction.save();
+        trade.finalization_date = new Date();
+        trade.status = "Finished";
+        await trade.save();
     } catch (err) {
         return res.status(500).send(err);
     }
 
-    res.status(200).send({ message: "Transaction completed!" });
+    res.status(200).send({ message: "Trade completed!" });
 };
 
-// set transaction to expired
-exports.setTransactionToExpired = async (req, res) => {
-    let transaction = null;
+// set trade to expired
+exports.setTradeToExpired = async (req, res) => {
+    let trade = null;
     let expiredId = null;
     let item = null;
 
-    // Get the expirational Id from the transaction object
+    // Get the expirational Id from the trade object
     try {
-        item = await Item.findById(transaction.item).exec();
-        transaction = await Transaction.findById(req.params.id);
-        expiredId = transaction.expiration_date;
+        item = await Item.findById(trade.item).exec();
+        trade = await Trade.findById(req.params.id);
+        expiredId = trade.expiration_date;
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!transaction) return res.status(404).send({ message: "Transaction not found." });
+    if (!trade) return res.status(404).send({ message: "Trade not found." });
     if (!item) return res.status(404).send({ message: "Item not found." });
 
-    if (transaction.expiration_date <= new Date()) {
+    if (trade.expiration_date <= new Date()) {
         // remove 1 from offers in item model
         item.offers -= 1;
-        transaction.status = "Expired";
+        trade.status = "Expired";
 
         try {
             await item.save();
-            await transaction.save();
+            await trade.save();
         } catch (err) {
             return res.status(500).send(err);
         }
 
-        res.status(200).send({ message: "Transaction set to expired Successfully!" });
+        res.status(200).send({ message: "Trade set to expired successfully!" });
     }
 }

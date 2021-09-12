@@ -211,6 +211,12 @@
     margin-right: 0;
 }
 
+.DescriptionWrapper {
+    border: 2px solid gray;
+    border-radius: 5px;
+    min-height: 15em;
+}
+
 @media screen and (max-width: 760px) {
     .user-menu {
         text-align: center;

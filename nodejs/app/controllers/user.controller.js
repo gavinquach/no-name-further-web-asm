@@ -575,21 +575,23 @@ exports.addItemToCart = async (req, res) => {
     }
 
     let user = null;
-
-    // find user in database to see if it exists
+    let item = null;
+    // check if user and item exist
     try {
         user = await User.findById(req.body.userid);
+        item = Item.findById(req.body.itemid).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
     if (!user) return res.status(404).send({ message: "User not found." });
 
-    // find item in database to see if it exists
-    Item.findById(req.body.itemid)
-        .exec((err, item) => {
-            if (err) return res.status(500).send(err);
-            if (!item) return res.status(404).send({ message: "Item not found." });
-        });
+    // check if item exists
+    if (!item) return res.status(404).send({ message: "Item not found." });
+
+    // user is the owner of item
+    if (item.seller == user._id) {
+        return res.status(403).send({ message: "Can't add your own item to cart!" });
+    }
 
     if (user.cart.includes(req.body.itemid)) {
         return res.status(400).send({ message: "Item already in cart!" });

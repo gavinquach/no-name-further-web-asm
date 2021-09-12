@@ -69,7 +69,7 @@ const authRoutes = require('./app/routes/auth.routes');
 const userRoutes = require('./app/routes/user.routes');
 const itemRoutes = require('./app/routes/item.routes');
 const imageRoutes = require('./app/routes/image.routes');
-const transactionRoutes = require('./app/routes/transaction.routes');
+const transactionRoutes = require('./app/routes/trade.routes');
 const conversationRoutes = require('./app/routes/conversation.routes');
 const messageRoutes = require('./app/routes/message.routes');
 // routes

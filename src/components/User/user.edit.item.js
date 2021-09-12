@@ -5,10 +5,16 @@ import Select from "react-validation/build/select";
 import CheckButton from "react-validation/build/button";
 import ImageUploading from "react-images-uploading";    // npm install --save react-images-uploading
 import { Helmet } from "react-helmet";
+import { Editor } from 'react-draft-wysiwyg';
+import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
 import '../../css/UserPages.css'
+
+import ItemDetails from "../Item/item.details";
 
 const required = value => {
     if (!value) {
@@ -52,6 +58,7 @@ export default class UserEditItem extends Component {
             forItemType: "",
             successful: false,
             message: "",
+            editorState: EditorState.createEmpty()
         };
     }
 
@@ -63,6 +70,14 @@ export default class UserEditItem extends Component {
     load = () => {
         ItemService.viewOneItem(this.props.match.params.id)
             .then(response => {
+                if (response.data.description) {
+                    const contentState = convertFromRaw(JSON.parse(response.data.description));
+                    const editorState = EditorState.createWithContent(contentState);
+                    this.setState({
+                        editorState: editorState
+                    });
+                }
+
                 this.setState({
                     name: response.data.name,
                     quantity: response.data.quantity,
@@ -72,16 +87,17 @@ export default class UserEditItem extends Component {
                     forItemType: response.data.forItemType.name,
                     oldImgList: response.data.images
                 }, () => this.addImages());
-            }, error => {
-                this.props.history.push("/user/items");
-            })
-            .catch((error) => {
-                if (error.response && error.response.status != 500) {
+            }).catch((error) => {
+                // item not found
+                if (error.response && error.response.status == 404) {
+                    console.log(error.response.data.message);
+                    this.props.history.push("/user/items");
+                } else if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
                     console.log(error);
                 }
-            })
+            });
     }
 
     addImages = () => {
@@ -118,29 +134,29 @@ export default class UserEditItem extends Component {
     delete = () => {
         if (window.confirm("Are you sure you want to delete this listing?")) {
             ItemService.deleteItem(this.props.match.params.id)
-                .then(
-                    response => {
+                .then((response) => {
+                    this.setState({
+                        message: response.data.message,
+                        successful: true
+                    });
+
+                    // redirect to view item page after delete
+                    this.props.history.push('/user/items');
+                }).catch((error) => {
+                    // item not found
+                    if (error.response && error.response.status != 500) {
                         this.setState({
-                            message: response.data.message,
-                            successful: true
+                            message: error.response.data.message,
+                            successful: false
                         });
-
-                        // redirect to view item page after delete
-                        this.props.history.push('/user/items');
-                    }, error => {
-                        const resMessage =
-                            (error.response &&
-                                error.response.data &&
-                                error.response.data.message) ||
-                            error.message ||
-                            error.toString();
-
+                    } else {
+                        console.log(error);
                         this.setState({
-                            successful: false,
-                            message: resMessage
+                            message: error,
+                            successful: false
                         });
                     }
-                );
+                });
         }
     }
 
@@ -179,6 +195,12 @@ export default class UserEditItem extends Component {
             forItemType: e.target.value
         });
     }
+
+    onEditorStateChange = (editorState) => {
+        this.setState({
+            editorState,
+        });
+    };
 
     onChangeUploadImage = (imageList) => {
         const list = [];
@@ -268,6 +290,9 @@ export default class UserEditItem extends Component {
         }
 
         if (this.checkBtn.context._errors.length === 0) {
+            const contentState = this.state.editorState.getCurrentContent();
+            const rawContent = JSON.stringify(convertToRaw(contentState));
+
             // need to upload item then images can be uploaded with this item id
             const item = {
                 name: this.state.name,
@@ -276,6 +301,7 @@ export default class UserEditItem extends Component {
                 forItemName: this.state.forItemName,
                 forItemQty: this.state.forItemQty,
                 forItemType: this.state.forItemType,
+                description: rawContent
             };
 
             // create list of removed images
@@ -361,6 +387,31 @@ export default class UserEditItem extends Component {
     }
 
     render() {
+        let item = null;
+        if (this.state.coverImage || this.state.otherImages.length > 0) {
+            // convert description to string
+            const contentState = this.state.editorState.getCurrentContent();
+            const rawContent = JSON.stringify(convertToRaw(contentState));
+            const images = [];
+            if (this.state.coverImage) {
+                images.push(this.state.coverImage);
+            }
+            this.state.otherImages.map(image => {
+                images.push(image);
+            });
+            item = {
+                name: this.state.name,
+                quantity: this.state.quantity,
+                type: this.state.type,
+                forItemName: this.state.forItemName,
+                forItemQty: this.state.forItemQty,
+                forItemType: this.state.forItemType,
+                seller: AuthService.getCurrentUser(),
+                images: images,
+                description: rawContent
+            };
+        }
+
         return (
             <div className="page-container">
                 <Helmet>
@@ -368,7 +419,7 @@ export default class UserEditItem extends Component {
                 </Helmet>
                 <div className="title">Edit Listing</div>
                 <hr className="section-line" />
-                <div className="menu white-container">
+                <div>
                     <Form onSubmit={this.handleRegister} ref={c => { this.form = c; }}>
                         <br />
 
@@ -469,6 +520,19 @@ export default class UserEditItem extends Component {
                                     validations={[required, vquantity]}
                                 />
                             </div>
+                        </div>
+
+                        <br />
+                        <hr />
+
+                        <h2>Item description:</h2>
+                        <div>
+                            <Editor
+                                wrapperClassName="DescriptionWrapper"
+                                editorClassName="DescriptionEditor"
+                                editorState={this.state.editorState}
+                                onEditorStateChange={this.onEditorStateChange}
+                            />
                         </div>
 
                         <br />
@@ -616,22 +680,26 @@ export default class UserEditItem extends Component {
                         <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
                     </Form>
 
-                    <hr />
-                    <br />
-
-                    <div>
-                        <h1 className="Big-text">Preview of listing</h1>
-                        <h3>Show preview down here, preview will look like what it will look like on the actual listing page.</h3>
-                    </div>
-
-                    <br />
-                    <hr />
                     <br /><br /><br />
 
                     <h1 className="Big-text">Delete listing</h1>
                     <button type="button" onClick={() => this.delete()} className="delete-item-button-single">
-                        Delete item
+                        Delete listing
                     </button>
+
+                    <hr />
+
+                    <br /><br /><br />
+
+                    <div>
+                        <h1 className="Big-text">Preview of listing</h1>
+                        {(item && item.images) && (
+                            <span>
+                                <h3>Your item will look like this on the item details page.</h3>
+                                <ItemDetails obj={item} />
+                            </span>
+                        )}
+                    </div>
 
                     <br /><br /><br />
                 </div>

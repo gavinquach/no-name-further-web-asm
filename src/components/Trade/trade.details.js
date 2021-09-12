@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
-import TransactionService from "../../services/transaction.service";
+import TradeService from "../../services/trade.service";
 import socket from '../../services/socket';
 
 import "../../css/TradeDetails.css"
@@ -26,7 +26,7 @@ const formatDate = (d) => {
     return `${month} ${date}, ${year} at ${hour}:${minute}:${second}`;
 }
 
-export default class Transactions extends Component {
+export default class TradeDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -36,7 +36,7 @@ export default class Transactions extends Component {
     }
 
     load = () => {
-        TransactionService.getTransaction(
+        TradeService.getTrade(
             this.props.match.params.id
         ).then(response => {
             // checks if user is either seller or buyer
@@ -70,7 +70,7 @@ export default class Transactions extends Component {
 
     requestCancel = (transaction) => {
         if (window.confirm("Are you sure you want to request for trade cancellation?")) {
-            TransactionService.cancelTransactionWithNotification(
+            TradeService.cancelTradeWithNotification(
                 transaction
             ).then(
                 () => {

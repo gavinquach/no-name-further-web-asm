@@ -6,8 +6,8 @@ const hoursFromNow = () => {
     return timeObject;
 }
 
-const Transaction = mongoose.model(
-    "Transaction",
+const Trade = mongoose.model(
+    "Trade",
     new mongoose.Schema({
         user_seller: {
             type: mongoose.Schema.Types.ObjectId,
@@ -34,4 +34,4 @@ const Transaction = mongoose.model(
     })
 );
 
-module.exports = Transaction;
+module.exports = Trade;

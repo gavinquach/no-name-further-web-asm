@@ -1,3 +1,7 @@
+.NotificationsContainer {
+    max-width: 70em;
+}
+
 .NotificationTypes {
     display: table;
     color: black;
@@ -16,7 +20,7 @@
     text-decoration: none;
     text-align: center;
     vertical-align: middle;
-    width: 6em;
+    width: 17.5em;
     height: 3.2em;
     font-weight: 400;
 }
@@ -24,10 +28,10 @@
 .NotificationTypesCell:not(:last-child) {
     border-right: 1px solid rgba(0, 0, 0, 0.5);
 }
-
+/* 
 .NotificationTypesCell:not(:first-child) {
     width: 18em;
-}
+} */
 
 .NotificationTypesCell:hover {
     color: black;
@@ -68,7 +72,6 @@
 }
 
 .NotificationList {
-    max-width: 60em;
     border-top: 1px solid black;
 }
 
@@ -76,7 +79,6 @@
     display: flex;
     color: black;
     text-decoration: none;
-    max-width: 60em;
     padding: 12px 10px;
     background-color: rgba(0, 140, 255, 0.07);
     border-bottom: 1px solid black;
@@ -135,11 +137,11 @@
     background-color: rgba(0, 140, 255, 0.07);
 }
 
-.active {
+.SectionActive {
     background-color: rgba(240, 255, 0, 0.850);
 }
 
-.active:hover {
+.SectionActive:hover {
     background-color: rgba(200, 214, 0, 0.85);
 }
 

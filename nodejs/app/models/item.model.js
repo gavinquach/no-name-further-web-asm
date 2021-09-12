@@ -31,6 +31,7 @@ const Item = mongoose.model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
+        description: String,
         offers: {
             type: Number,
             min: 0,

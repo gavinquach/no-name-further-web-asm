@@ -1,133 +1,42 @@
-.main-section {
-  margin: 10px;
-}
-
-.item {
-  display: grid;
-  grid-template-columns: 40% 60%;
-  gap: 3em;
-}
-
-.ItemImage {
-  width: 20em;
-  height: 20em;
-  border: 1px solid black;
-  margin-right: 1em;
-}
-
-.item-image-box {
-  display: block;
-}
-
-.item-image {
-  width: 30vw;
-  height: 25vw;
-  border: 0.1em solid black;
+.ItemDetailsContainer {
+  width: 90em;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .add-to-cart {
+  color: white;
   text-transform: uppercase;
+  font-weight: 500;
   padding: 0.8rem 3.2rem;
+  border-radius: 3px;
+  background-color: rgb(167, 81, 0);
+  border: none;
+  outline: none;
+  width: 15em;
+  height: 3em;
 }
 
 .add-to-cart:hover {
-  background-color: rgb(49, 49, 49);
+  background-color: rgb(124, 60, 0);
 }
 
-.make-transaction {
+.request-trade {
+  color: white;
   text-transform: uppercase;
-  padding: 0.8rem 1.9rem;
+  font-weight: 500;
+  padding: 0.8rem 3.2rem;
+  border-radius: 3px;
+  background-color: rgb(25, 167, 0);
+  border: none;
+  outline: none;
+  width: 15em;
+  height: 3em;
 }
 /* make button slightly darker when hovering mouse over */
 
-.make-transaction:hover {
-  background-color: rgb(14, 95, 0);
-}
-
-.item-image {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 33em;
-  height: 33em;
-  display: block;
-  background-color: lightgray;
-}
-.item-image img,
-.image-list img {
-  max-width: 100%;
-  height: auto;
-}
-
-.image-list {
-  list-style-type: none;
-  padding: 1em 0em;
-}
-
-.image-list li {
-  display: inline-block;
-  width: 6.2em;
-  height: 6.2em;
-  background-color: lightgray;
-  cursor: pointer;
-  margin-right: 8px;
-  margin-bottom: 8px;
-}
-
-.image-list img {
-  width: 6.2em;
-  height: 6.2em;
-  transition: opacity 0.2s ease;
-}
-
-/* for javascript attach border when selected */
-.image-list-img-border {
-  outline-width: 2.5px;
-  outline-color: black;
-  outline-style: solid;
-}
-
-/* make image slightly transparent when hovering mouse over */
-.image-list img:hover {
-  opacity: 0.7;
-}
-
-/*Product Quantity Box */
-.qtySelector {
-  border: 1px solid #ddd;
-  width: 107px;
-  height: 35px;
-  margin: 10px auto 0;
-}
-
-.qtySelector .qtyBtn {
-  padding: 10px 5px;
-  width: 35px;
-  height: 100%;
-  float: left;
-  cursor: pointer;
-}
-
-.qtySelector .qtyBtn.clicked {
-  font-size: 12px;
-  padding: 12px 5px;
-}
-
-.qtySelector .minus {
-  border-right: 1px solid #ddd;
-}
-
-.qtySelector .plus {
-  border-left: 1px solid #ddd;
-}
-
-.qtySelector .qtyValue {
-  border: none;
-  padding: 5px;
-  width: 35px;
-  height: 100%;
-  float: left;
-  text-align: center;
+.request-trade:hover {
+  background-color: rgb(60, 105, 0);
 }
 
 .statusMsg {
@@ -138,7 +47,6 @@
 
 .delete-item-btn {
   background-color: #fc6969;
-  /* Green */
   border: none;
   color: white;
   padding: 7px 16px;
@@ -152,57 +60,74 @@
 
 /* CAROUSEL */
 .carousel {
-  background-color: transparent;
+  width: 1280px;
+  height: 720px;
+  margin-bottom: 5em;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  vertical-align: middle;
+  background-color: lightgrey;
+  border-radius: 1em;
+  box-shadow: 0px 5px 5px rgb(124, 124, 124)
 }
 
-.carousel__item {
-  width: 1000px !important;
-  height: 500px !important;
-  background-color: black;
-}
-
-.carousel-inner {
-  border-radius: 15px;
-}
-
-.pic {
-  border-radius: 10px !important;
+.CarouselImage {
+  height: 720px;
 }
 
 .carousel-indicators {
-  margin-bottom: 10px;
+  margin-bottom: 1em;
 }
 
 .carousel-indicators button {
-  /* border: none; */
-  border-radius: 3px;
-  padding: 3px 20px;
-  margin-right: 10px;
+  width: 1em;
+  height: 1em;
+  margin-right: 12px;
+  border-radius: 50%;
+  border: none;
+  outline: none;
+  box-shadow: 0px 0px 3px black;
+  background-color: white;
 }
 
 .carousel-indicators .active {
   background-color: black;
 }
 
+/* carousel indicator text */
 .carousel-control-prev .visually-hidden,
 .carousel-control-next .visually-hidden {
   display: none;
 }
 
-.carousel-control-prev,
-.carousel-control-next {
-  width: 8% !important;
-  background-color: rgb(0, 0, 0, 0.5);
+.carousel-control-prev, .carousel-control-next {
+  color: black;
+  width: 5%;
+  background-color: none;
+  visibility: hidden;
 }
 
 .carousel-control-prev {
-  border-bottom-left-radius: 15px;
-  border-top-left-radius: 15px;
+  margin-left: -5em;
 }
 
 .carousel-control-next {
-  border-bottom-right-radius: 15px;
-  border-top-right-radius: 15px;
+  margin-right: -5em;
+}
+
+/* carousel move left button */
+.carousel-control-prev-icon {
+  visibility: visible;
+  /* make icon black, code from stackoverflow, source: https://stackoverflow.com/a/49017805 */
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+ 
+/* carousel move right button */
+.carousel-control-next-icon {
+  visibility: visible;
+  /* make icon black, code from stackoverflow, source: https://stackoverflow.com/a/49017805 */
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
 }
 
 .divide {
@@ -210,7 +135,17 @@
   padding: 0.05em;
 }
 
-.avatar-detail {
+.UserDetails {
+  display: flex;
+}
+
+#avatar {
+  font-size: 5em;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.avatar-image {
   vertical-align: middle;
   width: 55px;
   height: 55px;
@@ -219,39 +154,72 @@
   margin-top: 0.8em;
 }
 
-.address-name {
-  margin-right: 6em;
-  float: right;
+.NameLocation {
+  margin-left: 2em;
 }
 
-.description-table {
-  margin-top: 1em;
+.ChatWithUser {
+  border: none;
+  background-color: rgb(53, 73, 0);
+  border-radius: 5px;
+  color: white;
+  font-size: 18px;
+  font-weight: 400;
+  margin-left: 3em;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 8em;
+  height: 3em;
+}
+
+#date-text-container {
   margin-bottom: 1em;
-  font-size: 1.2rem;
+  font-size: 14px;
 }
 
-.description-section {
-  font-weight: 800;
-  text-transform: uppercase;
+#details-section {
+  font-size: 18px;
 }
 
-.user-description {
+#want-to-trade-text {
+  font-size: 24px;
+}
+
+.TypeQuantityContainer {
   display: flex;
-  justify-content: space-between;
+  font-size: 20px;
 }
 
-.diff-text {
-  font-size: 1.3em;
-  margin: 0;
+.Column {
+  margin-right: 2em;
 }
 
-.diff-text-2 {
-  font-size: 1.3em;
-  margin: 0;
-  margin-top: 1em;
+.SeparateLine {
+    height: 5em;
+    width: 0;
+    border: 1px solid black;
+    margin-right: 2em;
 }
 
-.history-text {
-  font-size: 0.8em !important;
-  font-weight: lighter;
+.DetailsRightColumn {
+  width: 30%;
+}
+
+.ItemStats {
+  font-size: 20px;
+}
+
+.ActionButtons {
+  margin-top: 5em;
+}
+
+.SectionHeader {
+  font-size: 32px;
+  padding: 12px 24px;
+  background-color: rgba(0, 0, 0, 0.05);
+  width: 95%;
+}
+
+.Description {
+  padding: 12px 24px;
 }
