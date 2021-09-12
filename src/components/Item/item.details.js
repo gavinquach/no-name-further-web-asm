@@ -320,11 +320,10 @@ export default class ItemDetails extends Component {
                                     )}
                                 </div>
                             </div>
+                            <br /><br /><br />
                             <hr className="divide" />
                             {!this.props.obj && (
-                                <Row>
-                                    <PopularOffers obj={true} />
-                                </Row>
+                                <PopularOffers obj={true} />
                             )}
                         </div>
                     </span>
