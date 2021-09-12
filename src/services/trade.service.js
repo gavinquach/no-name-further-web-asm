@@ -96,7 +96,7 @@ class TradeService {
     cancelTradeWithNotification(trade) {
         sendNotification(
             trade,
-            `User <b>${AuthService.getCurrentUser().username}</b> has requested for a trade cancellation. Click here for more details.`
+            `User <b>${AuthService.getCurrentUser().username}</b> has cancelled a trade. Click here for more details.`
         );
         return axiosTokenHeader.patch(API_URL + "cancel/trade", {
             itemid: trade.item._id,
