@@ -11,26 +11,37 @@ const Trade = mongoose.model(
     new mongoose.Schema({
         user_seller: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
+            ref: "User",
+            required: true
         },
         user_buyer: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
+            ref: "User",
+            required: true
         },
         item: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Item"
+            ref: "Item",
+            required: true
         },
         creation_date: {
             type: Date,
-            default: Date.now
+            default: Date.now,
+            required: true
         },
         expiration_date: {
             type: Date,
             default: hoursFromNow
         },
         finalization_date: Date,
-        status: String
+        status: {
+            type: String,
+            required: true
+        },
+        cancel_user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        }
     })
 );
 

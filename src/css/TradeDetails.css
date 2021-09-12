@@ -38,3 +38,15 @@
     background-color: rgba(55, 61, 0, 0.918);
     margin-right: 1em;
 }
+
+.ApproveTrade {
+    background-color: rgb(72, 180, 0);
+}
+
+.DenyTrade {
+    background-color: rgb(180, 0, 0);
+}
+
+.CancelTrade {
+    background-color: rgb(180, 72, 0);
+}

@@ -135,13 +135,19 @@ export default class UserEditItem extends Component {
         if (window.confirm("Are you sure you want to delete this listing?")) {
             ItemService.deleteItem(this.props.match.params.id)
                 .then((response) => {
-                    this.setState({
-                        message: response.data.message,
-                        successful: true
-                    });
-
-                    // redirect to view item page after delete
-                    this.props.history.push('/user/items');
+                    if (response.status == 200 || response.status == 201) {
+                        this.setState({
+                            message: response.data.message,
+                            successful: true
+                        });
+                        // redirect to view item page after delete
+                        this.props.history.push('/user/items');
+                    } else {
+                        this.setState({
+                            message: response.data.message,
+                            successful: false
+                        });
+                    }
                 }).catch((error) => {
                     // item not found
                     if (error.response && error.response.status != 500) {
@@ -150,9 +156,8 @@ export default class UserEditItem extends Component {
                             successful: false
                         });
                     } else {
-                        console.log(error);
                         this.setState({
-                            message: error,
+                            message: `${error.response.status} ${error.response.statusText}`,
                             successful: false
                         });
                     }

@@ -6,7 +6,7 @@ const Item = model.item;
 const User = model.user;
 const Role = model.role;
 const Token = model.tokenSchema;
-const Transaction = model.transaction;
+const Trade = model.trade;
 const Notification = model.notification;
 const APIFeatures = require("./apiFeature");
 
@@ -310,23 +310,23 @@ exports.deleteUser = async (req, res) => {
     }
     if (!user) return res.status(404).send({ message: "User not found." });
 
-    // cancel all user transactions
-    let transactions = [];
+    // cancel all user trades
+    let trades = [];
     try {
-        transactions = await Transaction.find({
+        trades = await Trade.find({
             user_seller: req.params.id,
-            status: "Pending"
+            status: { $in: ["PENDING", "WAITING_APPROVAL"] }
         }).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!transactions) return res.status(401).send({ message: "Transactions not found." });
+    if (!trades) return res.status(401).send({ message: "Trades not found." });
 
-    // set status of all transactions of item to cancelled
-    transactions.map(async transaction => {
+    // set status of all trades of item to cancelled
+    trades.map(async trade => {
         try {
-            transaction.status = "Cancelled";
-            transaction.save();
+            trade.status = "CANCELLED";
+            trade.save();
         } catch (err) {
             return res.status(500).send(err);
         }
@@ -563,14 +563,15 @@ exports.getUserCart = async (req, res) => {
 
 exports.addItemToCart = async (req, res) => {
     try {
-        // check if item is in user transactions
-        const transaction = await Transaction.findOne({
+        // check if item is in user trades
+        let trade = await Trade.findOne({
             user_buyer: req.body.userid,
             item: req.body.itemid,
-            status: "Pending"
+            status: { $in: ["PENDING", "WAITING_APPROVAL"] }
         });
-        if (transaction) return res.status(400).send({ message: "Item already in transactions!" });
+        if (trade) return res.status(400).send({ message: "Item already in trades!" });
     } catch (err) {
+        console.log(err);
         return res.status(500).send(err);
     }
 

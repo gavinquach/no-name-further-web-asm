@@ -37,14 +37,11 @@ export default class Trades extends Component {
             ).then(() => {
                 this.load();
             }).catch((error) => {
-                const resMessage =
-                    (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
-                    error.message ||
-                    error.toString();
-
-                console.log(resMessage);
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
             });
         }
     }
@@ -59,7 +56,7 @@ export default class Trades extends Component {
                 <hr className="section-line" />
                 <h2>Ongoing</h2>
                 {this.state.trades.map((trade, index) =>
-                    trade.status === "Pending" &&
+                    trade.status === "PENDING" &&
                     <div key={index + "-div1"} style={{ backgroundColor: 'lightgrey', width: '60em', height: '10em', marginBottom: '4em' }}>
                         <Link to={"/trade/" + trade._id}>
                             <div key={index + "-ItemPanel"} className="ItemPanel" style={{ width: '60em', height: '10em' }}>
@@ -75,9 +72,28 @@ export default class Trades extends Component {
                     </div>
                 )}
 
+                <h2>Waiting approval</h2>
+                {this.state.trades.map((trade, index) =>
+                    trade.status === "WAITING_APPROVAL" && (
+                        <div key={index + "-div2"} style={{ width: '40em', height: '10em', marginTop: '2em' }}>
+                            {trade.item ? (
+                                <Link to={"/trade/" + trade._id}>
+                                    <div key={index + "-ItemPanel"} className="ItemPanel">
+                                        <h4>{trade.item.name} for {trade.item.forItemName}</h4>
+                                    </div>
+                                </Link>
+                            ) : (
+                                <div className="ItemPanel">
+                                    <h4>(Item removed by owner)</h4>
+                                </div>
+                            )}
+                        </div>
+                    )
+                )}
+
                 <h2>Cancelled</h2>
                 {this.state.trades.map((trade, index) =>
-                    trade.status === "Cancelled" && (
+                    trade.status === "CANCELLED" && (
                         <div key={index + "-div2"} style={{ width: '40em', height: '10em', marginTop: '2em' }}>
                             {trade.item ? (
                                 <Link to={"/trade/" + trade._id}>
@@ -96,7 +112,26 @@ export default class Trades extends Component {
 
                 <h2>Expired</h2>
                 {this.state.trades.map((trade, index) =>
-                    trade.status === "Expired" && (
+                    trade.status === "EXPIRED" && (
+                        <div key={index + "-div2"} style={{ width: '40em', height: '10em', marginTop: '2em' }}>
+                            {trade.item ? (
+                                <Link to={"/trade/" + trade._id}>
+                                    <div key={index + "-ItemPanel"} className="ItemPanel">
+                                        <h4>{trade.item.name} for {trade.item.forItemName}</h4>
+                                    </div>
+                                </Link>
+                            ) : (
+                                <div className="ItemPanel">
+                                    <h4>(Item removed by owner)</h4>
+                                </div>
+                            )}
+                        </div>
+                    )
+                )}
+
+                <h2>Denied requests</h2>
+                {this.state.trades.map((trade, index) =>
+                    trade.status === "DENIED" && (
                         <div key={index + "-div2"} style={{ width: '40em', height: '10em', marginTop: '2em' }}>
                             {trade.item ? (
                                 <Link to={"/trade/" + trade._id}>

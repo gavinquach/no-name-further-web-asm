@@ -27,14 +27,12 @@ const server = app.listen(8888, () => {
     console.log(`Socket IO notification server running on port ${server.address().port}`);
 });
 
-const socket = require("socket.io");
-const io = socket(server, {
+const io = require("socket.io")(server, {
     cors: {
         origin: process.env.FRONTEND_URL,
         methods: ["GET", "POST"]
-    },
-    path: '/notification/'
-})
+    }
+});
 require('./app/controllers/socket.io.controller')(io);
 
 // simple route

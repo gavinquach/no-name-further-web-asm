@@ -11,7 +11,7 @@ exports.getTrade = async (req, res) => {
             .populate("user_seller", "-__v")
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
-            .populate("seller", "-__v")
+            .populate("cancel_user", "-__v")
             .exec();
 
     } catch (err) {
@@ -19,7 +19,7 @@ exports.getTrade = async (req, res) => {
     }
     if (!trade) return res.status(404).send({ message: "Trade not found." });
 
-    if (trade.status === "Pending") {
+    if (trade.status == "PENDING" || trade.status == "WAITING_APPROVAL") {
         // set trade to expired if expiration date is before or equal to current date
         if (trade.expiration_date <= new Date()) {
             let item = null;
@@ -35,7 +35,7 @@ exports.getTrade = async (req, res) => {
 
             try {
                 await item.save();
-                trade.status = "Expired";
+                trade.status = "EXPIRED";
                 await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
@@ -53,7 +53,7 @@ exports.getAllTrades = async (req, res) => {
             .populate("user_seller", "-__v")
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
-            .populate("seller", "-__v")
+            .populate("cancel_user", "-__v")
             .exec();
     } catch (err) {
         return res.status(500).send(err);
@@ -62,7 +62,7 @@ exports.getAllTrades = async (req, res) => {
 
     // set trade to expired if expiration date is before or equal to current date
     for (const trade of trades) {
-        if (trade.status != "Pending") continue;
+        if (trade.status != "PENDING" && trade.status != "WAITING_APPROVAL") continue;
         if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
@@ -77,7 +77,7 @@ exports.getAllTrades = async (req, res) => {
 
             try {
                 await item.save();
-                trade.status = "Expired";
+                trade.status = "EXPIRED";
                 await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
@@ -97,7 +97,7 @@ exports.getBuyerTrades = async (req, res) => {
             .populate("user_seller", "-__v")
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
-            .populate("seller", "-__v")
+            .populate("cancel_user", "-__v")
             .exec();
     } catch (err) {
         return res.status(500).send(err);
@@ -106,7 +106,7 @@ exports.getBuyerTrades = async (req, res) => {
 
     // set trade to expired if expiration date is before or equal to current date
     for (const trade of trades) {
-        if (trade.status != "Pending") continue;
+        if (trade.status != "PENDING" && trade.status != "WAITING_APPROVAL") continue;
         if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
@@ -121,7 +121,7 @@ exports.getBuyerTrades = async (req, res) => {
 
             try {
                 await item.save();
-                trade.status = "Expired";
+                trade.status = "EXPIRED";
                 await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
@@ -141,7 +141,7 @@ exports.getSellerTrades = async (req, res) => {
             .populate("user_seller", "-__v")
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
-            .populate("seller", "-__v")
+            .populate("cancel_user", "-__v")
             .exec();
     } catch (err) {
         return res.status(500).send(err);
@@ -150,7 +150,7 @@ exports.getSellerTrades = async (req, res) => {
 
     // set trade to expired if expiration date is before or equal to current date
     for (const trade of trades) {
-        if (trade.status != "Pending") continue;
+        if (trade.status != "PENDING" && trade.status != "WAITING_APPROVAL") continue;
         if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
@@ -165,7 +165,7 @@ exports.getSellerTrades = async (req, res) => {
 
             try {
                 await item.save();
-                trade.status = "Expired";
+                trade.status = "EXPIRED";
                 await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
@@ -185,7 +185,7 @@ exports.getItemTrades = async (req, res) => {
             .populate("user_seller", "-__v")
             .populate("user_buyer", "-__v")
             .populate("item", "-__v")
-            .populate("seller", "-__v")
+            .populate("cancel_user", "-__v")
             .exec();
     } catch (err) {
         return res.status(500).send(err);
@@ -194,7 +194,7 @@ exports.getItemTrades = async (req, res) => {
 
     // set trade to expired if expiration date is before or equal to current date
     for (const trade of trades) {
-        if (trade.status != "Pending") continue;
+        if (trade.status != "PENDING" && trade.status != "WAITING_APPROVAL") continue;
         if (trade.expiration_date <= new Date()) {
             let item = null;
             try {
@@ -209,7 +209,7 @@ exports.getItemTrades = async (req, res) => {
 
             try {
                 await item.save();
-                trade.status = "Expired";
+                trade.status = "EXPIRED";
                 await trade.save();
             } catch (err) {
                 return res.status(500).send(err);
@@ -223,13 +223,20 @@ exports.getItemTrades = async (req, res) => {
 exports.createTrade = async (req, res) => {
     // check if trade is already available
     try {
-        const trade = await Trade.findOne({
+        let trade = await Trade.findOne({
             item: req.body.itemid,
             user_buyer: req.body.userid,
-            status: "Pending"
+            status: "PENDING"
+        }).exec();
+        if (trade) return res.status(401).send({ message: "Trade already exists!" });
+
+        trade = await Trade.findOne({
+            item: req.body.itemid,
+            user_buyer: req.body.userid,
+            status: "WAITING_APPROVAL"
         }).exec();
 
-        if (trade) return res.status(401).send({ message: "Trade already exists!" });
+        if (trade) return res.status(401).send({ message: "Trade is awaiting approval!" });
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -255,9 +262,6 @@ exports.createTrade = async (req, res) => {
     const itemIndexInCart = user.cart.indexOf(req.body.itemid);
     if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
 
-    // add 1 to offers in item model
-    item.offers += 1;
-
     const currentDate = new Date();
     const expiryDate = new Date();
     expiryDate.setHours(expiryDate.getHours() + 48);
@@ -269,7 +273,7 @@ exports.createTrade = async (req, res) => {
         item: item._id,
         creation_date: currentDate,
         expiration_date: expiryDate,
-        status: "Pending"
+        status: "WAITING_APPROVAL"
     });
 
     // add trade and expire trade to database
@@ -303,10 +307,10 @@ exports.deleteTrade = (req, res) => {
             }
             if (!item) return res.status(404).send({ message: "Item not found." });
 
-            // remove 1 from offers in item model
-            item.offers -= 1;
             // save item
             try {
+                // remove 1 from offers in item model
+                item.offers -= 1;
                 await item.save();
             } catch (err) {
                 return res.status(500).send(err);
@@ -315,30 +319,39 @@ exports.deleteTrade = (req, res) => {
         });
 }
 
-// Cancel trade, set status to cancelled
+// Cancel trade, set status to "CANCELLED"
 exports.cancelTrade = async (req, res) => {
     let trade = null;
     let item = null;
     try {
         trade = await Trade.findOne({
-            user_buyer: req.body.userid,
+            user_seller: req.body.userid,
             item: req.body.itemid,
-            status: "Pending"
+            status: { $in: ["PENDING", "WAITING_APPROVAL"] }
         });
+        
+        if (!trade) {
+            trade = await Trade.findOne({
+                user_buyer: req.body.userid,
+                item: req.body.itemid,
+                status: { $in: ["PENDING", "WAITING_APPROVAL"] }
+            });
+        }
+
         item = await Item.findById(trade.item).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (!trade) return res.status(401).send({ message: "Trade not found." });
     if (!item) return res.status(404).send({ message: "Item not found." });
-
-    // remove 1 from offers in item model
-    item.offers -= 1;
 
     // save item, delete expiration document, and update trade in database
     try {
+        // remove 1 from offers in item model
+        item.offers -= 1;
         await item.save();
-        trade.status = "Cancelled";
+
+        trade.status = "CANCELLED";
+        trade.cancel_user = req.body.userid;
         await trade.save();
     } catch (err) {
         return res.status(500).send(err);
@@ -346,8 +359,8 @@ exports.cancelTrade = async (req, res) => {
     res.status(200).send({ message: "Trade cancelled successfully!" });
 }
 
-// set trade to finished
-exports.setTradeToFinished = async (req, res) => {
+// set trade status to "COMPLETE"
+exports.setTradeToComplete = async (req, res) => {
     let trade = null;
     try {
         trade = await Trade.findById(req.params.id);
@@ -359,7 +372,7 @@ exports.setTradeToFinished = async (req, res) => {
     // delete expiration document and update trade in database
     try {
         trade.finalization_date = new Date();
-        trade.status = "Finished";
+        trade.status = "COMPLETE";
         await trade.save();
     } catch (err) {
         return res.status(500).send(err);
@@ -368,17 +381,15 @@ exports.setTradeToFinished = async (req, res) => {
     res.status(200).send({ message: "Trade completed!" });
 };
 
-// set trade to expired
+// set trade status to EXPIRED
 exports.setTradeToExpired = async (req, res) => {
     let trade = null;
-    let expiredId = null;
     let item = null;
 
     // Get the expirational Id from the trade object
     try {
         item = await Item.findById(trade.item).exec();
         trade = await Trade.findById(req.params.id);
-        expiredId = trade.expiration_date;
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -386,11 +397,10 @@ exports.setTradeToExpired = async (req, res) => {
     if (!item) return res.status(404).send({ message: "Item not found." });
 
     if (trade.expiration_date <= new Date()) {
-        // remove 1 from offers in item model
-        item.offers -= 1;
-        trade.status = "Expired";
-
         try {
+            // remove 1 from offers in item model
+            item.offers -= 1;
+            trade.status = "EXPIRED";
             await item.save();
             await trade.save();
         } catch (err) {
@@ -399,4 +409,84 @@ exports.setTradeToExpired = async (req, res) => {
 
         res.status(200).send({ message: "Trade set to expired successfully!" });
     }
+}
+
+// set trade with status "WAITING_APPROVAL" to "PENDING"
+exports.approveTrade = async (req, res) => {
+    let trade = null;
+    try {
+        trade = await Trade.findOne({
+            _id: req.params.id,
+            user_seller: req.body.userid,
+            status: "WAITING_APPROVAL"
+        });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!trade) return res.status(404).send({ message: "Trade not found." });
+
+    let item = null;
+    try {
+        item = await Item.findById(trade.item).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!item) return res.status(404).send({ message: "Item not found." });
+
+    if (trade.expiration_date <= new Date()) {
+        return res.status(403).send({ message: "Trade already expired." });
+    }
+
+    try {
+        // update trade expiry date
+        const expiryDate = new Date();
+        expiryDate.setHours(expiryDate.getHours() + 48);
+        trade.status = "PENDING";
+        trade.expiration_date = expiryDate;
+        await trade.save();
+
+        // add 1 to offers in item model
+        item.offers += 1;
+        await item.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    res.status(200).send({ message: "Trade approved successfully!" });
+}
+
+// set trades with status "WAITING_APPROVAL" to "DENIED"
+exports.denyTrade = async (req, res) => {
+    let trade = null;
+    try {
+        trade = await Trade.findOne({
+            _id: req.params.id,
+            user_seller: req.body.userid,
+            status: "WAITING_APPROVAL"
+        });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!trade) return res.status(404).send({ message: "Trade not found." });
+
+    let item = null;
+    try {
+        item = await Item.findById(trade.item).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!item) return res.status(404).send({ message: "Item not found." });
+
+    if (trade.expiration_date <= new Date()) {
+        return res.status(403).send({ message: "Trade already expired." });
+    }
+
+    try {
+        trade.status = "DENIED";
+        await trade.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    res.status(200).send({ message: "Trade approved successfully!" });
 }

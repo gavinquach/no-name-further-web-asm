@@ -111,30 +111,33 @@ export default class AdminEditAdmin extends Component {
     delete = () => {
         if (window.confirm("Are you sure you want to delete admin " + this.state.username + "?")) {
             UserService.deleteUser(this.props.match.params.id)
-                .then(
-                    response => {
+                .then((response) => {
+                    if (response.status == 200 || response.status == 201) {
                         this.setState({
                             message: response.data.message,
                             successful: true
                         });
-
                         // redirect to view item page after delete
                         this.props.history.push('/admin/view/admin');
-                    },
-                    error => {
-                        const resMessage =
-                            (error.response &&
-                                error.response.data &&
-                                error.response.data.message) ||
-                            error.message ||
-                            error.toString();
-
+                    } else {
                         this.setState({
-                            successful: false,
-                            message: resMessage
+                            message: response.data.message,
+                            successful: false
                         });
                     }
-                );
+                }).catch((error) => {
+                    if (error.response && error.response.status != 500) {
+                        this.setState({
+                            message: error.response.data.message,
+                            successful: false
+                        });
+                    } else {
+                        this.setState({
+                            message: `${error.response.status} ${error.response.statusText}`,
+                            successful: false
+                        });
+                    }
+                });
         }
     }
 
@@ -361,28 +364,34 @@ export default class AdminEditAdmin extends Component {
                 [this.state.location, this.state.district],
                 this.state.confirm_new_password,
                 roles_submit
-            ).then(
-                response => {
+            ).then((response) => {
+                if (response.status == 200 || response.status == 201) {
                     this.setState({
                         message: response.data.message,
                         successful: true
                     });
+                } else {
+                    this.setState({
+                        message: response.data.message,
+                        successful: false
+                    });
+                }
 
-                    // // redirect to index page after update
-                    // this.props.history.push('/admin/index');
-                }).catch((error) => {
-                    if (error.response && error.response.status != 500) {
-                        this.setState({
-                            message: error.response.data.message,
-                            successful: false
-                        });
-                    } else {
-                        this.setState({
-                            message: error,
-                            successful: false
-                        });
-                    }
-                });
+                // // redirect to index page after update
+                // this.props.history.push('/admin/index');
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    this.setState({
+                        message: error.response.data.message,
+                        successful: false
+                    });
+                } else {
+                    this.setState({
+                        message: `${error.response.status} ${error.response.statusText}`,
+                        successful: false
+                    });
+                }
+            });
         }
     }
 

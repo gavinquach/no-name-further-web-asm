@@ -99,10 +99,17 @@ export default class ItemDetails extends Component {
                 this.props.match.params.id,
                 AuthService.getCurrentUser().id
             ).then((response) => {
-                this.setState({
-                    message: response.data.message,
-                    successful: true
-                });
+                if (response.status == 200 || response.status == 201) {
+                    this.setState({
+                        message: response.data.message,
+                        successful: true
+                    });
+                } else {
+                    this.setState({
+                        message: response.data.message,
+                        successful: false
+                    });
+                }
             }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     this.setState({
@@ -111,7 +118,7 @@ export default class ItemDetails extends Component {
                     });
                 } else {
                     this.setState({
-                        message: error,
+                        message: `${error.response.status} ${error.response.statusText}`,
                         successful: false
                     });
                 }
@@ -125,10 +132,17 @@ export default class ItemDetails extends Component {
                 this.state.item,
                 AuthService.getCurrentUser().id
             ).then((response) => {
-                this.setState({
-                    message: response.data.message,
-                    successful: true
-                });
+                if (response.status == 200 || response.status == 201) {
+                    this.setState({
+                        message: response.data.message,
+                        successful: true
+                    });
+                } else {
+                    this.setState({
+                        message: response.data.message,
+                        successful: false
+                    });
+                }
             }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     this.setState({
@@ -137,7 +151,7 @@ export default class ItemDetails extends Component {
                     });
                 } else {
                     this.setState({
-                        message: error,
+                        message: `${error.response.status} ${error.response.statusText}`,
                         successful: false
                     });
                 }

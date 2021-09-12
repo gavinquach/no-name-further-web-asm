@@ -222,27 +222,32 @@ export default class AdminCreateUser extends Component {
                 password: this.state.password,
                 verified: true
             };
-            UserService.register(user).then(
-                response => {
+            UserService.register(user)
+            .then((response) => {
+                if (response.status == 200 || response.status == 201) {
                     this.setState({
                         message: response.data.message,
                         successful: true
                     });
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
+                } else {
                     this.setState({
-                        successful: false,
-                        message: resMessage
+                        message: response.data.message,
+                        successful: false
                     });
                 }
-            );
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    this.setState({
+                        message: error.response.data.message,
+                        successful: false
+                    });
+                } else {
+                    this.setState({
+                        message: `${error.response.status} ${error.response.statusText}`,
+                        successful: false
+                    });
+                }
+            });
         }
     }
 
