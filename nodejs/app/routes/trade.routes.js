@@ -17,12 +17,6 @@ router.post("/trade", [
     authJwt.isUser
 ], controller.createTrade);
 
-// cancel transaction
-router.patch("/cancel/trade", [
-    authJwt.verifyToken,
-    authJwt.isUser
-], controller.cancelTrade);
-
 // get transactions
 router.get("/trades", [
     authJwt.verifyToken,
@@ -43,5 +37,21 @@ router.get("/trades/item/:id", [
     authJwt.verifyToken,
     authJwt.isAdmin
 ], controller.getItemTrades);
+
+router.patch("/trade/approve/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.approveTrade);
+
+router.patch("/trade/deny/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.denyTrade);
+
+// cancel transaction
+router.patch("/cancel/trade", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.cancelTrade);
 
 module.exports = router;

@@ -30,7 +30,7 @@ export default class TradeDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            transaction: null,
+            trade: null,
             item: null
         };
     }
@@ -46,14 +46,17 @@ export default class TradeDetails extends Component {
             ItemService.viewOneItem(
                 response.data.item._id
             ).then(res => {
-                this.setState({ transaction: response.data, item: res.data });
+                this.setState({ trade: response.data, item: res.data });
             }).catch((err) => {
-                console.log(err);
+                if (err.response && err.response.status != 500) {
+                    console.log(err.response.data.message);
+                } else {
+                    console.log(err);
+                }
             });
-
         }).catch((error) => {
             // error produced (either id is invalid, or
-            // something went wrong while getting transaction),
+            // something went wrong while getting trade),
             // redirect to home page
             this.props.history.push("/");
             if (error.response && error.response.status != 500) {
@@ -68,15 +71,13 @@ export default class TradeDetails extends Component {
         this.load();
     }
 
-    requestCancel = (transaction) => {
+    cancelTrade = (trade) => {
         if (window.confirm("Are you sure you want to request for trade cancellation?")) {
             TradeService.cancelTradeWithNotification(
-                transaction
-            ).then(
-                () => {
-                    this.load();
-                }
-            ).catch((error) => {
+                trade
+            ).then(() => {
+                this.load();
+            }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
@@ -86,30 +87,76 @@ export default class TradeDetails extends Component {
         }
     }
 
-    chatWithUser = (transaction) => {
+    chatWithUser = (trade) => {
         const data = {
             user: AuthService.getCurrentUser().id,
-            receiver: transaction.user_seller._id == AuthService.getCurrentUser().id ? transaction.user_buyer._id : transaction.user_seller._id,
-            transaction: transaction
+            receiver: trade.user_seller._id == AuthService.getCurrentUser().id ? trade.user_buyer._id : trade.user_seller._id,
+            trade: trade
         };
         socket.emit("chatWithUserRequest", data);
     }
 
+    approveTrade = (trade) => {
+        if (window.confirm("Approve trade?")) {
+            TradeService.approveTrade(
+                trade,
+                AuthService.getCurrentUser().id
+            ).then(() => {
+                this.load();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+        }
+    }
+
+    denyTrade = (trade) => {
+        if (window.confirm("Deny trade?")) {
+            TradeService.denyTrade(
+                trade,
+                AuthService.getCurrentUser().id
+            ).then(() => {
+                this.load();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+        }
+    }
+
     render() {
-        const transaction = this.state.transaction && this.state.transaction;
+        const status = {
+            PENDING: "Ongoing",
+            WAITING_APPROVAL: "Waiting approval",
+            DENIED: "Request denied by user",
+            CANCELLED: "Cancelled",
+            EXPIRED: "Expired"
+        }
+        const trade = this.state.trade && this.state.trade;
         const item = this.state.item && this.state.item;
         return (
             <div className="page-container">
                 <Helmet>
                     <title>Trade Details</title>
                 </Helmet>
-                <h1>Trade Details</h1>
+                <div className="title">Trade Details</div>
+                <hr className="section-line" />
                 <br />
-                {(transaction && item) && (
+                {(trade && item) && (
                     <div className="TradeDetails">
-                        <p>ID: {transaction._id}</p>
-                        <p>Trader: {transaction.user_buyer.username}</p>
-                        <p>Owner: {transaction.user_seller.username}</p>
+                        <p>ID: {trade._id}</p>
+                        <p>
+                            {trade.status == "WAITING_APPROVAL"
+                                ? "Request from: ".concat(trade.user_buyer.username)
+                                : "Trader: ".concat(trade.user_buyer.username)}
+                        </p>
+                        <p>Owner: {trade.user_seller.username}</p>
                         <Link to={"/item/" + item._id} className="ItemPanel">
                             {item.images.map((image, index) =>
                                 image.cover && (
@@ -130,12 +177,35 @@ export default class TradeDetails extends Component {
                                 <h5>Quantity: <b>{item.forItemQty}</b></h5>
                             </div>
                         </Link>
-                        <p>Trade status: {transaction.status}</p>
-                        <p>Trade creation date: {formatDate(transaction.creation_date)}</p>
-                        <p>Trade expiration date: {formatDate(transaction.expiration_date)}</p>
+                        <p>Trade status: <b>
+                            {trade.status == "CANCELLED" ? (
+                                `Cancelled by ${trade.cancel_user && trade.cancel_user.username}`
+                            ) : (
+                                status[trade.status]
+                            )
+                        }</b></p>
+
+                        {(trade.status == "WAITING_APPROVAL" || trade.status == "PENDING") && (
+                            <span>
+                                <p>Trade creation date: {formatDate(trade.creation_date)}</p>
+                                <p>Trade expiration date: {formatDate(trade.expiration_date)}</p>
+                            </span>
+                        )}
                         <br />
-                        <button className="TradeButton" onClick={() => this.requestCancel(transaction)}>Request trade cancellation</button>
-                        <button className="TradeButton" onClick={() => this.chatWithUser(transaction)}>Chat with user</button>
+
+                        {/* trade status is WAITING_APPROVAL and user is item owner */}
+                        {(trade.status == "WAITING_APPROVAL" && trade.user_seller._id == AuthService.getCurrentUser().id) && (
+                            <span>
+                                <button className="TradeButton ApproveTrade" onClick={() => this.approveTrade(trade)}>Approve trade request</button>
+                                <button className="TradeButton DenyTrade" onClick={() => this.denyTrade(trade)}>Deny trade request</button>
+                            </span>
+                        )}
+                        {trade.status == "PENDING" && (
+                            <button className="TradeButton CancelTrade" onClick={() => this.cancelTrade(trade)}>Cancel trade</button>
+                        )}
+                        <br />
+                        <br />
+                        <button className="TradeButton" onClick={() => this.chatWithUser(trade)}>Chat with user</button>
                     </div>
                 )}
             </div>

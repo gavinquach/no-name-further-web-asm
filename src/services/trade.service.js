@@ -85,12 +85,12 @@ class TradeService {
         );
     }
 
-    deleteTradeWithNotification(trade, id) {
+    deleteTradeWithNotification(trade) {
         sendNotification(
             trade,
             `Your trade <b>${trade._id}</b> has been deleted. Click here for more details.`
         );
-        return axiosTokenHeader.delete(API_URL + "trade/" + id);
+        return axiosTokenHeader.delete(API_URL + "trade/" + trade._id);
     }
 
     cancelTradeWithNotification(trade) {
@@ -118,6 +118,21 @@ class TradeService {
     }
     getTradesByItem(itemid) {
         return axiosTokenHeader.get(API_URL + "trades/item/" + itemid);
+    }
+
+    approveTrade(trade, userid) {
+        sendNotification(
+            trade,
+            `User <b>${AuthService.getCurrentUser().username}</b> has has approved your trade request. Click here for more details.`
+        );
+        return axiosTokenHeader.patch(API_URL + "trade/approve/" + trade._id, { userid });
+    }
+    denyTrade(trade, userid) {
+        sendNotification(
+            trade,
+            `User <b>${AuthService.getCurrentUser().username}</b> has has denied your trade request. Click here for more details.`
+        );
+        return axiosTokenHeader.patch(API_URL + "trade/deny/" + trade._id, { userid });
     }
 }
 
