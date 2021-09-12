@@ -94,72 +94,65 @@ export default class ItemDetails extends Component {
     }
 
     addToCart = () => {
-        UserService.addItemToCart(
-            this.props.match.params.id,
-            AuthService.getCurrentUser().id
-        ).then(
-            response => {
+        if (!this.state.selfItem) {
+            UserService.addItemToCart(
+                this.props.match.params.id,
+                AuthService.getCurrentUser().id
+            ).then((response) => {
                 this.setState({
                     message: response.data.message,
                     successful: true
                 });
-            },
-            error => {
-                const resMessage =
-                    (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
-                    error.message ||
-                    error.toString();
-
-                this.setState({
-                    successful: false,
-                    message: resMessage
-                });
-            }
-        );
-    }
-
-    requestTrade = () => {
-        TransactionService.createTransactionWithNotification(
-            this.state.item,
-            AuthService.getCurrentUser().id
-        ).then(
-            response => {
-                if (response.status == 200) {
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
                     this.setState({
-                        message: response.data.message,
-                        successful: true
+                        message: error.response.data.message,
+                        successful: false
                     });
                 } else {
                     this.setState({
-                        message: response.data.message,
+                        message: error,
                         successful: false
                     });
                 }
-            },
-            error => {
-                const resMessage =
-                    (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
-                    error.message ||
-                    error.toString();
+            });
+        }
+    }
 
+    requestTrade = () => {
+        if (!this.state.selfItem) {
+            TransactionService.createTransactionWithNotification(
+                this.state.item,
+                AuthService.getCurrentUser().id
+            ).then((response) => {
                 this.setState({
-                    successful: false,
-                    message: resMessage
+                    message: response.data.message,
+                    successful: true
                 });
-            }
-        );
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    this.setState({
+                        message: error.response.data.message,
+                        successful: false
+                    });
+                } else {
+                    this.setState({
+                        message: error,
+                        successful: false
+                    });
+                }
+            });
+        }
     }
 
     chatWithUser = () => {
-        const data = {
-            user: AuthService.getCurrentUser().id,
-            receiver: this.state.item.seller._id
-        };
-        socket.emit("chatWithUserRequest", data);
+        if (!this.state.selfItem) {
+            const data = {
+                user: AuthService.getCurrentUser().id,
+                receiver: this.state.item.seller._id
+            };
+            socket.emit("chatWithUserRequest", data);
+        }
     }
 
     render() {
@@ -205,6 +198,9 @@ export default class ItemDetails extends Component {
                                     <hr className="section-line" />
                                 </span>
                             )}
+                            {this.state.selfItem && (
+                                <h3>(You are viewing your own item)</h3>
+                            )}
                             <Carousel fade>
                                 {item.images && item.images.map((image, index) => {
                                     return (
@@ -230,7 +226,9 @@ export default class ItemDetails extends Component {
                                         <h4><b>City:</b> {item.seller.location[0].replace("Thành phố ", "").replace("Tỉnh ", "")}</h4>
                                         <h4><b>District:</b> {item.seller.location[1].replace("Huyện ", "").replace("Quận ", "")}</h4>
                                     </div>
-                                    <button className="ChatWithUser" onClick={!this.props.obj && this.chatWithUser}>Chat with user</button>
+                                    {(!this.state.selfItem) && (
+                                        <button className="ChatWithUser" onClick={!this.props.obj && this.chatWithUser}>Chat with user</button>
+                                    )}
                                 </Col>
                             </Row>
                             <hr className="divide" />
