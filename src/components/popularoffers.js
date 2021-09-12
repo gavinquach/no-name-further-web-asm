@@ -186,7 +186,7 @@ export default class PopularOffers extends Component {
                 <div className="menu white-container">
                     {this.state.items.length > 0
                         && this.state.items.map((item, index) => (
-                            <Link className="item-box" key={index} to={"/item/" + item._id}>
+                            <a href={"/item/" + item._id} className="item-box" key={index}>
                                 <div className="item-box-img">
                                     {item.images.map(image =>
                                         image.cover && (
@@ -200,7 +200,7 @@ export default class PopularOffers extends Component {
                                     <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
                                     <p><b>Offers</b>: {item.offers}</p>
                                 </div>
-                            </Link>
+                            </a>
                         ))}
 
                     {this.state.notfound && (
