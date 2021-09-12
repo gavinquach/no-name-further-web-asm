@@ -1,7 +1,5 @@
 import { io } from 'socket.io-client';
 
-const socket = io("http://localhost:8888", {
-    path: "/notification/"
-});
+const socket = io(process.env.REACT_APP_NODEJS_URL, {});
 
 export default socket;
