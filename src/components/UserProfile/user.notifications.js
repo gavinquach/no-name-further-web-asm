@@ -196,7 +196,8 @@ export default class Notifications extends Component {
         UserService.setReadNotification(
             notification
         ).then(() => {
-
+            this.load();
+            this.sendReloadNavBarRequest();
         }).catch((error) => {
             if (error.response && error.response.status != 500) {
                 console.log(error.response.data.message);
