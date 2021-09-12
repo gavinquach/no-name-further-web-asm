@@ -31,24 +31,18 @@ export default class Cart extends Component {
     }
 
     removeFromCart = (itemid) => {
-        if (window.confirm("Are you sure you want to remove item " + itemid + " from cart?")) {
-            UserService.deleteItemFromCart(
-                AuthService.getCurrentUser().id,
-                itemid
-            ).then(
-                response => {
-                    this.load();
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-                }
-            );
-        }
+        UserService.deleteItemFromCart(
+            AuthService.getCurrentUser().id,
+            itemid
+        ).then(() => {
+            this.load();
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
     }
 
     renderHTML() {
@@ -56,27 +50,33 @@ export default class Cart extends Component {
             return this.state.cart.map((item, index) => {
                 return (
                     <div key={index} className="cart-item" >
-                        <div className="cart-row">
-                            <Link to={"/item/" + item._id}>
-                                <div className="ItemPanel">
+                        <div className="ItemSection">
+                            <Link to={"/item/" + item._id} className="ItemPanel">
+                                <div>
                                     {item.images.map((image, index) => {
                                         return (
-                                            image.cover && (<img key={index} className="d-block w-50 h-50" src="https://cdn.tgdd.vn/2020/10/CookProduct/Sushi-la-gi-co-tot-khong-nhung-loai-sushi-tot-va-khong-tot-cho-suc-khoe-1-1200x676.jpg" alt={image.name} />)
+                                            image.cover && (<img key={index} className="CartItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} alt={image.name} />)
                                         )
                                     })}
-                                    <h4 className="text-cart">{item.name} for {item.forItemName}</h4>
+                                </div>
+                                <div>
+                                    <h4 className="HeaderText">{item.name} for {item.forItemName}</h4>
+                                    <div className="Details">
+                                        <p>Quantity: {item.quantity}</p>
+                                        <p>{item.forItemName}'s quantity: {item.forItemQty}</p>
+                                        <p><b>Offers</b>: {item.offers}</p>
+                                    </div>
                                 </div>
                             </Link>
                         </div>
-                        <button className="btn btn-danger remove-cart" onClick={() => this.removeFromCart(item._id)}>Remove</button>
+                        <button className="btn btn-danger RemoveBtn" onClick={() => this.removeFromCart(item._id)}>Remove</button>
                     </div>
                 )
-            })
+            });
         }
     }
 
     render() {
-        console.log(this.state)
         return (
             <div className="page-container">
                 <Helmet>
