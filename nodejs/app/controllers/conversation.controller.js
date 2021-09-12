@@ -5,10 +5,13 @@ const APIFeatures = require("./apiFeature");
 
 // Post new conversation
 exports.postConversation = async (req, res) => {
-    let sender = null
-    let receiver = null;
+    if (req.body.senderId == req.body.receiverId) {
+        return res.status(403).send({ message: "Sender can't be the same as receiver!" });
+    }
 
     // check if sender and receiver exist
+    let sender = null
+    let receiver = null;
     try {
         sender = await User.findById(req.body.senderId).exec();
         receiver = await User.findById(req.body.receiverId).exec();

@@ -6,10 +6,13 @@ const APIFeatures = require("./apiFeature");
 
 // add message 
 exports.postMessage = async (req, res) => {
+    if (req.body.sender == req.body.receiver) {
+        return res.status(403).send({ message: "Sender can't be the same as receiver!" });
+    }
+
+    // check if sender and receiver exist
     let sender = null
     let receiver = null;
-
-    // check if sender and receiver available
     try {
         sender = await User.findById(req.body.sender).exec();
         receiver = await User.findById(req.body.receiver).exec();
