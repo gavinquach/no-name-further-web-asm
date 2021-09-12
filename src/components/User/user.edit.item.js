@@ -150,9 +150,8 @@ export default class UserEditItem extends Component {
                             successful: false
                         });
                     } else {
-                        console.log(error);
                         this.setState({
-                            message: error,
+                            message: `${error.response.status} ${error.response.statusText}`,
                             successful: false
                         });
                     }

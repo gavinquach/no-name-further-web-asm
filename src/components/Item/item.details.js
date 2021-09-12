@@ -111,7 +111,7 @@ export default class ItemDetails extends Component {
                     });
                 } else {
                     this.setState({
-                        message: error,
+                        message: `${error.response.status} ${error.response.statusText}`,
                         successful: false
                     });
                 }
@@ -137,7 +137,7 @@ export default class ItemDetails extends Component {
                     });
                 } else {
                     this.setState({
-                        message: error,
+                        message: `${error.response.status} ${error.response.statusText}`,
                         successful: false
                     });
                 }
