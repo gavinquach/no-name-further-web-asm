@@ -246,6 +246,11 @@ exports.createTransaction = async (req, res) => {
     if (!user) return res.status(404).send({ message: "User not found." });
     if (!item) return res.status(404).send({ message: "Item not found." });
 
+    // user is the owner of item
+    if (item.seller == user._id) {
+        return res.status(403).send({ message: "Can't add your own item to cart!" });
+    }
+
     // if item is found in cart, remove it
     const itemIndexInCart = user.cart.indexOf(req.body.itemid);
     if (itemIndexInCart > -1) user.cart.splice(itemIndexInCart, 1);
