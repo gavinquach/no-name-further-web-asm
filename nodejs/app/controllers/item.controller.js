@@ -9,7 +9,6 @@ const APIFeatures = require("./apiFeature");
 const img = require("../config/img.config");
 const fs = require("fs");
 const uploadFile = require("../middlewares/storeImage");
-const { features } = require("process");
 
 exports.createItem = async (req, res) => {
     try {
@@ -367,28 +366,6 @@ exports.getItem = async (req, res) => {
             res.json(item);
         });
 };
-
-// ============= Duong Work for Advanced API  =============
-// Duong'version with Pagination/ Filtering / Sorting  from Duong development branch
-
-
-// This is Alias to shorten URL, standard mechanism instead of custom params
-// Can be applied to other features such as Least Quantity, Most Transaction, etc,... based on use cases
-// Most Quantity and For Item quantity to least // Limit to 6 items
-exports.aliasTopItemQuantity = (req, res, next) => {
-    req.query.limit = "6";
-    req.query.sort = "-quantity,-forItemQty,-offers,-name,-forItemName"
-    req.query.fields = "name,quantity,forItemQty,forItemName"
-    next();
-}
-
-exports.getMostOfferItems = (req, res, next) => {
-    req.query.limit = "6";
-    req.query.sort = "-offers"
-    next();
-}
-
-
 // Advanced get all items function with Pagination/ Filtering / Sorting 
 exports.getAllItems = async (req, res) => {
     let items = [];

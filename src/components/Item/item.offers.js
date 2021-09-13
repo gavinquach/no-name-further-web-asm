@@ -11,7 +11,7 @@ export default class Offers extends Component {
     }
 
     loadItems = () => {
-        ItemService.getMostOffersItems()
+        ItemService.getItems("-offers", 1, 6)
             .then(response => {
                 this.setState({ items: response.data.items });
             }).catch((error) => {
@@ -37,7 +37,7 @@ export default class Offers extends Component {
                     </Link>
                 </div>
                 <hr className="section-line" />
-                <div className="menu">
+                <div className="PopularOffersMenu">
                     {this.state.items.map((item, index) =>
                         <Link className="item-box" key={index} to={"/item/" + item._id}>
                             <div className="item-box-img">
