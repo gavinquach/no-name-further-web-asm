@@ -93,7 +93,7 @@ exports.getBuyerTrades = async (req, res) => {
     let trades = [];
     let total = 0;
     let status = req.query.status;
-    console.log(status);
+
     try {
         let features = null;
         if (status == "REQUESTS") {
