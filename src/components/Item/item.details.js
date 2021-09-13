@@ -16,6 +16,7 @@ import { Row, Carousel, Col } from "react-bootstrap";
 import PopularOffers from "../popularoffers";
 
 import "../../css/ItemDetails.css"
+import { Link } from "react-router-dom";
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -97,7 +98,8 @@ export default class ItemDetails extends Component {
 
     addToCart = () => {
         if (!AuthService.isLoggedIn()) {
-            return
+            window.alert("Please log in to add to cart.");
+            return;
         }
         if (this.state.selfItem) {
             return;
@@ -134,7 +136,8 @@ export default class ItemDetails extends Component {
 
     requestTrade = () => {
         if (!AuthService.isLoggedIn()) {
-            return
+            window.alert("Please log in to request trade.");
+            return;
         }
         if (this.state.selfItem) {
             return;
@@ -171,7 +174,8 @@ export default class ItemDetails extends Component {
 
     chatWithUser = () => {
         if (!AuthService.isLoggedIn()) {
-            return
+            window.alert("Please log in to chat with user.");
+            return;
         }
         if (this.state.selfItem) {
             return;
@@ -254,6 +258,10 @@ export default class ItemDetails extends Component {
                                         <h4><b>City:</b> {item.seller.location[0].replace("Thành phố ", "").replace("Tỉnh ", "")}</h4>
                                         <h4><b>District:</b> {item.seller.location[1].replace("Huyện ", "").replace("Quận ", "")}</h4>
                                     </div>
+                                    <Link to={"/trader/" + item.seller.username}>
+                                        <button className="VisitUserPageBtn">Visit {item.seller.username}'s' page</button>
+                                    </Link>
+
                                     {(!this.state.selfItem) && (
                                         <button className="ChatWithUser" onClick={!this.props.obj && this.chatWithUser}>Chat with user</button>
                                     )}
@@ -262,7 +270,7 @@ export default class ItemDetails extends Component {
                             <hr className="divide" />
                             <div className="Flexbox-container">
                                 <div style={{ width: '70%' }}>
-                                    <h2 className="SectionHeader">Details:</h2>
+                                    <h2 className="SectionHeader">Details</h2>
                                     <div id="details-section">
                                         {!this.props.obj ? (
                                             <div id="date-text-container">
@@ -312,7 +320,7 @@ export default class ItemDetails extends Component {
                                         <br />
                                         <hr />
                                         <div>
-                                            <h2 className="SectionHeader">Description:</h2>
+                                            <h2 className="SectionHeader">Description</h2>
                                             <div className="Description">
                                                 {description ? (
                                                     <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }} />

@@ -159,6 +159,17 @@ export default class TradeDetails extends Component {
                                 : "Trader: ".concat(trade.user_buyer.username)}
                         </p>
                         <p>Owner: {trade.user_seller.username}</p>
+                        <Link to={"/trader/" + item.seller.username}>
+                            <button style={{
+                                marginTop: '0em',
+                                marginBottom: '1em',
+                                marginLeft: '0em',
+                                marginRight: '-1.5em'
+                            }} className="VisitUserPageBtn">Visit {item.seller.username}'s' page</button>
+                        </Link>
+                        <button className="ChatWithUser" onClick={() => this.chatWithUser(trade)}>Chat with user</button>
+
+                        <br /><br />
                         <Link to={"/item/" + item._id} className="ItemPanel">
                             {item.images.map((image, index) =>
                                 image.cover && (
@@ -179,13 +190,14 @@ export default class TradeDetails extends Component {
                                 <h5>Quantity: <b>{item.forItemQty}</b></h5>
                             </div>
                         </Link>
+
                         <p>Trade status: <b>
                             {trade.status == "CANCELLED" ? (
                                 `Cancelled by ${trade.cancel_user && trade.cancel_user.username}`
                             ) : (
                                 status[trade.status]
                             )
-                        }</b></p>
+                            }</b></p>
 
                         {(trade.status == "WAITING_APPROVAL" || trade.status == "PENDING") && (
                             <span>
@@ -205,9 +217,6 @@ export default class TradeDetails extends Component {
                         {trade.status == "PENDING" && (
                             <button className="TradeButton CancelTrade" onClick={() => this.cancelTrade(trade)}>Cancel trade</button>
                         )}
-                        <br />
-                        <br />
-                        <button className="TradeButton" onClick={() => this.chatWithUser(trade)}>Chat with user</button>
                     </div>
                 )}
             </div>

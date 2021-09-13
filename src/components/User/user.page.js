@@ -31,7 +31,8 @@ export default class UserPage extends Component {
     }
 
     componentDidMount() {
-        this.loadUser();
+        window.scrollTo(0, 0); // automatically scroll to top
+        this.loadUser();    // get user information
 
         window.addEventListener('resize', () => {
             if (this.state.items.length > 0) {
