@@ -90,9 +90,8 @@ class AuthService {
     isRegularUser = () => {
         if (!this.isLoggedIn()) return false;
         const user = JSON.parse(localStorage.getItem('user'));
-        if (user.roles.includes("ROLE_ROOT")) {
-            return true;
-        }
+        if (user.roles.includes("ROLE_USER")) return true;
+        return false;
     }
 
     login = (username, password) => {
