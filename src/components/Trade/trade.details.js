@@ -74,7 +74,7 @@ export default class TradeDetails extends Component {
     }
 
     cancelTrade = (trade) => {
-        if (window.confirm("Are you sure you want to request for trade cancellation?")) {
+        if (window.confirm("Are you sure you want to cancel trade?")) {
             TradeService.cancelTradeWithNotification(
                 trade
             ).then(() => {
@@ -201,7 +201,7 @@ export default class TradeDetails extends Component {
 
                         {(trade.status == "WAITING_APPROVAL" || trade.status == "PENDING") && (
                             <span>
-                                <p>Trade creation date: {formatDate(trade.creation_date)}</p>
+                                <p>Trade creation date: {formatDate(trade.createdAt)}</p>
                                 <p>Trade expiration date: {formatDate(trade.expiration_date)}</p>
                             </span>
                         )}
