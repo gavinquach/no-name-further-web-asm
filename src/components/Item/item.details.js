@@ -53,10 +53,12 @@ export default class ItemDetails extends Component {
         if (!this.props.obj) {
             ItemService.viewOneItem(this.props.match.params.id)
                 .then(response => {
-                    if (response.data.seller._id == AuthService.getCurrentUser().id) {
-                        this.setState({
-                            selfItem: true
-                        })
+                    if (AuthService.isLoggedIn()) {
+                        if (response.data.seller._id == AuthService.getCurrentUser().id) {
+                            this.setState({
+                                selfItem: true
+                            })
+                        }
                     }
                     this.setState({
                         item: response.data
@@ -94,79 +96,91 @@ export default class ItemDetails extends Component {
     }
 
     addToCart = () => {
-        if (!this.state.selfItem) {
-            UserService.addItemToCart(
-                this.props.match.params.id,
-                AuthService.getCurrentUser().id
-            ).then((response) => {
-                if (response.status == 200 || response.status == 201) {
-                    this.setState({
-                        message: response.data.message,
-                        successful: true
-                    });
-                } else {
-                    this.setState({
-                        message: response.data.message,
-                        successful: false
-                    });
-                }
-            }).catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    this.setState({
-                        message: error.response.data.message,
-                        successful: false
-                    });
-                } else {
-                    this.setState({
-                        message: `${error.response.status} ${error.response.statusText}`,
-                        successful: false
-                    });
-                }
-            });
+        if (!AuthService.isLoggedIn()) {
+            return
         }
+        if (this.state.selfItem) {
+            return;
+        }
+        UserService.addItemToCart(
+            this.props.match.params.id,
+            AuthService.getCurrentUser().id
+        ).then((response) => {
+            if (response.status == 200 || response.status == 201) {
+                this.setState({
+                    message: response.data.message,
+                    successful: true
+                });
+            } else {
+                this.setState({
+                    message: response.data.message,
+                    successful: false
+                });
+            }
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                this.setState({
+                    message: error.response.data.message,
+                    successful: false
+                });
+            } else {
+                this.setState({
+                    message: `${error.response.status} ${error.response.statusText}`,
+                    successful: false
+                });
+            }
+        });
     }
 
     requestTrade = () => {
-        if (!this.state.selfItem) {
-            TradeService.createTradeWithNotification(
-                this.state.item,
-                AuthService.getCurrentUser().id
-            ).then((response) => {
-                if (response.status == 200 || response.status == 201) {
-                    this.setState({
-                        message: response.data.message,
-                        successful: true
-                    });
-                } else {
-                    this.setState({
-                        message: response.data.message,
-                        successful: false
-                    });
-                }
-            }).catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    this.setState({
-                        message: error.response.data.message,
-                        successful: false
-                    });
-                } else {
-                    this.setState({
-                        message: `${error.response.status} ${error.response.statusText}`,
-                        successful: false
-                    });
-                }
-            });
+        if (!AuthService.isLoggedIn()) {
+            return
         }
+        if (this.state.selfItem) {
+            return;
+        }
+        TradeService.createTradeWithNotification(
+            this.state.item,
+            AuthService.getCurrentUser().id
+        ).then((response) => {
+            if (response.status == 200 || response.status == 201) {
+                this.setState({
+                    message: response.data.message,
+                    successful: true
+                });
+            } else {
+                this.setState({
+                    message: response.data.message,
+                    successful: false
+                });
+            }
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                this.setState({
+                    message: error.response.data.message,
+                    successful: false
+                });
+            } else {
+                this.setState({
+                    message: `${error.response.status} ${error.response.statusText}`,
+                    successful: false
+                });
+            }
+        });
     }
 
     chatWithUser = () => {
-        if (!this.state.selfItem) {
-            const data = {
-                user: AuthService.getCurrentUser().id,
-                receiver: this.state.item.seller._id
-            };
-            socket.emit("chatWithUserRequest", data);
+        if (!AuthService.isLoggedIn()) {
+            return
         }
+        if (this.state.selfItem) {
+            return;
+        }
+        const data = {
+            user: AuthService.getCurrentUser().id,
+            receiver: this.state.item.seller._id
+        };
+        socket.emit("chatWithUserRequest", data);
     }
 
     render() {
