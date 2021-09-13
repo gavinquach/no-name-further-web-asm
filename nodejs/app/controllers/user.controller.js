@@ -23,7 +23,7 @@ const crypto = require('crypto');
 // create new user
 exports.signup = async (req, res) => {
     const user = new User({
-        username: req.body.username,
+        username: req.body.username.toLowerCase(),
         email: req.body.email,
         phone: req.body.phone,
         location: req.body.location,
@@ -90,7 +90,7 @@ exports.signup = async (req, res) => {
 // create new User in database with roles
 exports.createUserWithRoles = async (req, res) => {
     const user = new User({
-        username: req.body.username,
+        username: req.body.username.toLowerCase(),
         email: req.body.email,
         phone: req.body.phone,
         location: req.body.location,
@@ -281,7 +281,7 @@ exports.publicGetUser = async (req, res) => {
     try {
         const role = await Role.findOne({ name: "user" });
         const temp = await User.findOne({
-            username: req.params.username,
+            username: req.params.username.toLowerCase(),
             roles: [role._id]
         }).exec();
 
