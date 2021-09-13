@@ -3,7 +3,7 @@ import { Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faUserAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons';
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import DOMPurify from 'dompurify';
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
@@ -33,7 +33,7 @@ const formatDate = (d) => {
     return `${month} ${date}, ${year} at ${hour}:${minute}:${second}`;
 }
 
-    export default class NavigationBar extends Component {
+class NavigationBar extends Component {
     constructor(props) {
         super(props);
         this.logOut = this.logOut.bind(this);
@@ -50,8 +50,9 @@ const formatDate = (d) => {
 
     componentDidMount = () => {
         const queryParams = new URLSearchParams(window.location.search);
-        const keyword = queryParams.get('keyword');
+        let keyword = queryParams.get('keyword');
         if (keyword) {
+            keyword = unescape(keyword);  // escape html special characters
             this.setState({
                 search: keyword
             });
@@ -267,6 +268,16 @@ const formatDate = (d) => {
         });
     }
 
+    handleSearch = (e) => {
+        e.preventDefault();
+        let keyword = this.state.search;
+        keyword = keyword.trim();   // trim whitespaces
+        keyword = escape(keyword);  // escape html special characters
+        keyword = encodeURIComponent(keyword);   // encode
+        this.props.history.push(`/search?keyword=${keyword}`);
+        window.location.reload();
+    }
+
     render = () => {
         const currentUser = this.props.obj;
 
@@ -282,7 +293,7 @@ const formatDate = (d) => {
                             <Image src={logo} fluid style={{ marginLeft: '1em', width: '3em', maxWidth: '3em', height: "100%" }} />
                         </Link>
                     </Navbar.Brand>
-                    <Form id="search-form-small" method="GET" action="/search">
+                    <Form id="search-form-small" method="GET" onSubmit={this.handleSearch}>
                         <Input
                             id="search-bar-small"
                             name="keyword"
@@ -310,7 +321,7 @@ const formatDate = (d) => {
                         </Nav>
 
                         <Nav className="nav">
-                            <Form id="search-form" method="GET" action="/search">
+                            <Form id="search-form" method="GET" onSubmit={this.handleSearch}>
                                 <Input
                                     id="search-bar"
                                     name="keyword"
@@ -456,3 +467,5 @@ const formatDate = (d) => {
         );
     }
 }
+
+export default withRouter(NavigationBar);   // withRouter for this.props.history
