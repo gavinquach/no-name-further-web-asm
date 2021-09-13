@@ -150,5 +150,7 @@ router.patch("/user/unread/notifications", [
 ], controller.setUnreadNotifications);
 // =============================================
 
+// search
+router.get("/search/:keyword", controller.search);
 
 module.exports = router;

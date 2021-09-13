@@ -33,7 +33,7 @@ const formatDate = (d) => {
     return `${month} ${date}, ${year} at ${hour}:${minute}:${second}`;
 }
 
-export default class NavigationBar extends Component {
+    export default class NavigationBar extends Component {
     constructor(props) {
         super(props);
         this.logOut = this.logOut.bind(this);
@@ -49,29 +49,36 @@ export default class NavigationBar extends Component {
     }
 
     componentDidMount = () => {
-        if (!AuthService.isLoggedIn()) {
-            return;
-        }
-        this.loadNotifications();
-
-        socket.on("receiveNotifications", data => {
-            const temp = this.state.notifications;
-            // push new notification to first index
-            temp.unshift(data);
-            // add to unread notification count
-            const unreadCountCount = this.state.unreadCount + 1;
+        const queryParams = new URLSearchParams(window.location.search);
+        const keyword = queryParams.get('keyword');
+        if (keyword) {
             this.setState({
-                notifications: temp,
-                unreadCount: unreadCountCount
+                search: keyword
             });
-        });
+        }
 
-        // user selects "Mark all as read" or "Mark all as unread"
-        // on user notifications page, reload notifications on
-        // navigation bar
-        socket.on("receiveNavBarNotificationsReloadRequest", () => {
+        if (AuthService.isLoggedIn()) {
             this.loadNotifications();
-        });
+
+            socket.on("receiveNotifications", data => {
+                const temp = this.state.notifications;
+                // push new notification to first index
+                temp.unshift(data);
+                // add to unread notification count
+                const unreadCountCount = this.state.unreadCount + 1;
+                this.setState({
+                    notifications: temp,
+                    unreadCount: unreadCountCount
+                });
+            });
+
+            // user selects "Mark all as read" or "Mark all as unread"
+            // on user notifications page, reload notifications on
+            // navigation bar
+            socket.on("receiveNavBarNotificationsReloadRequest", () => {
+                this.loadNotifications();
+            });
+        }
     }
 
     logOut = () => {

@@ -855,3 +855,47 @@ exports.setUnreadNotifications = async (req, res) => {
     res.status(200).send({ message: "Notifications set to unread." });
 };
 
+// search
+exports.search = async (req, res) => {
+    const keyword = decodeURIComponent(req.params.keyword);
+    console.log(keyword, "keyword");
+    
+    let items = [];
+    let users_full = [];
+    try {
+        items = await Item.find({
+            name: {
+                '$regex' : keyword, '$options' : 'i'
+            }
+        }).exec();
+
+        let role = await Role.findOne({ name: "user" });
+        users_full = await User.find({
+            username: {
+                '$regex' : keyword, '$options' : 'i'
+            },
+            roles: [role._id]
+        }).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    
+    let users = [];
+    users_full.map((user) => {
+        users.push({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            location: user.location,
+            items: user.items
+        });
+    });
+
+    if (items.length < 1 && users.length < 1) {
+        return res.status(404).send({ message: "Can't find from keyword." });
+    }
+    res.status(200).json({
+        items: items,
+        users: users
+    });
+}
