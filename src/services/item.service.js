@@ -21,18 +21,14 @@ class ItemService {
         return axiosTokenHeader.delete(API_URL + "item/" + id);
     }
 
-    getItemsByCategory = (category, page) => {
-        const url = `?category=${category.replace("/", "-")}&page=${page}&limit=6`
+    getItemsByCategory = (category, page, limit) => {
+        const url = `?category=${category.replace("/", "-")}&page=${page}&limit=${limit}`
         return axiosTokenHeader.get(API_URL + "items" + url);
     }
 
-    getItemsByTrade = (sort, page, limit) => {
+    getItems = (sort, page, limit) => {
         const url = `?sort=${sort}&page=${page}&limit=${limit}`
         return axiosTokenHeader.get(API_URL + "items" + url);
-    }
-
-    getMostOffersItems  = () => {
-        return axiosTokenHeader.get(API_URL + "most-offers-items");
     }
 }
 

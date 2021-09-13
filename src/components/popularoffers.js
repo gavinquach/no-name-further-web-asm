@@ -79,7 +79,7 @@ export default class PopularOffers extends Component {
             this.resultLimit = this.resultLimit / 3 * 2;
         }
 
-        ItemService.getItemsByTrade(
+        ItemService.getItems(
             "-offers",
             this.state.currentPage,
             this.resultLimit

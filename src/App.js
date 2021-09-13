@@ -24,6 +24,7 @@ import TradeDetails from './components/Trade/trade.details';
 import ItemCategory from "./components/ItemCategory/item.category"
 import PopularOffers from "./components/popularoffers"
 import Chat from './components/chat';
+import Search from './components/search';
 
 import NavigationBar from './components/Navbar/NavigationBar';
 import Footer from './components/Footer/Footer'
@@ -150,6 +151,7 @@ export default class App extends Component {
                         <Route path="/item/:id" component={ItemDetails} />
                         <Route path="/popular" component={PopularOffers} />
                         <Route exact path='/trader/:username' component={UserPage} />
+                        <Route exact path='/search' component={Search} />
 
                         {/* user pages */}
                         <UserProtectedRoute exact path="/cart" component={Cart} />
