@@ -23,7 +23,7 @@ const crypto = require('crypto');
 // create new user
 exports.signup = async (req, res) => {
     const user = new User({
-        username: req.body.username,
+        username: req.body.username.toLowerCase(),
         email: req.body.email,
         phone: req.body.phone,
         location: req.body.location,
@@ -90,7 +90,7 @@ exports.signup = async (req, res) => {
 // create new User in database with roles
 exports.createUserWithRoles = async (req, res) => {
     const user = new User({
-        username: req.body.username,
+        username: req.body.username.toLowerCase(),
         email: req.body.email,
         phone: req.body.phone,
         location: req.body.location,
@@ -281,7 +281,7 @@ exports.publicGetUser = async (req, res) => {
     try {
         const role = await Role.findOne({ name: "user" });
         const temp = await User.findOne({
-            username: req.params.username,
+            username: req.params.username.toLowerCase(),
             roles: [role._id]
         }).exec();
 
@@ -855,3 +855,50 @@ exports.setUnreadNotifications = async (req, res) => {
     res.status(200).send({ message: "Notifications set to unread." });
 };
 
+// search
+exports.search = async (req, res) => {
+    const keyword = decodeURIComponent(req.params.keyword);
+    
+    let items = [];
+    let users_full = [];
+    try {
+        items = await Item.find({
+            name: {
+                '$regex' : keyword, '$options' : 'i'
+            }
+        })
+        .populate("type", "-__v")
+        .populate("forItemType", "-__v")
+        .populate("images", "-__v")
+        .populate("seller", "-__v")
+        .exec();
+
+        let role = await Role.findOne({ name: "user" });
+        users_full = await User.find({
+            username: {
+                '$regex' : keyword, '$options' : 'i'
+            },
+            roles: [role._id]
+        }).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    
+    let users = [];
+    users_full.map((user) => {
+        users.push({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            location: user.location
+        });
+    });
+
+    if (items.length < 1 && users.length < 1) {
+        return res.status(404).send({ message: "Can't find from keyword." });
+    }
+    res.status(200).json({
+        items: items,
+        users: users
+    });
+}

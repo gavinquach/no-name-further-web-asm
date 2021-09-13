@@ -18,7 +18,7 @@ exports.login = async (req, res) => {
     let user = null;
     try {
         user = await User.findOne({
-            username: req.body.username
+            username: req.body.username.toLowerCase()
         })
             .populate("roles", "-__v")
             .exec();
@@ -128,7 +128,7 @@ exports.resendLink = async (req, res) => {
     let user = null;
     try {
         user = await User.findOne({
-            username: req.body.username
+            username: req.body.username.toLowerCase()
         }).exec();
     } catch (err) {
         return res.status(500).send(err);

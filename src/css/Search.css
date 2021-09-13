@@ -1,0 +1,29 @@
+#not-found-img {
+    background-image: url("https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg//assets/a60759ad1dabe909c46a817ecbf71878.png");
+    background-repeat: no-repeat;
+    background-position-y: center;
+    background-position-x: -0.6em;
+    -webkit-background-size: auto 100%;
+    -moz-background-size: auto 100%;
+    -o-background-size: auto 100%;
+    background-size: auto 100%;
+    width: 20em;
+    height: 20em;
+}
+
+#avatar {
+    font-size: 5em;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.UserBox {
+    width: 15em;
+    height: 17em;
+}
+
+@media screen and (max-width: 1140px) {
+    #user-menu {
+        grid-template-columns: repeat(3, auto);
+    }
+}

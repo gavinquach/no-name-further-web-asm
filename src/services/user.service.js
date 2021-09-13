@@ -120,6 +120,10 @@ class UserService {
     publicgetUser(username) {
         return axiosTokenHeader.get(API_URL + "public/user/" + username);
     }
+
+    search (keyword) {
+        return axiosTokenHeader.get(API_URL + "search/" + keyword);
+    }
 }
 
 export default new UserService();
