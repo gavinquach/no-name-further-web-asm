@@ -1,10 +1,13 @@
 import { React, Component } from 'react';
 import { Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faUserAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faUserAlt, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons';
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
+import DOMPurify from 'dompurify';
+import Form from "react-validation/build/form";
+import Input from "react-validation/build/input";
+import Button from "react-validation/build/button";
 
 import logo from '../../images/lazyslob-logo.png';
 import '../../css/NavigationBar.css';
@@ -12,7 +15,6 @@ import '../../css/NavigationBar.css';
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import socket from '../../services/socket';
-import DOMPurify from 'dompurify';
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -41,7 +43,8 @@ export default class NavigationBar extends Component {
         this.state = {
             notifications: [],
             unreadList: [],
-            unreadCount: 0
+            unreadCount: 0,
+            search: ""
         }
     }
 
@@ -251,6 +254,12 @@ export default class NavigationBar extends Component {
         this.openTime = 0;
     }
 
+    onChangeSearch = (value) => {
+        this.setState({
+            search: value
+        });
+    }
+
     render = () => {
         const currentUser = this.props.obj;
 
@@ -266,6 +275,17 @@ export default class NavigationBar extends Component {
                             <Image src={logo} fluid style={{ marginLeft: '1em', width: '3em', maxWidth: '3em', height: "100%" }} />
                         </Link>
                     </Navbar.Brand>
+                    <Form id="search-form-small" method="GET" action="/search">
+                        <Input
+                            id="search-bar-small"
+                            name="keyword"
+                            value={this.state.search}
+                            onChange={(e) => this.onChangeSearch(e.target.value)}
+                        />
+                        <Button type="submit" className="SubmitSearchBtn">
+                            <FontAwesomeIcon icon={faSearch} />
+                        </Button>
+                    </Form>
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
                     <Navbar.Collapse id='basic-navbar-nav'>
                         <Nav className="nav">
@@ -280,6 +300,20 @@ export default class NavigationBar extends Component {
                             {(currentUser && currentUser.isAdmin) && (
                                 <Link className="navbar-text navbar-item" to="/admin/index">Admin Panel</Link>
                             )}
+                        </Nav>
+
+                        <Nav className="nav">
+                            <Form id="search-form" method="GET" action="/search">
+                                <Input
+                                    id="search-bar"
+                                    name="keyword"
+                                    value={this.state.search}
+                                    onChange={(e) => this.onChangeSearch(e.target.value)}
+                                />
+                                <Button type="submit" className="SubmitSearchBtn">
+                                    <FontAwesomeIcon icon={faSearch} />
+                                </Button>
+                            </Form>
                         </Nav>
 
                         <span onMouseEnter={this.countPanelOpenTime} onMouseLeave={this.stopTimer}>
