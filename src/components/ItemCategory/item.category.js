@@ -10,6 +10,9 @@ import '../../css/ItemMenu.css'
 export default class ItemCategory extends Component {
     constructor(props) {
         super(props);
+        this.widthChangeExecced = -1;
+        this.resultLimit = 10;
+
         this.state = {
             category: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
@@ -27,11 +30,57 @@ export default class ItemCategory extends Component {
 
     componentDidMount = () => {
         this.load();
+
+        const queryParams = new URLSearchParams(window.location.search);
+        let category = queryParams.get('category');
+        window.addEventListener('resize', () => {
+            if (category) {
+                if (this.state.items.length > 0) {
+                    if (window.innerWidth > 1380) {
+                        if (this.widthChangeExecced != 0) {
+                            this.resultLimit = 10;
+                            this.load();
+                            this.widthChangeExecced = 0;
+                        }
+                    } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
+                        if (this.widthChangeExecced != 1) {
+                            this.resultLimit = 8;
+                            this.load();
+                            this.widthChangeExecced = 1;
+                        }
+                    } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
+                        if (this.widthChangeExecced != 2) {
+                            this.resultLimit = 6;
+                            this.load();
+                            this.widthChangeExecced = 2;
+                        }
+                    } else if (window.innerWidth <= 830) {
+                        if (this.widthChangeExecced != 3) {
+                            this.resultLimit = 4;
+                            this.load();
+                            this.widthChangeExecced = 3;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     load = () => {
+        if (window.innerWidth > 1380) {
+            this.resultLimit = 10;
+        } else if (window.innerWidth <= 1380 && window.innerWidth > 1090) {
+            this.resultLimit = 8;
+        } else if (window.innerWidth <= 1090 && window.innerWidth > 830) {
+            this.resultLimit = 6;
+        } else if (window.innerWidth <= 830) {
+            this.resultLimit = 4;
+        }
+
         const queryParams = new URLSearchParams(window.location.search);
         let category = queryParams.get('category');
+        if (!category) return;
+
         CategoryList.map(c => {
             if (category == c.url) {
                 category = c.title;
@@ -41,7 +90,8 @@ export default class ItemCategory extends Component {
 
         ItemService.getItemsByCategory(
             category,
-            this.state.currentPage
+            this.state.currentPage,
+            this.resultLimit
         ).then(response => {
             this.setState({
                 totalPages: response.data.totalPages,
