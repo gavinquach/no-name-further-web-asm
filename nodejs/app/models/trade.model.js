@@ -24,11 +24,6 @@ const Trade = mongoose.model(
             ref: "Item",
             required: true
         },
-        creation_date: {
-            type: Date,
-            default: Date.now,
-            required: true
-        },
         expiration_date: {
             type: Date,
             default: hoursFromNow
@@ -42,7 +37,7 @@ const Trade = mongoose.model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         }
-    })
+    }, { timestamps: true })
 );
 
 module.exports = Trade;
