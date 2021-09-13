@@ -858,7 +858,6 @@ exports.setUnreadNotifications = async (req, res) => {
 // search
 exports.search = async (req, res) => {
     const keyword = decodeURIComponent(req.params.keyword);
-    console.log(keyword, "keyword");
     
     let items = [];
     let users_full = [];
@@ -867,7 +866,12 @@ exports.search = async (req, res) => {
             name: {
                 '$regex' : keyword, '$options' : 'i'
             }
-        }).exec();
+        })
+        .populate("type", "-__v")
+        .populate("forItemType", "-__v")
+        .populate("images", "-__v")
+        .populate("seller", "-__v")
+        .exec();
 
         let role = await Role.findOne({ name: "user" });
         users_full = await User.find({
@@ -886,8 +890,7 @@ exports.search = async (req, res) => {
             _id: user._id,
             username: user.username,
             email: user.email,
-            location: user.location,
-            items: user.items
+            location: user.location
         });
     });
 

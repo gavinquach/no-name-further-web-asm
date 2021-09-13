@@ -10,3 +10,20 @@
     width: 20em;
     height: 20em;
 }
+
+#avatar {
+    font-size: 5em;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.UserBox {
+    width: 15em;
+    height: 17em;
+}
+
+@media screen and (max-width: 1140px) {
+    #user-menu {
+        grid-template-columns: repeat(3, auto);
+    }
+}
