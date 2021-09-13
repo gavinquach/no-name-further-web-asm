@@ -5,7 +5,7 @@ class ItemService {
     viewAllItems = () => {
         return axiosTokenHeader.get(API_URL + "items");
     }
-    viewOneItem = (itemid) => {
+    viewOneItem = async (itemid) => {
         return axiosTokenHeader.get(API_URL + "item/" + itemid);
     }
 
