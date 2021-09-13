@@ -16,6 +16,7 @@ import { Row, Carousel, Col } from "react-bootstrap";
 import PopularOffers from "../popularoffers";
 
 import "../../css/ItemDetails.css"
+import { Link } from "react-router-dom";
 
 // format the date to be readable from Date object
 const formatDate = (d) => {
@@ -53,10 +54,12 @@ export default class ItemDetails extends Component {
         if (!this.props.obj) {
             ItemService.viewOneItem(this.props.match.params.id)
                 .then(response => {
-                    if (response.data.seller._id == AuthService.getCurrentUser().id) {
-                        this.setState({
-                            selfItem: true
-                        })
+                    if (AuthService.isLoggedIn()) {
+                        if (response.data.seller._id == AuthService.getCurrentUser().id) {
+                            this.setState({
+                                selfItem: true
+                            })
+                        }
                     }
                     this.setState({
                         item: response.data
@@ -94,79 +97,94 @@ export default class ItemDetails extends Component {
     }
 
     addToCart = () => {
-        if (!this.state.selfItem) {
-            UserService.addItemToCart(
-                this.props.match.params.id,
-                AuthService.getCurrentUser().id
-            ).then((response) => {
-                if (response.status == 200 || response.status == 201) {
-                    this.setState({
-                        message: response.data.message,
-                        successful: true
-                    });
-                } else {
-                    this.setState({
-                        message: response.data.message,
-                        successful: false
-                    });
-                }
-            }).catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    this.setState({
-                        message: error.response.data.message,
-                        successful: false
-                    });
-                } else {
-                    this.setState({
-                        message: `${error.response.status} ${error.response.statusText}`,
-                        successful: false
-                    });
-                }
-            });
+        if (!AuthService.isLoggedIn()) {
+            window.alert("Please log in to add to cart.");
+            return;
         }
+        if (this.state.selfItem) {
+            return;
+        }
+        UserService.addItemToCart(
+            this.props.match.params.id,
+            AuthService.getCurrentUser().id
+        ).then((response) => {
+            if (response.status == 200 || response.status == 201) {
+                this.setState({
+                    message: response.data.message,
+                    successful: true
+                });
+            } else {
+                this.setState({
+                    message: response.data.message,
+                    successful: false
+                });
+            }
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                this.setState({
+                    message: error.response.data.message,
+                    successful: false
+                });
+            } else {
+                this.setState({
+                    message: `${error.response.status} ${error.response.statusText}`,
+                    successful: false
+                });
+            }
+        });
     }
 
     requestTrade = () => {
-        if (!this.state.selfItem) {
-            TradeService.createTradeWithNotification(
-                this.state.item,
-                AuthService.getCurrentUser().id
-            ).then((response) => {
-                if (response.status == 200 || response.status == 201) {
-                    this.setState({
-                        message: response.data.message,
-                        successful: true
-                    });
-                } else {
-                    this.setState({
-                        message: response.data.message,
-                        successful: false
-                    });
-                }
-            }).catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    this.setState({
-                        message: error.response.data.message,
-                        successful: false
-                    });
-                } else {
-                    this.setState({
-                        message: `${error.response.status} ${error.response.statusText}`,
-                        successful: false
-                    });
-                }
-            });
+        if (!AuthService.isLoggedIn()) {
+            window.alert("Please log in to request trade.");
+            return;
         }
+        if (this.state.selfItem) {
+            return;
+        }
+        TradeService.createTradeWithNotification(
+            this.state.item,
+            AuthService.getCurrentUser().id
+        ).then((response) => {
+            if (response.status == 200 || response.status == 201) {
+                this.setState({
+                    message: response.data.message,
+                    successful: true
+                });
+            } else {
+                this.setState({
+                    message: response.data.message,
+                    successful: false
+                });
+            }
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                this.setState({
+                    message: error.response.data.message,
+                    successful: false
+                });
+            } else {
+                this.setState({
+                    message: `${error.response.status} ${error.response.statusText}`,
+                    successful: false
+                });
+            }
+        });
     }
 
     chatWithUser = () => {
-        if (!this.state.selfItem) {
-            const data = {
-                user: AuthService.getCurrentUser().id,
-                receiver: this.state.item.seller._id
-            };
-            socket.emit("chatWithUserRequest", data);
+        if (!AuthService.isLoggedIn()) {
+            window.alert("Please log in to chat with user.");
+            return;
         }
+        if (this.state.selfItem) {
+            return;
+        }
+        const data = {
+            user: AuthService.getCurrentUser().id,
+            receiver: this.state.item.seller._id
+        };
+        socket.emit("chatWithUserRequest", data);
     }
 
     render() {
@@ -240,6 +258,10 @@ export default class ItemDetails extends Component {
                                         <h4><b>City:</b> {item.seller.location[0].replace("Thành phố ", "").replace("Tỉnh ", "")}</h4>
                                         <h4><b>District:</b> {item.seller.location[1].replace("Huyện ", "").replace("Quận ", "")}</h4>
                                     </div>
+                                    <Link to={"/trader/" + item.seller.username}>
+                                        <button className="VisitUserPageBtn">Visit {item.seller.username}'s' page</button>
+                                    </Link>
+
                                     {(!this.state.selfItem) && (
                                         <button className="ChatWithUser" onClick={!this.props.obj && this.chatWithUser}>Chat with user</button>
                                     )}
@@ -248,7 +270,7 @@ export default class ItemDetails extends Component {
                             <hr className="divide" />
                             <div className="Flexbox-container">
                                 <div style={{ width: '70%' }}>
-                                    <h2 className="SectionHeader">Details:</h2>
+                                    <h2 className="SectionHeader">Details</h2>
                                     <div id="details-section">
                                         {!this.props.obj ? (
                                             <div id="date-text-container">
@@ -298,7 +320,7 @@ export default class ItemDetails extends Component {
                                         <br />
                                         <hr />
                                         <div>
-                                            <h2 className="SectionHeader">Description:</h2>
+                                            <h2 className="SectionHeader">Description</h2>
                                             <div className="Description">
                                                 {description ? (
                                                     <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }} />

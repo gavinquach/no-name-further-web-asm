@@ -43,7 +43,7 @@ export default class Offers extends Component {
                             <div className="item-box-img">
                                 {item.images.map(image =>
                                     image.cover && (
-                                        <img src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
+                                        <img key={image._id + "-cover-img"} src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
                                     )
                                 )}
                             </div>

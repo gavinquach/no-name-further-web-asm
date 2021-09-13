@@ -31,7 +31,8 @@ export default class UserPage extends Component {
     }
 
     componentDidMount() {
-        this.loadUser();
+        window.scrollTo(0, 0); // automatically scroll to top
+        this.loadUser();    // get user information
 
         window.addEventListener('resize', () => {
             if (this.state.items.length > 0) {
@@ -119,6 +120,9 @@ export default class UserPage extends Component {
     }
 
     chatWithUser = () => {
+        if (!AuthService.isLoggedIn()) {
+            return;
+        }
         const data = {
             user: AuthService.getCurrentUser().id,
             receiver: this.state.user._id
@@ -279,6 +283,7 @@ export default class UserPage extends Component {
                                             <option value="-offers">Popularity (Most)</option>
                                         </select>
                                     </div>
+                                    <br />
                                     <div className="menu">
                                         {items.map((item, index) =>
                                             <Link className="item-box" key={index} to={"/item/" + item._id}>

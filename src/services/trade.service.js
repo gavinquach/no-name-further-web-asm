@@ -110,8 +110,9 @@ class TradeService {
     getAllTrades() {
         return axiosTokenHeader.get(API_URL + "trades");
     }
-    getTradesByBuyer(userid) {
-        return axiosTokenHeader.get(API_URL + "trades/buyer/" + userid);
+    getTradesByBuyer(userid, status, sort, page, limit) {
+        const url = `${userid}?status=${status}&sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "trades/buyer/" + url);
     }
     getTradesBySeller(userid) {
         return axiosTokenHeader.get(API_URL + "trades/seller/" + userid);

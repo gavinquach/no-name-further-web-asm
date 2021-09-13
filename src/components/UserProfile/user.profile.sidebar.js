@@ -15,6 +15,9 @@ export default class ProfileSideBar extends Component {
                     <Link style={{ textDecoration: "black" }} to="/user/notifications">
                         <li>Notifications</li>
                     </Link>
+                    <Link style={{ textDecoration: "black" }} to="/user/trades">
+                        <li>Trades</li>
+                    </Link>
                 </ul>
             </div>
         );

@@ -256,7 +256,7 @@ export default class Notifications extends Component {
         if (this.state.currentPage > 1) {
             const prevPage = this.state.currentPage - 1;
             search_params.set("page", prevPage);
-            const pageURL = url.pathname + "?" + search_params.toString();
+            const pageURL = url.pathname + "?" + search_params.toString() + window.location.hash;
 
             buttons.push(
                 <Link to={pageURL} onClick={() => this.updatePage(prevPage)}>
@@ -267,7 +267,7 @@ export default class Notifications extends Component {
         for (let i = 1; i <= this.state.totalPages; i++) {
             // replace page number with index number
             search_params.set("page", i);
-            const pageURL = url.pathname + "?" + search_params.toString();
+            const pageURL = url.pathname + "?" + search_params.toString() + window.location.hash;
 
             if (i === this.state.currentPage) {
                 buttons.push(
@@ -284,7 +284,7 @@ export default class Notifications extends Component {
         if (this.state.currentPage < this.state.totalPages) {
             const nextPage = this.state.currentPage + 1;
             search_params.set("page", nextPage);
-            const pageURL = url.pathname + "?" + search_params.toString();
+            const pageURL = url.pathname + "?" + search_params.toString() + window.location.hash;
 
             buttons.push(
                 <Link to={pageURL} onClick={() => this.updatePage(nextPage)}>
