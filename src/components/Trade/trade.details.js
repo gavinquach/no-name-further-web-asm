@@ -39,9 +39,11 @@ export default class TradeDetails extends Component {
         TradeService.getTrade(
             this.props.match.params.id
         ).then(response => {
-            // checks if user is either seller or buyer
-            if (AuthService.getCurrentUser().id != response.data.user_buyer._id && AuthService.getCurrentUser().id != response.data.user_seller._id) {
-                this.props.history.push("/");
+            if (!AuthService.isRegularUser()) {
+                // checks if user is either seller or buyer
+                if (AuthService.getCurrentUser().id != response.data.user_buyer._id && AuthService.getCurrentUser().id != response.data.user_seller._id) {
+                    this.props.history.push("/");
+                }
             }
             ItemService.viewOneItem(
                 response.data.item._id
