@@ -4,10 +4,6 @@ const router = require("../routes");
 
 
 router
-    .route("/most-offers-items")
-    .get(controller.getMostOfferItems, controller.getAllItems);
-
-router
     .route("/item/:id")
     .get(controller.getItem)
     .delete([
