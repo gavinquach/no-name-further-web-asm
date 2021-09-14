@@ -341,10 +341,14 @@ export default class ItemDetails extends Component {
                                     </div>
                                     {(!this.state.selfItem) && (
                                         <div className="ActionButtons">
-                                            <button className="add-to-cart" onClick={!this.props.obj && this.addToCart}>Add To Cart</button>
+                                            {!AuthService.isRootAccount() && (
+                                                <button className="add-to-cart" onClick={!this.props.obj && this.addToCart}>Add To Cart</button>
+                                            )}
                                             <br />
                                             <br />
-                                            <button className="request-trade" onClick={!this.props.obj && this.requestTrade}>Request trade</button>
+                                            {!AuthService.isRootAccount() && (
+                                                <button className="request-trade" onClick={!this.props.obj && this.requestTrade}>Request trade</button>
+                                            )}
                                             {this.state.message && (
                                                 <div className="statusMsg">
                                                     <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">

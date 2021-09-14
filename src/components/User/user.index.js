@@ -1,13 +1,14 @@
 import React, { Component } from "react";
-import { Link, Router, Switch, useRouteMatch } from "react-router-dom";
-import {Helmet} from "react-helmet";
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import "../../css/UserPages.css";
+import AuthService from "../../services/auth.service";
 
 export default class UserIndex extends Component {
-
-        render(){
+    render() {
+        window.scrollTo(0, 0); // automatically scroll to top
         return (
-            <div className = "page-container">
+            <div className="page-container">
                 <Helmet>
                     <title>User Panel</title>
                 </Helmet>
@@ -21,16 +22,19 @@ export default class UserIndex extends Component {
                         <Link to="/user/profile#password" className="Button-item">
                             <button className="user-menu-button">Change your password</button>
                         </Link>
-                        <Link to="/user/items" className="Button-item">
-                            <button className="user-menu-button">View your items</button>
-                        </Link>
-                        <Link to="/user/create" className="Button-item">
-                            <button className="user-menu-button">Add item listing</button>
-                        </Link>
+                        {!AuthService.isRootAccount() && (
+                            <Link to="/user/items" className="Button-item">
+                                <button className="user-menu-button">View your items</button>
+                            </Link>
+                        )}
+                        {!AuthService.isRootAccount() && (
+                            <Link to="/user/create" className="Button-item">
+                                <button className="user-menu-button">Add item listing</button>
+                            </Link>
+                        )}
                     </div>
                 </div>
-            
             </div>
         );
-        }
     }
+}

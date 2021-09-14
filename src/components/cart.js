@@ -27,6 +27,7 @@ export default class Cart extends Component {
     }
 
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
         this.load();
     }
 
@@ -77,6 +78,20 @@ export default class Cart extends Component {
     }
 
     render() {
+        if (AuthService.isRootAccount()) {
+            return (
+                <div className="page-container">
+                    <Helmet>
+                        <title>Cart</title>
+                    </Helmet>
+                    <div className="title">Cart</div>
+                    <hr className="section-line" />
+                    <div className="white-container">
+                        <h2>Root account can't add items to cart.</h2>
+                    </div>
+                </div >
+            );
+        }
         return (
             <div className="page-container">
                 <Helmet>

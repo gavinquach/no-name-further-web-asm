@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import AuthService from "../../services/auth.service";
 
 export default class ProfileSideBar extends Component {
     render() {
@@ -15,9 +16,13 @@ export default class ProfileSideBar extends Component {
                     <Link style={{ textDecoration: "black" }} to="/user/notifications">
                         <li>Notifications</li>
                     </Link>
-                    <Link style={{ textDecoration: "black" }} to="/user/trades">
-                        <li>Trades</li>
-                    </Link>
+                    {!AuthService.isRootAccount() && (
+                        <span>
+                            <Link style={{ textDecoration: "black" }} to="/user/trades">
+                                <li>Trades</li>
+                            </Link>
+                        </span>
+                    )}
                 </ul>
             </div>
         );

@@ -203,6 +203,7 @@ export default class Chat extends Component {
     }
 
     componentDidMount = () => {
+        window.scrollTo(0, 0); // automatically scroll to top
         if (AuthService.isLoggedIn()) {
             this.getConversations();
 

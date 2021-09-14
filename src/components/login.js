@@ -36,6 +36,7 @@ export default class Login extends Component {
     }
 
     componentDidMount = () => {
+        window.scrollTo(0, 0); // automatically scroll to top
         if (this.props.match.params.email && this.props.match.params.token) {
             AuthService.confirmEmail(
                 this.props.match.params.email,

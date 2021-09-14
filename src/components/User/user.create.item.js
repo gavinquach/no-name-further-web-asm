@@ -272,6 +272,7 @@ export default class UserCreateItem extends Component {
     }
 
     render() {
+        window.scrollTo(0, 0); // automatically scroll to top
         let item = null;
         if (this.state.coverImage || this.state.otherImages.length > 0) {
             // convert description to string

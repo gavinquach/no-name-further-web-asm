@@ -76,6 +76,10 @@ export default class Trades extends Component {
     }
 
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
+        if (AuthService.isRootAccount()) {
+            return;
+        }
         this.load();
     }
 
@@ -155,6 +159,23 @@ export default class Trades extends Component {
     }
 
     render() {
+        if (AuthService.isRootAccount()) {
+            return (
+                <div className="page-container my-profile">
+                    <Helmet>
+                        <title>Trades</title>
+                    </Helmet>
+                    <ProfileSideBar />
+                    <div className="profile-page">
+                        <div className="title">Trades</div>
+                        <hr className="section-line" />
+                        <div style={{ padding: '1em 2em', textAlign: 'center' }}>
+                            <h2>Root account can't make trades</h2>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
         const tradeStatuses = {
             PENDING: "Ongoing",
             WAITING_APPROVAL: "Waiting approval",
@@ -212,31 +233,31 @@ export default class Trades extends Component {
 
                     {this.state.trades.length > 0 ? (
                         <span>
-                        {trades.map((trade) =>
-                            trade.status === hash.toUpperCase() && (
-                                <span>
-                                    <Link to={"/trade/" + trade._id} className="ItemPanel">
-                                        {trade.item.images.map((image, index) =>
-                                            image.cover && (
-                                                <img key={index + "-img"} className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
-                                            )
-                                        )}
-                                        <div className="ItemDetails">
-                                            <h3 style={{ textAlign: 'center' }}><b>{trade.item.name}</b></h3>
-                                            <hr style={{ border: '1px solid black' }} />
-                                            <h5>Type: <b>{trade.item.type.name}</b></h5>
-                                            <h5>Quantity: <b>{trade.item.quantity}</b></h5>
-                                        </div>
-                                        <h3>for</h3>
-                                        <div className="ItemDetails">
-                                            <h3 style={{ textAlign: 'center' }}><b>{trade.item.forItemName}</b></h3>
-                                            <hr style={{ border: '1px solid black' }} />
-                                            <h5>Type: <b>{trade.item.forItemType.name}</b></h5>
-                                            <h5>Quantity: <b>{trade.item.forItemQty}</b></h5>
-                                        </div>
-                                    </Link>
-                                </span>
-                            ))}
+                            {trades.map((trade) =>
+                                trade.status === hash.toUpperCase() && (
+                                    <span>
+                                        <Link to={"/trade/" + trade._id} className="ItemPanel">
+                                            {trade.item.images.map((image, index) =>
+                                                image.cover && (
+                                                    <img key={index + "-img"} className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
+                                                )
+                                            )}
+                                            <div className="ItemDetails">
+                                                <h3 style={{ textAlign: 'center' }}><b>{trade.item.name}</b></h3>
+                                                <hr style={{ border: '1px solid black' }} />
+                                                <h5>Type: <b>{trade.item.type.name}</b></h5>
+                                                <h5>Quantity: <b>{trade.item.quantity}</b></h5>
+                                            </div>
+                                            <h3>for</h3>
+                                            <div className="ItemDetails">
+                                                <h3 style={{ textAlign: 'center' }}><b>{trade.item.forItemName}</b></h3>
+                                                <hr style={{ border: '1px solid black' }} />
+                                                <h5>Type: <b>{trade.item.forItemType.name}</b></h5>
+                                                <h5>Quantity: <b>{trade.item.forItemQty}</b></h5>
+                                            </div>
+                                        </Link>
+                                    </span>
+                                ))}
                         </span>
                     ) : (
                         // no trades, display text

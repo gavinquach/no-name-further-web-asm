@@ -14,7 +14,8 @@ router
 // add transaction
 router.post("/trade", [
     authJwt.verifyToken,
-    authJwt.isUser
+    authJwt.isUser,
+    authJwt.isNotRoot,
 ], controller.createTrade);
 
 // get transactions

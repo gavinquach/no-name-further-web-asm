@@ -94,6 +94,14 @@ class AuthService {
         return false;
     }
 
+    // check if user is root account
+    isRootAccount = () => {
+        if (!this.isLoggedIn()) return false;
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user.username == "root") return true;
+        else return false;
+    }
+
     login = (username, password) => {
         return axios
             .post(API_URL + "login", {
