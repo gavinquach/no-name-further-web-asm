@@ -279,10 +279,14 @@ exports.viewOneUser = async (req, res) => {
 
 exports.publicGetUser = async (req, res) => {
     try {
-        const role = await Role.findOne({ name: "user" });
         const temp = await User.findOne({
-            username: req.params.username.toLowerCase(),
-            roles: [role._id]
+            $and: [{
+                username: req.params.username.toLowerCase()
+            }, {
+                username: {
+                    $ne: "root"
+                }
+            }]
         }).exec();
 
         if (!temp) return res.status(404).send({ message: "User not found." });
@@ -858,32 +862,32 @@ exports.setUnreadNotifications = async (req, res) => {
 // search
 exports.search = async (req, res) => {
     const keyword = decodeURIComponent(req.params.keyword);
-    
+
     let items = [];
     let users_full = [];
     try {
         items = await Item.find({
             name: {
-                '$regex' : keyword, '$options' : 'i'
+                '$regex': keyword, '$options': 'i'
             }
         })
-        .populate("type", "-__v")
-        .populate("forItemType", "-__v")
-        .populate("images", "-__v")
-        .populate("seller", "-__v")
-        .exec();
+            .populate("type", "-__v")
+            .populate("forItemType", "-__v")
+            .populate("images", "-__v")
+            .populate("seller", "-__v")
+            .exec();
 
         let role = await Role.findOne({ name: "user" });
         users_full = await User.find({
             username: {
-                '$regex' : keyword, '$options' : 'i'
+                '$regex': keyword, '$options': 'i'
             },
             roles: [role._id]
         }).exec();
     } catch (err) {
         return res.status(500).send(err);
     }
-    
+
     let users = [];
     users_full.map((user) => {
         users.push({
