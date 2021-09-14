@@ -159,14 +159,31 @@ export default class TradeDetails extends Component {
                                 : "Trader: ".concat(trade.user_buyer.username)}
                         </p>
                         <p>Owner: {trade.user_seller.username}</p>
-                        <Link to={"/trader/" + item.seller.username}>
-                            <button style={{
-                                marginTop: '0em',
-                                marginBottom: '1em',
-                                marginLeft: '0em',
-                                marginRight: '-1.5em'
-                            }} className="VisitUserPageBtn">Visit {item.seller.username}'s' page</button>
-                        </Link>
+                        {trade.user_seller._id != AuthService.getCurrentUser().id ? (
+                            <Link to={"/trader/" + item.seller.username}>
+                                <button style={{
+                                    marginTop: '0em',
+                                    marginBottom: '1em',
+                                    marginLeft: '0em',
+                                    marginRight: '-1.5em'
+                                }} className="VisitUserPageBtn"
+                                >
+                                    Visit {item.seller.username}'s' page
+                                </button>
+                            </Link>
+                        ) : (
+                            <Link to={"/trader/" + trade.user_buyer.username}>
+                                <button style={{
+                                    marginTop: '0em',
+                                    marginBottom: '1em',
+                                    marginLeft: '0em',
+                                    marginRight: '-1.5em'
+                                }} className="VisitUserPageBtn"
+                                >
+                                    Visit {trade.user_buyer.username}'s' page
+                                </button>
+                            </Link>
+                        )}
                         <button className="ChatWithUser" onClick={() => this.chatWithUser(trade)}>Chat with user</button>
 
                         <br /><br />
