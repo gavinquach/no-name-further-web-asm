@@ -38,6 +38,11 @@ router.get("/trades/item/:id", [
     authJwt.isAdmin
 ], controller.getItemTrades);
 
+router.get("/trades/user/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.getUserTrades);
+
 router.patch("/trade/approve/:id", [
     authJwt.verifyToken,
     authJwt.isUser

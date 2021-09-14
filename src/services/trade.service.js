@@ -120,6 +120,10 @@ class TradeService {
     getTradesByItem(itemid) {
         return axiosTokenHeader.get(API_URL + "trades/item/" + itemid);
     }
+    getUserTrades(userid, status, sort, page, limit) {
+        const url = `${userid}?status=${status}&sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "trades/user/" + url);
+    }
 
     approveTrade(trade, userid) {
         sendNotification(

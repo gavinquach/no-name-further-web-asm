@@ -29,7 +29,7 @@ export default class Trades extends Component {
         let hash = window.location.hash.replace("#", "");
         if (!hash || hash == "") hash = "pending";
 
-        TradeService.getTradesByBuyer(
+        TradeService.getUserTrades(
             AuthService.getCurrentUser().id,
             hash.toUpperCase(),
             "-updatedAt",
