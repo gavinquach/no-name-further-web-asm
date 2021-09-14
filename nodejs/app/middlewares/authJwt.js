@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const model = require("../models");
 const User = model.user;
+const Role = model.role;
 
 verifyToken = (req, res, next) => {
     let token = req.headers["x-access-token"];
@@ -23,11 +24,30 @@ verifyToken = (req, res, next) => {
 isUser = async (req, res, next) => {
     let user = null;
     try {
-        user = await User.findById(req.userId).populate("roles", "-__v").exec();
+        user = await User.findById(req.userId).exec();
     } catch (err) {
         return res.status(500).send({ message: err });
     }
     if (!user) return res.status(404).send({ message: "User not found." });
+    next();
+};
+
+// validate whether the person sending the request is a user
+isRegularUser = async (req, res, next) => {
+    let user = null;
+    try {
+        user = await User.findById(req.userId).exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
+
+    const role = await Role.findOne({ name: "user" });
+    if (!role) return res.status(404).send({ message: "Role not found." });
+    if (JSON.stringify(user.roles) != JSON.stringify([role._id])) {
+        return res.status(403).send({ message: "Unauthorized." });
+    }
+
     next();
 };
 
@@ -141,6 +161,25 @@ canViewUsers = async (req, res, next) => {
             message: "You don't have the correct admin permission to access this resource!"
         });
     }
+    next();
+};
+
+// validate whether the person sending the request has root role
+isNotRoot = async (req, res, next) => {
+    let user = null;
+    try {
+        user = await User.findById(req.userId).populate("roles", "-__v").exec();
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
+
+    const role = await Role.findOne({ name: "root" });
+    if (!role) return res.status(404).send({ message: "Role not found." });
+    if (JSON.stringify(user.roles) != JSON.stringify([role._id])) {
+        return res.status(403).send({ message: "Unauthorized." });
+    }
+
     next();
 };
 
