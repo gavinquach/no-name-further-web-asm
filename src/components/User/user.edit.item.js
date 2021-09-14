@@ -7,11 +7,11 @@ import ImageUploading from "react-images-uploading";    // npm install --save re
 import { Helmet } from "react-helmet";
 import { Editor } from 'react-draft-wysiwyg';
 import { convertToRaw, convertFromRaw, EditorState } from 'draft-js';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-
+import { Redirect } from "react-router-dom";
 import AuthService from "../../services/auth.service";
 import ItemService from "../../services/item.service";
 
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import '../../css/UserPages.css'
 
 import ItemDetails from "../Item/item.details";
@@ -56,6 +56,7 @@ export default class UserEditItem extends Component {
             forItemName: "",
             forItemQty: 0,
             forItemType: "",
+            seller: null,
             successful: false,
             message: "",
             editorState: EditorState.createEmpty()
@@ -86,7 +87,8 @@ export default class UserEditItem extends Component {
                     forItemName: response.data.forItemName,
                     forItemQty: response.data.forItemQty,
                     forItemType: response.data.forItemType.name,
-                    oldImgList: response.data.images
+                    oldImgList: response.data.images,
+                    seller: response.data.seller
                 }, () => this.addImages());
             }).catch((error) => {
                 // item not found
@@ -393,6 +395,9 @@ export default class UserEditItem extends Component {
     }
 
     render() {
+        if (this.state.seller && this.state.seller._id != AuthService.getCurrentUser().id) {
+            return <Redirect to="/notfound" />
+        }
         let item = null;
         if (this.state.coverImage || this.state.otherImages.length > 0) {
             // convert description to string
@@ -412,7 +417,7 @@ export default class UserEditItem extends Component {
                 forItemName: this.state.forItemName,
                 forItemQty: this.state.forItemQty,
                 forItemType: this.state.forItemType,
-                seller: AuthService.getCurrentUser(),
+                seller: this.state.seller,
                 images: images,
                 description: rawContent
             };

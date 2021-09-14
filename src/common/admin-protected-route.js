@@ -3,7 +3,7 @@ import { Route, Redirect } from "react-router-dom";
 import AuthService from "../services/auth.service"
 
 const AdminProtectedRoute = ({ component, ...args }) => {
-    return AuthService.isAdmin() ? (<Route component={(component)} {...args} />) : (<Redirect to="/"/>)
+    return AuthService.isAdmin() ? (<Route component={(component)} {...args} />) : (<Redirect to="/notfound"/>)
 };
 
 export default AdminProtectedRoute;

@@ -151,6 +151,19 @@ exports.editItem = async (req, res) => {
         return res.status(500).send(err);
     }
 
+    // validate username
+    if (!req.body.userid) return res.status(500).send({ message: "Invalid user." });
+
+    let user = null;
+
+    // find username in database to see if it exists
+    try {
+        user = await User.findById(req.body.userid).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
+
     let item = null;
     try {
         item = await Item.findById(req.params.id)
@@ -161,6 +174,9 @@ exports.editItem = async (req, res) => {
         return res.status(500).send(err);
     }
     if (!item) return res.status(404).send({ message: "Item not found!" });
+
+    // check if user owns the item
+    if (JSON.stringify(user._id) != JSON.stringify(item.seller)) return res.status(403).send({ message: "Forbidden." });
 
     let categories = [];
     try {
