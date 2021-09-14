@@ -54,6 +54,7 @@ export default class AdminIndex extends Component {
     }
 
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
         ItemService.viewAllItems().then(response => {
             this.setState({ items: response.data.items });
         }).catch((error) => {

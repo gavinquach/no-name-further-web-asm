@@ -29,6 +29,7 @@ export default class AdminViewAdmin extends Component {
     }
 
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
         this.load();
     }
 

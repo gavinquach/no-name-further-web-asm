@@ -143,6 +143,7 @@ export default class AdminEditAdmin extends Component {
 
     // get admin info and assign to input fields
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
         UserService.viewOneUser(this.props.match.params.id)
             .then(response => {
                 let isUser = false;

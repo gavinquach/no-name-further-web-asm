@@ -136,6 +136,7 @@ export default class Notifications extends Component {
     }
 
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
         this.load();
 
         // get hash value in URL

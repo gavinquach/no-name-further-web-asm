@@ -76,6 +76,7 @@ export default class Trades extends Component {
     }
 
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
         if (AuthService.isRootAccount()) {
             return;
         }
@@ -232,31 +233,31 @@ export default class Trades extends Component {
 
                     {this.state.trades.length > 0 ? (
                         <span>
-                        {trades.map((trade) =>
-                            trade.status === hash.toUpperCase() && (
-                                <span>
-                                    <Link to={"/trade/" + trade._id} className="ItemPanel">
-                                        {trade.item.images.map((image, index) =>
-                                            image.cover && (
-                                                <img key={index + "-img"} className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
-                                            )
-                                        )}
-                                        <div className="ItemDetails">
-                                            <h3 style={{ textAlign: 'center' }}><b>{trade.item.name}</b></h3>
-                                            <hr style={{ border: '1px solid black' }} />
-                                            <h5>Type: <b>{trade.item.type.name}</b></h5>
-                                            <h5>Quantity: <b>{trade.item.quantity}</b></h5>
-                                        </div>
-                                        <h3>for</h3>
-                                        <div className="ItemDetails">
-                                            <h3 style={{ textAlign: 'center' }}><b>{trade.item.forItemName}</b></h3>
-                                            <hr style={{ border: '1px solid black' }} />
-                                            <h5>Type: <b>{trade.item.forItemType.name}</b></h5>
-                                            <h5>Quantity: <b>{trade.item.forItemQty}</b></h5>
-                                        </div>
-                                    </Link>
-                                </span>
-                            ))}
+                            {trades.map((trade) =>
+                                trade.status === hash.toUpperCase() && (
+                                    <span>
+                                        <Link to={"/trade/" + trade._id} className="ItemPanel">
+                                            {trade.item.images.map((image, index) =>
+                                                image.cover && (
+                                                    <img key={index + "-img"} className="ItemImage" src={process.env.REACT_APP_NODEJS_URL.concat("images/", image.name)} />
+                                                )
+                                            )}
+                                            <div className="ItemDetails">
+                                                <h3 style={{ textAlign: 'center' }}><b>{trade.item.name}</b></h3>
+                                                <hr style={{ border: '1px solid black' }} />
+                                                <h5>Type: <b>{trade.item.type.name}</b></h5>
+                                                <h5>Quantity: <b>{trade.item.quantity}</b></h5>
+                                            </div>
+                                            <h3>for</h3>
+                                            <div className="ItemDetails">
+                                                <h3 style={{ textAlign: 'center' }}><b>{trade.item.forItemName}</b></h3>
+                                                <hr style={{ border: '1px solid black' }} />
+                                                <h5>Type: <b>{trade.item.forItemType.name}</b></h5>
+                                                <h5>Quantity: <b>{trade.item.forItemQty}</b></h5>
+                                            </div>
+                                        </Link>
+                                    </span>
+                                ))}
                         </span>
                     ) : (
                         // no trades, display text

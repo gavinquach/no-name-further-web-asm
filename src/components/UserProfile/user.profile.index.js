@@ -18,6 +18,7 @@ export default class UserProfileIndex extends Component {
     }
 
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
         setTimeout(() => {
             this.setState({
                 hash: window.location.hash.replace("#", "")
