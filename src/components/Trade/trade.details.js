@@ -136,8 +136,8 @@ export default class TradeDetails extends Component {
     render() {
         const status = {
             PENDING: "Ongoing",
-            WAITING_APPROVAL: "Waiting approval",
-            DENIED: "Request denied by user",
+            WAITING_APPROVAL: "Waiting approval from owner",
+            DENIED: "Request denied by owner",
             CANCELLED: "Cancelled",
             EXPIRED: "Expired"
         }
