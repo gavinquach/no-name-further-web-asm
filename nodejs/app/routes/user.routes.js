@@ -90,6 +90,7 @@ router.get("/user/items/:id", controller.getUserItems);
 router.post("/user/cart", [
     authJwt.verifyToken,
     authJwt.isUser,
+    authJwt.isNotRoot
 ], controller.addItemToCart);
 
 router.put("/user/cart/:id", [

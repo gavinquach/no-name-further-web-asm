@@ -164,19 +164,18 @@ canViewUsers = async (req, res, next) => {
     next();
 };
 
-// validate whether the person sending the request has root role
+// deny root account (account made on server init)
 isNotRoot = async (req, res, next) => {
     let user = null;
     try {
-        user = await User.findById(req.userId).populate("roles", "-__v").exec();
+        user = await User.findOne({
+            _id: req.userId,
+            username: "root"
+        }).exec();
     } catch (err) {
         return res.status(500).send({ message: err });
     }
-    if (!user) return res.status(404).send({ message: "User not found." });
-
-    const role = await Role.findOne({ name: "root" });
-    if (!role) return res.status(404).send({ message: "Role not found." });
-    if (JSON.stringify(user.roles) != JSON.stringify([role._id])) {
+    if (user) {
         return res.status(403).send({ message: "Unauthorized." });
     }
 
@@ -189,6 +188,7 @@ const authJwt = {
     isAdmin,
     isValidAdmin,
     canViewAdmins,
-    canViewUsers
+    canViewUsers,
+    isNotRoot
 };
 module.exports = authJwt;

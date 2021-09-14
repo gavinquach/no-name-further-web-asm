@@ -19,6 +19,7 @@ router
 router.post("/item", [
     authJwt.verifyToken,
     authJwt.isUser,
+    authJwt.isNotRoot,
     validate.checkUploadPath
 ], controller.createItem);
 
