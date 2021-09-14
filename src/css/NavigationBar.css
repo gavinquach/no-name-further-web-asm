@@ -156,10 +156,7 @@
   background-color: rgba(0, 0, 0, 0.01);
 }
 
-#notification-view-more {
-  margin-left: auto;
-  margin-right: auto;
-  padding: 12px 0;
+.notification-view-more {
   width: 16em;
   color: black;
   font-weight: 500;
@@ -168,7 +165,7 @@
   background-color: white;
 }
 
-#notification-view-more:hover {
+.notification-view-more:hover {
   color: black;
   text-decoration: none !important;
 }
@@ -246,7 +243,7 @@
   padding: 4px 4px;
 }
 
-#search-bar, #search-bar-small {
+#search-bar, #search-bar-small, #search-bar-not-logged-in, #search-bar-admin {
   display: block;
   width: 55em;
   height: 2em;
@@ -272,6 +269,13 @@
   width: 35em;
 }
 
+
+@media screen and (max-width: 1900px) {
+  #search-bar-admin {
+    width: 40em;
+  }
+}
+
 @media screen and (max-width: 1800px) {
   #search-bar {
     width: 45em;
@@ -279,6 +283,14 @@
   @media screen and (max-width: 1650px) {
     #search-bar {
       width: 40em;
+    }
+    #search-bar-admin {
+      width: 35em;
+    }
+  }
+  @media screen and (max-width: 1580px) {
+    #search-bar-admin {
+      width: 30em;
     }
   }
   @media screen and (max-width: 1550px) {
@@ -290,10 +302,21 @@
     #search-bar {
       width: 30em;
     }
+    #search-bar-not-logged-in {
+      width: 45em;
+    }
+    #search-bar-admin {
+      width: 20em;
+    }
   }
   @media screen and (max-width: 1400px) {
     #search-bar {
       width: 20em;
+    }
+  }
+  @media screen and (max-width: 1300px) {
+    #search-bar-not-logged-in {
+      width: 30em;
     }
   }
   @media screen and (max-width: 1250px) {
@@ -304,6 +327,9 @@
   @media screen and (max-width: 1170px) {
     #search-bar {
       width: 5em;
+    }
+    #search-bar-not-logged-in {
+      width: 25em;
     }
   }
   @media screen and (max-width: 990px) {

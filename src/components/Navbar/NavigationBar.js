@@ -88,101 +88,100 @@ class NavigationBar extends Component {
     }
 
     loadNotifications = () => {
-        UserService.getUserNotifications(AuthService.getCurrentUser().id)
-            .then(
-                response => {
-                    if (response.data.notifications) {
-                        // user has more than 5 total notifications
-                        if (response.data.notifications.length > 5) {
-                            const temp = response.data.notifications;
+        UserService.getUserNotifications(
+            AuthService.getCurrentUser().id
+        ).then((response) => {
+            if (response.data.notifications) {
+                // user has more than 5 total notifications
+                if (response.data.notifications.length > 5) {
+                    const temp = response.data.notifications;
 
-                            // create array for all unread notifications
-                            const unreadList = [];
-                            temp.map(notification => {
-                                !notification.read && unreadList.push(notification);
-                            });
+                    // create array for all unread notifications
+                    const unreadList = [];
+                    temp.map(notification => {
+                        !notification.read && unreadList.push(notification);
+                    });
 
-                            // no unread notifications,
-                            // display notifications normally
-                            if (unreadList.length == 0) {
-                                this.setState({
-                                    notifications: response.data.notifications,
-                                    unreadCount: unreadList.length
-                                });
-                            }
-
-                            // trim array to have only 5 unread notifications so
-                            // only the latest 5 unread notifications get set to
-                            // read when user opens the panel
-                            else if (unreadList.length > 5) {
-                                const unreadCount = unreadList.length;
-                                const temp = [];
-                                for (let i = 0; i < 5; i++) {
-                                    temp.push(unreadList[i]);
-                                }
-                                this.setState({
-                                    notifications: temp,
-                                    unreadList: unreadList,
-                                    unreadCount: unreadCount
-                                });
-                            }
-
-                            // unread notifications less than 5,
-                            // display all of them and display the latest
-                            // read notifications after
-                            else if (unreadList.length < 5) {
-                                const readList = [];
-                                const finalList = [];
-                                temp.map(notification => {
-                                    !notification.read && finalList.push(notification);
-                                    notification.read && readList.push(notification);
-                                });
-
-                                const length = 5 - finalList.length;
-
-                                // fill up the empty slots with
-                                // the latest read notification(s)
-                                for (let i = 0; i < length; i++) {
-                                    finalList.push(readList[i]);
-                                }
-
-                                this.setState({
-                                    notifications: finalList,
-                                    unreadCount: unreadList.length
-                                });
-                            }
-
-                            // user has 5 total unread notifications
-                            // display unread notifications normally
-                            else {
-                                this.setState({
-                                    notifications: unreadList,
-                                    unreadCount: unreadList.length
-                                });
-                            }
-                        }
-                        // user has less than 5 total notifications
-                        // display notifications normally
-                        else {
-                            //get unread count
-                            let count = 0;
-                            response.data.notifications.map(notification => {
-                                !notification.read && count++;
-                            });
-                            this.setState({
-                                notifications: response.data.notifications,
-                                unreadCount: count
-                            });
-                        }
+                    // no unread notifications,
+                    // display notifications normally
+                    if (unreadList.length == 0) {
+                        this.setState({
+                            notifications: response.data.notifications,
+                            unreadCount: unreadList.length
+                        });
                     }
-                })
-            .catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
+
+                    // trim array to have only 5 unread notifications so
+                    // only the latest 5 unread notifications get set to
+                    // read when user opens the panel
+                    else if (unreadList.length > 5) {
+                        const unreadCount = unreadList.length;
+                        const temp = [];
+                        for (let i = 0; i < 5; i++) {
+                            temp.push(unreadList[i]);
+                        }
+                        this.setState({
+                            notifications: temp,
+                            unreadList: unreadList,
+                            unreadCount: unreadCount
+                        });
+                    }
+
+                    // unread notifications less than 5,
+                    // display all of them and display the latest
+                    // read notifications after
+                    else if (unreadList.length < 5) {
+                        const readList = [];
+                        const finalList = [];
+                        temp.map(notification => {
+                            !notification.read && finalList.push(notification);
+                            notification.read && readList.push(notification);
+                        });
+
+                        const length = 5 - finalList.length;
+
+                        // fill up the empty slots with
+                        // the latest read notification(s)
+                        for (let i = 0; i < length; i++) {
+                            finalList.push(readList[i]);
+                        }
+
+                        this.setState({
+                            notifications: finalList,
+                            unreadCount: unreadList.length
+                        });
+                    }
+
+                    // user has 5 total unread notifications
+                    // display unread notifications normally
+                    else {
+                        this.setState({
+                            notifications: unreadList,
+                            unreadCount: unreadList.length
+                        });
+                    }
                 }
-            });
+                // user has less than 5 total notifications
+                // display notifications normally
+                else {
+                    //get unread count
+                    let count = 0;
+                    response.data.notifications.map(notification => {
+                        !notification.read && count++;
+                    });
+                    this.setState({
+                        notifications: response.data.notifications,
+                        unreadCount: count
+                    });
+                }
+            }
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
     }
 
     setReadNotification = (notification) => {
@@ -194,17 +193,14 @@ class NavigationBar extends Component {
 
         UserService.setReadNotification(
             notification
-        )
-            .then(() => {
-
-            })
-            .catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-            });
+        ).then(() => {
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
     }
 
     setReadAllNotifcations = () => {
@@ -216,18 +212,16 @@ class NavigationBar extends Component {
 
         UserService.setReadNotifications(
             this.state.notifications
-        )
-            .then(() => {
-                // send request to reload notifications to user notifications page
-                socket.emit("requestReloadNotifications", AuthService.getCurrentUser().id);
-            })
-            .catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-            });
+        ).then(() => {
+            // send request to reload notifications to user notifications page
+            socket.emit("requestReloadNotifications", AuthService.getCurrentUser().id);
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
     }
 
     countPanelOpenTime = () => {
@@ -305,25 +299,32 @@ class NavigationBar extends Component {
                         </Button>
                     </Form>
                     <Navbar.Toggle aria-controls='basic-navbar-nav' />
-                    <Navbar.Collapse id='basic-navbar-nav'>
-                        <Nav className="nav">
-                            <Link className="navbar-text navbar-item" to="/trades" >My Trades</Link>
-                            <Link className="navbar-text navbar-item" to="/cart">My Cart</Link>
 
-                            {/* show user panel user is logged in */}
-                            {currentUser && (
-                                <Link className="navbar-text navbar-item" to="/user">User Panel</Link>
-                            )}
-                            {/* show admin panel fi user is admin */}
-                            {(currentUser && currentUser.isAdmin) && (
-                                <Link className="navbar-text navbar-item" to="/admin/index">Admin Panel</Link>
-                            )}
+                    <Navbar.Collapse id='basic-navbar-nav'>
+                        {AuthService.isLoggedIn() ? (
+                            <Nav className="nav">
+                                <Link className="navbar-text navbar-item" to="/user/trades" >My Trades</Link>
+                                <Link className="navbar-text navbar-item" to="/cart">My Cart</Link>
+
+                                {/* show user panel user is logged in */}
+                                {currentUser && (
+                                    <Link className="navbar-text navbar-item" to="/user">User Panel</Link>
+                                )}
+                                {/* show admin panel fi user is admin */}
+                                {(currentUser && currentUser.isAdmin) && (
+                                    <Link className="navbar-text navbar-item" to="/admin/index">Admin Panel</Link>
+                                )}
+                            </Nav>
+                        ) : (
+                            <Nav className="nav" />
+                        )}
+                        <Nav className="nav">
                         </Nav>
 
                         <Nav className="nav">
                             <Form id="search-form" method="GET" onSubmit={this.handleSearch}>
                                 <Input
-                                    id="search-bar"
+                                    id={AuthService.isLoggedIn() ? (AuthService.isAdmin() ? "search-bar-admin" : "search-bar") : "search-bar-not-logged-in"}
                                     name="keyword"
                                     value={this.state.search}
                                     onChange={(e) => this.onChangeSearch(e.target.value)}
@@ -341,47 +342,68 @@ class NavigationBar extends Component {
                                     <span className="badge">{this.state.unreadCount}</span>
                                 }
                             </Link>
-                            <div id="notification-panel">
-                                {/* display if there are notifications in list */}
-                                {this.state.notifications.length > 0 ? (
-                                    <div>
-                                        {/* loop through to list out the notifications */}
-                                        {this.state.notifications.map((notification, index) => (
-                                            <div key={index}>
-                                                {/* display up to 5 items */}
-                                                {index < 5 && (
-                                                    <Nav.Link
-                                                        href={notification.url}
-                                                        className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
-                                                        onClick={() => this.setReadNotification(notification)}
-                                                    >
-                                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }} />
-                                                        <div className="notification-date">{formatDate(notification.createdAt)}</div>
-                                                    </Nav.Link>
-                                                )}
-                                            </div>
-                                        ))}
-                                        {this.state.unreadList.length > 5 ? (
-                                            <Link to="/user/notifications#unread">
-                                                <div id="notification-view-more">
-                                                    View more unread notifications here
+                            {AuthService.isLoggedIn() ? (
+                                <div id="notification-panel">
+                                    {/* display if there are notifications in list */}
+                                    {this.state.notifications.length > 0 ? (
+                                        <div>
+                                            {/* loop through to list out the notifications */}
+                                            {this.state.notifications.map((notification, index) => (
+                                                <div key={index}>
+                                                    {/* display up to 5 items */}
+                                                    {index < 5 && (
+                                                        <Nav.Link
+                                                            href={notification.url}
+                                                            className={"notification-items " + (notification.read ? "notification-read" : "notification-unread")}
+                                                            onClick={() => this.setReadNotification(notification)}
+                                                        >
+                                                            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notification.message) }} />
+                                                            <div className="notification-date">{formatDate(notification.createdAt)}</div>
+                                                        </Nav.Link>
+                                                    )}
                                                 </div>
-                                            </Link>
-                                        ) : (
-                                            <Link to="/user/notifications">
-                                                <div id="notification-view-more">
-                                                    View more
-                                                </div>
-                                            </Link>
-                                        )}
+                                            ))}
+                                            {this.state.unreadList.length > 5 ? (
+                                                <Link to="/user/notifications#unread" className="notification-view-more">
+                                                    <div style={{ paddingBottom: '10px' }}>
+                                                        View more unread notifications here
+                                                    </div>
+                                                </Link>
+                                            ) : (
+                                                <Link to="/user/notifications" className="notification-view-more">
+                                                    <div style={{ paddingBottom: '10px' }}>
+                                                        View more
+                                                    </div>
+                                                </Link>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        // no notifications, display text
+                                        <div style={{ padding: '1em 2em', textAlign: 'center', marginTop: '7.25em' }}>
+                                            <h4>No notifications</h4>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div id="notification-panel">
+                                    <div style={{
+                                        padding: '1em 2em',
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle',
+                                        marginTop: '3em',
+                                    }}>
+                                        <h4>Please log in to see notifications</h4>
+                                        <hr />
+                                        <Link to="/login" className="notification-view-more">
+                                            Log in
+                                        </Link>
+                                        <hr />
+                                        <Link to="/signup" className="notification-view-more">
+                                            Sign up
+                                        </Link>
                                     </div>
-                                ) : (
-                                    // no notifications, display text
-                                    <div style={{ padding: '1em 2em', textAlign: 'center' }}>
-                                        <strong><h5>No Notifications</h5></strong>
-                                    </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </span>
 
                         {/* show username and logout button if logged in, otherwise, show log in and sign up buttons */}
@@ -441,7 +463,7 @@ class NavigationBar extends Component {
                                                 </button>
                                             </span>
                                         </NavDropdown.Item>
-                                        <NavDropdown.Divider />
+                                        {/* <NavDropdown.Divider />
                                         <NavDropdown.Item as={Link} to="#">
                                             <span to="#" id="username-text" className="text-white">
                                                 <button className="btn p-2 btn-primary nav-btn button-spec Nav-link">
@@ -455,7 +477,7 @@ class NavigationBar extends Component {
                                                     {google} Sign in with Google+
                                                 </button>
                                             </span>
-                                        </NavDropdown.Item>
+                                        </NavDropdown.Item> */}
                                     </NavDropdown>
                                 </span>
                             )}
