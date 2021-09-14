@@ -258,7 +258,7 @@ export default class ItemDetails extends Component {
                                         <h4><b>City:</b> {item.seller.location[0].replace("Thành phố ", "").replace("Tỉnh ", "")}</h4>
                                         <h4><b>District:</b> {item.seller.location[1].replace("Huyện ", "").replace("Quận ", "")}</h4>
                                     </div>
-                                    <Link to={"/trader/" + item.seller.username}>
+                                    <Link to={!this.props.obj ? "/trader/" + item.seller.username : "#"}>
                                         <button className="VisitUserPageBtn">Visit {item.seller.username}'s' page</button>
                                     </Link>
 
