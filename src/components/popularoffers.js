@@ -199,6 +199,7 @@ export default class PopularOffers extends Component {
                                     <p className="for">FOR</p>
                                     <p>{item.forItemName} / <b>{item.forItemQty}</b></p>
                                     <p><b>Offers</b>: {item.offers}</p>
+                                    <div style={{ textAlign: 'right', fontSize: '15px' }}>Location: {item.seller.location[0]}</div>
                                 </div>
                             </a>
                         ))}
