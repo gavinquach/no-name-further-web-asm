@@ -76,6 +76,9 @@ export default class Trades extends Component {
     }
 
     componentDidMount() {
+        if (AuthService.isRootAccount()) {
+            return;
+        }
         this.load();
     }
 
@@ -155,6 +158,23 @@ export default class Trades extends Component {
     }
 
     render() {
+        if (AuthService.isRootAccount()) {
+            return (
+                <div className="page-container my-profile">
+                    <Helmet>
+                        <title>Trades</title>
+                    </Helmet>
+                    <ProfileSideBar />
+                    <div className="profile-page">
+                        <div className="title">Trades</div>
+                        <hr className="section-line" />
+                        <div style={{ padding: '1em 2em', textAlign: 'center' }}>
+                            <h2>Root account can't make trades</h2>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
         const tradeStatuses = {
             PENDING: "Ongoing",
             WAITING_APPROVAL: "Waiting approval",
