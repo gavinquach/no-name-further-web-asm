@@ -25,6 +25,16 @@ class UserService {
         return axiosTokenHeader.get(API_URL + "users/user" + url);
     }
 
+    viewAdminsSortedByField(field, sort, page, limit) {
+        const url = `?field=${field}&sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "users/admin-sorted-by-field" + url);
+    }
+
+    viewUsersSortedByField(field, sort, page, limit) {
+        const url = `?field=${field}&sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "users/user-sorted-by-field" + url);
+    }
+
     viewOneUser(id) {
         return axiosTokenHeader.get(API_URL + "user/" + id);
     }

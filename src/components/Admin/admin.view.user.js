@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom'
 import { Helmet } from "react-helmet";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
-import UserTableRow from '../ViewUserTableRow';
 
 export default class AdminViewUser extends Component {
     constructor(props) {
@@ -12,6 +13,8 @@ export default class AdminViewUser extends Component {
         this.state = {
             users: [],
             sort: "none",
+            sortOrder: 0,
+            sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
             pageButtons: [],
@@ -105,37 +108,192 @@ export default class AdminViewUser extends Component {
         this.setState({ pageButtons: buttons });
     }
 
-    tableHeader = () => {
+    loadSortByField = (field, order) => {
+        UserService.viewUsersSortedByField(
+            field,
+            order == 0 ? 1 : order,
+            parseInt(new URLSearchParams(window.location.search).get('page')),
+            this.state.limit
+        ).then(response => {
+            this.setState({
+                totalPages: response.data.totalPages,
+                totalResults: response.data.totalResults,
+                users: response.data.users
+            }, () => this.loadPageButtons());
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
+    }
+
+    sort = (e) => {
+        let column = e.currentTarget.id;
+        let sortOrder = this.state.sortOrder;
+
+        // user is clicking onto another column
+        if (this.state.sortColumn != column) {
+            sortOrder = 1;
+        }
+        // user is clicking onto the same column
+        else {
+            // handle the cycle of ordering on user button click
+            if (this.state.sortOrder == 0) {
+                sortOrder = 1;
+            } else if (this.state.sortOrder == 1) {
+                sortOrder = -1;
+            } else if (this.state.sortOrder == -1) {
+                sortOrder = 0;
+                column = "";
+            }
+        }
+
+        let field = "_id";
+        switch (column) {
+            case "Username":
+                field = "username";
+                break;
+            case "Email":
+                field = "email";
+                break;
+            default:
+                field = "_id";
+        }
+
+        if (field == "_id" && (sortOrder == 0 || sortOrder == 1)) {
+            this.load();
+        } else {
+            this.loadSortByField(field, sortOrder);
+        }
+
+        // update sort column
+        this.setState({
+            sortColumn: column,
+            sortOrder: sortOrder
+        });
+    }
+
+    tableHeaders = () => {
+        let sortIcon = null;
+        if (this.state.sortColumn) {
+            if (this.state.sortOrder == 1) {
+                sortIcon = <FontAwesomeIcon className="SortIcon" icon={faAngleUp} />
+            } else if (this.state.sortOrder == -1) {
+                sortIcon = <FontAwesomeIcon className="SortIcon" icon={faAngleDown} />
+            }
+        }
+
+        const tableHeader = (str) => {
+            if (this.state.sortColumn == str) {
+                return (
+                    <th id={str} onClick={this.sort}>
+                        <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
+                    </th>
+                );
+            } else {
+                return (
+                    <th id={str} onClick={this.sort}>
+                        <div style={{ display: 'inline' }}>{str}</div>
+                    </th>
+                );
+            }
+        };
+
         const roles = AuthService.getRoles();
         if (roles.includes("ROLE_VIEW_USER") && !roles.includes("ROLE_EDIT_USER") && !roles.includes("ROLE_DELETE_USER")) {
             return (
                 <tr>
-                    <th>Username</th>
-                    <th>Email</th>
+                    {tableHeader("Username")}
+                    {tableHeader("Email")}
                 </tr>
             )
         } else if (!roles.includes("ROLE_VIEW_USER") && (roles.includes("ROLE_EDIT_USER") || roles.includes("ROLE_DELETE_USER"))) {
             return (
                 <tr>
-                    <th>Username</th>
+                    {tableHeader("Username")}
                     <th>Action</th>
                 </tr>
             )
         } else {
             return (
                 <tr>
-                    <th>Username</th>
-                    <th>Email</th>
+                    {tableHeader("Username")}
+                    {tableHeader("Email")}
                     <th>Action</th>
                 </tr>
             )
         }
     }
 
-    tabRow = () => {
-        return this.state.users.map(function (object, i) {
-            return <UserTableRow obj={object} key={i} />
-        });
+    tableRows = () => {
+        return this.state.users.map((object) => (
+            <tr key={object._id}>
+                <td>
+                    {object.username}
+                </td>
+                {(AuthService.isRoot() || AuthService.getRoles().includes("ROLE_VIEW_USER")) ?
+                    <td>{object.email}</td>
+                    : null}
+                {this.showButtons(object)}
+            </tr>
+        ));
+    }
+
+    delete = (object) => {
+        // admin isn't a user but just putting it here because why not...
+        if (object._id == AuthService.getCurrentUser().id) {
+            return window.alert("You can't delete yourself!");
+        }
+        if (window.confirm("Are you sure you want to delete user " + object.username + "?")) {
+            UserService.deleteUser(object._id)
+                .then((response) => {
+                    if (response.status == 200 || response.status == 201) {
+                        this.setState({
+                            message: response.data.message,
+                            successful: true
+                        });
+                        window.location.reload();
+                    } else {
+                        this.setState({
+                            message: response.data.message,
+                            successful: false
+                        });
+                    }
+                }).catch((error) => {
+                    if (error.response && error.response.status != 500) {
+                        this.setState({
+                            message: error.response.data.message,
+                            successful: false
+                        });
+                    } else {
+                        this.setState({
+                            message: `${error.response.status} ${error.response.statusText}`,
+                            successful: false
+                        });
+                    }
+                });
+        }
+    }
+
+    showButtons = (object) => {
+        const roles = AuthService.getRoles();
+        if (AuthService.isRoot() || roles.includes("ROLE_EDIT_USER") || roles.includes("ROLE_DELETE_USER")) {
+            return (
+                <td>
+                    {(AuthService.isRoot() || roles.includes("ROLE_EDIT_USER"))
+                        ? <Link to={`/admin/edit/user/${object._id}`} className="btn btn-primary ActionButton">Edit</Link>
+                        : null
+                    }
+
+                    {(AuthService.isRoot() || roles.includes("ROLE_DELETE_USER"))
+                        ? <button onClick={() => this.delete(object)} className="btn btn-danger ActionButton">Delete</button>
+                        : null
+                    }
+                </td>
+            )
+        }
     }
 
     render() {
@@ -170,12 +328,13 @@ export default class AdminViewUser extends Component {
                     <h3 id="results">Total: {this.state.totalResults}</h3>
                 </div>
                 <br />
-                <table className="container table table-striped" style={{ marginTop: 20 }}>
+                <br />
+                <table id="data-table" className="table">
                     <thead>
-                        {this.tableHeader()}
+                        {this.tableHeaders()}
                     </thead>
-                    <tbody id="table-data">
-                        {this.tabRow()}
+                    <tbody>
+                        {this.tableRows()}
                     </tbody>
                 </table>
                 <div className="page-buttons">

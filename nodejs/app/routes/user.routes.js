@@ -32,6 +32,18 @@ router.get("/users/user", [
     authJwt.canViewUsers
 ], controller.viewUsers);
 
+// View all admins sorted by field
+router.get("/users/admin-sorted-by-field", [
+    authJwt.verifyToken,
+    authJwt.canViewAdmins
+], controller.viewAdminsSortedByField);
+
+// View all non-admin users sorted by field
+router.get("/users/user-sorted-by-field", [
+    authJwt.verifyToken,
+    authJwt.canViewUsers
+], controller.viewUsersSortedByField);
+
 // get, edit, delete user with id as param
 router
     .route("/user/:id")

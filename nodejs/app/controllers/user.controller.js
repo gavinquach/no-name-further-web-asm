@@ -253,6 +253,109 @@ exports.viewUsers = async (req, res) => {
     }
 };
 
+exports.viewAdminsSortedByField = async (req, res) => {
+    // intialize 
+    let total = 0;
+    let adminRoles = [];
+    let admins = [];
+
+    // find all admin roles 
+    try {
+        adminRoles = await Role.find({ name: { $ne: "user" } })
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    let field = req.query.field;
+    let sort = req.query.sort;
+
+    try {
+        const features = new APIFeatures(
+            User.find({ roles: { $in: adminRoles } })
+                .sort({
+                    [field]: sort
+                })
+                .populate("roles", "-__v")
+                .populate("items", "-__v")
+                .populate("cart", "-__v")
+            , req.query);
+
+        //count retrieved total data before pagination
+        total = await User.countDocuments(features.query);
+
+        // paginating data
+        admins = await features.paginate().query;
+
+        if (!admins || admins.length < 1) return res.status(404).send({ message: "Admins not found." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+        res.status(200).json({
+            totalResults: total,
+            result: admins.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            admins: admins
+        });
+
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
+exports.viewUsersSortedByField = async (req, res) => {
+    // intialize
+    let total = 0;
+    let users = [];
+    let userRole = null;
+
+    // find all admin roles 
+    try {
+        userRole = await Role.find({ name: "user" });
+        if (!userRole) return res.status(404).send({ message: "User Role not found." });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    let field = req.query.field;
+    let sort = req.query.sort;
+
+    try {
+        const features = new APIFeatures(
+            User.find({ roles: { $in: userRole } })
+            .sort({
+                [field]: sort
+            })
+                .populate("roles", "-__v")
+                .populate("items", "-__v")
+                .populate("cart", "-__v")
+            , req.query);
+
+        //count retrieved total data before pagination
+        total = await User.countDocuments(features.query);
+
+        // paginating data
+        users = await features.paginate().query;
+
+        if (!users || users.length < 1) return res.status(404).send({ message: "Users not found in this page." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+        res.status(200).json({
+            totalResults: total,
+            result: users.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            users: users
+        });
+
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
 exports.viewOneUser = async (req, res) => {
     try {
         const user = await User.findById({ _id: req.params.id })
