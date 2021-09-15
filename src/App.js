@@ -56,53 +56,62 @@ export default class App extends Component {
         };
     }
 
+    logOut = () => {
+        AuthService.logout();
+        window.alert("Something went wrong. Please log in again!");
+        window.location.replace("/login");
+        return;
+    }
+
+    logOutExpiredToken = () => {
+        AuthService.logout();
+
+        // show alert when user gets logged out automatically due to expired token
+        window.alert("Login session expired, please log in again!");
+        window.location.replace("/login");
+        return;
+    }
+
     // check if user is in database or whether their data is altered
     // while they're still using the application and require re-login
     // to refresh the data in localStorage
     checkDataChange = async () => {
         if (localStorage.getItem("user") !== null) {
-            const currentUser = JSON.parse(localStorage.getItem('user'));
-            let user = null;
-
             try {
-                await UserService.viewOneUser(currentUser.id)
-                    .then(response => {
-                        user = response.data;
-                    }, error => {
-                        console.log(error);
-                        this.logout();
-                    })
-            } catch (err) {
-                console.log(err);
-            }
+                const currentUser = JSON.parse(localStorage.getItem('user'));
+                let user = null;
 
-            if (!user) {
+                await UserService.viewOneUser(currentUser.id)
+                    .then((response) => {
+                        user = response.data;
+                    });
+
+                if (!user) {
+                    this.logOut();
+                } else {
+                    if (user.username !== currentUser.username) {
+                        window.alert("Discrepancy in user data detected, please log in again!");
+                        this.logOut();
+                    }
+                    if (user.email !== currentUser.email) {
+                        window.alert("Discrepancy in user data detected, please log in again!");
+                        this.logOut();
+                    }
+                    if (user.phone !== currentUser.phone) {
+                        window.alert("Discrepancy in user data detected, please log in again!");
+                        this.logOut();
+                    }
+                    if (user.location[0] !== currentUser.location[0] || user.location[1] !== currentUser.location[1]) {
+                        this.logOut();
+                    }
+                }
+            } catch (error) {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
                 this.logOut();
-            } else {
-                if (user.username !== currentUser.username) {
-                    window.alert("Discrepancy in user data detected, please log in again!");
-                    this.logOut();
-                    window.location.reload();
-                    return;
-                }
-                if (user.email !== currentUser.email) {
-                    window.alert("Discrepancy in user data detected, please log in again!");
-                    this.logOut();
-                    window.location.reload();
-                    return;
-                }
-                if (user.phone !== currentUser.phone) {
-                    window.alert("Discrepancy in user data detected, please log in again!");
-                    this.logOut();
-                    window.location.reload();
-                    return;
-                }
-                if (user.location[0] !== currentUser.location[0] || user.location[1] !== currentUser.location[1]) {
-                    window.alert("Discrepancy in user data detected, please log in again!");
-                    this.logOut();
-                    window.location.reload();
-                    return;
-                }
             }
         }
     }
@@ -124,18 +133,9 @@ export default class App extends Component {
     }
 
     componentDidMount = () => {
-        this.authenticateSocket();
         this.checkDataChange();
+        this.authenticateSocket();
         this.updateNavBar();
-    }
-
-    logOut = () => {
-        AuthService.logout();
-
-        // show alert when user gets logged out automatically due to expired token
-        window.alert("Login session expired, please log in again!");
-        window.location.replace("/login");
-        return;
     }
 
     render = () => {
@@ -180,7 +180,7 @@ export default class App extends Component {
                     </Switch>
                     <Chat />
                     <Footer />
-                    <AuthVerify logOut={this.logOut} />
+                    <AuthVerify logOut={this.logOutExpiredToken} />
                 </Router>
             </div>
         );

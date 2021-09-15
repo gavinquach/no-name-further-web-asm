@@ -1,9 +1,17 @@
 import axios from "axios";
-
-const timeOut = 5000;  // server response wait time, set to 5 seconds
+import AuthService from './auth.service';
 
 const authHeaderToken = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (err) {
+        // console.log(err);
+        AuthService.logout();
+        window.alert("Something went wrong. Please log in again!");
+        window.location.replace("/login");
+        return;
+    }
 
     if (user && user.accessToken) {
         return { 'x-access-token': user.accessToken };
@@ -12,7 +20,16 @@ const authHeaderToken = () => {
     }
 }
 const authHeaderFormData = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (err) {
+        // console.log(err);
+        AuthService.logout();
+        window.alert("Something went wrong. Please log in again!");
+        window.location.replace("/login");
+        return;
+    }
 
     if (user && user.accessToken) {
         return {
@@ -23,6 +40,8 @@ const authHeaderFormData = () => {
         return {};
     }
 }
+
+const timeOut = 5000;  // server response wait time, set to 5 seconds
 
 export const axiosTokenHeader = axios.create({
     timeout: timeOut,
