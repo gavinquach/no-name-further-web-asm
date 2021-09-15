@@ -44,6 +44,8 @@ import AdminCreateAdmin from './components/Admin/admin.create.admin';
 import AdminCreateUser from './components/Admin/admin.create.user';
 import AdminEditAdmin from './components/Admin/admin.edit.admin';
 import AdminEditUser from './components/Admin/admin.edit.user';
+import AdminViewUserTrades from './components/Admin/admin.view.user.trades';
+import AdminViewUserItems from './components/Admin/admin.view.user.items';
 
 export default class App extends Component {
     constructor(props) {
@@ -172,6 +174,8 @@ export default class App extends Component {
                         <AdminProtectedRoute exact path='/admin/create/user' component={AdminCreateUser} />
                         <AdminProtectedRoute path='/admin/edit/admin/:id' component={AdminEditAdmin} />
                         <AdminProtectedRoute path='/admin/edit/user/:id' component={AdminEditUser} />
+                        <AdminProtectedRoute exact path='/admin/view/user/trades' component={AdminViewUserTrades} />
+                        <AdminProtectedRoute exact path='/admin/view/user/items' component={AdminViewUserItems} />
                         <Route component={NotFound} />
                     </Switch>
                     <Chat />

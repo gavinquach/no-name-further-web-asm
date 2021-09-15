@@ -107,11 +107,12 @@ class TradeService {
     getTrade(id) {
         return axiosTokenHeader.get(API_URL + "trade/" + id);
     }
-    getAllTrades() {
-        return axiosTokenHeader.get(API_URL + "trades");
+    getAllTrades(sort, page, limit) {
+        const url = `?sort=${sort}&page=${page}&limit=${limit}`;
+        return axiosTokenHeader.get(API_URL + "trades" + url);
     }
     getTradesByBuyer(userid, status, sort, page, limit) {
-        const url = `${userid}?status=${status}&sort=${sort}&page=${page}&limit=${limit}`
+        const url = `${userid}?status=${status}&sort=${sort}&page=${page}&limit=${limit}`;
         return axiosTokenHeader.get(API_URL + "trades/buyer/" + url);
     }
     getTradesBySeller(userid) {
@@ -121,7 +122,7 @@ class TradeService {
         return axiosTokenHeader.get(API_URL + "trades/item/" + itemid);
     }
     getUserTrades(userid, status, sort, page, limit) {
-        const url = `${userid}?status=${status}&sort=${sort}&page=${page}&limit=${limit}`
+        const url = `${userid}?status=${status}&sort=${sort}&page=${page}&limit=${limit}`;
         return axiosTokenHeader.get(API_URL + "trades/user/" + url);
     }
 

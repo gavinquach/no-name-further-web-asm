@@ -416,12 +416,11 @@ exports.getAllItems = async (req, res) => {
         }
 
         res.status(200).json({
+            totalResults: total,
             result: items.length,
             totalPages: Math.ceil(total / features.queryString.limit),
             items: items
         });
-
-
     } catch (err) {
         return res.status(500).send(err);
     }

@@ -342,3 +342,18 @@
   color: white;
   background-color: rgba(125, 139, 17, 0.8);
 }
+
+.ResultsAndSort {
+    display: flex;
+    margin-bottom: -2em;
+}
+
+#results {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+#select-sort {
+    margin-left: auto;
+    margin-right: 0;
+}

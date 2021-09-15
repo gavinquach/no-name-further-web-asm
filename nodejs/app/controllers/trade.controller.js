@@ -49,43 +49,64 @@ exports.getTrade = async (req, res) => {
 // Get all trades
 exports.getAllTrades = async (req, res) => {
     let trades = [];
+    let total = 0;
+
     try {
-        trades = await Trade.find()
-            .populate("user_seller", "-__v")
-            .populate("user_buyer", "-__v")
-            .populate("item", "-__v")
-            .populate("cancel_user", "-__v")
-            .exec();
+        const features = new APIFeatures(
+            Trade.find()
+                .populate("user_seller", "-__v")
+                .populate("user_buyer", "-__v")
+                .populate("item", "-__v")
+                .populate("cancel_user", "-__v")
+            , req.query)
+            .sort();
+
+        //count retrieved total data before pagination
+        total = await Trade.countDocuments(features.query);
+
+        // paginating data
+        trades = await features.paginate().query;
+
+        if (!trades || trades.length < 1) return res.status(404).send({ message: "Trades not found." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+        // set trade to expired if expiration date is before or equal to current date
+        for (const trade of trades) {
+            if (trade.status != "PENDING" && trade.status != "WAITING_APPROVAL") continue;
+            if (trade.expiration_date <= new Date()) {
+                let item = null;
+                try {
+                    item = await Item.findById(trade.item).exec();
+                } catch (err) {
+                    return res.status(500).send(err);
+                }
+                if (!item) return res.status(404).send({ message: "Item not found." });
+
+                // remove 1 from offers in item model
+                item.offers -= 1;
+
+                try {
+                    await item.save();
+                    trade.status = "EXPIRED";
+                    await trade.save();
+                } catch (err) {
+                    return res.status(500).send(err);
+                }
+            }
+        }
+
+        res.status(200).json({
+            totalResults: total,
+            result: trades.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            trades: trades
+        });
     } catch (err) {
         return res.status(500).send(err);
     }
-    if (trades.length < 1) return res.status(404).send({ message: "Trades not found." });
-
-    // set trade to expired if expiration date is before or equal to current date
-    for (const trade of trades) {
-        if (trade.status != "PENDING" && trade.status != "WAITING_APPROVAL") continue;
-        if (trade.expiration_date <= new Date()) {
-            let item = null;
-            try {
-                item = await Item.findById(trade.item).exec();
-            } catch (err) {
-                return res.status(500).send(err);
-            }
-            if (!item) return res.status(404).send({ message: "Item not found." });
-
-            // remove 1 from offers in item model
-            item.offers -= 1;
-
-            try {
-                await item.save();
-                trade.status = "EXPIRED";
-                await trade.save();
-            } catch (err) {
-                return res.status(500).send(err);
-            }
-        }
-    }
-    res.json(trades);
 };
 
 // Get trades by buyer id
