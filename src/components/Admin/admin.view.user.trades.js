@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
@@ -31,6 +33,7 @@ export default class AdminViewUserTrades extends Component {
             trades: [],
             successful: false,
             message: "",
+            sortOrder: 0,
             sort: "none",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
@@ -132,25 +135,36 @@ export default class AdminViewUserTrades extends Component {
     }
 
     showListings = () => {
+        const sortIcon = (
+            <FontAwesomeIcon
+                className="SortIcon"
+                icon={this.state.sortOrder == 1
+                    ? faAngleUp
+                    : this.state.sortOrder == -1 && faAngleDown} />
+        );
+        const tableHeader = (str) => (
+            <th onClick={this.sort}>{str} {sortIcon}</th>
+        );
+
         return (
-            <table className="container table table-striped">
+            <table id="data-table" className="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Owner</th>
-                        <th>Owner item</th>
-                        <th>Trader</th>
-                        <th>Trader item</th>
-                        <th>Location (from)</th>
-                        <th>Location (to)</th>
-                        <th>Created date</th>
-                        <th>Update date</th>
-                        <th>Completion date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        {tableHeader("ID")}
+                        {tableHeader("Owner")}
+                        {tableHeader("Owner item")}
+                        {tableHeader("Trader")}
+                        {tableHeader("Trader item")}
+                        {tableHeader("Location (from)")}
+                        {tableHeader("Location (to)")}
+                        {tableHeader("Created date")}
+                        {tableHeader("Update date")}
+                        {tableHeader("Completion date")}
+                        {tableHeader("Status")}
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="table-data">
+                <tbody>
                     {this.state.trades.map((object) => (
                         <tr key={object._id}>
                             <td style={{ maxWidth: '6em', wordWrap: 'break-word' }}>{object._id}</td>
@@ -165,21 +179,22 @@ export default class AdminViewUserTrades extends Component {
                             <td>{object.finalization_date ? formatDate(object.finalization_date) : "None"}</td>
                             <td>{object.status}</td>
                             <td>
-                                <Link to={`/user/edit/trade/${object._id}`} className="btn btn-primary">Edit</Link>
-                                <span style={{ paddingRight: '1.5em' }} />
-                                <button key={object._id.toString() + "-cancel"} onClick={() => this.cancel(object)} className="btn btn-warning" style={{ color: 'white' }}>Cancel</button>
-                                <button key={object._id.toString() + "-delete"} onClick={() => this.delete(object)} className="btn btn-danger">Delete</button>
+                                <Link to={`/trade/${object._id}`} className="btn btn-info ActionButton">Visit</Link>
+                                <Link to={`/user/edit/trade/${object._id}`} className="btn btn-primary ActionButton">Edit</Link>
+                                <button key={object._id.toString() + "-cancel"} onClick={() => this.cancel(object)} className="btn btn-warning ActionButton">Cancel</button>
+                                <button key={object._id.toString() + "-delete"} onClick={() => this.delete(object)} className="btn btn-danger ActionButton">Delete</button>
 
                                 {this.state.message && (
                                     <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
                                         {this.state.message}
-                                    </div>)}
+                                    </div>
+                                )}
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-        )
+        );
     }
 
     displayCreateItem = () => {
@@ -277,7 +292,8 @@ export default class AdminViewUserTrades extends Component {
                     <h3 id="results">Total: {this.state.totalResults}</h3>
                 </div>
                 <br />
-                <div className="menu white-container">
+                <br />
+                <div className="white-container">
                     {this.state.trades.length == 0 ? this.displayCreateItem() : this.showListings()}
                 </div>
                 <div className="page-buttons">

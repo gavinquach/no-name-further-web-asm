@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
@@ -14,6 +16,7 @@ export default class AdminViewUserItems extends Component {
             items: [],
             successful: false,
             message: "",
+            sortOrder: 0,
             sort: "none",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
@@ -82,22 +85,42 @@ export default class AdminViewUserItems extends Component {
         }
     }
 
+    sort = (column, order) => {
+        const orders = ["ascending", "asc", "descending", "desc"];
+        if (!orders.includes(order)) {
+
+        }
+    }
+
     showListings = () => {
+        const sortIcon = (
+            <FontAwesomeIcon
+                className="SortIcon"
+                icon={this.state.sortOrder == 1
+                    ? faAngleUp
+                    : this.state.sortOrder == -1 && faAngleDown} />
+        );
+        const tableHeader = (str) => (
+            <th onClick={this.sort}>
+                <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
+            </th>
+        );
+
         return (
-            <table className="container table table-striped">
+            <table id="data-table" className="table">
                 <thead>
                     <tr>
-                        <th>Owner</th>
-                        <th>Name</th>
-                        <th>Quantity</th>
-                        <th>Type</th>
-                        <th>For item name</th>
-                        <th>For item quantity</th>
-                        <th>For item type</th>
+                        {tableHeader("Owner")}
+                        {tableHeader("Name")}
+                        {tableHeader("Quantity")}
+                        {tableHeader("Type")}
+                        {tableHeader("For item name")}
+                        {tableHeader("For item quantity")}
+                        {tableHeader("For item type")}
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="table-data">
+                <tbody>
                     {this.state.items.map((object) => (
                         <tr key={object._id}>
                             <td>{object.seller.username}</td>
@@ -108,20 +131,21 @@ export default class AdminViewUserItems extends Component {
                             <td>{object.forItemQty}</td>
                             <td>{object.forItemType.name}</td>
                             <td>
-                                <Link to={`/user/edit/item/${object._id}`} className="btn btn-primary">Edit</Link>
-                                <span style={{ paddingRight: '1.5em' }} />
-                                <button key={object._id.toString() + "-delete"} onClick={() => this.delete(object)} className="btn btn-danger">Delete</button>
+                                <Link to={`/item/${object._id}`} className="btn btn-info ActionButton">Visit</Link>
+                                <Link to={`/user/edit/item/${object._id}`} className="btn btn-primary ActionButton">Edit</Link>
+                                <button key={object._id.toString() + "-delete"} onClick={() => this.delete(object)} className="btn btn-danger ActionButton">Delete</button>
 
                                 {this.state.message && (
                                     <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
                                         {this.state.message}
-                                    </div>)}
+                                    </div>
+                                )}
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-        )
+        );
     }
 
     displayCreateItem = () => {
@@ -219,7 +243,8 @@ export default class AdminViewUserItems extends Component {
                     <h3 id="results">Total: {this.state.totalResults}</h3>
                 </div>
                 <br />
-                <div className="menu white-container">
+                <br />
+                <div className="white-container">
                     {this.state.items.length == 0 ? this.displayCreateItem() : this.showListings()}
                 </div>
                 <div className="page-buttons">
