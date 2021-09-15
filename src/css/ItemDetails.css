@@ -1,237 +1,285 @@
-.ItemDetailsContainer {
-  width: 90em;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.add-to-cart {
-  color: white;
-  text-transform: uppercase;
-  font-weight: 500;
-  padding: 0.8rem 3.2rem;
-  border-radius: 3px;
-  background-color: rgb(167, 81, 0);
-  border: none;
-  outline: none;
-  width: 15em;
-  height: 3em;
-}
-
-.add-to-cart:hover {
-  background-color: rgb(124, 60, 0);
-}
-
-.request-trade {
-  color: white;
-  text-transform: uppercase;
-  font-weight: 500;
-  padding: 0.8rem 3.2rem;
-  border-radius: 3px;
-  background-color: rgb(25, 167, 0);
-  border: none;
-  outline: none;
-  width: 15em;
-  height: 3em;
-}
-/* make button slightly darker when hovering mouse over */
-
-.request-trade:hover {
-  background-color: rgb(60, 105, 0);
-}
-
-.statusMsg {
-  margin-top: 1em;
-  width: 15em;
-  text-align: center;
-}
-
-.delete-item-btn {
-  background-color: #fc6969;
-  border: none;
-  color: white;
-  padding: 7px 16px;
-  text-align: center;
-  text-decoration: none;
-  display: flex;
-  float: right;
-  font-size: 15px;
-  border-radius: 5%;
-}
-
-/* CAROUSEL */
-.carousel {
-  width: 1280px;
-  height: 720px;
-  margin-bottom: 5em;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  vertical-align: middle;
-  background-color: lightgrey;
-  border-radius: 1em;
-  box-shadow: 0px 5px 5px rgb(124, 124, 124)
-}
-
-.CarouselImage {
-  height: 720px;
-}
-
-.carousel-indicators {
-  margin-bottom: 1em;
-}
-
-.carousel-indicators button {
-  width: 1em;
-  height: 1em;
-  margin-right: 12px;
-  border-radius: 50%;
-  border: none;
-  outline: none;
-  box-shadow: 0px 0px 3px black;
-  background-color: white;
-}
-
-.carousel-indicators .active {
-  background-color: black;
-}
-
-/* carousel indicator text */
-.carousel-control-prev .visually-hidden,
-.carousel-control-next .visually-hidden {
-  display: none;
-}
-
-.carousel-control-prev, .carousel-control-next {
-  color: black;
-  width: 5%;
-  background-color: none;
-  visibility: hidden;
-}
-
-.carousel-control-prev {
-  margin-left: -5em;
-}
-
-.carousel-control-next {
-  margin-right: -5em;
-}
-
-/* carousel move left button */
-.carousel-control-prev-icon {
-  visibility: visible;
-  /* make icon black, code from stackoverflow, source: https://stackoverflow.com/a/49017805 */
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
-}
- 
-/* carousel move right button */
-.carousel-control-next-icon {
-  visibility: visible;
-  /* make icon black, code from stackoverflow, source: https://stackoverflow.com/a/49017805 */
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
-}
-
-.divide {
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 0.05em;
-}
-
-.UserDetails {
-  display: flex;
-}
-
-#avatar {
-  font-size: 5em;
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
-.avatar-image {
-  vertical-align: middle;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  margin-left: 2.8em;
-  margin-top: 0.8em;
-}
-
-.NameLocation {
-  margin-left: 2em;
-}
-
-.ChatWithUser {
-  border: none;
-  background-color: rgb(53, 73, 0);
-  border-radius: 5px;
-  color: white;
-  font-size: 18px;
-  font-weight: 400;
-  margin-left: 3em;
-  margin-top: auto;
-  margin-bottom: auto;
-  padding: 0.75em 1em;
-}
-
-#date-text-container {
-  margin-bottom: 1em;
-  font-size: 14px;
-}
-
-#details-section {
-  font-size: 18px;
-}
-
-#want-to-trade-text {
-  font-size: 24px;
-}
-
-.TypeQuantityContainer {
-  display: flex;
-  font-size: 20px;
-}
-
-.Column {
-  margin-right: 2em;
-}
-
-.SeparateLine {
-    height: 5em;
-    width: 0;
-    border: 1px solid black;
-    margin-right: 2em;
-}
-
-.DetailsRightColumn {
-  width: 30%;
-}
-
-.ItemStats {
-  font-size: 20px;
-}
-
-.ActionButtons {
-  margin-top: 5em;
-}
-
-.SectionHeader {
-  font-size: 32px;
-  padding: 12px 24px;
-  background-color: rgba(0, 0, 0, 0.05);
-  width: 95%;
-}
-
-.Description {
-  padding: 12px 24px;
-}
-
-.VisitUserPageBtn {
-  border: none;
-  background-color: rgb(29, 70, 253);
-  border-radius: 5px;
-  color: white;
-  font-size: 18px;
-  font-weight: 400;
-  margin-top: 1.75em;
-  margin-left: 3em;
-  padding: 0.75em 1em;
-  outline: none;
-}
+    .ItemDetailsContainer {
+        width: auto;
+    }
+    
+    .add-to-cart {
+        color: white;
+        text-transform: uppercase;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 10px;
+        border-radius: 3px;
+        background-color: rgb(167, 81, 0);
+        border: none;
+        outline: none;
+        width: 15em;
+        height: 3em;
+    }
+    
+    .add-to-cart:hover {
+        background-color: rgb(124, 60, 0);
+    }
+    
+    .request-trade {
+        color: white;
+        text-transform: uppercase;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 10px;
+        border-radius: 3px;
+        background-color: rgb(25, 167, 0);
+        border: none;
+        outline: none;
+        width: 15em;
+        height: 3em;
+    }
+    /* make button slightly darker when hovering mouse over */
+    
+    .request-trade:hover {
+        background-color: rgb(60, 105, 0);
+    }
+    
+    .statusMsg {
+        margin-top: 1em;
+        width: 15em;
+        text-align: center;
+    }
+    
+    .delete-item-btn {
+        background-color: #fc6969;
+        border: none;
+        color: white;
+        padding: 7px 16px;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        float: right;
+        font-size: 15px;
+        border-radius: 5%;
+    }
+    /* CAROUSEL */
+    
+    .carousel {
+        width: 80vw;
+        height: 50vw;
+        margin-bottom: 20em;
+        margin: auto;
+        text-align: center;
+        vertical-align: middle;
+        background-color: lightgrey;
+        border-radius: 1em;
+        box-shadow: 0px 5px 5px rgb(124, 124, 124)
+    }
+    
+    .CarouselImage {
+        height: auto;
+    }
+    
+    .carousel-indicators {
+        margin-bottom: 1em;
+    }
+    
+    .carousel-indicators button {
+        width: 1em;
+        height: 1em;
+        margin-right: 12px;
+        border-radius: 50%;
+        border: none;
+        outline: none;
+        box-shadow: 0px 0px 3px black;
+        background-color: white;
+    }
+    
+    .carousel-indicators .active {
+        background-color: black;
+    }
+    /* carousel indicator text */
+    
+    .carousel-control-prev .visually-hidden,
+    .carousel-control-next .visually-hidden {
+        display: none;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        color: black;
+        width: 5%;
+        background-color: none;
+        visibility: hidden;
+    }
+    
+    .carousel-control-prev {
+        margin-left: -1em;
+    }
+    
+    .carousel-control-next {
+        margin-right: -1em;
+    }
+    /* carousel move left button */
+    
+    .carousel-control-prev-icon {
+        visibility: visible;
+        /* make icon black, code from stackoverflow, source: https://stackoverflow.com/a/49017805 */
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+    }
+    /* carousel move right button */
+    
+    .carousel-control-next-icon {
+        visibility: visible;
+        /* make icon black, code from stackoverflow, source: https://stackoverflow.com/a/49017805 */
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+    }
+    
+    .divide {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 0.05em;
+    }
+    
+    .UserDetails {
+        display: flex;
+        width: 90%;
+        margin: 30px 40px
+    }
+    
+    #avatar {
+        font-size: 5vw;
+        margin: auto 10px;
+    }
+    
+    .avatar-image {
+        vertical-align: middle;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+    }
+    
+    .NameLocation {
+        margin: auto 30px;
+    }
+    
+    .UserButton {
+        margin: auto 30px;
+    }
+    
+    #date-text-container {
+        margin-bottom: 1em;
+        font-size: 14px;
+    }
+    
+    #details-section {
+        font-size: 18px;
+    }
+    
+    #want-to-trade-text {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .TypeQuantityContainer {
+        width: 100%;
+        font-size: 20px;
+    }
+    
+    .Column {
+        margin-right: 2em;
+    }
+    
+    .SeparateLine {
+        height: 5em;
+        width: 0;
+        border: 1px solid black;
+        margin-right: 2em;
+    }
+    
+    .DetailsRightColumn {
+        width: 30%;
+    }
+    
+    .ItemStats {
+        font-size: 20px;
+        padding-top: 10px;
+    }
+    
+    .ActionButtons {
+        margin-top: 4em;
+    }
+    
+    .SectionHeader {
+        font-size: 32px;
+        padding: 12px 24px;
+        background-color: rgba(0, 0, 0, 0.05);
+        width: 95%;
+    }
+    
+    .Description {
+        margin: auto;
+    }
+    
+    .ChatWithUser {
+        border: none;
+        background-color: rgb(53, 73, 0);
+        border-radius: 5px;
+        color: white;
+        font-size: 15px;
+        font-weight: 400;
+        padding: 0.75em 1em;
+        margin: 5px 10px;
+    }
+    
+    .VisitUserPageBtn {
+        border: none;
+        width: 129px;
+        background-color: rgb(29, 70, 253);
+        border-radius: 5px;
+        color: white;
+        font-size: 15px;
+        font-weight: 400;
+        padding: 0.75em 1em;
+        outline: none;
+        margin: 5px 10px;
+    }
+    
+    @media screen and (max-width: 660px) {
+        .UserDetails {
+            margin: 30px 10px;
+        }
+        .NameLocation {
+            margin: auto 10px;
+            font-size: 12px;
+        }
+        #avatar {
+            width: 40px;
+            height: 40px
+        }
+        #want-to-trade-text {
+            font-size: 12px;
+        }
+        .SectionHeader {
+            font-size: 14px;
+        }
+        #date-text-container {
+            font-size: 8px;
+        }
+        .ItemStats {
+            font-size: 12px;
+        }
+        .Description,
+        .TypeQuantityContainer {
+            font-size: 9px;
+        }
+        .ActionButtons {
+            margin-top: 2em;
+        }
+        .add-to-cart {
+            font-size: 10px;
+            width: 10em;
+            height: 3em;
+            padding: 5px
+        }
+        .request-trade {
+            font-size: 10px;
+            width: 10em;
+            height: 3em;
+            padding: 5px
+        }
+    }

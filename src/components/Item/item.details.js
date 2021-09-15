@@ -13,7 +13,7 @@ import socket from '../../services/socket';
 
 import { Row, Carousel, Col } from "react-bootstrap";
 
-import PopularOffers from "../popularoffers";
+import Offers from "../Item/item.offers";
 
 import "../../css/ItemDetails.css"
 import { Link } from "react-router-dom";
@@ -203,7 +203,7 @@ export default class ItemDetails extends Component {
             );
         }
         return (
-            <div>
+            <div className="page-container" >
                 {this.state.notfound && (
                     <span style={{ textAlign: 'center' }}>
                         <Helmet>
@@ -248,25 +248,25 @@ export default class ItemDetails extends Component {
                                     )
                                 })}
                             </Carousel>
-                            <Row>
-                                <Col className="UserDetails">
+                                <div className="UserDetails">
                                     {/* <img className="avatar-image" src="" alt="User avatar" /> */}
                                     <FontAwesomeIcon icon={faUserCircle} id="avatar" />
 
                                     <div className="NameLocation">
-                                        <h2>{item.seller.username}</h2>
-                                        <h4><b>City:</b> {item.seller.location[0].replace("Thành phố ", "").replace("Tỉnh ", "")}</h4>
-                                        <h4><b>District:</b> {item.seller.location[1].replace("Huyện ", "").replace("Quận ", "")}</h4>
+                                        <div>{item.seller.username}</div>
+                                        <div><b>City:</b> {item.seller.location[0].replace("Thành phố ", "").replace("Tỉnh ", "")}</div>
+                                        <div><b>District:</b> {item.seller.location[1].replace("Huyện ", "").replace("Quận ", "")}</div>
                                     </div>
+                                    <div className ="UserButton">
                                     <Link to={!this.props.obj ? "/trader/" + item.seller.username : "#"}>
-                                        <button className="VisitUserPageBtn">Visit {item.seller.username}'s' page</button>
+                                        <button className="VisitUserPageBtn">Visit</button>
                                     </Link>
 
                                     {(!this.state.selfItem) && (
                                         <button className="ChatWithUser" onClick={!this.props.obj && this.chatWithUser}>Chat with user</button>
                                     )}
-                                </Col>
-                            </Row>
+                                    </div>
+                                </div>
                             <hr className="divide" />
                             <div className="Flexbox-container">
                                 <div style={{ width: '70%' }}>
@@ -286,38 +286,38 @@ export default class ItemDetails extends Component {
                                         <div id="want-to-trade-text">
                                             I want to trade <b>{item.name}</b> with <b>{item.forItemName}</b>
                                         </div>
-
-                                        <br />
-
-                                        <div className="TypeQuantityContainer">
-                                            <div style={{ marginRight: '30px' }}>
-                                                <br />
-                                                <div><b>Category:</b></div>
-                                                <div><b>Quantity:</b></div>
-                                            </div>
-                                            <div className="Column">
-                                                My item:
-                                                <div>
+                                        <table className="TypeQuantityContainer">
+                                            <tr>
+                                                <th></th>
+                                                <th>My Item:</th>
+                                                <th> Item I Want:</th>
+                                            </tr>
+                                            <tr>
+                                                <th><b>Category:</b></th>
+                                                <td>
                                                     {!this.props.obj
                                                         ? item.type.name
                                                         : item.type
                                                     }
-                                                </div>
-                                                <div>{item.quantity}</div>
-                                            </div>
-                                            <div className="SeparateLine" />
-                                            <div className="Column">
-                                                Item I want:
-                                                <div>
+                                                </td>
+                                                <td>
                                                     {!this.props.obj
                                                         ? item.forItemType.name
                                                         : item.forItemType
                                                     }
-                                                </div>
-                                                <div>{item.forItemQty}</div>
-                                            </div>
-                                        </div>
-                                        <br />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><b>Quantity:</b></th>
+                                                <td>
+                                                {item.quantity}
+                                                </td>
+                                                <td>
+                                                {item.forItemQty}
+                                                </td>
+                                            </tr>
+                                        </table>
+
                                         <hr />
                                         <div>
                                             <h2 className="SectionHeader">Description</h2>
@@ -363,7 +363,7 @@ export default class ItemDetails extends Component {
                             <br /><br /><br />
                             <hr className="divide" />
                             {!this.props.obj && (
-                                <PopularOffers obj={true} />
+                                <Offers obj={true} />
                             )}
                         </div>
                     </span>
