@@ -230,6 +230,7 @@ export default class Trades extends Component {
                     <div className="page-buttons">
                         {this.state.pageButtons}
                     </div>
+                    <br />
 
                     {this.state.trades.length > 0 ? (
                         <span>

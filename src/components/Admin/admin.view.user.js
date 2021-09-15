@@ -166,6 +166,10 @@ export default class AdminViewUser extends Component {
                 </Helmet>
                 <h1 className="title">View Users</h1>
                 <hr className="section-line" />
+                <div className="ResultsAndSort">
+                    <h3 id="results">Total: {this.state.totalResults}</h3>
+                </div>
+                <br />
                 <table className="container table table-striped" style={{ marginTop: 20 }}>
                     <thead>
                         {this.tableHeader()}

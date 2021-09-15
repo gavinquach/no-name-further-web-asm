@@ -126,7 +126,7 @@ export default class AdminTableRow extends Component {
 
     render() {
         return (
-            <tr>
+            <tr key={this.props.obj._id}>
                 <td>
                     {this.props.obj.username}
                 </td>

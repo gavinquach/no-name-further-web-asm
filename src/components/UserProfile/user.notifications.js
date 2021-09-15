@@ -186,7 +186,7 @@ export default class Notifications extends Component {
             const pageURL = url.pathname + "?" + search_params.toString();
             this.props.history.push(pageURL);
         });
-        
+
         // set timer because hash is undefined in URL if retrieved too early
         setTimeout(() => {
             this.load();
@@ -361,6 +361,7 @@ export default class Notifications extends Component {
                             <div className="page-buttons">
                                 {this.state.pageButtons}
                             </div>
+                            <br />
                             <div className="MarkNotifications">
                                 <div className="NotificationTypesRow">
                                     <div className="MarkNotificationsCell" onClick={this.setNotificationsToRead}>

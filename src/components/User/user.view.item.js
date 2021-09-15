@@ -214,6 +214,10 @@ export default class UserViewItem extends Component {
                 </Helmet>
                 <div className="title">Listings</div>
                 <hr className="section-line" />
+                <div className="ResultsAndSort">
+                    <h3 id="results">Total: {this.state.totalResults}</h3>
+                </div>
+                <br />
                 <div className="menu white-container">
                     {this.state.items.length == 0 ? this.displayCreateItem() : this.showListings()}
                 </div>
