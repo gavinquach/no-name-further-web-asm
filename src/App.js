@@ -57,17 +57,16 @@ export default class App extends Component {
     }
 
     logOut = () => {
-        AuthService.logout();
         window.alert("Something went wrong. Please log in again!");
+        AuthService.logout();
         window.location.replace("/login");
         return;
     }
 
     logOutExpiredToken = () => {
-        AuthService.logout();
-
         // show alert when user gets logged out automatically due to expired token
         window.alert("Login session expired, please log in again!");
+        AuthService.logout();
         window.location.replace("/login");
         return;
     }
@@ -90,15 +89,12 @@ export default class App extends Component {
                     this.logOut();
                 } else {
                     if (user.username !== currentUser.username) {
-                        window.alert("Discrepancy in user data detected, please log in again!");
                         this.logOut();
                     }
                     if (user.email !== currentUser.email) {
-                        window.alert("Discrepancy in user data detected, please log in again!");
                         this.logOut();
                     }
                     if (user.phone !== currentUser.phone) {
-                        window.alert("Discrepancy in user data detected, please log in again!");
                         this.logOut();
                     }
                     if (user.location[0] !== currentUser.location[0] || user.location[1] !== currentUser.location[1]) {
