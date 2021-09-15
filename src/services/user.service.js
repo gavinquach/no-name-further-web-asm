@@ -10,16 +10,19 @@ class UserService {
         return axiosTokenHeader.post(API_URL + "user", user);
     }
 
-    viewAllUsers() {
-        return axiosTokenHeader.get(API_URL + "users");
+    viewAllUsers(sort, page, limit) {
+        const url = `?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "users" + url);
     }
 
-    viewAdmins() {
-        return axiosTokenHeader.get(API_URL + "users/admin");
+    viewAdmins(sort, page, limit) {
+        const url = `?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "users/admin" + url);
     }
 
-    viewUsers() {
-        return axiosTokenHeader.get(API_URL + "users/user");
+    viewUsers(sort, page, limit) {
+        const url = `?sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "users/user" + url);
     }
 
     viewOneUser(id) {

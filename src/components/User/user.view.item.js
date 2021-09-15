@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Link, Redirect } from 'react-router-dom'
-import { Helmet } from "react-helmet";
+import { Link, Redirect } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
@@ -13,54 +13,66 @@ export default class UserViewItem extends Component {
         this.state = {
             items: [],
             successful: false,
-            message: ""
+            message: "",
+            sort: "none",
+            currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
+            totalPages: 0,
+            pageButtons: [],
+            limit: 10,
+            totalResults: 0
         }
     }
 
     load = () => {
         UserService.viewUserItems(
-            AuthService.getCurrentUser().id
+            AuthService.getCurrentUser().id,
+            this.state.sort,
+            parseInt(new URLSearchParams(window.location.search).get('page')),
+            this.state.limit
         ).then(response => {
-            // console.log(response.data);
-            this.setState({ items: response.data.items });
+            this.setState({
+                totalPages: response.data.totalPages,
+                totalResults: response.data.totalResults,
+                items: response.data.items
+            }, () => this.loadPageButtons());
         }).catch((error) => {
             if (error.response && error.response.status != 500) {
                 console.log(error.response.data.message);
             } else {
                 console.log(error);
             }
-        })
+        });
     }
 
     componentDidMount() {
         window.scrollTo(0, 0); // automatically scroll to top
-        this.load();
+        if (new URLSearchParams(window.location.search).get('page')) {
+            this.load();
+        }
     }
 
     delete = (item) => {
         if (window.confirm("Are you sure you want to delete listing " + item.name + "?")) {
             ItemService.deleteItem(item._id)
-                .then(
-                    response => {
-                        this.setState({
-                            message: response.data.message,
-                            successful: true
-                        });
-                        window.location.reload();
-                    },
-                    error => {
-                        const resMessage =
-                            (error.response &&
-                                error.response.data &&
-                                error.response.data.message) ||
-                            error.message ||
-                            error.toString();
+                .then(response => {
+                    this.setState({
+                        message: response.data.message,
+                        successful: true
+                    });
+                    this.load();
+                }).catch((error) => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
 
-                        this.setState({
-                            successful: false,
-                            message: resMessage
-                        });
-                    }
+                    this.setState({
+                        successful: false,
+                        message: resMessage
+                    });
+                }
                 );
         }
     }
@@ -114,7 +126,81 @@ export default class UserViewItem extends Component {
         );
     }
 
+    updatePage = (page) => {
+        this.setState({
+            currentPage: page
+        }, () => this.load());
+    }
+
+    loadPageButtons = () => {
+        if (this.state.currentPage > this.state.totalPages) {
+            return;
+        }
+
+        // get URL for redirect
+        const url = new URL(window.location.href);
+        const search_params = url.searchParams;
+
+        const buttons = [];
+        if (this.state.currentPage > 1) {
+            const prevPage = this.state.currentPage - 1;
+            search_params.set("page", prevPage);
+            const pageURL = url.pathname + "?" + search_params.toString() + window.location.hash;
+
+            buttons.push(
+                <Link to={pageURL} onClick={() => this.updatePage(prevPage)}>
+                    <button>Previous</button>
+                </Link>
+            );
+        }
+        for (let i = 1; i <= this.state.totalPages; i++) {
+            // replace page number with index number
+            search_params.set("page", i);
+            const pageURL = url.pathname + "?" + search_params.toString() + window.location.hash;
+
+            if (i === this.state.currentPage) {
+                buttons.push(
+                    <button disabled>{i}</button>
+                )
+            } else {
+                buttons.push(
+                    <Link to={pageURL} onClick={() => this.updatePage(i)}>
+                        <p className="page-button" style={{ display: "inline", margin: '0px 8px' }}>{i}</p>
+                    </Link>
+                )
+            }
+        }
+        if (this.state.currentPage < this.state.totalPages) {
+            const nextPage = this.state.currentPage + 1;
+            search_params.set("page", nextPage);
+            const pageURL = url.pathname + "?" + search_params.toString() + window.location.hash;
+
+            buttons.push(
+                <Link to={pageURL} onClick={() => this.updatePage(nextPage)}>
+                    <button>Next</button>
+                </Link>
+            );
+        }
+        this.setState({ pageButtons: buttons });
+    }
+
     render() {
+        // ========== validate GET parameters ==========
+        const url = new URL(window.location.href);
+        const search_params = url.searchParams;
+        const page = search_params.get("page");
+        if (!page || page === "") {
+            search_params.set("page", 1);
+            const pageURL = url.pathname + "?" + search_params.toString();
+            return <Redirect to={pageURL} />
+        }
+        if (page > 1 && page > this.state.totalPages) {
+            search_params.set("page", 1);
+            const pageURL = url.pathname + "?" + search_params.toString();
+            return <Redirect to={pageURL} />
+        }
+        // ========== end of GET param validation ==========
+
         return (
             <div className="page-container">
                 <Helmet>
@@ -124,6 +210,9 @@ export default class UserViewItem extends Component {
                 <hr className="section-line" />
                 <div className="menu white-container">
                     {this.state.items.length == 0 ? this.displayCreateItem() : this.showListings()}
+                </div>
+                <div className="page-buttons">
+                    {this.state.pageButtons}
                 </div>
             </div>
         );
