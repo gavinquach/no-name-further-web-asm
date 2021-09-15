@@ -26,28 +26,32 @@ export default class UserTableRow extends Component {
         }
         if (window.confirm("Are you sure you want to delete user " + this.props.obj.username + "?")) {
             UserService.deleteUser(this.props.obj._id)
-                .then(
-                    response => {
+                .then((response) => {
+                    if (response.status == 200 || response.status == 201) {
                         this.setState({
                             message: response.data.message,
                             successful: true
                         });
                         window.location.reload();
-                    },
-                    error => {
-                        const resMessage =
-                            (error.response &&
-                                error.response.data &&
-                                error.response.data.message) ||
-                            error.message ||
-                            error.toString();
-
+                    } else {
                         this.setState({
-                            successful: false,
-                            message: resMessage
+                            message: response.data.message,
+                            successful: false
                         });
                     }
-                );
+                }).catch((error) => {
+                    if (error.response && error.response.status != 500) {
+                        this.setState({
+                            message: error.response.data.message,
+                            successful: false
+                        });
+                    } else {
+                        this.setState({
+                            message: `${error.response.status} ${error.response.statusText}`,
+                            successful: false
+                        });
+                    }
+                });
         }
     }
 

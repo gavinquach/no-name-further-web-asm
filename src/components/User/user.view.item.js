@@ -54,26 +54,32 @@ export default class UserViewItem extends Component {
     delete = (item) => {
         if (window.confirm("Are you sure you want to delete listing " + item.name + "?")) {
             ItemService.deleteItem(item._id)
-                .then(response => {
-                    this.setState({
-                        message: response.data.message,
-                        successful: true
-                    });
-                    this.load();
+                .then((response) => {
+                    if (response.status == 200 || response.status == 201) {
+                        this.setState({
+                            message: response.data.message,
+                            successful: true
+                        });
+                        this.load();
+                    } else {
+                        this.setState({
+                            message: response.data.message,
+                            successful: false
+                        });
+                    }
                 }).catch((error) => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
-                    this.setState({
-                        successful: false,
-                        message: resMessage
-                    });
-                }
-                );
+                    if (error.response && error.response.status != 500) {
+                        this.setState({
+                            message: error.response.data.message,
+                            successful: false
+                        });
+                    } else {
+                        this.setState({
+                            message: `${error.response.status} ${error.response.statusText}`,
+                            successful: false
+                        });
+                    }
+                });
         }
     }
 
