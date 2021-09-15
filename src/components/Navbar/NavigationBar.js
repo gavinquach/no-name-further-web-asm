@@ -304,12 +304,8 @@ class NavigationBar extends Component {
                     <Navbar.Collapse id='basic-navbar-nav'>
                         {AuthService.isLoggedIn() ? (
                             <Nav className="nav">
-                                {!AuthService.isRootAccount() && (
-                                    <Link className="navbar-text navbar-item" to="/user/trades" >My Trades</Link>
-                                )}
-                                {!AuthService.isRootAccount() && (
-                                    <Link className="navbar-text navbar-item" to="/cart">My Cart</Link>
-                                )}
+                                <Link className="navbar-text navbar-item" to="/user/trades" >My Trades</Link>
+                                <Link className="navbar-text navbar-item" to="/cart">My Cart</Link>
 
                                 {/* show user panel user is logged in */}
                                 {currentUser && (
