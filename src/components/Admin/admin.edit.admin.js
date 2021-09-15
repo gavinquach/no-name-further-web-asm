@@ -401,8 +401,8 @@ export default class AdminEditAdmin extends Component {
         if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_EDIT_ADMIN")) {
             return <Redirect to='/admin/index' />
         }
-        // prevent admins from editing their own profile, except root admin
-        if (!(this.props.match.params.id != AuthService.getCurrentUser().id || AuthService.getCurrentUser().roles.includes("ROLE_ROOT"))) {
+        // prevent admins from editing their own profile, except root account
+        if (!(this.props.match.params.id != AuthService.getCurrentUser().id || AuthService.isRootAccount())) {
             return <Redirect to='/admin/view/admin' />
         }
         // prevent any admin from editing root admin's info
