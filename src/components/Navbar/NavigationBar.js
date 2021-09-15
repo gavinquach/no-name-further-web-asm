@@ -84,6 +84,7 @@ class NavigationBar extends Component {
 
     logOut = () => {
         AuthService.logout();
+        this.props.history.push("/");
         window.location.reload();
     }
 
