@@ -130,7 +130,6 @@ exports.viewAllUsers = async (req, res) => {
     let total = 0;
     let users = [];
 
-
     try {
         const features = new APIFeatures(
             User.find()
@@ -152,6 +151,7 @@ exports.viewAllUsers = async (req, res) => {
         }
 
         await res.status(200).json({
+            totalResults: total,
             result: users.length,
             totalPages: Math.ceil(total / features.queryString.limit),
             users: users
@@ -160,18 +160,13 @@ exports.viewAllUsers = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-
-
 };
 
 exports.viewAdmins = async (req, res) => {
-
-
     // intialize 
     let total = 0;
     let adminRoles = [];
     let admins = [];
-
 
     // find all admin roles 
     try {
@@ -194,14 +189,14 @@ exports.viewAdmins = async (req, res) => {
         // paginating data
         admins = await features.paginate().query;
 
-        if (!admins || admins.length < 1) return res.status(404).send({ message: "Admins not found in this page." });
+        if (!admins || admins.length < 1) return res.status(404).send({ message: "Admins not found." });
 
         if (features.queryString.limit == null) {
             features.queryString.limit = 1;
         }
 
-
         res.status(200).json({
+            totalResults: total,
             result: admins.length,
             totalPages: Math.ceil(total / features.queryString.limit),
             admins: admins
@@ -210,9 +205,6 @@ exports.viewAdmins = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-
-
-
 };
 
 exports.viewUsers = async (req, res) => {
@@ -249,8 +241,8 @@ exports.viewUsers = async (req, res) => {
             features.queryString.limit = 1;
         }
 
-
         res.status(200).json({
+            totalResults: total,
             result: users.length,
             totalPages: Math.ceil(total / features.queryString.limit),
             users: users
@@ -259,7 +251,6 @@ exports.viewUsers = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-
 };
 
 exports.viewOneUser = async (req, res) => {
