@@ -207,13 +207,18 @@
     user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
-#data-table th:hover:not(:last-child) {
+#data-table .HasHover:hover {
     cursor: pointer;
     background-color: rgb(141, 141, 141);
 }
 
 #data-table th:not(:last-child) {
     border-right: 1px solid rgb(149, 149, 149);
+}
+
+#TableHeaderNoHover {
+    cursor: default;
+    background-color: rgb(121, 121, 121);
 }
 
 .SortIcon {

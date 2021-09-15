@@ -227,13 +227,13 @@ export default class AdminViewAdmin extends Component {
         const tableHeader = (str) => {
             if (this.state.sortColumn == str) {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
                     </th>
                 );
             } else {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}</div>
                     </th>
                 );
@@ -246,7 +246,7 @@ export default class AdminViewAdmin extends Component {
                 <tr>
                     {tableHeader("Username")}
                     {tableHeader("Email")}
-                    {tableHeader("Roles")}
+                    <th>Roles</th>
                 </tr>
             )
         } else if (roles.includes("ROLE_EDIT_ADMIN")) {
@@ -254,7 +254,7 @@ export default class AdminViewAdmin extends Component {
                 <tr>
                     {tableHeader("Username")}
                     {tableHeader("Email")}
-                    {tableHeader("Roles")}
+                    <th>Roles</th>
                     <th>Action</th>
                 </tr>
             )
@@ -270,7 +270,7 @@ export default class AdminViewAdmin extends Component {
                 <tr>
                     {tableHeader("Username")}
                     {tableHeader("Email")}
-                    {tableHeader("Roles")}
+                    <th>Roles</th>
                     <th>Action</th>
                 </tr>
             )

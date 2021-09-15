@@ -188,13 +188,13 @@ export default class AdminViewUser extends Component {
         const tableHeader = (str) => {
             if (this.state.sortColumn == str) {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
                     </th>
                 );
             } else {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}</div>
                     </th>
                 );
