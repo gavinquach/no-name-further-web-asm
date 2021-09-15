@@ -35,6 +35,7 @@ export default class AdminViewUserTrades extends Component {
             message: "",
             sortOrder: 0,
             sort: "none",
+            sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
             pageButtons: [],
@@ -134,17 +135,85 @@ export default class AdminViewUserTrades extends Component {
         }
     }
 
+    sort = (e) => {
+        let column = e.currentTarget.id;
+        let sortOrder = this.state.sortOrder;
+
+        // user is clicking onto another column
+        if (this.state.sortColumn != column) {
+            sortOrder = 1;
+        }
+        // user is clicking onto the same column
+        else {
+            // handle the cycle of ordering on user button click
+            if (this.state.sortOrder == 0) {
+                sortOrder = 1;
+            } else if (this.state.sortOrder == 1) {
+                sortOrder = -1;
+            } else if (this.state.sortOrder == -1) {
+                sortOrder = 0;
+                column = "";
+            }
+        }
+
+        let field = "_id";
+        switch (column) {
+            case "ID":
+                field = "_id"
+            case "Owner":
+                field = "user_buyer"
+            case "Owner item":
+                field = "item.name"
+            case "Trader":
+                field = "user_buyer"
+            case "Trader item":
+                field = "item.forItemName"
+            case "Location (from)":
+                field = "user_seller.location"
+            case "Location (to)":
+                field = "user_buyer.location"
+            case "Created date":
+                field = "createdAt"
+            case "Last updated date":
+                field = "updatedAt"
+            case "Completion date":
+                field = "finalization_date"
+            case "Status":
+                field = "status"
+        }
+
+        // update sort column
+        this.setState({
+            sortColumn: column,
+            sortOrder: sortOrder
+        });
+    }
+
     showListings = () => {
-        const sortIcon = (
-            <FontAwesomeIcon
-                className="SortIcon"
-                icon={this.state.sortOrder == 1
-                    ? faAngleUp
-                    : this.state.sortOrder == -1 && faAngleDown} />
-        );
-        const tableHeader = (str) => (
-            <th onClick={this.sort}>{str} {sortIcon}</th>
-        );
+        let sortIcon = null;
+        if (this.state.sortColumn) {
+            if (this.state.sortOrder == 1) {
+                sortIcon = <FontAwesomeIcon className="SortIcon" icon={faAngleUp} />
+            } else if (this.state.sortOrder == -1) {
+                sortIcon = <FontAwesomeIcon className="SortIcon" icon={faAngleDown} />
+            }
+        }
+
+        const tableHeader = (str) => {
+            if (this.state.sortColumn == str) {
+                return (
+                    <th id={str} onClick={this.sort}>
+                        <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
+                    </th>
+                );
+            } else {
+                return (
+                    <th id={str} onClick={this.sort}>
+                        <div style={{ display: 'inline' }}>{str}</div>
+                    </th>
+                );
+            }
+        };
 
         return (
             <table id="data-table" className="table">
@@ -158,7 +227,7 @@ export default class AdminViewUserTrades extends Component {
                         {tableHeader("Location (from)")}
                         {tableHeader("Location (to)")}
                         {tableHeader("Created date")}
-                        {tableHeader("Update date")}
+                        {tableHeader("Last updated date")}
                         {tableHeader("Completion date")}
                         {tableHeader("Status")}
                         <th>Action</th>

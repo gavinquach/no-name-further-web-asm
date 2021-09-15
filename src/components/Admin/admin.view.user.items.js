@@ -16,8 +16,9 @@ export default class AdminViewUserItems extends Component {
             items: [],
             successful: false,
             message: "",
-            sortOrder: 0,
             sort: "none",
+            sortOrder: 0,
+            sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
             pageButtons: [],
@@ -85,26 +86,98 @@ export default class AdminViewUserItems extends Component {
         }
     }
 
-    sort = (column, order) => {
-        const orders = ["ascending", "asc", "descending", "desc"];
-        if (!orders.includes(order)) {
+    loadSortByField = (field, order) => {
+        ItemService.viewAllItemsSortedByField(
+            field,
+            order,
+            parseInt(new URLSearchParams(window.location.search).get('page')),
+            this.state.limit
+        ).then(response => {
+            this.setState({
+                totalPages: response.data.totalPages,
+                totalResults: response.data.totalResults,
+                items: response.data.items
+            }, () => this.loadPageButtons());
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
+    }
 
+    sort = (e) => {
+        let column = e.currentTarget.id;
+        let sortOrder = this.state.sortOrder;
+
+        // user is clicking onto another column
+        if (this.state.sortColumn != column) {
+            sortOrder = 1;
         }
+        // user is clicking onto the same column
+        else {
+            // handle the cycle of ordering on user button click
+            if (this.state.sortOrder == 0) {
+                sortOrder = 1;
+            } else if (this.state.sortOrder == 1) {
+                sortOrder = -1;
+            } else if (this.state.sortOrder == -1) {
+                sortOrder = 0;
+                column = "";
+            }
+        }
+
+        let field = "_id";
+        switch (column) {
+            case "Owner":
+                field = "seller"
+            case "Name":
+                field = "name"
+            case "Quantity":
+                field = "quantity"
+            case "Type":
+                field = "type"
+            case "For item name":
+                field = "forItemName"
+            case "For item quantity":
+                field = "forItemQty"
+            case "For item type":
+                field = "forItemType"
+        }
+
+        // update sort column
+        this.setState({
+            sortColumn: column,
+            sortOrder: sortOrder
+        });
     }
 
     showListings = () => {
-        const sortIcon = (
-            <FontAwesomeIcon
-                className="SortIcon"
-                icon={this.state.sortOrder == 1
-                    ? faAngleUp
-                    : this.state.sortOrder == -1 && faAngleDown} />
-        );
-        const tableHeader = (str) => (
-            <th onClick={this.sort}>
-                <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
-            </th>
-        );
+        let sortIcon = null;
+        if (this.state.sortColumn) {
+            if (this.state.sortOrder == 1) {
+                sortIcon = <FontAwesomeIcon className="SortIcon" icon={faAngleUp} />
+            } else if (this.state.sortOrder == -1) {
+                sortIcon = <FontAwesomeIcon className="SortIcon" icon={faAngleDown} />
+            }
+        }
+
+        const tableHeader = (str) => {
+            if (this.state.sortColumn == str) {
+                return (
+                    <th id={str} onClick={this.sort}>
+                        <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
+                    </th>
+                );
+            } else {
+                return (
+                    <th id={str} onClick={this.sort}>
+                        <div style={{ display: 'inline' }}>{str}</div>
+                    </th>
+                );
+            }
+        };
 
         return (
             <table id="data-table" className="table">
