@@ -245,8 +245,9 @@ export default class AdminViewAdmin extends Component {
             return (
                 <tr>
                     {tableHeader("Username")}
-                    {tableHeader("Email")}
+                    <th>Email</th>
                     <th>Roles</th>
+                    <th>Action</th>
                 </tr>
             )
         } else if (roles.includes("ROLE_EDIT_ADMIN")) {
@@ -262,6 +263,8 @@ export default class AdminViewAdmin extends Component {
             return (
                 <tr>
                     {tableHeader("Username")}
+                    <th>Email</th>
+                    <th>Roles</th>
                     <th>Action</th>
                 </tr>
             )
@@ -269,7 +272,7 @@ export default class AdminViewAdmin extends Component {
             return (
                 <tr>
                     {tableHeader("Username")}
-                    {tableHeader("Email")}
+                    <th>Email</th>
                     <th>Roles</th>
                     <th>Action</th>
                 </tr>
@@ -283,15 +286,19 @@ export default class AdminViewAdmin extends Component {
                 <td>
                     {object.username}
                 </td>
-                {(AuthService.isRoot() || AuthService.getRoles().includes("ROLE_VIEW_ADMIN") || AuthService.getRoles().includes("ROLE_EDIT_ADMIN")) ?
-                    <td>{object.email}</td>
+                <td>
+                    {(AuthService.isRoot() || AuthService.getRoles().includes("ROLE_VIEW_ADMIN") || AuthService.getRoles().includes("ROLE_EDIT_ADMIN")) ?
+                    object.email
                     : null}
-                {(AuthService.isRoot() || AuthService.getRoles().includes("ROLE_VIEW_ADMIN") || AuthService.getRoles().includes("ROLE_EDIT_ADMIN")) ?
-                    <td>
-                        {object.roles && object.roles.map((role, index) =>
-                            index == object.roles.length - 1 ? role.name : role.name + ", ")}
-                    </td>
-                    : null}
+                </td>
+                <td>
+                    {(AuthService.isRoot() || AuthService.getRoles().includes("ROLE_VIEW_ADMIN") || AuthService.getRoles().includes("ROLE_EDIT_ADMIN"))
+                        && object.roles && object.roles.map((role, index) =>
+                            index == object.roles.length - 1
+                                ? role.name
+                                : role.name + ", ")
+                    }
+                </td>
                 {this.showButtons(object)}
             </tr>
         ));
@@ -300,42 +307,40 @@ export default class AdminViewAdmin extends Component {
     showButtons = (object) => {
         const roles = AuthService.getRoles();
         const id = object._id;
-        if (roles.includes("ROLE_ROOT") || roles.includes("ROLE_EDIT_ADMIN") || roles.includes("ROLE_DELETE_ADMIN")) {
-            return (
-                <td>
-                    {
-                        // hide edit button when:
-                        // admin's id is the current logged-in admin,
-                        // admin is root,
-                        // current admin isn't root,
-                        // admin doesn't have edit_admin role.
-                        object._id != AuthService.getCurrentUser().id &&
-                            object.username != "root" &&
-                            (roles.includes("ROLE_ROOT") || roles.includes("ROLE_EDIT_ADMIN"))
-                            ? <Link to={`/admin/edit/admin/${id}`} className="btn btn-primary ActionButton">Edit</Link>
-                            : null
-                    }
+        return (
+            <td>
+                {
+                    // hide edit button when:
+                    // admin's id is the current logged-in admin,
+                    // admin is root,
+                    // current admin isn't root,
+                    // admin doesn't have edit_admin role.
+                    object._id != AuthService.getCurrentUser().id &&
+                        object.username != "root" &&
+                        (roles.includes("ROLE_ROOT") || roles.includes("ROLE_EDIT_ADMIN"))
+                        ? <Link to={`/admin/edit/admin/${id}`} className="btn btn-primary ActionButton">Edit</Link>
+                        : null
+                }
 
-                    {
-                        // hide delete button when:
-                        // admin's id is the current logged-in admin,
-                        // admin is root,
-                        // current admin isn't root,
-                        // admin doesn't have delete_admin role.
-                        object._id != AuthService.getCurrentUser().id &&
-                            object.username != "root" &&
-                            (roles.includes("ROLE_ROOT") || roles.includes("ROLE_DELETE_ADMIN"))
-                            ? <button onClick={() => this.delete(object)} className="btn btn-danger ActionButton">Delete</button>
-                            : null
-                    }
-                </td>
-            )
-        }
+                {
+                    // hide delete button when:
+                    // admin's id is the current logged-in admin,
+                    // admin is root,
+                    // current admin isn't root,
+                    // admin doesn't have delete_admin role.
+                    object._id != AuthService.getCurrentUser().id &&
+                        object.username != "root" &&
+                        (roles.includes("ROLE_ROOT") || roles.includes("ROLE_DELETE_ADMIN"))
+                        ? <button onClick={() => this.delete(object)} className="btn btn-danger ActionButton">Delete</button>
+                        : null
+                }
+            </td>
+        );
     }
 
     render() {
         // redirect to home page when unauthorized user tries to view
-        if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_VIEW_ADMIN") && !AuthService.getRoles().includes("ROLE_CREATE_ADMIN") && !AuthService.getRoles().includes("ROLE_DELETE_ADMIN")) {
+        if (!AuthService.isRoot() && !AuthService.hasManageAdminRole()) {
             return <Redirect to='/admin/index' />
         }
         // ========== validate GET parameters ==========
