@@ -22,8 +22,19 @@ const crypto = require('crypto');
 
 // user sign up & create user
 exports.signup = async (req, res) => {
+    // allow lowercase alphanumeric, dash, and underscore for username only
+    const regex = /^([a-z0-9-_\u0600-\u06FF\u0660-\u0669\u06F0-\u06F9 _.-]+)$/
+    let username = req.body.username.toLowerCase();
+    if (!regex.test(username)) {
+        return res.status(400).send({ message: "Username must be lowercase alphanumeric with dash or underscore only." });
+    }
+    if (/\s/g.test(username)) {
+        return res.status(400).send({ message: "Whitespace is not allowed in username." });
+    }
+    username = username.trim(); // do this just to be safe with the whitespace...
+
     const user = new User({
-        username: req.body.username.toLowerCase(),
+        username: username,
         email: req.body.email,
         phone: req.body.phone,
         location: req.body.location,
@@ -94,8 +105,20 @@ exports.createAdmin = async (req, res) => {
         return res.status(400).send({ message: "Please add at least 1 role!" });
     }
 
+    // allow alphanumeric, dash, and underscore for username only
+    const regex = /^([a-zA-Z0-9-_\u0600-\u06FF\u0660-\u0669\u06F0-\u06F9 _.-]+)$/
+    let username = req.body.username.toLowerCase();
+    if (!regex.test(username)) {
+        return res.status(400).send({ message: "Username must be lowercase alphanumeric with dash or underscore only." });
+    }
+    // don't allow whitespace
+    if (/\s/g.test(username)) {
+        return res.status(400).send({ message: "Whitespace is not allowed in username." });
+    }
+    username = username.trim(); // do this just to be safe with the whitespace...
+
     const admin = new User({
-        username: req.body.username.toLowerCase(),
+        username: username,
         email: req.body.email,
         phone: req.body.phone,
         location: req.body.location,
@@ -355,7 +378,22 @@ exports.viewUsersSortedByField = async (req, res) => {
 
 exports.viewOneUser = async (req, res) => {
     try {
-        const user = await User.findById({ _id: req.params.id })
+        const user = await User.findById(req.params.id)
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+
+        if (!user) return res.status(404).send({ message: "User not found." });
+        res.json(user);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
+exports.getUserByUsername = async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.params.username })
             .populate("roles", "-__v")
             .populate("items", "-__v")
             .populate("cart", "-__v")
