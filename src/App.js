@@ -56,13 +56,6 @@ export default class App extends Component {
         };
     }
 
-    logOut = () => {
-        window.alert("Something went wrong. Please log in again!");
-        AuthService.logout();
-        window.location.replace("/login");
-        return;
-    }
-
     logOutExpiredToken = () => {
         // show alert when user gets logged out automatically due to expired token
         window.alert("Login session expired, please log in again!");
@@ -71,65 +64,24 @@ export default class App extends Component {
         return;
     }
 
-    // check if user is in database or whether their data is altered
-    // while they're still using the application and require re-login
-    // to refresh the data in localStorage
-    checkDataChange = async () => {
-        if (localStorage.getItem("user") !== null) {
-            try {
-                const currentUser = JSON.parse(localStorage.getItem('user'));
-                let user = null;
-
-                await UserService.viewOneUser(currentUser.id)
-                    .then((response) => {
-                        user = response.data;
-                    });
-
-                if (!user) {
-                    this.logOut();
-                } else {
-                    if (user.username !== currentUser.username) {
-                        this.logOut();
-                    }
-                    if (user.email !== currentUser.email) {
-                        this.logOut();
-                    }
-                    if (user.phone !== currentUser.phone) {
-                        this.logOut();
-                    }
-                    if (user.location[0] !== currentUser.location[0] || user.location[1] !== currentUser.location[1]) {
-                        this.logOut();
-                    }
-                }
-            } catch (error) {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-                this.logOut();
-            }
-        }
-    }
-
     updateNavBar = () => {
-        if (localStorage.getItem("user") !== null) {
-            const user = JSON.parse(localStorage.getItem('user'));
-            user.isAdmin = AuthService.isAdmin(user);
-            this.setState({ currentUser: user });
-        } else {
+        if (!AuthService.isLoggedIn()) {
             this.setState({ currentUser: undefined });
+            return;
         }
+        const user = AuthService.getCurrentUser();
+        user.isAdmin = AuthService.isAdmin(user);
+        this.setState({ currentUser: user });
     }
 
     authenticateSocket = () => {
-        if (localStorage.getItem("user") !== null) {
-            socket.emit("auth", AuthService.getCurrentUser());
+        if (!AuthService.isLoggedIn()) {
+            return;
         }
+        socket.emit("auth", AuthService.getCurrentUser());
     }
 
     componentDidMount = () => {
-        this.checkDataChange();
         this.authenticateSocket();
         this.updateNavBar();
     }

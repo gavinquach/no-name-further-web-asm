@@ -1,39 +1,33 @@
 import axios from "axios";
-import AuthService from './auth.service';
 
-const authHeaderToken = () => {
-    let user = null;
+const getToken = () => {
     try {
-        user = JSON.parse(localStorage.getItem('user'));
+        return JSON.parse(localStorage.getItem("token"));
     } catch (err) {
-        // console.log(err);
-        AuthService.logout();
         window.alert("Something went wrong. Please log in again!");
+        localStorage.removeItem("token");
+        localStorage.removeItem("chatOpened");
+        localStorage.removeItem("conversationId");
         window.location.replace("/login");
         return;
     }
+}
 
-    if (user && user.accessToken) {
-        return { 'x-access-token': user.accessToken };
+const authHeaderToken = () => {
+    const token = getToken();
+
+    if (token) {
+        return { 'x-access-token': token };
     } else {
         return {};
     }
 }
 const authHeaderFormData = () => {
-    let user = null;
-    try {
-        user = JSON.parse(localStorage.getItem('user'));
-    } catch (err) {
-        // console.log(err);
-        AuthService.logout();
-        window.alert("Something went wrong. Please log in again!");
-        window.location.replace("/login");
-        return;
-    }
+    const token = getToken();
 
-    if (user && user.accessToken) {
+    if (token) {
         return {
-            'x-access-token': user.accessToken,
+            'x-access-token': token,
             'Content-type': 'multipart/form-data'
         };
     } else {
