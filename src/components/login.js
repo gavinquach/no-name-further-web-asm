@@ -41,25 +41,20 @@ export default class Login extends Component {
             AuthService.confirmEmail(
                 this.props.match.params.email,
                 this.props.match.params.token
-            ).then(
-                () => {
-                    this.props.history.push("/");
-                    window.location.reload();
-                },
-                error => {
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
+            ).then(() => {
+                this.props.history.push("/");
+                window.location.reload();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
                     this.setState({
-                        loading: false,
-                        message: resMessage
+                        message: error.response.data.message
+                    });
+                } else {
+                    this.setState({
+                        message: `${error.response.status} ${error.response.statusText}`
                     });
                 }
-            );
+            });
         }
     }
 
@@ -89,29 +84,27 @@ export default class Login extends Component {
             AuthService.login(
                 this.state.username,
                 this.state.password
-            ).then(
-                () => {
-                    window.location.reload();
-                },
-                error => {
-                    if (error.response.data.verified === false) {
-                        this.setState({ verified: false });
-                    } else {
-                        this.setState({ verified: true });
-                    }
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
+            ).then(() => {
+                window.location.reload();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
                     this.setState({
                         loading: false,
-                        message: resMessage
+                        message: error.response.data.message
+                    });
+                } else {
+                    this.setState({
+                        loading: false,
+                        message: `${error.response.status} ${error.response.statusText}`
                     });
                 }
-            );
+
+                if (error.response.data.verified && error.response.data.verified === false) {
+                    this.setState({ verified: false });
+                } else {
+                    this.setState({ verified: true });
+                }
+            });
         } else {
             this.setState({
                 loading: false
@@ -120,40 +113,41 @@ export default class Login extends Component {
     }
 
     sendEmail = () => {
-        if (!this.state.disableSend) {
-            AuthService.sendVerifyEmail(
-                this.state.username,
-                this.state.password
-            ).then(response => {
-                this.setState({
-                    resendMessage: "Email sent, you will be able to resend again in 2 minutes."
-                });
-            }, error => {
-                const resMessage =
-                    (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
-                    error.message ||
-                    error.toString();
-
+        if (this.state.disableSend) {
+            return;
+        }
+        AuthService.sendVerifyEmail(
+            this.state.username,
+            this.state.password
+        ).then(response => {
+            this.setState({
+                resendMessage: "Email sent, you will be able to resend again in 2 minutes."
+            });
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
                 this.setState({
                     loading: false,
-                    message: resMessage
+                    message: error.response.data.message
+                });
+            } else {
+                this.setState({
+                    loading: false,
+                    message: `${error.response.status} ${error.response.statusText}`
                 });
             }
-            );
-            this.setState({
-                disableSend: true
-            }, () => {
-                // re-enable link after 2 minutes
-                setTimeout(() => {
-                    this.setState({
-                        disableSend: false,
-                        resendMessage: ""
-                    });
-                }, 120 * 1000);
-            });
-        }
+        });
+
+        this.setState({
+            disableSend: true
+        }, () => {
+            // re-enable link after 2 minutes
+            setTimeout(() => {
+                this.setState({
+                    disableSend: false,
+                    resendMessage: ""
+                });
+            }, 120 * 1000);
+        });
     }
 
     render() {
