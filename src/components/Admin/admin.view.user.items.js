@@ -4,8 +4,6 @@ import { Helmet } from 'react-helmet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
-import AuthService from "../../services/auth.service";
-import UserService from "../../services/user.service";
 import ItemService from "../../services/item.service";
 
 export default class AdminViewUserItems extends Component {
