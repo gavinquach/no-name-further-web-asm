@@ -13,6 +13,7 @@ export default class AdminViewAdmin extends Component {
         this.state = {
             users: [],
             sort: "none",
+            sortField: "",
             sortOrder: 0,
             sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
@@ -53,7 +54,13 @@ export default class AdminViewAdmin extends Component {
     updatePage = (page) => {
         this.setState({
             currentPage: page
-        }, () => this.load());
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField(this.state.sortField, this.state.sortOrder);
+            }
+        });
     }
 
     loadPageButtons = () => {
@@ -147,10 +154,10 @@ export default class AdminViewAdmin extends Component {
         }
     }
 
-    loadSortByField = (field, order) => {
+    loadSortByField = () => {
         UserService.viewAdminsSortedByField(
-            field,
-            order == 0 ? 1 : order,
+            this.state.sortField,
+            this.state.sortOrder == 0 ? 1 : this.state.sortOrder,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
         ).then(response => {
@@ -201,16 +208,17 @@ export default class AdminViewAdmin extends Component {
                 field = "_id";
         }
 
-        if (field == "_id" && (sortOrder == 0 || sortOrder == 1)) {
-            this.load();
-        } else {
-            this.loadSortByField(field, sortOrder);
-        }
-
         // update sort column
         this.setState({
+            sortField: field,
             sortColumn: column,
             sortOrder: sortOrder
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField();
+            }
         });
     }
 

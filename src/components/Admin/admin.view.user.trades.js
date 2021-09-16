@@ -31,8 +31,9 @@ export default class AdminViewUserTrades extends Component {
             trades: [],
             successful: false,
             message: "",
-            sortOrder: 0,
             sort: "none",
+            sortField: "",
+            sortOrder: 0,
             sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
@@ -62,10 +63,10 @@ export default class AdminViewUserTrades extends Component {
         });
     }
 
-    loadSortByField = (field, order) => {
+    loadSortByField = () => {
         TradeService.getAllTradesSortByField(
-            field,
-            order == 0 ? 1 : order,
+            this.state.sortField,
+            this.state.sortOrder == 0 ? 1 : this.state.sortOrder,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
         ).then(response => {
@@ -215,19 +216,19 @@ export default class AdminViewUserTrades extends Component {
                 break;
             default:
                 field = "_id";
-
-        }
-
-        if (field == "_id" && (sortOrder == 0 || sortOrder == 1)) {
-            this.load();
-        } else {
-            this.loadSortByField(field, sortOrder);
         }
 
         // update sort column
         this.setState({
+            sortField: field,
             sortColumn: column,
             sortOrder: sortOrder
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField();
+            }
         });
     }
 
@@ -319,7 +320,13 @@ export default class AdminViewUserTrades extends Component {
     updatePage = (page) => {
         this.setState({
             currentPage: page
-        }, () => this.load());
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField(this.state.sortField, this.state.sortOrder);
+            }
+        });
     }
 
     loadPageButtons = () => {
