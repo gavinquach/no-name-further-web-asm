@@ -44,6 +44,8 @@ import AdminCreateAdmin from './components/Admin/admin.create.admin';
 import AdminCreateUser from './components/Admin/admin.create.user';
 import AdminEditAdmin from './components/Admin/admin.edit.admin';
 import AdminEditUser from './components/Admin/admin.edit.user';
+import AdminViewUserTrades from './components/Admin/admin.view.user.trades';
+import AdminViewUserItems from './components/Admin/admin.view.user.items';
 
 export default class App extends Component {
     constructor(props) {
@@ -54,86 +56,34 @@ export default class App extends Component {
         };
     }
 
-    // check if user is in database or whether their data is altered
-    // while they're still using the application and require re-login
-    // to refresh the data in localStorage
-    checkDataChange = async () => {
-        if (localStorage.getItem("user") !== null) {
-            const currentUser = JSON.parse(localStorage.getItem('user'));
-            let user = null;
-
-            try {
-                await UserService.viewOneUser(currentUser.id)
-                    .then(response => {
-                        user = response.data;
-                    }, error => {
-                        console.log(error);
-                        this.logout();
-                    })
-            } catch (err) {
-                console.log(err);
-            }
-
-            if (!user) {
-                this.logOut();
-            } else {
-                if (user.username !== currentUser.username) {
-                    window.alert("Discrepancy in user data detected, please log in again!");
-                    this.logOut();
-                    window.location.reload();
-                    return;
-                }
-                if (user.email !== currentUser.email) {
-                    window.alert("Discrepancy in user data detected, please log in again!");
-                    this.logOut();
-                    window.location.reload();
-                    return;
-                }
-                if (user.phone !== currentUser.phone) {
-                    window.alert("Discrepancy in user data detected, please log in again!");
-                    this.logOut();
-                    window.location.reload();
-                    return;
-                }
-                if (user.location[0] !== currentUser.location[0] || user.location[1] !== currentUser.location[1]) {
-                    window.alert("Discrepancy in user data detected, please log in again!");
-                    this.logOut();
-                    window.location.reload();
-                    return;
-                }
-            }
-        }
+    logOutExpiredToken = () => {
+        // show alert when user gets logged out automatically due to expired token
+        window.alert("Login session expired, please log in again!");
+        AuthService.logout();
+        window.location.replace("/login");
+        return;
     }
 
     updateNavBar = () => {
-        if (localStorage.getItem("user") !== null) {
-            const user = JSON.parse(localStorage.getItem('user'));
-            user.isAdmin = AuthService.isAdmin(user);
-            this.setState({ currentUser: user });
-        } else {
+        if (!AuthService.isLoggedIn()) {
             this.setState({ currentUser: undefined });
+            return;
         }
+        const user = AuthService.getCurrentUser();
+        user.isAdmin = AuthService.isAdmin(user);
+        this.setState({ currentUser: user });
     }
 
     authenticateSocket = () => {
-        if (localStorage.getItem("user") !== null) {
-            socket.emit("auth", AuthService.getCurrentUser());
+        if (!AuthService.isLoggedIn()) {
+            return;
         }
+        socket.emit("auth", AuthService.getCurrentUser());
     }
 
     componentDidMount = () => {
         this.authenticateSocket();
-        this.checkDataChange();
         this.updateNavBar();
-    }
-
-    logOut = () => {
-        AuthService.logout();
-
-        // show alert when user gets logged out automatically due to expired token
-        window.alert("Login session expired, please log in again!");
-        window.location.replace("/login");
-        return;
     }
 
     render = () => {
@@ -172,11 +122,13 @@ export default class App extends Component {
                         <AdminProtectedRoute exact path='/admin/create/user' component={AdminCreateUser} />
                         <AdminProtectedRoute path='/admin/edit/admin/:id' component={AdminEditAdmin} />
                         <AdminProtectedRoute path='/admin/edit/user/:id' component={AdminEditUser} />
+                        <AdminProtectedRoute exact path='/admin/view/user/trades' component={AdminViewUserTrades} />
+                        <AdminProtectedRoute exact path='/admin/view/user/items' component={AdminViewUserItems} />
                         <Route component={NotFound} />
                     </Switch>
                     <Chat />
                     <Footer />
-                    <AuthVerify logOut={this.logOut} />
+                    <AuthVerify logOut={this.logOutExpiredToken} />
                 </Router>
             </div>
         );

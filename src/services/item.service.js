@@ -2,8 +2,9 @@ import { axiosTokenHeader, axiosFormData } from "./AxiosInstance"
 const API_URL = require("./index");
 
 class ItemService {
-    viewAllItems = () => {
-        return axiosTokenHeader.get(API_URL + "items");
+    viewAllItems = (sort, page, limit) => {
+        const url = `?sort=${sort}&page=${page}&limit=${limit}`;
+        return axiosTokenHeader.get(API_URL + "items" + url);
     }
     viewOneItem = async (itemid) => {
         return axiosTokenHeader.get(API_URL + "item/" + itemid);

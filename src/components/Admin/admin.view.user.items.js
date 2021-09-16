@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
 import AuthService from "../../services/auth.service";
 import UserService from "../../services/user.service";
 import ItemService from "../../services/item.service";
 
-export default class UserViewItem extends Component {
+export default class AdminViewUserItems extends Component {
     constructor(props) {
         super(props);
 
@@ -15,6 +17,8 @@ export default class UserViewItem extends Component {
             successful: false,
             message: "",
             sort: "none",
+            sortOrder: 0,
+            sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
             pageButtons: [],
@@ -24,8 +28,7 @@ export default class UserViewItem extends Component {
     }
 
     load = () => {
-        UserService.viewUserItems(
-            AuthService.getCurrentUser().id,
+        ItemService.viewAllItems(
             this.state.sort,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
@@ -83,23 +86,117 @@ export default class UserViewItem extends Component {
         }
     }
 
+    loadSortByField = (field, order) => {
+        ItemService.viewAllItemsSortedByField(
+            field,
+            order,
+            parseInt(new URLSearchParams(window.location.search).get('page')),
+            this.state.limit
+        ).then(response => {
+            this.setState({
+                totalPages: response.data.totalPages,
+                totalResults: response.data.totalResults,
+                items: response.data.items
+            }, () => this.loadPageButtons());
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
+    }
+
+    sort = (e) => {
+        let column = e.currentTarget.id;
+        let sortOrder = this.state.sortOrder;
+
+        // user is clicking onto another column
+        if (this.state.sortColumn != column) {
+            sortOrder = 1;
+        }
+        // user is clicking onto the same column
+        else {
+            // handle the cycle of ordering on user button click
+            if (this.state.sortOrder == 0) {
+                sortOrder = 1;
+            } else if (this.state.sortOrder == 1) {
+                sortOrder = -1;
+            } else if (this.state.sortOrder == -1) {
+                sortOrder = 0;
+                column = "";
+            }
+        }
+
+        let field = "_id";
+        switch (column) {
+            case "Owner":
+                field = "seller"
+            case "Name":
+                field = "name"
+            case "Quantity":
+                field = "quantity"
+            case "Type":
+                field = "type"
+            case "For item name":
+                field = "forItemName"
+            case "For item quantity":
+                field = "forItemQty"
+            case "For item type":
+                field = "forItemType"
+        }
+
+        // update sort column
+        this.setState({
+            sortColumn: column,
+            sortOrder: sortOrder
+        });
+    }
+
     showListings = () => {
+        let sortIcon = null;
+        if (this.state.sortColumn) {
+            if (this.state.sortOrder == 1) {
+                sortIcon = <FontAwesomeIcon className="SortIcon" icon={faAngleUp} />
+            } else if (this.state.sortOrder == -1) {
+                sortIcon = <FontAwesomeIcon className="SortIcon" icon={faAngleDown} />
+            }
+        }
+
+        const tableHeader = (str) => {
+            if (this.state.sortColumn == str) {
+                return (
+                    <th id={str} onClick={this.sort}>
+                        <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
+                    </th>
+                );
+            } else {
+                return (
+                    <th id={str} onClick={this.sort}>
+                        <div style={{ display: 'inline' }}>{str}</div>
+                    </th>
+                );
+            }
+        };
+
         return (
-            <table className="container table table-striped" style={{ marginTop: 20 }}>
+            <table id="data-table" className="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Quantity</th>
-                        <th>Type</th>
-                        <th>For item name</th>
-                        <th>For item quantity</th>
-                        <th>For item type</th>
+                        {tableHeader("Owner")}
+                        {tableHeader("Name")}
+                        {tableHeader("Quantity")}
+                        {tableHeader("Type")}
+                        {tableHeader("For item name")}
+                        {tableHeader("For item quantity")}
+                        {tableHeader("For item type")}
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="table-data">
-                    {this.state.items.map((object, index) => (
-                        <tr>
+                <tbody>
+                    {this.state.items.map((object) => (
+                        <tr key={object._id}>
+                            <td>{object.seller.username}</td>
                             <td>{object.name}</td>
                             <td>{object.quantity}</td>
                             <td>{object.type.name}</td>
@@ -107,20 +204,21 @@ export default class UserViewItem extends Component {
                             <td>{object.forItemQty}</td>
                             <td>{object.forItemType.name}</td>
                             <td>
-                                <Link to={`/user/edit/item/${object._id}`} className="btn btn-primary">Edit</Link>
-                                <span style={{ paddingRight: '1.5em' }} />
-                                <button onClick={() => this.delete(object)} className="btn btn-danger">Delete</button>
+                                <Link to={`/item/${object._id}`} className="btn btn-info ActionButton">Visit</Link>
+                                <Link to={`/user/edit/item/${object._id}`} className="btn btn-primary ActionButton">Edit</Link>
+                                <button key={object._id.toString() + "-delete"} onClick={() => this.delete(object)} className="btn btn-danger ActionButton">Delete</button>
 
                                 {this.state.message && (
                                     <div className={this.state.successful ? "alert alert-success" : "alert alert-danger"} role="alert">
                                         {this.state.message}
-                                    </div>)}
+                                    </div>
+                                )}
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-        )
+        );
     }
 
     displayCreateItem = () => {
@@ -210,7 +308,7 @@ export default class UserViewItem extends Component {
         return (
             <div className="page-container">
                 <Helmet>
-                    <title>Item Listing</title>
+                    <title>View User Items</title>
                 </Helmet>
                 <div className="title">Listings</div>
                 <hr className="section-line" />
@@ -218,7 +316,8 @@ export default class UserViewItem extends Component {
                     <h3 id="results">Total: {this.state.totalResults}</h3>
                 </div>
                 <br />
-                <div className="menu white-container">
+                <br />
+                <div className="white-container">
                     {this.state.items.length == 0 ? this.displayCreateItem() : this.showListings()}
                 </div>
                 <div className="page-buttons">

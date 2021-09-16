@@ -110,7 +110,7 @@ export default class AdminEditAdmin extends Component {
 
     delete = () => {
         if (window.confirm("Are you sure you want to delete admin " + this.state.username + "?")) {
-            UserService.deleteUser(this.props.match.params.id)
+            UserService.deleteAdmin(this.props.match.params.id)
                 .then((response) => {
                     if (response.status == 200 || response.status == 201) {
                         this.setState({
@@ -144,7 +144,7 @@ export default class AdminEditAdmin extends Component {
     // get admin info and assign to input fields
     componentDidMount() {
         window.scrollTo(0, 0); // automatically scroll to top
-        UserService.viewOneUser(this.props.match.params.id)
+        UserService.viewOneAdmin(this.props.match.params.id)
             .then(response => {
                 let isUser = false;
                 const role_names = [];
@@ -357,7 +357,7 @@ export default class AdminEditAdmin extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            UserService.editUser(
+            UserService.editAdmin(
                 this.props.match.params.id,
                 this.state.username,
                 this.state.email,
@@ -401,8 +401,8 @@ export default class AdminEditAdmin extends Component {
         if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_EDIT_ADMIN")) {
             return <Redirect to='/admin/index' />
         }
-        // prevent admins from editing their own profile, except root admin
-        if (!(this.props.match.params.id != AuthService.getCurrentUser().id || AuthService.getCurrentUser().roles.includes("ROLE_ROOT"))) {
+        // prevent admins from editing their own profile, except root account
+        if (!(this.props.match.params.id != AuthService.getCurrentUser().id || AuthService.isRootAccount())) {
             return <Redirect to='/admin/view/admin' />
         }
         // prevent any admin from editing root admin's info

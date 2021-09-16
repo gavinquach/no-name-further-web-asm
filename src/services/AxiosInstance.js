@@ -1,28 +1,41 @@
 import axios from "axios";
 
-const timeOut = 5000;  // server response wait time, set to 5 seconds
+const getToken = () => {
+    try {
+        return JSON.parse(localStorage.getItem("token"));
+    } catch (err) {
+        window.alert("Something went wrong. Please log in again!");
+        localStorage.removeItem("token");
+        localStorage.removeItem("chatOpened");
+        localStorage.removeItem("conversationId");
+        window.location.replace("/login");
+        return;
+    }
+}
 
 const authHeaderToken = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const token = getToken();
 
-    if (user && user.accessToken) {
-        return { 'x-access-token': user.accessToken };
+    if (token) {
+        return { 'x-access-token': token };
     } else {
         return {};
     }
 }
 const authHeaderFormData = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const token = getToken();
 
-    if (user && user.accessToken) {
+    if (token) {
         return {
-            'x-access-token': user.accessToken,
+            'x-access-token': token,
             'Content-type': 'multipart/form-data'
         };
     } else {
         return {};
     }
 }
+
+const timeOut = 5000;  // server response wait time, set to 5 seconds
 
 export const axiosTokenHeader = axios.create({
     timeout: timeOut,

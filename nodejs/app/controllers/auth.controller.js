@@ -47,26 +47,25 @@ exports.login = async (req, res) => {
         });
     }
 
-    // generate a token using jsonwebtoken
-    const token = jwt.sign({ id: user.id }, config.secret, {
-        expiresIn: 86400 // 24 hours
+    const userRoles = [];
+    user.roles.map((role) => {
+        userRoles.push(role.name);
     });
 
-    const userRoles = [];
-    for (let i = 0; i < user.roles.length; i++) {
-        userRoles.push("ROLE_" + user.roles[i].name.toUpperCase());
-    }
-
-    // return user information & access Token
-    res.status(200).send({
+    // generate a token using jsonwebtoken
+    const accessToken = jwt.sign({
         id: user._id,
         username: user.username,
         email: user.email,
         phone: user.phone,
         location: user.location,
-        roles: userRoles,
-        accessToken: token
+        roles: userRoles
+    }, config.secret, {
+        expiresIn: 86400 // 24 hours
     });
+
+    // return access Token
+    res.status(200).json(accessToken);
 };
 
 exports.confirmEmail = async (req, res) => {
@@ -250,24 +249,23 @@ exports.confirmAndLogin = async (req, res) => {
         return res.status(500).send(err);
     }
 
-    // generate a token using jsonwebtoken
-    const accessToken = jwt.sign({ id: user.id }, config.secret, {
-        expiresIn: 86400 // 24 hours
-    });
-
     const userRoles = [];
-    user.roles.map(role => {
-        userRoles.push("ROLE_" + role.name.toUpperCase());
+    user.roles.map((role) => {
+        userRoles.push(role.name);
     });
 
-    // return user information & access Token
-    res.status(200).send({
+    // generate a token using jsonwebtoken
+    const accessToken = jwt.sign({
         id: user._id,
         username: user.username,
         email: user.email,
         phone: user.phone,
         location: user.location,
-        roles: userRoles,
-        accessToken: accessToken
+        roles: userRoles
+    }, config.secret, {
+        expiresIn: 86400 // 24 hours
     });
+
+    // return access Token
+    res.status(200).json(accessToken);
 };

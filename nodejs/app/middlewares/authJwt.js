@@ -5,19 +5,19 @@ const User = model.user;
 const Role = model.role;
 
 verifyToken = (req, res, next) => {
-    let token = req.headers["x-access-token"];
+    const token = req.headers["x-access-token"];
 
     if (!token) {
         return res.status(403).send({ message: "No token provided!" });
     }
 
-    jwt.verify(token, config.secret, (err, decoded) => {
-        if (err) {
-            return res.status(401).send({ message: "Unauthorized!" });
-        }
+    try {
+        const decoded = jwt.verify(token, config.secret);
         req.userId = decoded.id;
         next();
-    });
+    } catch (err) {
+        return res.status(401).send({ message: "Unauthorized!" });
+    }
 };
 
 // validate whether the person sending the request is a user
@@ -61,15 +61,19 @@ isAdmin = async (req, res, next) => {
     }
     if (!user) return res.status(404).send({ message: "User not found." });
 
+    let isAdmin = false;
     const adminRoles = model.ROLES.filter(role => role != "user");
     for (const role of user.roles) {// check if client is regular user or root
         if (role.name == "user") {
             return res.status(403).send({ message: "Require admin access!" });
         }
         if (adminRoles.includes(role.name)) {
-            next();
+            isAdmin = true;
+        } else {
+            isAdmin = false;
         }
     }
+    if (isAdmin) next();
 };
 
 // validate whether the person sending the request is admin
