@@ -2,9 +2,8 @@ import { axiosTokenHeader, axiosFormData } from "./AxiosInstance"
 const API_URL = require("./index");
 
 class ItemService {
-    viewAllItems = (sort, page, limit) => {
-        const url = `?sort=${sort}&page=${page}&limit=${limit}`;
-        return axiosTokenHeader.get(API_URL + "items" + url);
+    viewAllItems = () => {
+        return axiosTokenHeader.get(API_URL + "items");
     }
     viewOneItem = async (itemid) => {
         return axiosTokenHeader.get(API_URL + "item/" + itemid);
@@ -30,6 +29,11 @@ class ItemService {
     getItems = (sort, page, limit) => {
         const url = `?sort=${sort}&page=${page}&limit=${limit}`
         return axiosTokenHeader.get(API_URL + "items" + url);
+    }
+
+    getItemsSortByField = (field, sort, page, limit) => {
+        const url = `?field=${field}&sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "items-sorted-by-field" + url);
     }
 }
 

@@ -426,3 +426,69 @@ exports.getAllItems = async (req, res) => {
     }
 
 };
+
+exports.getAllItemsSortedByField = async (req, res) => {
+    let items = [];
+    let total = 0;
+
+    let field = req.query.field;
+    let sort = req.query.sort;
+
+    try {
+        let features = null;
+        if (field != "type" && field != "forItemType") {
+            features = await new APIFeatures(
+                Item.find().sort({
+                    [field]: sort
+                })
+                    .populate("type", "-__v")
+                    .populate("forItemType", "-__v")
+                    .populate("images", "-__v")
+                    .populate("seller", "-__v")
+                , req.query);
+        } else {
+            features = await new APIFeatures(
+                Item.find()
+                    .populate("type")
+                    .populate("forItemType", "-__v")
+                    .populate("images", "-__v")
+                    .populate("seller", "-__v")
+                , req.query);
+        }
+
+        //count retrieved total data before pagination
+        total = await Item.countDocuments(features.query);
+
+        // paginating data
+        items = await features.paginate().query;
+
+        if (!items || items.length < 1) return res.status(404).send({ message: "Items not found." });
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+
+        if (field == "type") {
+            if (sort == 1) {
+                items.sort((a, b) => a.type.name.localeCompare(b.type.name));
+            } else if (sort == -1) {
+                items.sort((a, b) => b.type.name.localeCompare(a.type.name));
+            }
+        } else if (field == "forItemType") {
+            if (sort == 1) {
+                items.sort((a, b) => a.forItemType.name.localeCompare(b.forItemType.name));
+            } else if (sort == -1) {
+                items.sort((a, b) => b.forItemType.name.localeCompare(a.forItemType.name));
+            }
+        }
+
+        res.status(200).json({
+            totalResults: total,
+            result: items.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            items: items
+        });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};

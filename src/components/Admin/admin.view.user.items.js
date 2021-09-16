@@ -28,7 +28,7 @@ export default class AdminViewUserItems extends Component {
     }
 
     load = () => {
-        ItemService.viewAllItems(
+        ItemService.getItems(
             this.state.sort,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
@@ -87,9 +87,9 @@ export default class AdminViewUserItems extends Component {
     }
 
     loadSortByField = (field, order) => {
-        ItemService.viewAllItemsSortedByField(
+        ItemService.getItemsSortByField(
             field,
-            order,
+            order == 0 ? 1 : order,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
         ).then(response => {
@@ -131,19 +131,34 @@ export default class AdminViewUserItems extends Component {
         let field = "_id";
         switch (column) {
             case "Owner":
-                field = "seller"
+                field = "seller";
+                break;
             case "Name":
-                field = "name"
+                field = "name";
+                break;
             case "Quantity":
-                field = "quantity"
+                field = "quantity";
+                break;
             case "Type":
-                field = "type"
+                field = "type";
+                break;
             case "For item name":
-                field = "forItemName"
+                field = "forItemName";
+                break;
             case "For item quantity":
-                field = "forItemQty"
+                field = "forItemQty";
+                break;
             case "For item type":
-                field = "forItemType"
+                field = "forItemType";
+                break;
+            default:
+                field = "_id";
+        }
+
+        if (field == "_id" && (sortOrder == 0 || sortOrder == 1)) {
+            this.load();
+        } else {
+            this.loadSortByField(field, sortOrder);
         }
 
         // update sort column
@@ -166,13 +181,13 @@ export default class AdminViewUserItems extends Component {
         const tableHeader = (str) => {
             if (this.state.sortColumn == str) {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
                     </th>
                 );
             } else {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}</div>
                     </th>
                 );

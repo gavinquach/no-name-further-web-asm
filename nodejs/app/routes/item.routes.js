@@ -24,5 +24,6 @@ router.post("/item", [
 ], controller.createItem);
 
 router.get("/items", controller.getAllItems);
+router.get("/items-sorted-by-field", controller.getAllItemsSortedByField);
 
 module.exports = router;
