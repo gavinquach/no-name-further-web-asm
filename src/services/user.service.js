@@ -42,6 +42,9 @@ class UserService {
     deleteUser(id) {
         return axiosTokenHeader.delete(API_URL + "user/" + id);
     }
+    deleteAdmin(id) {
+        return axiosTokenHeader.delete(API_URL + "admin/" + id);
+    }
 
     editUser(id, username, email, phone, location, password) {
         return axiosTokenHeader.put(API_URL + "user/" + id, {
