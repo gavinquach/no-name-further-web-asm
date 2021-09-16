@@ -158,6 +158,12 @@ export default class AdminViewUser extends Component {
             case "Email":
                 field = "email";
                 break;
+            case "Phone":
+                field = "phone";
+                break;
+            case "Location":
+                field = "location";
+                break;
             default:
                 field = "_id";
         }
@@ -201,30 +207,15 @@ export default class AdminViewUser extends Component {
             }
         };
 
-        const roles = AuthService.getRoles();
-        if (!roles.includes("ROLE_EDIT_USER") && !roles.includes("ROLE_DELETE_USER")) {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    {tableHeader("Email")}
-                </tr>
-            )
-        } else if (!(roles.includes("ROLE_EDIT_USER") || roles.includes("ROLE_DELETE_USER"))) {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    <th>Action</th>
-                </tr>
-            )
-        } else {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    {tableHeader("Email")}
-                    <th>Action</th>
-                </tr>
-            )
-        }
+        return (
+            <tr>
+                {tableHeader("Username")}
+                {tableHeader("Email")}
+                {tableHeader("Phone")}
+                {tableHeader("Location")}
+                <th>Action</th>
+            </tr>
+        )
     }
 
     tableRows = () => {
@@ -232,6 +223,8 @@ export default class AdminViewUser extends Component {
             <tr key={object._id}>
                 <td>{object.username}</td>
                 <td>{object.email}</td>
+                <td>{object.phone}</td>
+                <td>{object.location[1] + ", " + object.location[0]}</td>
                 {this.showButtons(object)}
             </tr>
         ));
