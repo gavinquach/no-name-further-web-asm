@@ -38,7 +38,7 @@
   border-radius: 0.3em;
   background-color: white;
   border: 1px solid black;
-  width: 6em;
+  /* width: 6em; */
   height: 2.5em;
   font-weight: bold;
   transition: 0.3s;
