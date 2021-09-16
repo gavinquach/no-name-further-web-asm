@@ -262,7 +262,7 @@ export default class AdminCreateAdmin extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            const user = {
+            const admin = {
                 username: this.state.username,
                 email: this.state.email,
                 phone: this.state.phone,
@@ -271,7 +271,7 @@ export default class AdminCreateAdmin extends Component {
                 roles: roles_submit,
                 verified: true
             };
-            UserService.createUserWithRoles(user)
+            UserService.createAdmin(admin)
                 .then((response) => {
                     if (response.status == 200 || response.status == 201) {
                         this.setState({

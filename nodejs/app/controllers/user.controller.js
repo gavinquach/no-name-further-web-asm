@@ -20,7 +20,7 @@ const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
 
-// user sign up
+// user sign up & create user
 exports.signup = async (req, res) => {
     const user = new User({
         username: req.body.username.toLowerCase(),
@@ -87,45 +87,22 @@ exports.signup = async (req, res) => {
     }
 };
 
-// create new user
-exports.createUser = async (req, res) => {
-    const user = new User({
-        username: req.body.username.toLowerCase(),
-        email: req.body.email,
-        phone: req.body.phone,
-        location: req.body.location,
-        password: bcrypt.hashSync(req.body.password),
-        roles: req.body.roles,
-        verified: true
-    });
-
-    let role = await Role.findOne({ name: "user" })
-    user.roles = [role._id];
-
-    try {
-        await user.save();
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-    res.status(201).send({ message: "Admin created successfully!" });
-};
-
 // create new admin
 exports.createAdmin = async (req, res) => {
-    const user = new User({
-        username: req.body.username.toLowerCase(),
-        email: req.body.email,
-        phone: req.body.phone,
-        location: req.body.location,
-        password: bcrypt.hashSync(req.body.password),
-        roles: req.body.roles,
-        verified: true
-    });
-
     // check if the data sent has roles
     if (req.body.roles.length == 0) {
         return res.status(400).send({ message: "Please add at least 1 role!" });
     }
+
+    const admin = new User({
+        username: req.body.username.toLowerCase(),
+        email: req.body.email,
+        phone: req.body.phone,
+        location: req.body.location,
+        password: bcrypt.hashSync(req.body.password),
+        roles: req.body.roles,
+        verified: true
+    });
 
     let roles = [];
     try {
@@ -135,10 +112,10 @@ exports.createAdmin = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    user.roles = roles.map(role => role._id);
+    admin.roles = roles.map(role => role._id);
 
     try {
-        await user.save();
+        await admin.save();
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -281,7 +258,7 @@ exports.viewAdminsSortedByField = async (req, res) => {
 
     // find all admin roles 
     try {
-        adminRoles = await Role.find({ name: { $ne: "user" } })
+        adminRoles = await Role.find({ name: { $ne: "user" } });
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -344,9 +321,9 @@ exports.viewUsersSortedByField = async (req, res) => {
     try {
         const features = new APIFeatures(
             User.find({ roles: { $in: userRole } })
-            .sort({
-                [field]: sort
-            })
+                .sort({
+                    [field]: sort
+                })
                 .populate("roles", "-__v")
                 .populate("items", "-__v")
                 .populate("cart", "-__v")
@@ -784,7 +761,6 @@ exports.addItemToCart = async (req, res) => {
         });
         if (trade) return res.status(400).send({ message: "Item already in trades!" });
     } catch (err) {
-        console.log(err);
         return res.status(500).send(err);
     }
 

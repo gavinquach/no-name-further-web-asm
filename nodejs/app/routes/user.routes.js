@@ -61,16 +61,6 @@ router
         authJwt.isValidAdmin("delete_user")
     ], controller.deleteUser);
 
-// create user
-router.post("/user", [
-    authJwt.verifyToken,
-    authJwt.isValidAdmin("create_user"),
-    validate.validateError,
-    validate.userValidationRules,
-    validate.checkDuplicateUsernameOrEmail,
-    validate.checkRolesExisted
-], controller.createUser);
-
 // get, edit, delete admin with id as param
 router
     .route("/admin/:id")
