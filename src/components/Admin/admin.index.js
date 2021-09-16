@@ -115,7 +115,7 @@ export default class AdminIndex extends Component {
     }
 
     manageAdmin = () => (
-        <div className="user-item Center-text">
+        <div className="Center-text">
             {/* <h2 className="Center-text">Manage admins</h2> */}
             <Link to="/admin/view/admin" className="Button-item">
                 <button className="admin-menu-button">View admins</button>
@@ -129,7 +129,7 @@ export default class AdminIndex extends Component {
     );
 
     manageUser = () => (
-        <div className="Flexbox-item Center-text">
+        <div className="Center-text">
             <Link to="/admin/view/user" className="Button-item">
                 <button className="admin-menu-button">View users</button>
             </Link>
@@ -142,7 +142,7 @@ export default class AdminIndex extends Component {
     );
 
     viewUserTradesAndItems = () => (
-        <div className="Flexbox-item Center-text">
+        <div className="Center-text">
             <Link to="/admin/view/user/trades" className="Button-item">
                 <button className="admin-menu-button">View user trades</button>
             </Link>
