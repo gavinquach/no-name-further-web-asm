@@ -13,7 +13,7 @@ export default class AdminViewAdmin extends Component {
         this.state = {
             users: [],
             sort: "none",
-            sortField: "",
+            sortField: "_id",
             sortOrder: 0,
             sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),

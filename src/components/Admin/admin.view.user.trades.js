@@ -32,7 +32,7 @@ export default class AdminViewUserTrades extends Component {
             successful: false,
             message: "",
             sort: "none",
-            sortField: "",
+            sortField: "_id",
             sortOrder: 0,
             sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
