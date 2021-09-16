@@ -202,14 +202,14 @@ export default class AdminViewUser extends Component {
         };
 
         const roles = AuthService.getRoles();
-        if (roles.includes("ROLE_VIEW_USER") && !roles.includes("ROLE_EDIT_USER") && !roles.includes("ROLE_DELETE_USER")) {
+        if (!roles.includes("ROLE_EDIT_USER") && !roles.includes("ROLE_DELETE_USER")) {
             return (
                 <tr>
                     {tableHeader("Username")}
                     {tableHeader("Email")}
                 </tr>
             )
-        } else if (!roles.includes("ROLE_VIEW_USER") && (roles.includes("ROLE_EDIT_USER") || roles.includes("ROLE_DELETE_USER"))) {
+        } else if (!(roles.includes("ROLE_EDIT_USER") || roles.includes("ROLE_DELETE_USER"))) {
             return (
                 <tr>
                     {tableHeader("Username")}
@@ -230,12 +230,8 @@ export default class AdminViewUser extends Component {
     tableRows = () => {
         return this.state.users.map((object) => (
             <tr key={object._id}>
-                <td>
-                    {object.username}
-                </td>
-                {(AuthService.isRoot() || AuthService.getRoles().includes("ROLE_VIEW_USER")) ?
-                    <td>{object.email}</td>
-                    : null}
+                <td>{object.username}</td>
+                <td>{object.email}</td>
                 {this.showButtons(object)}
             </tr>
         ));
@@ -298,7 +294,7 @@ export default class AdminViewUser extends Component {
 
     render() {
         // redirect to home page when unauthorized admin tries to view
-        if (!AuthService.isRoot() && !AuthService.getRoles().includes("ROLE_VIEW_USER") && !AuthService.getRoles().includes("ROLE_CREATE_USER") && !AuthService.getRoles().includes("ROLE_DELETE_USER")) {
+        if (!AuthService.isAdmin()) {
             return <Redirect to='/admin/index' />
         }
         // ========== validate GET parameters ==========

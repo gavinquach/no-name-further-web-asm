@@ -17,7 +17,6 @@ router.post("/signup", [
 router.get("/users", [
     authJwt.verifyToken,
     authJwt.canViewAdmins,
-    authJwt.canViewUsers
 ], controller.viewAllUsers);
 
 // View all admins 
@@ -29,7 +28,7 @@ router.get("/users/admin", [
 // View all non-admin users 
 router.get("/users/user", [
     authJwt.verifyToken,
-    authJwt.canViewUsers
+    authJwt.isAdmin
 ], controller.viewUsers);
 
 // View all admins sorted by field
@@ -41,7 +40,7 @@ router.get("/users/admin-sorted-by-field", [
 // View all non-admin users sorted by field
 router.get("/users/user-sorted-by-field", [
     authJwt.verifyToken,
-    authJwt.canViewUsers
+    authJwt.isAdmin
 ], controller.viewUsersSortedByField);
 
 // get, edit, delete user with id as param
@@ -52,25 +51,54 @@ router
     ], controller.viewOneUser)
     .put([
         authJwt.verifyToken,
-        authJwt.isValidAdmin("edit_admin"),
+        authJwt.isValidAdmin("edit_user"),
         validate.validateError,
         validate.userValidationRules,
         validate.checkDuplicateUsernameOrEmail
     ], controller.editUser)
     .delete([
         authJwt.verifyToken,
-        authJwt.isValidAdmin("delete_admin")
+        authJwt.isValidAdmin("delete_user")
     ], controller.deleteUser);
 
-// create user with roles (or admin)
+// create user
 router.post("/user", [
+    authJwt.verifyToken,
+    authJwt.isValidAdmin("create_user"),
+    validate.validateError,
+    validate.userValidationRules,
+    validate.checkDuplicateUsernameOrEmail,
+    validate.checkRolesExisted
+], controller.createUser);
+
+// get, edit, delete admin with id as param
+router
+    .route("/admin/:id")
+    .get([
+        authJwt.verifyToken,
+        authJwt.isAdmin
+    ], controller.viewOneUser)
+    .put([
+        authJwt.verifyToken,
+        authJwt.isValidAdmin("edit_admin"),
+        validate.validateError,
+        validate.userValidationRules,
+        validate.checkDuplicateUsernameOrEmail
+    ], controller.editAdmin)
+    .delete([
+        authJwt.verifyToken,
+        authJwt.isValidAdmin("delete_admin")
+    ], controller.deleteAdmin);
+
+// create admin
+router.post("/admin", [
     authJwt.verifyToken,
     authJwt.isValidAdmin("create_admin"),
     validate.validateError,
     validate.userValidationRules,
     validate.checkDuplicateUsernameOrEmail,
     validate.checkRolesExisted
-], controller.createUserWithRoles);
+], controller.createAdmin);
 
 // User edit own's info 
 router.patch("/user/edit/:id", [

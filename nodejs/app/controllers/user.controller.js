@@ -20,7 +20,7 @@ const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
 
-// create new user
+// user sign up
 exports.signup = async (req, res) => {
     const user = new User({
         username: req.body.username.toLowerCase(),
@@ -87,8 +87,31 @@ exports.signup = async (req, res) => {
     }
 };
 
-// create new User in database with roles
-exports.createUserWithRoles = async (req, res) => {
+// create new user
+exports.createUser = async (req, res) => {
+    const user = new User({
+        username: req.body.username.toLowerCase(),
+        email: req.body.email,
+        phone: req.body.phone,
+        location: req.body.location,
+        password: bcrypt.hashSync(req.body.password),
+        roles: req.body.roles,
+        verified: true
+    });
+
+    let role = await Role.findOne({ name: "user" })
+    user.roles = [role._id];
+
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(201).send({ message: "Admin created successfully!" });
+};
+
+// create new admin
+exports.createAdmin = async (req, res) => {
     const user = new User({
         username: req.body.username.toLowerCase(),
         email: req.body.email,
@@ -100,22 +123,19 @@ exports.createUserWithRoles = async (req, res) => {
     });
 
     // check if the data sent has roles
-    if (req.body.roles.length > 0) {
-        let roles = [];
-        try {
-            roles = await Role.find({
-                name: { $in: req.body.roles }
-            });
-        } catch (err) {
-            return res.status(500).send(err);
-        }
-
-        user.roles = roles.map(role => role._id);
-    }
-    // no roles, return message with 400 Bad Request error
-    else {
+    if (req.body.roles.length == 0) {
         return res.status(400).send({ message: "Please add at least 1 role!" });
     }
+
+    let roles = [];
+    try {
+        roles = await Role.find({
+            name: { $in: req.body.roles }
+        });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    user.roles = roles.map(role => role._id);
 
     try {
         await user.save();
@@ -486,6 +506,101 @@ exports.editUser = async (req, res) => {
         user.password = bcrypt.hashSync(req.body.password);
     }
 
+    try {
+        await user.save();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    res.status(200).send({ message: "User updated succesfully!" });
+};
+
+exports.deleteAdmin = async (req, res) => {
+    let user = null;
+    try {
+        user = await User.findByIdAndRemove(req.params.id).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!user) return res.status(404).send({ message: "User not found." });
+
+    // cancel all user trades
+    let trades = [];
+    try {
+        trades = await Trade.find({
+            user_seller: req.params.id,
+            status: { $in: ["PENDING", "WAITING_APPROVAL"] }
+        }).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!trades) return res.status(401).send({ message: "Trades not found." });
+
+    // set status of all trades of item to cancelled
+    trades.map(async trade => {
+        try {
+            trade.status = "CANCELLED";
+            trade.save();
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+    });
+
+    // remove item images
+    user.items.map(async itemid => {
+        let item = null;
+        try {
+            item = await Item.findById(itemid)
+                .populate("images", "-__v")
+                .populate("seller", "-__v")
+                .exec()
+        } catch (err) {
+            return res.status(500).send(err);
+        }
+        if (!item) return res.status(404).send({ message: "Item not found." });
+
+        // remove images related to item
+        item.images.map(image => {
+            fs.unlink(img.path.concat(image.name), err => {
+                // if (err) return res.status(500).send(err);
+            });
+            Image.deleteOne({ _id: img.id });
+        });
+    });
+
+    try {
+        await Item.deleteMany({
+            seller: req.params.id
+        }).exec();
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+
+    res.status(200).send("Admin removed successfully!");
+};
+
+exports.editAdmin = async (req, res) => {
+    let user = null;
+    try {
+        user = await User.findById({ _id: req.params.id });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+    if (!user) return res.status(404).send("User not found.");
+
+    let roles = [];
+    user.roles.map(role => roles.push(role.name));
+
+    // allow root to edit username only
+    if (roles.includes("root")) {
+        user.username = req.body.username;
+    }
+    user.email = req.body.email;
+    user.phone = req.body.phone;
+    user.location = req.body.location;
+    if (req.body.password) {
+        user.password = bcrypt.hashSync(req.body.password);
+    }
+
     // validate roles
     if (req.body.roles) {
         // check if the data sent has roles
@@ -513,7 +628,7 @@ exports.editUser = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    res.status(200).send({ message: "User updated succesfully!" });
+    res.status(200).send({ message: "Admin updated succesfully!" });
 };
 
 exports.editInfo = async (req, res) => {

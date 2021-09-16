@@ -164,7 +164,7 @@ export default class AdminIndex extends Component {
                     <br />
                     <div className="Flexbox container" style={{ width: '80em' }}>
                         {AuthService.hasManageAdminRole() ? this.manageAdmin() : null}
-                        {AuthService.hasManageUserRole() ? this.manageUser() : null}
+                        {this.manageUser()}
                         {this.viewUserTradesAndItems()}
                     </div>
                 </div>
