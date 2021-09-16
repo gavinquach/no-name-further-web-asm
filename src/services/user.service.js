@@ -38,6 +38,12 @@ class UserService {
     viewOneUser(id) {
         return axiosTokenHeader.get(API_URL + "user/" + id);
     }
+    viewOneAdmin(id) {
+        return axiosTokenHeader.get(API_URL + "admin/" + id);
+    }
+    getUserByUsername(username) {
+        return axiosTokenHeader.get(API_URL + "user-username/" + username);
+    }
 
     deleteUser(id) {
         return axiosTokenHeader.delete(API_URL + "user/" + id);
@@ -56,9 +62,6 @@ class UserService {
         });
     }
 
-    viewOneAdmin(id) {
-        return axiosTokenHeader.get(API_URL + "admin/" + id);
-    }
 
     editAdmin(id, username, email, phone, location, password, roles) {
         return axiosTokenHeader.put(API_URL + "admin/" + id, {

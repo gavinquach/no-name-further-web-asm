@@ -288,7 +288,6 @@ export default class AdminViewAdmin extends Component {
 
     showButtons = (object) => {
         const roles = AuthService.getRoles();
-        const id = object._id;
         const adminIsRoot = () => {
             let isRoot = false;
             object.roles.map((role) => {
@@ -308,7 +307,7 @@ export default class AdminViewAdmin extends Component {
                     object._id != AuthService.getCurrentUser().id
                         && object.username != "root"
                         && (AuthService.isRootAccount() || AuthService.isRoot() || (roles.includes("ROLE_EDIT_ADMIN") && !adminIsRoot(object)))
-                        ? <Link to={`/admin/edit/admin/${id}`} className="btn btn-primary ActionButton">Edit</Link>
+                        ? <Link to={`/admin/edit/admin/${object.username}`} className="btn btn-primary ActionButton">Edit</Link>
                         : null
                 }
 

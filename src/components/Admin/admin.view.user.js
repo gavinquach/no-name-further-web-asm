@@ -280,7 +280,7 @@ export default class AdminViewUser extends Component {
             return (
                 <td>
                     {(AuthService.isRoot() || roles.includes("ROLE_EDIT_USER"))
-                        ? <Link to={`/admin/edit/user/${object._id}`} className="btn btn-primary ActionButton">Edit</Link>
+                        ? <Link to={`/admin/edit/user/${object.username}`} className="btn btn-primary ActionButton">Edit</Link>
                         : null
                     }
 

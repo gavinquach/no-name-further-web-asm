@@ -96,6 +96,7 @@ export default class AdminEditUser extends Component {
             data: [],
             vnLocations: [],
             districts: [],
+            _id: "",
             username: "",
             email: "",
             phone: "",
@@ -111,7 +112,7 @@ export default class AdminEditUser extends Component {
 
     delete = () => {
         if (window.confirm("Are you sure you want to delete user " + this.state.username + "?")) {
-            UserService.deleteUser(this.props.match.params.id)
+            UserService.deleteUser(this.state._id)
                 .then(
                     response => {
                         this.setState({
@@ -142,7 +143,7 @@ export default class AdminEditUser extends Component {
     // get user info and assign to input fields
     componentDidMount() {
         window.scrollTo(0, 0); // automatically scroll to top
-        UserService.viewOneUser(this.props.match.params.id)
+        UserService.getUserByUsername(this.props.match.params.username)
             .then(response => {
                 let isUser = false;
                 const role_names = [];
@@ -157,21 +158,20 @@ export default class AdminEditUser extends Component {
 
                 this.getVietnamGeoData();
                 this.setState({
+                    _id: response.data._id,
                     username: response.data.username,
                     email: response.data.email,
                     phone: response.data.phone,
                     location: response.data.location[0],
                     district: response.data.location[1]
                 });
-            }, error => {
-                this.props.history.push("/admin/index");
-            })
-            .catch((error) => {
+            }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
                     console.log(error);
                 }
+                this.props.history.push("/admin/index");
             })
     }
 
@@ -294,7 +294,7 @@ export default class AdminEditUser extends Component {
 
         if (this.checkBtn.context._errors.length === 0) {
             UserService.editUser(
-                this.props.match.params.id,
+                this.state._id,
                 this.state.username,
                 this.state.email,
                 this.state.phone,
@@ -437,7 +437,7 @@ export default class AdminEditUser extends Component {
                         <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
                     </Form>
 
-                    {(this.props.match.params.id != AuthService.getCurrentUser().id &&
+                    {(this.state._id != AuthService.getCurrentUser().id &&
                         (AuthService.isRoot() || (AuthService.getRoles().includes("ROLE_EDIT_USER") && AuthService.getRoles().includes("ROLE_DELETE_USER"))))
                         && (
                             <div>
