@@ -252,6 +252,7 @@ export default class Chat extends Component {
                     if (this.state.conversationId) {
                         this.getMessages(this.state.conversationId);
                     }
+                    this.getConversations();
                     this.setState({
                         totalUnreadCount: this.state.totalUnreadCount + 1
                     });
