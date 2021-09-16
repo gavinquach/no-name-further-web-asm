@@ -18,11 +18,17 @@ router.post("/trade", [
     authJwt.isNotRoot,
 ], controller.createTrade);
 
-// get transactions
+// get all transactions
 router.get("/trades", [
     authJwt.verifyToken,
     authJwt.isAdmin
 ], controller.getAllTrades);
+
+// get all transactions, sorted by field
+router.get("/trades-sorted-by-field", [
+    authJwt.verifyToken,
+    authJwt.isAdmin
+], controller.getAllTradesSortedByField);
 
 router.get("/trades/buyer/:id", [
     authJwt.verifyToken,

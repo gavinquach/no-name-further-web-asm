@@ -111,6 +111,10 @@ class TradeService {
         const url = `?sort=${sort}&page=${page}&limit=${limit}`;
         return axiosTokenHeader.get(API_URL + "trades" + url);
     }
+    getAllTradesSortByField = (field, sort, page, limit) => {
+        const url = `?field=${field}&sort=${sort}&page=${page}&limit=${limit}`
+        return axiosTokenHeader.get(API_URL + "trades-sorted-by-field" + url);
+    }
     getTradesByBuyer(userid, status, sort, page, limit) {
         const url = `${userid}?status=${status}&sort=${sort}&page=${page}&limit=${limit}`;
         return axiosTokenHeader.get(API_URL + "trades/buyer/" + url);

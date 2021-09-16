@@ -32,7 +32,7 @@ exports.getTrade = async (req, res) => {
             if (!item) return res.status(404).send({ message: "Item not found." });
 
             // remove 1 from offers in item model
-            item.offers -= 1;
+            if (item.offers > 0) item.offers -= 1;
 
             try {
                 await item.save();
@@ -52,7 +52,7 @@ exports.getAllTrades = async (req, res) => {
     let total = 0;
 
     try {
-        const features = new APIFeatures(
+        const features = await new APIFeatures(
             Trade.find()
                 .populate("user_seller", "-__v")
                 .populate("user_buyer", "-__v")
@@ -67,34 +67,139 @@ exports.getAllTrades = async (req, res) => {
         // paginating data
         trades = await features.paginate().query;
 
-        if (!trades || trades.length < 1) return res.status(404).send({ message: "Trades not found." });
+        if (!trades || trades.length < 1) {
+            return res.status(404).send({ message: "Trades not found." });
+        }
 
         if (features.queryString.limit == null) {
             features.queryString.limit = 1;
         }
-
         // set trade to expired if expiration date is before or equal to current date
         for (const trade of trades) {
             if (trade.status != "PENDING" && trade.status != "WAITING_APPROVAL") continue;
             if (trade.expiration_date <= new Date()) {
                 let item = null;
-                try {
-                    item = await Item.findById(trade.item).exec();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
+                item = await Item.findById(trade.item).exec();
                 if (!item) return res.status(404).send({ message: "Item not found." });
 
                 // remove 1 from offers in item model
-                item.offers -= 1;
+                if (item.offers > 0) item.offers -= 1;
+                await item.save();
+                trade.status = "EXPIRED";
+                await trade.save();
+            }
+        }
 
-                try {
-                    await item.save();
-                    trade.status = "EXPIRED";
-                    await trade.save();
-                } catch (err) {
-                    return res.status(500).send(err);
-                }
+        res.status(200).json({
+            totalResults: total,
+            result: trades.length,
+            totalPages: Math.ceil(total / features.queryString.limit),
+            trades: trades
+        });
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
+// Get all trades, sorted by field
+exports.getAllTradesSortedByField = async (req, res) => {
+    let trades = [];
+    let total = 0;
+    let field = req.query.field;
+    let sort = req.query.sort;
+
+    try {
+        let features = null;
+        if (field == "_id"
+            || field == "status"
+            || field == "createdAt"
+            || field == "updatedAt"
+            || field == "expiration_date"
+            || field == "finalization_date"
+        ) {
+            features = await new APIFeatures(
+                Trade.find().sort({
+                    [field]: sort
+                })
+                    .populate("user_seller", "-__v")
+                    .populate("user_buyer", "-__v")
+                    .populate("item", "-__v")
+                    .populate("cancel_user", "-__v")
+                , req.query);
+        } else {
+            features = await new APIFeatures(
+                Trade.find()
+                    .populate("user_seller", "-__v")
+                    .populate("user_buyer", "-__v")
+                    .populate("item", "-__v")
+                    .populate("cancel_user", "-__v")
+                , req.query)
+        }
+
+        //count retrieved total data before pagination
+        total = await Trade.countDocuments(features.query);
+
+        // paginating data
+        trades = await features.paginate().query;
+
+        if (!trades || trades.length < 1) {
+            return res.status(404).send({ message: "Trades not found." });
+        }
+
+        if (features.queryString.limit == null) {
+            features.queryString.limit = 1;
+        }
+        // set trade to expired if expiration date is before or equal to current date
+        for (const trade of trades) {
+            if (trade.status != "PENDING" && trade.status != "WAITING_APPROVAL") continue;
+            if (trade.expiration_date <= new Date()) {
+                let item = null;
+                item = await Item.findById(trade.item).exec();
+                if (!item) return res.status(404).send({ message: "Item not found." });
+
+                // remove 1 from offers in item model
+                if (item.offers > 0) item.offers -= 1;
+                await item.save();
+                trade.status = "EXPIRED";
+                await trade.save();
+            }
+        }
+
+        if (field == "user_seller") {
+            if (sort == 1) {
+                trades.sort((a, b) => a.user_seller.username.localeCompare(b.user_seller.username));
+            } else if (sort == -1) {
+                trades.sort((a, b) => b.user_seller.username.localeCompare(a.user_seller.username));
+            }
+        } else if (field == "item.name") {
+            if (sort == 1) {
+                trades.sort((a, b) => a.item.name.localeCompare(b.item.name));
+            } else if (sort == -1) {
+                trades.sort((a, b) => b.item.name.localeCompare(a.item.name));
+            }
+        } else if (field == "user_buyer") {
+            if (sort == 1) {
+                trades.sort((a, b) => a.user_buyer.username.localeCompare(b.user_buyer.username));
+            } else if (sort == -1) {
+                trades.sort((a, b) => b.user_buyer.username.localeCompare(a.user_buyer.username));
+            }
+        } else if (field == "item.forItemName") {
+            if (sort == 1) {
+                trades.sort((a, b) => a.item.forItemName.localeCompare(b.item.forItemName));
+            } else if (sort == -1) {
+                trades.sort((a, b) => b.item.forItemName.localeCompare(a.item.forItemName));
+            }
+        } else if (field == "user_seller.location") {
+            if (sort == 1) {
+                trades.sort((a, b) => a.user_seller.location[0].localeCompare(b.user_seller.location[0]));
+            } else if (sort == -1) {
+                trades.sort((a, b) => b.user_seller.location[0].localeCompare(a.user_seller.location[0]));
+            }
+        } else if (field == "user_buyer.location") {
+            if (sort == 1) {
+                trades.sort((a, b) => a.user_buyer.location[0].localeCompare(b.user_buyer.location[0]));
+            } else if (sort == -1) {
+                trades.sort((a, b) => b.user_buyer.location[0].localeCompare(a.user_buyer.location[0]));
             }
         }
 
@@ -118,7 +223,7 @@ exports.getBuyerTrades = async (req, res) => {
     try {
         let features = null;
         if (status == "REQUESTS") {
-            features = new APIFeatures(
+            features = await new APIFeatures(
                 Trade.find({
                     status: "WAITING_APPROVAL",
                     user_seller: req.params.id
@@ -130,7 +235,7 @@ exports.getBuyerTrades = async (req, res) => {
                 , req.query)
                 .sort();
         } else {
-            features = new APIFeatures(
+            features = await new APIFeatures(
                 Trade.find({
                     status: req.query.status
                 })
@@ -167,7 +272,7 @@ exports.getBuyerTrades = async (req, res) => {
                 if (!item) return res.status(404).send({ message: "Item not found." });
 
                 // remove 1 from offers in item model
-                item.offers -= 1;
+                if (item.offers > 0) item.offers -= 1;
 
                 try {
                     await item.save();
@@ -220,7 +325,7 @@ exports.getSellerTrades = async (req, res) => {
             if (!item) return res.status(404).send({ message: "Item not found." });
 
             // remove 1 from offers in item model
-            item.offers -= 1;
+            if (item.offers > 0) item.offers -= 1;
 
             try {
                 await item.save();
@@ -264,7 +369,7 @@ exports.getItemTrades = async (req, res) => {
             if (!item) return res.status(404).send({ message: "Item not found." });
 
             // remove 1 from offers in item model
-            item.offers -= 1;
+            if (item.offers > 0) item.offers -= 1;
 
             try {
                 await item.save();
@@ -288,7 +393,7 @@ exports.getUserTrades = async (req, res) => {
     try {
         let features = null;
         if (status == "REQUESTS") {
-            features = new APIFeatures(
+            features = await new APIFeatures(
                 Trade.find({
                     status: "WAITING_APPROVAL",
                     user_seller: userid
@@ -300,7 +405,7 @@ exports.getUserTrades = async (req, res) => {
                 , req.query)
                 .sort();
         } else if (status == "WAITING_APPROVAL") {
-            features = new APIFeatures(
+            features = await new APIFeatures(
                 Trade.find({
                     status: "WAITING_APPROVAL",
                     user_buyer: userid
@@ -312,7 +417,7 @@ exports.getUserTrades = async (req, res) => {
                 , req.query)
                 .sort();
         } else {
-            features = new APIFeatures(
+            features = await new APIFeatures(
                 Trade.find({
                     status: req.query.status,
                     $or: [{
@@ -354,7 +459,7 @@ exports.getUserTrades = async (req, res) => {
                 if (!item) return res.status(404).send({ message: "Item not found." });
 
                 // remove 1 from offers in item model
-                item.offers -= 1;
+                if (item.offers > 0) item.offers -= 1;
 
                 try {
                     await item.save();
@@ -467,7 +572,7 @@ exports.deleteTrade = (req, res) => {
             // save item
             try {
                 // remove 1 from offers in item model
-                item.offers -= 1;
+                if (item.offers > 0) item.offers -= 1;
                 await item.save();
             } catch (err) {
                 return res.status(500).send(err);
@@ -504,7 +609,7 @@ exports.cancelTrade = async (req, res) => {
     // save item, delete expiration document, and update trade in database
     try {
         // remove 1 from offers in item model
-        item.offers -= 1;
+        if (item.offers > 0) item.offers -= 1;
         await item.save();
 
         trade.status = "CANCELLED";
@@ -556,7 +661,7 @@ exports.setTradeToExpired = async (req, res) => {
     if (trade.expiration_date <= new Date()) {
         try {
             // remove 1 from offers in item model
-            item.offers -= 1;
+            if (item.offers > 0) item.offers -= 1;
             trade.status = "EXPIRED";
             await item.save();
             await trade.save();
