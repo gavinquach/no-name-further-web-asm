@@ -138,4 +138,15 @@ exports.getConversation = async (req, res) => {
     }
 }
 
+// get a conversation between two userId
+exports.getConversationById = async (req, res) => {
+    // check if conversation is already available and get it 
+    try {
+        const conversation = await Conversation.findById(req.params.id).exec();
+        if (!conversation) return res.status(404).send({ message: "Conversation not found." });
 
+        res.status(200).json(conversation)
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+}

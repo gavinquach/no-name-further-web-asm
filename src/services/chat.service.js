@@ -56,6 +56,10 @@ class ChatService {
         const url = `${firstUserId}/${secondUserId}`;
         return axiosTokenHeader.get(API_URL + "conversation/" + url);
     }
+
+    getConversationById(conversationId) {
+        return axiosTokenHeader.get(API_URL + "conversation-by-id/" + conversationId);
+    }
 }
 
 export default new ChatService();
