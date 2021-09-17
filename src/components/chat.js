@@ -563,8 +563,8 @@ export default class Chat extends Component {
 
                             // if scroll is at the top or around the top,
                             // automatically scroll chat to bottom
-                            if (chat.scrollTop == 0 || chat.scrollTop < (chat.scrollHeight - chat.offsetHeight) * 0.05) {
-                                chat.scrollTop = (chat.scrollHeight - chat.offsetHeight);
+                            if (chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) || chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) * 0.85) {
+                                this.setMessagesToRead(this.state.conversationId);
                             }
                         }
                         // chat has no scrollwheel
