@@ -176,7 +176,7 @@ export default class PopularOffers extends Component {
         }
         // ========== end of GET param validation ==========
         return (
-            <div className={!this.props.obj && "page-container"}>
+            <div className={!this.props.obj && "menu-container"}>
                 {!this.props.obj && (
                     <Helmet>
                         <title>Popular Offers</title>
