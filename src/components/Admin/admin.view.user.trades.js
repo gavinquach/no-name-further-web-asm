@@ -288,19 +288,19 @@ export default class AdminViewUserTrades extends Component {
                     {this.state.trades.map((object) => (
                         <tr key={object._id}>
                             <td style={{ maxWidth: '6em', wordWrap: 'break-word' }}>{object._id}</td>
-                            <td>{object.user_seller.username}</td>
+                            <td>{object.user_seller ? object.user_seller.username : "N/A"}</td>
                             <td>{object.item.name}</td>
-                            <td>{object.user_buyer.username}</td>
+                            <td>{object.user_buyer ? object.user_buyer.username : "N/A"}</td>
                             <td>{object.item.forItemName}</td>
-                            <td>{object.user_seller.location[0]}</td>
-                            <td>{object.user_buyer.location[0]}</td>
+                            <td>{object.user_seller ? object.user_seller.location[0] : "N/A"}</td>
+                            <td>{object.user_buyer ? object.user_buyer.location[0] : "N/A"}</td>
                             <td>{formatDate(object.createdAt)}</td>
                             <td>{formatDate(object.updatedAt)}</td>
                             <td>{object.finalization_date ? formatDate(object.finalization_date) : "None"}</td>
                             <td>{tradeStatus[object.status]}</td>
                             <td>
                                 <Link to={`/trade/${object._id}`} className="btn btn-info ActionButton">Visit</Link>
-                                <Link to={`/user/edit/trade/${object._id}`} className="btn btn-primary ActionButton">Edit</Link>
+                                {/* <Link to={`/user/edit/trade/${object._id}`} className="btn btn-primary ActionButton">Edit</Link> */}
                                 <button key={object._id.toString() + "-cancel"} onClick={() => this.cancel(object)} className="btn btn-warning ActionButton">Cancel</button>
                                 <button key={object._id.toString() + "-delete"} onClick={() => this.delete(object)} className="btn btn-danger ActionButton">Delete</button>
 

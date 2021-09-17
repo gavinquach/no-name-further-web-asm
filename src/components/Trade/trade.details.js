@@ -39,7 +39,7 @@ export default class TradeDetails extends Component {
         TradeService.getTrade(
             this.props.match.params.id
         ).then(response => {
-            if (AuthService.isRegularUser()) {
+            if (response.data.user_buyer && response.data.user_seller) {
                 // checks if user is either seller or buyer
                 if (AuthService.getCurrentUser().id != response.data.user_buyer._id && AuthService.getCurrentUser().id != response.data.user_seller._id) {
                     this.props.history.push("/");
@@ -156,8 +156,8 @@ export default class TradeDetails extends Component {
                         <p>ID: {trade._id}</p>
                         <p>
                             {trade.status == "WAITING_APPROVAL"
-                                ? "Request from: ".concat(trade.user_buyer.username)
-                                : "Trader: ".concat(trade.user_buyer.username)}
+                                ? "Request from: ".concat(trade.user_buyer ? trade.user_buyer.username : "N/A")
+                                : "Trader: ".concat(trade.user_buyer ? trade.user_buyer.username : "N/A")}
                         </p>
                         <p>Owner: {trade.user_seller.username}</p>
                         {trade.user_seller._id != AuthService.getCurrentUser().id ? (
@@ -173,7 +173,7 @@ export default class TradeDetails extends Component {
                                 </button>
                             </Link>
                         ) : (
-                            <Link to={"/trader/" + trade.user_buyer.username}>
+                            <Link to={trade.user_buyer ? "/trader/" + trade.user_buyer.username : "#"}>
                                 <button style={{
                                     marginTop: '0em',
                                     marginBottom: '1em',
@@ -181,7 +181,7 @@ export default class TradeDetails extends Component {
                                     marginRight: '-1.5em'
                                 }} className="VisitUserPageBtn"
                                 >
-                                    Visit {trade.user_buyer.username}'s' page
+                                    Visit {trade.user_buyer ? trade.user_buyer.username : "N/A"}'s' page
                                 </button>
                             </Link>
                         )}
