@@ -36,7 +36,7 @@
 }
 
 .profile-page {
-    padding: 5vw;
+    padding: 3vw;
     margin-left: 1em;
     border: 1px solid black;
 }
@@ -55,7 +55,7 @@
 }
 
 .profile-input {
-    width: 30vw;
+    width: 20vw;
     height: 3.5em;
     margin-bottom: 1em;
     padding-top: auto;
@@ -82,7 +82,7 @@
 }
 
 #district-select {
-    width: 30vw;
+    width: 20vw;
 }
 
 .left-item-list {
@@ -139,8 +139,12 @@
         margin-bottom: 1.5em
     }
     .profile-input {
+        width: 30vw;
         margin-top: 0.2em;
         margin-bottom: 1.2em
+    }
+    #district-select {
+        width: 30vw
     }
     .form {
         padding: 2em;
