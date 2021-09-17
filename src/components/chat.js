@@ -616,6 +616,12 @@ export default class Chat extends Component {
                         // clear input field
                         const input = document.getElementById("input");
                         input.value = "";
+
+                        // set all messages to read
+                        this.setMessagesToRead(this.state.conversationId);
+
+                        // update timestamp of conversation
+                        this.getConversations()
                     });
                 })
             .catch((error) => {
