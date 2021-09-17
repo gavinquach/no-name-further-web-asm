@@ -1100,12 +1100,16 @@ exports.search = async (req, res) => {
             .populate("seller", "-__v")
             .exec();
 
-        let role = await Role.findOne({ name: "user" });
         users_full = await User.find({
-            username: {
-                '$regex': keyword, '$options': 'i'
-            },
-            roles: [role._id]
+            $and: [{
+                username: {
+                    '$regex': keyword, '$options': 'i'
+                }
+            }, {
+                username: {
+                    $ne: "root"
+                }
+            }]
         }).exec();
     } catch (err) {
         return res.status(500).send(err);
