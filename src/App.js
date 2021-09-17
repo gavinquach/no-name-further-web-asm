@@ -120,8 +120,8 @@ export default class App extends Component {
                         <AdminProtectedRoute exact path='/admin/view/user' component={AdminViewUser} />
                         <AdminProtectedRoute exact path='/admin/create/admin' component={AdminCreateAdmin} />
                         <AdminProtectedRoute exact path='/admin/create/user' component={AdminCreateUser} />
-                        <AdminProtectedRoute path='/admin/edit/admin/:id' component={AdminEditAdmin} />
-                        <AdminProtectedRoute path='/admin/edit/user/:id' component={AdminEditUser} />
+                        <AdminProtectedRoute path='/admin/edit/admin/:username' component={AdminEditAdmin} />
+                        <AdminProtectedRoute path='/admin/edit/user/:username' component={AdminEditUser} />
                         <AdminProtectedRoute exact path='/admin/view/user/trades' component={AdminViewUserTrades} />
                         <AdminProtectedRoute exact path='/admin/view/user/items' component={AdminViewUserItems} />
                         <Route component={NotFound} />

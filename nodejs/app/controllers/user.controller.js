@@ -20,10 +20,21 @@ const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
 
-// user sign up
+// user sign up & create user
 exports.signup = async (req, res) => {
+    // allow lowercase alphanumeric, dash, and underscore for username only
+    const regex = /^([a-z0-9-_\u0600-\u06FF\u0660-\u0669\u06F0-\u06F9 _.-]+)$/
+    let username = req.body.username.toLowerCase();
+    if (!regex.test(username)) {
+        return res.status(400).send({ message: "Username must be lowercase alphanumeric with dash or underscore only." });
+    }
+    if (/\s/g.test(username)) {
+        return res.status(400).send({ message: "Whitespace is not allowed in username." });
+    }
+    username = username.trim(); // do this just to be safe with the whitespace...
+
     const user = new User({
-        username: req.body.username.toLowerCase(),
+        username: username,
         email: req.body.email,
         phone: req.body.phone,
         location: req.body.location,
@@ -87,45 +98,34 @@ exports.signup = async (req, res) => {
     }
 };
 
-// create new user
-exports.createUser = async (req, res) => {
-    const user = new User({
-        username: req.body.username.toLowerCase(),
-        email: req.body.email,
-        phone: req.body.phone,
-        location: req.body.location,
-        password: bcrypt.hashSync(req.body.password),
-        roles: req.body.roles,
-        verified: true
-    });
-
-    let role = await Role.findOne({ name: "user" })
-    user.roles = [role._id];
-
-    try {
-        await user.save();
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-    res.status(201).send({ message: "Admin created successfully!" });
-};
-
 // create new admin
 exports.createAdmin = async (req, res) => {
-    const user = new User({
-        username: req.body.username.toLowerCase(),
-        email: req.body.email,
-        phone: req.body.phone,
-        location: req.body.location,
-        password: bcrypt.hashSync(req.body.password),
-        roles: req.body.roles,
-        verified: true
-    });
-
     // check if the data sent has roles
     if (req.body.roles.length == 0) {
         return res.status(400).send({ message: "Please add at least 1 role!" });
     }
+
+    // allow alphanumeric, dash, and underscore for username only
+    const regex = /^([a-zA-Z0-9-_\u0600-\u06FF\u0660-\u0669\u06F0-\u06F9 _.-]+)$/
+    let username = req.body.username.toLowerCase();
+    if (!regex.test(username)) {
+        return res.status(400).send({ message: "Username must be lowercase alphanumeric with dash or underscore only." });
+    }
+    // don't allow whitespace
+    if (/\s/g.test(username)) {
+        return res.status(400).send({ message: "Whitespace is not allowed in username." });
+    }
+    username = username.trim(); // do this just to be safe with the whitespace...
+
+    const admin = new User({
+        username: username,
+        email: req.body.email,
+        phone: req.body.phone,
+        location: req.body.location,
+        password: bcrypt.hashSync(req.body.password),
+        roles: req.body.roles,
+        verified: true
+    });
 
     let roles = [];
     try {
@@ -135,10 +135,10 @@ exports.createAdmin = async (req, res) => {
     } catch (err) {
         return res.status(500).send(err);
     }
-    user.roles = roles.map(role => role._id);
+    admin.roles = roles.map(role => role._id);
 
     try {
-        await user.save();
+        await admin.save();
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -281,7 +281,7 @@ exports.viewAdminsSortedByField = async (req, res) => {
 
     // find all admin roles 
     try {
-        adminRoles = await Role.find({ name: { $ne: "user" } })
+        adminRoles = await Role.find({ name: { $ne: "user" } });
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -344,9 +344,9 @@ exports.viewUsersSortedByField = async (req, res) => {
     try {
         const features = new APIFeatures(
             User.find({ roles: { $in: userRole } })
-            .sort({
-                [field]: sort
-            })
+                .sort({
+                    [field]: sort
+                })
                 .populate("roles", "-__v")
                 .populate("items", "-__v")
                 .populate("cart", "-__v")
@@ -378,7 +378,22 @@ exports.viewUsersSortedByField = async (req, res) => {
 
 exports.viewOneUser = async (req, res) => {
     try {
-        const user = await User.findById({ _id: req.params.id })
+        const user = await User.findById(req.params.id)
+            .populate("roles", "-__v")
+            .populate("items", "-__v")
+            .populate("cart", "-__v")
+            .exec();
+
+        if (!user) return res.status(404).send({ message: "User not found." });
+        res.json(user);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+};
+
+exports.getUserByUsername = async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.params.username })
             .populate("roles", "-__v")
             .populate("items", "-__v")
             .populate("cart", "-__v")
@@ -784,7 +799,6 @@ exports.addItemToCart = async (req, res) => {
         });
         if (trade) return res.status(400).send({ message: "Item already in trades!" });
     } catch (err) {
-        console.log(err);
         return res.status(500).send(err);
     }
 
@@ -1086,12 +1100,16 @@ exports.search = async (req, res) => {
             .populate("seller", "-__v")
             .exec();
 
-        let role = await Role.findOne({ name: "user" });
         users_full = await User.find({
-            username: {
-                '$regex': keyword, '$options': 'i'
-            },
-            roles: [role._id]
+            $and: [{
+                username: {
+                    '$regex': keyword, '$options': 'i'
+                }
+            }, {
+                username: {
+                    $ne: "root"
+                }
+            }]
         }).exec();
     } catch (err) {
         return res.status(500).send(err);

@@ -40,6 +40,8 @@ export default class Chat extends Component {
         super(props);
         this.waitTime = 0;
         this.waitTimeInterval = null;
+        this.loading = false;
+        this.openingChat = false;
         this.onChangeMessage = this.onChangeMessage.bind(this);
 
         this.state = {
@@ -52,8 +54,7 @@ export default class Chat extends Component {
             currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null,
             page: 1,
             totalPages: 0,
-            totalUnreadCount: 0,
-            loadingMore: false
+            totalUnreadCount: 0
         };
     }
 
@@ -64,6 +65,7 @@ export default class Chat extends Component {
     }
 
     onScrollSetToRead = () => {
+        if (this.openingChat) return;
         // set messages to read when user scrolls in chat
         // this will also set messages to read when new messages
         const chat = document.getElementById("chat-bubbles");
@@ -73,13 +75,14 @@ export default class Chat extends Component {
             if (chat.scrollHeight <= chat.clientHeight) {
                 return;
             }
-            if (chat.scrollTop < 50) {
-                if (this.state.loadingMore) {
-                    return;
-                }
+
+            // load older messages when the scroll is very close to the top
+            if (chat.scrollTop == 0 || chat.scrollTop < (chat.scrollHeight - chat.offsetHeight) * 0.05) {
                 if (this.state.totalPages > 0 && this.state.page >= this.state.totalPages) {
                     return;
                 }
+                if (this.loading) return;
+                this.loading = true;
 
                 if (!this.waitTimeInterval) {
                     this.waitTimeInterval = setInterval(() => {
@@ -89,68 +92,77 @@ export default class Chat extends Component {
                         // load new messages
                         if (this.waitTime >= 500) {
                             this.stopTimer();
-                            this.setState({
-                                loadingMore: true
-                            }, () => {
-                                ChatService.getMessages(
-                                    this.state.conversationId,
-                                    "-createdAt",
-                                    this.state.page + 1,
-                                    10,
-                                )
-                                    .then(
-                                        response => {
-                                            const messages = response.data.messages;
-                                            const temp = this.state.messages;
+                            this.loading = false;
 
-                                            // insert new messages to the start
-                                            // of current messages array
-                                            messages.map((message) => {
-                                                temp.unshift(message);
-                                            });
+                            ChatService.getMessages(
+                                this.state.conversationId,
+                                "-createdAt",
+                                this.state.page + 1,
+                                10,
+                            ).then((response) => {
+                                const messages = response.data.messages;
+                                const temp = this.state.messages;
 
-                                            this.setState({
-                                                messages: temp,
-                                                page: this.state.page + 1,
-                                                totalPages: response.data.totalPages,
-                                                loadingMore: false
-                                            }, () => {
-                                                // move scroll down to the current
-                                                // message after loading older messages,
-                                                // value retrieved through trial and error
-                                                chat.scrollTop += chat.scrollHeight * 0.30;
-                                            });
-                                        })
-                                    .catch((error) => {
-                                        if (error.response && error.response.status != 500) {
-                                            console.log(error.response.data.message);
-                                        } else {
-                                            console.log(error);
-                                        }
-                                        this.setState({
-                                            messages: []
-                                        });
-                                    });
+                                // insert new messages to the start
+                                // of current messages array
+                                messages.map((message) => {
+                                    temp.unshift(message);
+                                });
+
+                                this.setState({
+                                    messages: temp,
+                                    page: this.state.page + 1,
+                                    totalPages: response.data.totalPages
+                                }, () => {
+                                    // move scroll down to the current
+                                    // message after loading older messages,
+                                    // value retrieved through trial and error
+                                    chat.scrollTop += chat.scrollHeight * 0.30;
+                                });
+                            }).catch((error) => {
+                                if (error.response && error.response.status != 500) {
+                                    console.log(error.response.data.message);
+                                } else {
+                                    console.log(error);
+                                }
+                                this.setState({
+                                    messages: []
+                                });
                             });
-
                         }
                     }, 100);
                 }
             }
-            // lots of nesting here, disgusting, i know, but oh well...
-            // user's scroll position at the bottom or around the bottom,
+            // user's scroll position close to the bottom,
             // set messages to read
-            else {
+            else if (chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) || chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) * 0.85) {
+                this.loading = false;
                 this.stopTimer();
-                for (const conversation of this.state.conversations) {
-                    if (conversation._id == this.state.conversationId) {
-                        if (chat.scrollTop > chat.scrollHeight - 350 && conversation.unreadCount > 0) {
-                            conversation.unreadCount = 0;
-                            this.setMessagesToRead(this.state.conversationId);
-                            break;
+
+                // has unread messages
+                if (this.state.totalUnreadCount > 0) {
+                    const temp = this.state.conversations;
+                    // get conversation id
+                    temp.map((conversation) => {
+                        if (conversation._id == this.state.conversationId) {
+                            // set conversation unread count to 0
+                            if (conversation.unreadCount > 0) {
+                                conversation.unreadCount = 0;
+                            }
                         }
-                    }
+                    });
+                    this.setState({
+                        conversations: temp
+                    }, () => {
+                        // set conversation messages to read
+                        this.setMessagesToRead(this.state.conversationId);
+                    });
                 }
+            }
+            // scroll is around the middle area
+            else {
+                this.loading = false;
+                this.stopTimer();
             }
         }
     }
@@ -167,39 +179,74 @@ export default class Chat extends Component {
         // get total unread count for user
         ChatService.getUserUnreadMessages(
             this.state.currentUser.id,
-        )
-            .then(
-                (response) => {
-                    this.setState({
-                        totalUnreadCount: response.data.total
-                    });
-                })
-            .catch((error) => {
+        ).then((response) => {
+            this.setState({
+                totalUnreadCount: response.data.total
+            });
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
+
+        // get unread count for each conversation
+        const temp = this.state.conversations;
+        temp.map((conversation) => {
+            ChatService.getUserConversationUnreadMessages(
+                conversation._id,
+                this.state.currentUser.id
+            ).then((response) => {
+                conversation.unreadCount = response.data.total
+            }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
                     console.log(error);
                 }
             });
+        });
 
-        // get unread count for each conversation
-        this.state.conversations.map((conversation) => {
-            ChatService.getUserConversationUnreadMessages(
-                conversation._id,
-                this.state.currentUser.id
-            )
-                .then(
-                    (response) => {
-                        conversation.unreadCount = response.data.total
-                    })
-                .catch((error) => {
-                    if (error.response && error.response.status != 500) {
-                        console.log(error.response.data.message);
-                    } else {
-                        console.log(error);
+        this.setState({
+            conversations: temp
+        });
+    }
+
+    updateConversation = (conversationId, read) => {
+        if (!conversationId) {
+            return;
+        }
+        ChatService.getConversationById(conversationId)
+            .then((response) => {
+                let temp = null;
+                response.data.members.map((user) => {
+                    if (user._id != this.state.currentUser.id) {
+                        temp = {
+                            _id: response.data._id,
+                            user: user,
+                            updatedAt: response.data.updatedAt
+                        };
                     }
                 });
-        });
+
+                let tempList = this.state.conversations;
+                tempList.map((conversation) => {
+                    if (conversation._id == temp._id) {
+                        conversation.updatedAt = temp.updatedAt;
+                        if (!read) {
+                            conversation.unreadCount += 1;
+                        }
+                    }
+                });
+                this.setState({ conversations: tempList });
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
     }
 
     componentDidMount = () => {
@@ -218,13 +265,11 @@ export default class Chat extends Component {
                         const temp = this.state.messages;
                         temp.push(message);
 
-                        // automatically scroll down after set state
-                        // if user's scroll is already at the bottom
-                        let isScrolledToBottom = false;
                         // check if user's scroll is at the bottom
+                        let isScrollAtBottom = false;
                         const chat = document.getElementById("chat-bubbles");
-                        if (chat && chat.scrollHeight - chat.scrollTop == chat.clientHeight) {
-                            isScrolledToBottom = true;
+                        if (chat && (chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) || chat.scrollTop >= (chat.scrollHeight - chat.offsetHeight) * 0.8)) {
+                            isScrollAtBottom = true;
                         }
 
                         // update to display the newest messages
@@ -235,22 +280,31 @@ export default class Chat extends Component {
                             // is scrolled all the way down or close to that
                             const chat = document.getElementById("chat-bubbles");
                             if (chat) {
-                                if (isScrolledToBottom) {
+                                // automatically scroll down if user's scroll is around the bottom
+                                if (isScrollAtBottom) {
                                     chat.scrollTop = chat.scrollHeight;
-                                } else if (chat.scrollTop > chat.scrollHeight - 350) {
                                     this.setMessagesToRead(message.conversationId);
+                                }
+                                // scroll not around the bottom, add 1 to unread and update conversation
+                                else {
+                                    this.setState({
+                                        totalUnreadCount: this.state.totalUnreadCount + 1
+                                    });
+                                    this.updateConversation(message.conversationId, false);
                                 }
                             }
                         });
-                    } else {
-                        this.getConversations();
+                    }
+                    // user is not opening the conversation from message's conversationid
+                    else {
                         this.getUnreadCount();
                     }
                 }
                 // user is not opening chat panel
                 else {
+                    this.updateConversation(message.conversationId);
                     if (this.state.conversationId) {
-                        this.getMessages(this.state.conversationId);
+                        this.getMessages(message.conversationId);
                     }
                     this.setState({
                         totalUnreadCount: this.state.totalUnreadCount + 1
@@ -258,7 +312,7 @@ export default class Chat extends Component {
                 }
             });
 
-            // when user receives a message
+            // user clicked on "Chat with user" button
             socket.on("receivechatWithUserRequest", data => {
                 // open chat panel
                 if (!this.state.chatOpened) {
@@ -276,48 +330,46 @@ export default class Chat extends Component {
                 ChatService.postConversation(
                     data.user,
                     data.receiver
-                ).then(
-                    () => {
-                        ChatService.getConversationsRequest(this.state.currentUser.id)
-                            .then(
-                                response => {
-                                    const temp = response.data.conversations;
-                                    const conversationList = [];
-                                    temp.map((obj,) => {
-                                        obj.members.map((user) => {
-                                            if (user._id != this.state.currentUser.id) {
-                                                conversationList.push({
-                                                    _id: obj._id,
-                                                    user: user,
-                                                    updatedAt: obj.updatedAt
-                                                });
-                                            }
-                                        });
+                ).then(() => {
+                    ChatService.getConversationsRequest(this.state.currentUser.id)
+                        .then(
+                            response => {
+                                const temp = response.data.conversations;
+                                const conversationList = [];
+                                temp.map((obj,) => {
+                                    obj.members.map((user) => {
+                                        if (user._id != this.state.currentUser.id) {
+                                            conversationList.push({
+                                                _id: obj._id,
+                                                user: user,
+                                                updatedAt: obj.updatedAt
+                                            });
+                                        }
                                     });
+                                });
 
-                                    // sort from newest date to oldest
-                                    conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                                // sort from newest date to oldest
+                                conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
-                                    this.setState({
-                                        conversations: conversationList
-                                    }, () => {
-                                        this.getUnreadCount();
-                                        this.setChatPanelState();
-                                        const conversation = this.state.conversations[0];
-                                        this.setChatTarget(conversation);
-                                        this.setState({ receiver: conversation.user._id });
-                                    });
-                                })
-                            .catch((error) => {
-                                if (error.response && error.response.status != 500) {
-                                    console.log(error.response.data.message);
-                                } else {
-                                    console.log(error);
-                                }
-                                this.setChatPanelState();
-                            });
-                    }
-                ).catch((error) => {
+                                this.setState({
+                                    conversations: conversationList
+                                }, () => {
+                                    this.getUnreadCount();
+                                    this.setChatPanelState();
+                                    const conversation = this.state.conversations[0];
+                                    this.setChatTarget(conversation);
+                                    this.setState({ receiver: conversation.user._id });
+                                });
+                            })
+                        .catch((error) => {
+                            if (error.response && error.response.status != 500) {
+                                console.log(error.response.data.message);
+                            } else {
+                                console.log(error);
+                            }
+                            this.setChatPanelState();
+                        });
+                }).catch((error) => {
                     // conversation already exists
                     if (error.response && error.response.status == 401) {
                         // has conversation with this user already,
@@ -329,13 +381,13 @@ export default class Chat extends Component {
                                 otherUser = user;
                             }
                         });
-    
+
                         const conversation = {
                             _id: temp._id,
                             user: otherUser,
                             updatedAt: temp.updatedAt
                         };
-    
+
                         this.setChatTarget(conversation);
                         this.setState({ receiver: conversation.user });
                     } else if (error.response && error.response.status != 500) {
@@ -352,46 +404,47 @@ export default class Chat extends Component {
 
     getConversations = () => {
         ChatService.getConversations(this.state.currentUser.id)
-            .then(
-                response => {
-                    const temp = response.data.conversations;
-                    const conversationList = [];
-                    temp.map((obj,) => {
-                        obj.members.map((user) => {
-                            if (user._id != this.state.currentUser.id) {
-                                conversationList.push({
-                                    _id: obj._id,
-                                    user: user,
-                                    updatedAt: obj.updatedAt
-                                });
-                            }
-                        });
-                    });
-
-                    // sort from newest date to oldest
-                    conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
-                    this.setState({
-                        conversations: conversationList,
-                        conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
-                    }, () => {
-                        this.getUnreadCount();
-                        this.setChatPanelState();
-                        // has conversation id, get messages and set receiver id
-                        if (this.state.conversationId) {
-                            this.getMessages(this.state.conversationId);
-
-                            // set receiver id
-                            for (const conversation of conversationList) {
-                                if (conversation._id == this.state.conversationId) {
-                                    this.setState({ receiver: conversation.user._id });
-                                    break;
-                                }
-                            }
+            .then((response) => {
+                const temp = response.data.conversations;
+                const conversationList = [];
+                temp.map((obj,) => {
+                    obj.members.map((user) => {
+                        if (user._id != this.state.currentUser.id) {
+                            conversationList.push({
+                                _id: obj._id,
+                                user: user,
+                                updatedAt: obj.updatedAt
+                            });
                         }
                     });
-                })
-            .catch((error) => {
+                });
+
+                // sort from newest date to oldest
+                conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+                this.setState({
+                    conversations: conversationList,
+                    conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
+                }, () => {
+                    this.getUnreadCount();
+                    this.setChatPanelState();
+                    // has conversation id, get messages and set receiver id
+                    if (this.state.conversationId) {
+                        this.getMessages(this.state.conversationId);
+
+                        // set receiver id
+                        for (const conversation of conversationList) {
+                            if (conversation._id == this.state.conversationId) {
+                                this.setState({ receiver: conversation.user._id });
+                                break;
+                            }
+                        }
+                    }
+                    if (localStorage.getItem("chatOpened") == "true") {
+                        this.setMessagesToRead(this.state.conversationId);
+                    }
+                });
+            }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
@@ -462,11 +515,15 @@ export default class Chat extends Component {
                 page: 1
             });
             this.getMessages(conversationId);
-            this.setMessagesToRead(conversationId);
+
+            if (conversation.unreadCount && conversation.unreadCount > 0) {
+                this.setMessagesToRead(conversationId);
+            }
         }
     }
 
     toggleChat = () => {
+        // chat is currently opened, close it
         if (this.state.chatOpened) {
             this.setState({ chatOpened: false });
             const panel = document.getElementById("chat-panel");
@@ -476,7 +533,9 @@ export default class Chat extends Component {
             // store in local storage to keep track
             // when users go to another page
             localStorage.chatOpened = false;
-        } else {
+        }
+        // chat is currently closed, open it
+        else {
             this.setState({ chatOpened: true });
             const panel = document.getElementById("chat-panel");
             panel.classList.remove("HideChatPanel");
@@ -486,20 +545,35 @@ export default class Chat extends Component {
             // when users go to another page
             localStorage.chatOpened = true;
 
-            // automatically set messages in chat boxes with no
-            // scrollwheel to read upon open
-            const chat = document.getElementById("chat-bubbles");
-            if (chat) {
-                // set timer because of CSS transition delay
-                setTimeout(() => {
-                    // chat has no scrollwheel
-                    if (chat.scrollHeight <= chat.clientHeight) {
-                        this.setMessagesToRead(this.state.conversationId);
-                    } else {
-                        chat.scrollTop = chat.scrollHeight;
-                        this.setMessagesToRead(this.state.conversationId);
-                    }
-                }, 400);
+            // set opening chat to true to prevent the scroll
+            // functions from running while it's opening
+            this.openingChat = true;
+
+            // has unread message
+            if (this.state.totalUnreadCount > 0) {
+                // automatically set messages in conversation to read upon open
+                const chat = document.getElementById("chat-bubbles");
+                if (chat) {
+                    // set timer because of CSS transition delay,
+                    // otherwise the clientHeight value will always be 6
+                    setTimeout(() => {
+                        // chat has scrollwheel
+                        if (chat.scrollHeight > chat.clientHeight) {
+                            this.openingChat = false;
+
+                            // if scroll is at the top or around the top,
+                            // automatically scroll chat to bottom
+                            if (chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) || chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) * 0.85) {
+                                this.setMessagesToRead(this.state.conversationId);
+                            }
+                        }
+                        // chat has no scrollwheel
+                        else {
+                            this.openingChat = false;
+                            this.setMessagesToRead(this.state.conversationId);
+                        }
+                    }, 400);
+                }
             }
         }
     }
@@ -511,18 +585,15 @@ export default class Chat extends Component {
             ChatService.setMessagesToRead(
                 conversationId,
                 this.state.currentUser.id
-            )
-                .then(() => {
-                    this.getUnreadCount();
-                })
-                .catch((error) => {
-                    if (error.response && error.response.status != 500) {
-                        console.log(error.response.data.message);
-                    } else {
-                        console.log(error);
-                    }
-                    this.setChatPanelState();
-                });
+            ).then(() => {
+                this.getUnreadCount();
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
         }
     }
 
@@ -533,43 +604,40 @@ export default class Chat extends Component {
             "-createdAt",
             1,
             10,
-        )
-            .then(
-                response => {
-                    // sort to display messages in the correct order
-                    const messages = response.data.messages.sort((a, b) =>
-                        new Date(a.createdAt) - new Date(b.createdAt)
-                    );
+        ).then((response) => {
+            // sort to display messages in the correct order
+            const messages = response.data.messages.sort((a, b) =>
+                new Date(a.createdAt) - new Date(b.createdAt)
+            );
 
-                    this.setState({
-                        messages: messages,
-                        page: 1,
-                        totalPages: response.data.totalPages
-                    }, () => {
-                        const chat = document.getElementById("chat-bubbles");
-                        // chat has no scrollwheel
-                        if (chat && chat.scrollHeight <= chat.clientHeight) {
-                            this.setMessagesToRead(conversationId);
-                        }
-                        // chat has scrollwheel
-                        else {
-                            // automatically scroll chat to bottom
-                            // which will also set all messages to read
-                            // from onScrollSetToRead() function
-                            chat.scrollTop = chat.scrollHeight;
-                        }
-                    });
-                })
-            .catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
+            this.setState({
+                messages: messages,
+                page: 1,
+                totalPages: response.data.totalPages
+            }, () => {
+                const chat = document.getElementById("chat-bubbles");
+                // chat has no scrollwheel
+                if (chat && chat.scrollHeight <= chat.clientHeight) {
+                    this.setMessagesToRead(conversationId);
                 }
-                this.setState({
-                    messages: []
-                });
+                // chat has scrollwheel
+                else {
+                    // automatically scroll chat to bottom
+                    // which will also set all messages to read
+                    // from onScrollSetToRead() function
+                    chat.scrollTop = chat.scrollHeight;
+                }
             });
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+            this.setState({
+                messages: []
+            });
+        });
     }
 
     sendMessage = (e) => {
@@ -580,8 +648,12 @@ export default class Chat extends Component {
             return;
         }
         // don't allow sending empty strings
-        if (this.state.message == "") {
+        if (this.state.message === null || this.state.message == "") {
             return;
+        }
+        // don't allow message with only whitespaces
+        if (this.state.message && this.state.message.trim() === '') {
+            return
         }
 
         const message = {
@@ -592,28 +664,29 @@ export default class Chat extends Component {
         };
 
         ChatService.postMessage(message)
-            .then(
-                response => {
-                    // push message 
-                    const temp = this.state.messages;
-                    temp.push(message);
+            .then((response) => {
+                // push message 
+                const temp = this.state.messages;
+                temp.push(message);
 
-                    // set conversation id and update to display the newest messages
-                    this.setState({
-                        conversationId: response.data.conversationId,
-                        message: "",
-                        messages: temp
-                    }, () => {
-                        // automatically scroll chat to bottom
-                        const chat = document.getElementById("chat-bubbles");
-                        chat.scrollTop = chat.scrollHeight;
+                // set conversation id and update to display the newest messages
+                this.setState({
+                    conversationId: response.data.conversationId,
+                    message: "",
+                    messages: temp
+                }, () => {
+                    // automatically scroll chat to bottom
+                    const chat = document.getElementById("chat-bubbles");
+                    chat.scrollTop = chat.scrollHeight;
 
-                        // clear input field
-                        const input = document.getElementById("input");
-                        input.value = "";
-                    });
-                })
-            .catch((error) => {
+                    // clear input field
+                    const input = document.getElementById("input");
+                    input.value = "";
+
+                    // update timestamp of conversation
+                    this.updateConversation(this.state.conversationId, true);
+                });
+            }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {

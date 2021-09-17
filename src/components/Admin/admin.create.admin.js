@@ -39,6 +39,25 @@ const vusername = value => {
             </div>
         );
     }
+    
+    // allow lowercase alphanumeric, dash, and underscore for username only
+    const regex = /^([a-z0-9-_\u0600-\u06FF\u0660-\u0669\u06F0-\u06F9 _.-]+)$/
+    if (!regex.test(value)) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                Username must be lowercase alphanumeric with dash or underscore only.
+            </div>
+        );
+    }
+
+    // don't allow white space
+    if (/\s/g.test(value)) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                Whitespace is not allowed in username.
+            </div>
+        );
+    }
 };
 
 const vpassword = value => {
@@ -262,7 +281,7 @@ export default class AdminCreateAdmin extends Component {
         this.form.validateAll();
 
         if (this.checkBtn.context._errors.length === 0) {
-            const user = {
+            const admin = {
                 username: this.state.username,
                 email: this.state.email,
                 phone: this.state.phone,
@@ -271,7 +290,7 @@ export default class AdminCreateAdmin extends Component {
                 roles: roles_submit,
                 verified: true
             };
-            UserService.createUserWithRoles(user)
+            UserService.createAdmin(admin)
                 .then((response) => {
                     if (response.status == 200 || response.status == 201) {
                         this.setState({

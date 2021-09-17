@@ -265,7 +265,9 @@ export default class UserPage extends Component {
                             <p><b>City:</b> {user.location[0].replace("Thành phố ", "").replace("Tỉnh ", "")}</p>
                             <p><b>District:</b> {user.location[1].replace("Huyện ", "").replace("Quận ", "")}</p>
                             <br />
-                            <button className="TradeButton" onClick={this.chatWithUser}>Chat with user</button>
+                            {this.props.match.params.username != AuthService.getCurrentUser().username &&
+                                <button className="TradeButton" onClick={this.chatWithUser}>Chat with user</button>
+                            }
                         </div>
                         {items.length > 0 ? (
                             <span>

@@ -48,6 +48,25 @@ const vpassword = value => {
             </div>
         );
     }
+    
+    // allow lowercase alphanumeric, dash, and underscore for username only
+    const regex = /^([a-z0-9-_\u0600-\u06FF\u0660-\u0669\u06F0-\u06F9 _.-]+)$/
+    if (!regex.test(value)) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                Username must be lowercase alphanumeric with dash or underscore only.
+            </div>
+        );
+    }
+
+    // don't allow white space
+    if (/\s/g.test(value)) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                Whitespace is not allowed in username.
+            </div>
+        );
+    }
 };
 
 const vphone = value => {

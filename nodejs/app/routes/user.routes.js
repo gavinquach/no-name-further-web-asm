@@ -61,23 +61,19 @@ router
         authJwt.isValidAdmin("delete_user")
     ], controller.deleteUser);
 
-// create user
-router.post("/user", [
+// get user by username
+router.get("/user-username/:username", [
     authJwt.verifyToken,
-    authJwt.isValidAdmin("create_user"),
-    validate.validateError,
-    validate.userValidationRules,
-    validate.checkDuplicateUsernameOrEmail,
-    validate.checkRolesExisted
-], controller.createUser);
+    authJwt.isAdmin
+], controller.getUserByUsername);
 
 // get, edit, delete admin with id as param
 router
     .route("/admin/:id")
-    .get([
-        authJwt.verifyToken,
-        authJwt.isAdmin
-    ], controller.viewOneUser)
+    // .get([
+    //     authJwt.verifyToken,
+    //     authJwt.isAdmin
+    // ], controller.viewOneUser)
     .put([
         authJwt.verifyToken,
         authJwt.isValidAdmin("edit_admin"),

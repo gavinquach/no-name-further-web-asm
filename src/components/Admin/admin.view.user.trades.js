@@ -4,8 +4,6 @@ import { Helmet } from 'react-helmet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
-import AuthService from "../../services/auth.service";
-import UserService from "../../services/user.service";
 import TradeService from "../../services/trade.service";
 
 // format the date to be readable from Date object
@@ -33,8 +31,9 @@ export default class AdminViewUserTrades extends Component {
             trades: [],
             successful: false,
             message: "",
-            sortOrder: 0,
             sort: "none",
+            sortField: "_id",
+            sortOrder: 0,
             sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
             totalPages: 0,
@@ -55,6 +54,30 @@ export default class AdminViewUserTrades extends Component {
                 totalResults: response.data.totalResults,
                 trades: response.data.trades
             }, () => this.loadPageButtons());
+        }).catch((error) => {
+            if (error.response && error.response.status != 500) {
+                console.log(error.response.data.message);
+            } else {
+                console.log(error);
+            }
+        });
+    }
+
+    loadSortByField = () => {
+        TradeService.getAllTradesSortByField(
+            this.state.sortField,
+            this.state.sortOrder == 0 ? 1 : this.state.sortOrder,
+            parseInt(new URLSearchParams(window.location.search).get('page')),
+            this.state.limit
+        ).then(response => {
+            this.setState({
+                totalPages: response.data.totalPages,
+                totalResults: response.data.totalResults,
+                trades: response.data.trades
+            }, () => {
+                console.log(response.data.trades);
+                this.loadPageButtons()
+            });
         }).catch((error) => {
             if (error.response && error.response.status != 500) {
                 console.log(error.response.data.message);
@@ -160,36 +183,56 @@ export default class AdminViewUserTrades extends Component {
         switch (column) {
             case "ID":
                 field = "_id"
+                break;
             case "Owner":
-                field = "user_buyer"
+                field = "user_seller"
+                break;
             case "Owner item":
                 field = "item.name"
+                break;
             case "Trader":
                 field = "user_buyer"
+                break;
             case "Trader item":
                 field = "item.forItemName"
+                break;
             case "Location (from)":
                 field = "user_seller.location"
+                break;
             case "Location (to)":
                 field = "user_buyer.location"
+                break;
             case "Created date":
                 field = "createdAt"
+                break;
             case "Last updated date":
                 field = "updatedAt"
+                break;
             case "Completion date":
                 field = "finalization_date"
+                break;
             case "Status":
                 field = "status"
+                break;
+            default:
+                field = "_id";
         }
 
         // update sort column
         this.setState({
+            sortField: field,
             sortColumn: column,
             sortOrder: sortOrder
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField();
+            }
         });
     }
 
-    showListings = () => {
+    showTrades = () => {
         let sortIcon = null;
         if (this.state.sortColumn) {
             if (this.state.sortOrder == 1) {
@@ -202,17 +245,25 @@ export default class AdminViewUserTrades extends Component {
         const tableHeader = (str) => {
             if (this.state.sortColumn == str) {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
                     </th>
                 );
             } else {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}</div>
                     </th>
                 );
             }
+        };
+
+        const tradeStatus = {
+            PENDING: "Ongoing",
+            WAITING_APPROVAL: "Waiting approval from owner",
+            DENIED: "Request denied by owner",
+            CANCELLED: "Cancelled",
+            EXPIRED: "Expired"
         };
 
         return (
@@ -237,16 +288,16 @@ export default class AdminViewUserTrades extends Component {
                     {this.state.trades.map((object) => (
                         <tr key={object._id}>
                             <td style={{ maxWidth: '6em', wordWrap: 'break-word' }}>{object._id}</td>
-                            <td>{object.user_buyer.username}</td>
-                            <td>{object.item.name}</td>
                             <td>{object.user_seller.username}</td>
+                            <td>{object.item.name}</td>
+                            <td>{object.user_buyer.username}</td>
                             <td>{object.item.forItemName}</td>
                             <td>{object.user_seller.location[0]}</td>
                             <td>{object.user_buyer.location[0]}</td>
                             <td>{formatDate(object.createdAt)}</td>
                             <td>{formatDate(object.updatedAt)}</td>
                             <td>{object.finalization_date ? formatDate(object.finalization_date) : "None"}</td>
-                            <td>{object.status}</td>
+                            <td>{tradeStatus[object.status]}</td>
                             <td>
                                 <Link to={`/trade/${object._id}`} className="btn btn-info ActionButton">Visit</Link>
                                 <Link to={`/user/edit/trade/${object._id}`} className="btn btn-primary ActionButton">Edit</Link>
@@ -266,19 +317,16 @@ export default class AdminViewUserTrades extends Component {
         );
     }
 
-    displayCreateItem = () => {
-        return (
-            <div style={{ textAlign: 'center', marginTop: '4em' }}>
-                <h5>You currently have no listings. Start trading now!</h5>
-                <Link to="/user/create"><button className="Create-btn">Add listing</button></Link>
-            </div>
-        );
-    }
-
     updatePage = (page) => {
         this.setState({
             currentPage: page
-        }, () => this.load());
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField(this.state.sortField, this.state.sortOrder);
+            }
+        });
     }
 
     loadPageButtons = () => {
@@ -363,7 +411,13 @@ export default class AdminViewUserTrades extends Component {
                 <br />
                 <br />
                 <div className="white-container">
-                    {this.state.trades.length == 0 ? this.displayCreateItem() : this.showListings()}
+                    {this.state.trades.length > 0
+                        ? this.showTrades()
+                        : (
+                            <div style={{ textAlign: 'center', marginTop: '4em' }}>
+                                <h2>No trades found</h2>
+                            </div>
+                        )}
                 </div>
                 <div className="page-buttons">
                     {this.state.pageButtons}

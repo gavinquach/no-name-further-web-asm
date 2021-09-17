@@ -4,8 +4,6 @@ import { Helmet } from 'react-helmet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
-import AuthService from "../../services/auth.service";
-import UserService from "../../services/user.service";
 import ItemService from "../../services/item.service";
 
 export default class AdminViewUserItems extends Component {
@@ -17,6 +15,7 @@ export default class AdminViewUserItems extends Component {
             successful: false,
             message: "",
             sort: "none",
+            sortField: "_id",
             sortOrder: 0,
             sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
@@ -28,7 +27,7 @@ export default class AdminViewUserItems extends Component {
     }
 
     load = () => {
-        ItemService.viewAllItems(
+        ItemService.getItems(
             this.state.sort,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
@@ -86,10 +85,10 @@ export default class AdminViewUserItems extends Component {
         }
     }
 
-    loadSortByField = (field, order) => {
-        ItemService.viewAllItemsSortedByField(
-            field,
-            order,
+    loadSortByField = () => {
+        ItemService.getItemsSortByField(
+            this.state.sortField,
+            this.state.sortOrder == 0 ? 1 : this.state.sortOrder,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
         ).then(response => {
@@ -131,25 +130,41 @@ export default class AdminViewUserItems extends Component {
         let field = "_id";
         switch (column) {
             case "Owner":
-                field = "seller"
+                field = "seller";
+                break;
             case "Name":
-                field = "name"
+                field = "name";
+                break;
             case "Quantity":
-                field = "quantity"
+                field = "quantity";
+                break;
             case "Type":
-                field = "type"
+                field = "type";
+                break;
             case "For item name":
-                field = "forItemName"
+                field = "forItemName";
+                break;
             case "For item quantity":
-                field = "forItemQty"
+                field = "forItemQty";
+                break;
             case "For item type":
-                field = "forItemType"
+                field = "forItemType";
+                break;
+            default:
+                field = "_id";
         }
 
         // update sort column
         this.setState({
+            sortField: field,
             sortColumn: column,
             sortOrder: sortOrder
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField();
+            }
         });
     }
 
@@ -166,13 +181,13 @@ export default class AdminViewUserItems extends Component {
         const tableHeader = (str) => {
             if (this.state.sortColumn == str) {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}{sortIcon}</div>
                     </th>
                 );
             } else {
                 return (
-                    <th id={str} onClick={this.sort}>
+                    <th id={str} onClick={this.sort} className="HasHover">
                         <div style={{ display: 'inline' }}>{str}</div>
                     </th>
                 );
@@ -233,7 +248,13 @@ export default class AdminViewUserItems extends Component {
     updatePage = (page) => {
         this.setState({
             currentPage: page
-        }, () => this.load());
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField(this.state.sortField, this.state.sortOrder);
+            }
+        });
     }
 
     loadPageButtons = () => {

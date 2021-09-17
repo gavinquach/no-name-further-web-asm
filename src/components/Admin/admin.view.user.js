@@ -13,6 +13,7 @@ export default class AdminViewUser extends Component {
         this.state = {
             users: [],
             sort: "none",
+            sortField: "_id",
             sortOrder: 0,
             sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
@@ -53,7 +54,13 @@ export default class AdminViewUser extends Component {
     updatePage = (page) => {
         this.setState({
             currentPage: page
-        }, () => this.load());
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField(this.state.sortField, this.state.sortOrder);
+            }
+        });
     }
 
     loadPageButtons = () => {
@@ -108,10 +115,10 @@ export default class AdminViewUser extends Component {
         this.setState({ pageButtons: buttons });
     }
 
-    loadSortByField = (field, order) => {
+    loadSortByField = () => {
         UserService.viewUsersSortedByField(
-            field,
-            order == 0 ? 1 : order,
+            this.state.sortField,
+            this.state.sortOrder == 0 ? 1 : this.state.sortOrder,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
         ).then(response => {
@@ -158,20 +165,27 @@ export default class AdminViewUser extends Component {
             case "Email":
                 field = "email";
                 break;
+            case "Phone":
+                field = "phone";
+                break;
+            case "Location":
+                field = "location";
+                break;
             default:
                 field = "_id";
         }
 
-        if (field == "_id" && (sortOrder == 0 || sortOrder == 1)) {
-            this.load();
-        } else {
-            this.loadSortByField(field, sortOrder);
-        }
-
         // update sort column
         this.setState({
+            sortField: field,
             sortColumn: column,
             sortOrder: sortOrder
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField();
+            }
         });
     }
 
@@ -201,30 +215,15 @@ export default class AdminViewUser extends Component {
             }
         };
 
-        const roles = AuthService.getRoles();
-        if (!roles.includes("ROLE_EDIT_USER") && !roles.includes("ROLE_DELETE_USER")) {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    {tableHeader("Email")}
-                </tr>
-            )
-        } else if (!(roles.includes("ROLE_EDIT_USER") || roles.includes("ROLE_DELETE_USER"))) {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    <th>Action</th>
-                </tr>
-            )
-        } else {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    {tableHeader("Email")}
-                    <th>Action</th>
-                </tr>
-            )
-        }
+        return (
+            <tr>
+                {tableHeader("Username")}
+                {tableHeader("Email")}
+                {tableHeader("Phone")}
+                {tableHeader("Location")}
+                <th>Action</th>
+            </tr>
+        )
     }
 
     tableRows = () => {
@@ -232,6 +231,8 @@ export default class AdminViewUser extends Component {
             <tr key={object._id}>
                 <td>{object.username}</td>
                 <td>{object.email}</td>
+                <td>{object.phone}</td>
+                <td>{object.location[1] + ", " + object.location[0]}</td>
                 {this.showButtons(object)}
             </tr>
         ));
@@ -279,7 +280,7 @@ export default class AdminViewUser extends Component {
             return (
                 <td>
                     {(AuthService.isRoot() || roles.includes("ROLE_EDIT_USER"))
-                        ? <Link to={`/admin/edit/user/${object._id}`} className="btn btn-primary ActionButton">Edit</Link>
+                        ? <Link to={`/admin/edit/user/${object.username}`} className="btn btn-primary ActionButton">Edit</Link>
                         : null
                     }
 

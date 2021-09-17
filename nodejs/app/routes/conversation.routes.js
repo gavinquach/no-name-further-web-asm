@@ -28,4 +28,10 @@ router.get("/conversation/:firstUserId/:secondUserId", [
     authJwt.isUser
 ], controller.getConversation);
 
+// get conversation from conversation id
+router.get("/conversation-by-id/:id", [
+    authJwt.verifyToken,
+    authJwt.isUser
+], controller.getConversationById);
+
 module.exports = router;

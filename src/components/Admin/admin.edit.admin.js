@@ -94,6 +94,7 @@ export default class AdminEditAdmin extends Component {
             data: [],
             vnLocations: [],
             districts: [],
+            _id: "",
             username: "",
             email: "",
             phone: "",
@@ -110,7 +111,7 @@ export default class AdminEditAdmin extends Component {
 
     delete = () => {
         if (window.confirm("Are you sure you want to delete admin " + this.state.username + "?")) {
-            UserService.deleteAdmin(this.props.match.params.id)
+            UserService.deleteAdmin(this.state._id)
                 .then((response) => {
                     if (response.status == 200 || response.status == 201) {
                         this.setState({
@@ -144,7 +145,7 @@ export default class AdminEditAdmin extends Component {
     // get admin info and assign to input fields
     componentDidMount() {
         window.scrollTo(0, 0); // automatically scroll to top
-        UserService.viewOneAdmin(this.props.match.params.id)
+        UserService.getUserByUsername(this.props.match.params.username)
             .then(response => {
                 let isUser = false;
                 const role_names = [];
@@ -159,6 +160,7 @@ export default class AdminEditAdmin extends Component {
 
                 this.getVietnamGeoData();
                 this.setState({
+                    _id: response.data._id,
                     username: response.data.username,
                     email: response.data.email,
                     phone: response.data.phone,
@@ -166,8 +168,7 @@ export default class AdminEditAdmin extends Component {
                     district: response.data.location[1],
                     roles: response.data.roles
                 }, () => this.fillCheckBoxes());
-            })
-            .catch((error) => {
+            }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
                 } else {
@@ -358,7 +359,7 @@ export default class AdminEditAdmin extends Component {
 
         if (this.checkBtn.context._errors.length === 0) {
             UserService.editAdmin(
-                this.props.match.params.id,
+                this.state._id,
                 this.state.username,
                 this.state.email,
                 this.state.phone,
@@ -402,7 +403,7 @@ export default class AdminEditAdmin extends Component {
             return <Redirect to='/admin/index' />
         }
         // prevent admins from editing their own profile, except root account
-        if (!(this.props.match.params.id != AuthService.getCurrentUser().id || AuthService.isRootAccount())) {
+        if (!(this.state._id != AuthService.getCurrentUser().id || AuthService.isRootAccount())) {
             return <Redirect to='/admin/view/admin' />
         }
         // prevent any admin from editing root admin's info
@@ -667,7 +668,7 @@ export default class AdminEditAdmin extends Component {
                         <CheckButton style={{ display: "none" }} ref={c => { this.checkBtn = c; }} />
                     </Form>
 
-                    {(this.props.match.params.id != AuthService.getCurrentUser().id &&
+                    {(this.state._id != AuthService.getCurrentUser().id &&
                         (AuthService.isRoot() || (AuthService.getRoles().includes("ROLE_EDIT_ADMIN") && AuthService.getRoles().includes("ROLE_DELETE_ADMIN"))))
                         && (
                             <div>

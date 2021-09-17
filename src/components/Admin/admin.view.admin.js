@@ -13,6 +13,7 @@ export default class AdminViewAdmin extends Component {
         this.state = {
             users: [],
             sort: "none",
+            sortField: "_id",
             sortOrder: 0,
             sortColumn: "",
             currentPage: parseInt(new URLSearchParams(window.location.search).get('page')),
@@ -53,7 +54,13 @@ export default class AdminViewAdmin extends Component {
     updatePage = (page) => {
         this.setState({
             currentPage: page
-        }, () => this.load());
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField(this.state.sortField, this.state.sortOrder);
+            }
+        });
     }
 
     loadPageButtons = () => {
@@ -147,10 +154,10 @@ export default class AdminViewAdmin extends Component {
         }
     }
 
-    loadSortByField = (field, order) => {
+    loadSortByField = () => {
         UserService.viewAdminsSortedByField(
-            field,
-            order == 0 ? 1 : order,
+            this.state.sortField,
+            this.state.sortOrder == 0 ? 1 : this.state.sortOrder,
             parseInt(new URLSearchParams(window.location.search).get('page')),
             this.state.limit
         ).then(response => {
@@ -201,16 +208,17 @@ export default class AdminViewAdmin extends Component {
                 field = "_id";
         }
 
-        if (field == "_id" && (sortOrder == 0 || sortOrder == 1)) {
-            this.load();
-        } else {
-            this.loadSortByField(field, sortOrder);
-        }
-
         // update sort column
         this.setState({
+            sortField: field,
             sortColumn: column,
             sortOrder: sortOrder
+        }, () => {
+            if (this.state.sortField == "_id" && (this.state.sortOrder == 0 || this.state.sortOrder == 1)) {
+                this.load();
+            } else {
+                this.loadSortByField();
+            }
         });
     }
 
@@ -240,60 +248,34 @@ export default class AdminViewAdmin extends Component {
             }
         };
 
-        const roles = AuthService.getRoles();
-        if (roles.includes("ROLE_VIEW_ADMIN") && !roles.includes("ROLE_EDIT_ADMIN") && !roles.includes("ROLE_DELETE_ADMIN")) {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    <th>Email</th>
-                    <th>Roles</th>
-                    <th>Action</th>
-                </tr>
-            )
-        } else if (roles.includes("ROLE_EDIT_ADMIN")) {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    {tableHeader("Email")}
-                    <th>Roles</th>
-                    <th>Action</th>
-                </tr>
-            )
-        } else if (!roles.includes("ROLE_VIEW_ADMIN") && (roles.includes("ROLE_EDIT_ADMIN") || roles.includes("ROLE_DELETE_ADMIN"))) {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    <th>Email</th>
-                    <th>Roles</th>
-                    <th>Action</th>
-                </tr>
-            )
-        } else {
-            return (
-                <tr>
-                    {tableHeader("Username")}
-                    <th>Email</th>
-                    <th>Roles</th>
-                    <th>Action</th>
-                </tr>
-            )
-        }
+        return (
+            <tr>
+                {tableHeader("Username")}
+                {tableHeader("Email")}
+                {tableHeader("Phone")}
+                {tableHeader("Location")}
+                <th>Roles</th>
+                <th>Action</th>
+            </tr>
+        );
     }
 
     tableRows = () => {
         return this.state.users.map((object) => (
             <tr key={object._id}>
+                <td>{object.username}</td>
+                <td>{object.email}</td>
+                <td>{object.phone}</td>
                 <td>
-                    {object.username}
+                    {object.location[0] && object.location[0] ? (
+                        object.location[1] + ", " + object.location[0]
+                    ) : (
+                        null
+                    )}
                 </td>
                 <td>
-                    {(AuthService.isRoot() || AuthService.getRoles().includes("ROLE_VIEW_ADMIN") || AuthService.getRoles().includes("ROLE_EDIT_ADMIN")) ?
-                    object.email
-                    : null}
-                </td>
-                <td>
-                    {(AuthService.isRoot() || AuthService.getRoles().includes("ROLE_VIEW_ADMIN") || AuthService.getRoles().includes("ROLE_EDIT_ADMIN"))
-                        && object.roles && object.roles.map((role, index) =>
+                    {(AuthService.hasManageAdminRole()) &&
+                        object.roles && object.roles.map((role, index) =>
                             index == object.roles.length - 1
                                 ? role.name
                                 : role.name + ", ")
@@ -306,31 +288,39 @@ export default class AdminViewAdmin extends Component {
 
     showButtons = (object) => {
         const roles = AuthService.getRoles();
-        const id = object._id;
+        const adminIsRoot = () => {
+            let isRoot = false;
+            object.roles.map((role) => {
+                if (role.name == "root") isRoot = true;
+            });
+            return isRoot;
+        }
         return (
             <td>
                 {
-                    // hide edit button when:
-                    // admin's id is the current logged-in admin,
-                    // admin is root,
-                    // current admin isn't root,
-                    // admin doesn't have edit_admin role.
-                    object._id != AuthService.getCurrentUser().id &&
-                        object.username != "root" &&
-                        (roles.includes("ROLE_ROOT") || roles.includes("ROLE_EDIT_ADMIN"))
-                        ? <Link to={`/admin/edit/admin/${id}`} className="btn btn-primary ActionButton">Edit</Link>
+                    // show edit button when:
+                    // the other admin's id is not the current admin,
+                    // the other admin is not root account,
+                    // current admin is has root role,
+                    // current admin isn't root account,
+                    // admin doesn't have edit_admin role and the other admin is not root.
+                    object._id != AuthService.getCurrentUser().id
+                        && object.username != "root"
+                        && (AuthService.isRootAccount() || AuthService.isRoot() || (roles.includes("ROLE_EDIT_ADMIN") && !adminIsRoot(object)))
+                        ? <Link to={`/admin/edit/admin/${object.username}`} className="btn btn-primary ActionButton">Edit</Link>
                         : null
                 }
 
                 {
-                    // hide delete button when:
-                    // admin's id is the current logged-in admin,
-                    // admin is root,
-                    // current admin isn't root,
-                    // admin doesn't have delete_admin role.
-                    object._id != AuthService.getCurrentUser().id &&
-                        object.username != "root" &&
-                        (roles.includes("ROLE_ROOT") || roles.includes("ROLE_DELETE_ADMIN"))
+                    // show delete button when:
+                    // the other admin's id is not the current admin,
+                    // the other admin is not root account,
+                    // current admin is has root role,
+                    // current admin isn't root account,
+                    // admin doesn't have delete_admin role and the other admin is not root.
+                    object._id != AuthService.getCurrentUser().id
+                        && object.username != "root"
+                        && (AuthService.isRootAccount() || AuthService.isRoot() || (roles.includes("ROLE_DELETE_ADMIN") && !adminIsRoot(object)))
                         ? <button onClick={() => this.delete(object)} className="btn btn-danger ActionButton">Delete</button>
                         : null
                 }
