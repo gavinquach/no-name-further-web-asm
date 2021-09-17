@@ -581,8 +581,12 @@ export default class Chat extends Component {
             return;
         }
         // don't allow sending empty strings
-        if (this.state.message == "") {
+        if (this.state.message === null || this.state.message == "") {
             return;
+        }
+        // don't allow message with only whitespaces
+        if (this.state.message && this.state.message.trim() === '') {
+            return
         }
 
         const message = {
