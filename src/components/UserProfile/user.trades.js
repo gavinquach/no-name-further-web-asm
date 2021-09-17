@@ -246,14 +246,14 @@ export default class Trades extends Component {
                                             <div className="ItemDetails">
                                                 <div style={{ textAlign: 'center' }}><b>{trade.item.name}</b></div>
                                                 <hr style={{ border: '1px solid black' }} />
-                                                <div>Type: <b>{trade.item.type.name}</b><br></br>
+                                                <div>Category: <b>{trade.item.type.name}</b><br></br>
                                                 Quantity: <b>{trade.item.quantity}</b></div>
                                             </div>
                                             <div id="for">for</div>
                                             <div className="ItemDetails">
                                                 <div style={{ textAlign: 'center' }}><b>{trade.item.forItemName}</b></div>
                                                 <hr style={{ border: '1px solid black' }} />
-                                                <div>Type: <b>{trade.item.forItemType.name}</b><br></br>
+                                                <div>Category: <b>{trade.item.forItemType.name}</b><br></br>
                                                 Quantity: <b>{trade.item.forItemQty}</b></div>
                                             </div>
                                         </Link>

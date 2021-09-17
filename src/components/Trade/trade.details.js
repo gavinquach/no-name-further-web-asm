@@ -187,14 +187,14 @@ export default class TradeDetails extends Component {
                             <div className="ItemDetails">
                                 <div style={{ textAlign: 'center' }}><b>{item.name}</b></div>
                                 <hr style={{ border: '1px solid black' }} />
-                                <div>Type: <b>{item.type.name}</b>
+                                <div>Category: <b>{item.type.name}</b>
                                 Quantity: <b>{item.quantity}</b></div>
                             </div>
                             <div id="for">for</div>
                             <div className="ItemDetails">
                                 <div style={{ textAlign: 'center' }}><b>{item.forItemName}</b></div>
                                 <hr style={{ border: '1px solid black' }} />
-                                <div>Type: <b>{item.forItemType.name}</b>
+                                <div>Category: <b>{item.forItemType.name}</b>
                                 Quantity: <b>{item.forItemQty}</b></div>
                             </div>
                         </Link>
