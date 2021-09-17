@@ -30,6 +30,10 @@ export default class UserEditPassword extends Component {
         };
     }
 
+    componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
+    }
+
     onChangeOldPassword = (e) => {
         this.setState({
             oldpassword: e.target.value

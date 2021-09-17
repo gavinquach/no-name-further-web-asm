@@ -9,8 +9,11 @@ export default class Home extends Component {
         super(props);
     }
 
-    render() {
+    componentDidMount() {
         window.scrollTo(0, 0); // automatically scroll to top
+    }
+
+    render() {
         return (
             <div className="page-container">
                 <Helmet>

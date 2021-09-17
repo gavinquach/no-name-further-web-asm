@@ -76,6 +76,7 @@ export default class UserProfile extends Component {
 
     // get user info and assign to input fields
     componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
         UserService.viewOneUser(AuthService.getCurrentUser().id)
             .then(
                 response => {

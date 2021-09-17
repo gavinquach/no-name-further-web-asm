@@ -29,6 +29,7 @@ export default class ItemCategory extends Component {
     }
 
     componentDidMount = () => {
+        window.scrollTo(0, 0); // automatically scroll to top
         this.load();
 
         const queryParams = new URLSearchParams(window.location.search);

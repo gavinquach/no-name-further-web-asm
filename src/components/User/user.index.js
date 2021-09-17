@@ -5,8 +5,11 @@ import "../../css/UserPages.css";
 import AuthService from "../../services/auth.service";
 
 export default class UserIndex extends Component {
-    render() {
+    componentDidMount() {
         window.scrollTo(0, 0); // automatically scroll to top
+    }
+
+    render() {
         return (
             <div className="page-container">
                 <Helmet>

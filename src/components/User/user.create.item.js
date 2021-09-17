@@ -61,6 +61,10 @@ export default class UserCreateItem extends Component {
         };
     }
 
+    componentDidMount() {
+        window.scrollTo(0, 0); // automatically scroll to top
+    }
+
     onChangeName = (e) => {
         this.setState({
             name: e.target.value
@@ -272,7 +276,6 @@ export default class UserCreateItem extends Component {
     }
 
     render() {
-        window.scrollTo(0, 0); // automatically scroll to top
         let item = null;
         if (this.state.coverImage || this.state.otherImages.length > 0) {
             // convert description to string

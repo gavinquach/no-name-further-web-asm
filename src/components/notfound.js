@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFrown } from '@fortawesome/free-solid-svg-icons';
 
 const NotFound = () => {
-    window.scrollTo(0, 0); // automatically scroll to top
     return (
         <div className="page-container" style={{ textAlign: 'center' }}>
             <Helmet>
