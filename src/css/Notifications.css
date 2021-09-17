@@ -3,6 +3,7 @@
 }
 
 .NotificationTypes {
+    width: auto;
     display: table;
     color: black;
     text-decoration: none;
@@ -23,11 +24,14 @@
     width: 17.5em;
     height: 3.2em;
     font-weight: 400;
+    overflow-x: auto;
 }
 
 .NotificationTypesCell:not(:last-child) {
     border-right: 1px solid rgba(0, 0, 0, 0.5);
 }
+
+
 /* 
 .NotificationTypesCell:not(:first-child) {
     width: 18em;
@@ -143,4 +147,11 @@
 
 .SectionActive:hover {
     background-color: rgba(200, 214, 0, 0.85);
+}
+
+@media screen and (max-width: 550px) {
+    .NotificationTypes {
+        overflow-x: scroll;
+        font-size: 10px;
+    }
 }

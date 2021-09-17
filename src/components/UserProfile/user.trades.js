@@ -244,17 +244,17 @@ export default class Trades extends Component {
                                                 )
                                             )}
                                             <div className="ItemDetails">
-                                                <h3 style={{ textAlign: 'center' }}><b>{trade.item.name}</b></h3>
+                                                <div style={{ textAlign: 'center' }}><b>{trade.item.name}</b></div>
                                                 <hr style={{ border: '1px solid black' }} />
-                                                <h5>Type: <b>{trade.item.type.name}</b></h5>
-                                                <h5>Quantity: <b>{trade.item.quantity}</b></h5>
+                                                <div>Type: <b>{trade.item.type.name}</b><br></br>
+                                                Quantity: <b>{trade.item.quantity}</b></div>
                                             </div>
-                                            <h3>for</h3>
+                                            <div id="for">for</div>
                                             <div className="ItemDetails">
-                                                <h3 style={{ textAlign: 'center' }}><b>{trade.item.forItemName}</b></h3>
+                                                <div style={{ textAlign: 'center' }}><b>{trade.item.forItemName}</b></div>
                                                 <hr style={{ border: '1px solid black' }} />
-                                                <h5>Type: <b>{trade.item.forItemType.name}</b></h5>
-                                                <h5>Quantity: <b>{trade.item.forItemQty}</b></h5>
+                                                <div>Type: <b>{trade.item.forItemType.name}</b><br></br>
+                                                Quantity: <b>{trade.item.forItemQty}</b></div>
                                             </div>
                                         </Link>
                                     </span>

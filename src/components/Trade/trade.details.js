@@ -160,32 +160,22 @@ export default class TradeDetails extends Component {
                                 : "Trader: ".concat(trade.user_buyer.username)}
                         </p>
                         <p>Owner: {trade.user_seller.username}</p>
+                        <div className ="ActionButtons">
                         {trade.user_seller._id != AuthService.getCurrentUser().id ? (
                             <Link to={"/trader/" + item.seller.username}>
-                                <button style={{
-                                    marginTop: '0em',
-                                    marginBottom: '1em',
-                                    marginLeft: '0em',
-                                    marginRight: '-1.5em'
-                                }} className="VisitUserPageBtn"
-                                >
-                                    Visit {item.seller.username}'s' page
+                                <button className = "VisitUserPageBtn ">
+                                    Visit
                                 </button>
                             </Link>
                         ) : (
                             <Link to={"/trader/" + trade.user_buyer.username}>
-                                <button style={{
-                                    marginTop: '0em',
-                                    marginBottom: '1em',
-                                    marginLeft: '0em',
-                                    marginRight: '-1.5em'
-                                }} className="VisitUserPageBtn"
-                                >
-                                    Visit {trade.user_buyer.username}'s' page
+                                <button className = "VisitUserPageBtn " >
+                                    Visit
                                 </button>
                             </Link>
                         )}
                         <button className="ChatWithUser" onClick={() => this.chatWithUser(trade)}>Chat with user</button>
+                        </div>
 
                         <br /><br />
                         <Link to={"/item/" + item._id} className="ItemPanel">
@@ -195,17 +185,17 @@ export default class TradeDetails extends Component {
                                 )
                             )}
                             <div className="ItemDetails">
-                                <h3 style={{ textAlign: 'center' }}><b>{item.name}</b></h3>
+                                <div style={{ textAlign: 'center' }}><b>{item.name}</b></div>
                                 <hr style={{ border: '1px solid black' }} />
-                                <h5>Type: <b>{item.type.name}</b></h5>
-                                <h5>Quantity: <b>{item.quantity}</b></h5>
+                                <div>Type: <b>{item.type.name}</b>
+                                Quantity: <b>{item.quantity}</b></div>
                             </div>
-                            <h3>for</h3>
+                            <div id="for">for</div>
                             <div className="ItemDetails">
-                                <h3 style={{ textAlign: 'center' }}><b>{item.forItemName}</b></h3>
+                                <div style={{ textAlign: 'center' }}><b>{item.forItemName}</b></div>
                                 <hr style={{ border: '1px solid black' }} />
-                                <h5>Type: <b>{item.forItemType.name}</b></h5>
-                                <h5>Quantity: <b>{item.forItemQty}</b></h5>
+                                <div>Type: <b>{item.forItemType.name}</b>
+                                Quantity: <b>{item.forItemQty}</b></div>
                             </div>
                         </Link>
 

@@ -176,7 +176,7 @@ export default class ItemCategory extends Component {
         }
         // ========== end of GET param validation ==========
         return (
-            <div className="page-container">
+            <div>
                 <Helmet>
                     <title>{this.state.category}</title>
                 </Helmet>
