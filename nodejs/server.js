@@ -157,7 +157,7 @@ function initialize() {
                 password: bcrypt.hashSync("123456"),
                 roles: [root],
                 verified: true
-            }).save(err => {
+            }).save({ validateBeforeSave: false },(err) => {
                 if (err) {
                     console.log("error", err);
                 }
