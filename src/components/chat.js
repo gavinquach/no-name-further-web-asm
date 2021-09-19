@@ -71,6 +71,8 @@ export default class Chat extends Component {
 
             // when user receives a message
             socket.on("receiveMessage", message => {
+                this.updateConversationList();
+
                 // user has chat panel opened
                 if (document.getElementById("chat-panel").classList.contains("ShowChatPanel")) {
                     // user is chatting with the person/opening the chat box
@@ -423,6 +425,37 @@ export default class Chat extends Component {
                     }
                 });
                 this.setState({ conversations: tempList });
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+            });
+    }
+
+    updateConversationList = () => {
+        ChatService.getConversations(this.state.currentUser.id)
+            .then((response) => {
+                const temp = response.data.conversations;
+                const conversationList = [];
+                temp.map((obj,) => {
+                    obj.members.map((user) => {
+                        if (user._id != this.state.currentUser.id) {
+                            conversationList.push({
+                                _id: obj._id,
+                                user: user,
+                                updatedAt: obj.updatedAt,
+                                unreadCount: obj.unreadCount
+                            });
+                        }
+                    });
+                });
+
+                // sort from newest date to oldest
+                conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+                this.setState({ conversations: conversationList });
             }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
