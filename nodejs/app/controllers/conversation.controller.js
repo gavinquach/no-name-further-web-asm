@@ -1,6 +1,7 @@
 const model = require("../models");
 const User = model.user;
 const Conversation = model.conversation;
+const Message = model.message;
 const APIFeatures = require("./apiFeature");
 
 // Post new conversation
@@ -62,10 +63,8 @@ exports.postConversation = async (req, res) => {
 exports.getConversations = async (req, res) => {
     // intialize 
     let total = 0;
-    let limit = 1
     let conversations = [];
     let user = null
-
 
     // check if user is available in database
     try {
@@ -94,17 +93,35 @@ exports.getConversations = async (req, res) => {
             return res.status(404).send({ message: "Conversations not found." });
         }
 
-
         if (features.queryString.limit == null) {
             features.queryString.limit = 1;
         }
 
-        await res.status(200).json({
+        // get total amount of unread messages for conversation
+        const temp = [];
+        await Promise.all(
+            conversations.map(async (conversation) => {
+                temp.push({
+                    members: conversation.members,
+                    _id: conversation._id,
+                    createdAt: conversation.createdAt,
+                    updatedAt: conversation.updatedAt,
+                    unreadCount: await Message.countDocuments({
+                        conversationId: conversation._id,
+                        receiver: req.params.id,
+                        read: false
+                    })
+                });
+            })
+        );
+
+        res.status(200).json({
             result: conversations.length,
             totalPages: Math.ceil(total / features.queryString.limit),
-            conversations: conversations
+            conversations: temp
         });
     } catch (err) {
+        console.log(err);
         res.status(500).json(err);
     }
 }
@@ -132,6 +149,13 @@ exports.getConversation = async (req, res) => {
         }).exec();
         if (!conversation) return res.status(404).send({ message: "Conversation not found." });
 
+        //count retrieved total data before pagination
+        conversation.unreadCount = await Message.countDocuments({
+            conversationId: conversation._id,
+            receiver: req.params.id,
+            read: false
+        });
+
         res.status(200).json(conversation)
     } catch (err) {
         return res.status(500).send(err);
@@ -144,6 +168,13 @@ exports.getConversationById = async (req, res) => {
     try {
         const conversation = await Conversation.findById(req.params.id).exec();
         if (!conversation) return res.status(404).send({ message: "Conversation not found." });
+
+        //count retrieved total data before pagination
+        conversation.unreadCount = await Message.countDocuments({
+            conversationId: conversation._id,
+            receiver: req.params.id,
+            read: false
+        });
 
         res.status(200).json(conversation)
     } catch (err) {

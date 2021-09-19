@@ -64,6 +64,212 @@ export default class Chat extends Component {
         });
     }
 
+    componentDidMount = () => {
+        window.scrollTo(0, 0); // automatically scroll to top
+        if (AuthService.isLoggedIn()) {
+            this.load();
+
+            // when user receives a message
+            socket.on("receiveMessage", message => {
+                // user has chat panel opened
+                if (document.getElementById("chat-panel").classList.contains("ShowChatPanel")) {
+                    // user is chatting with the person/opening the chat box
+                    // that has same conversation id as message sent
+                    if (this.state.conversationId == message.conversationId) {
+                        // push message 
+                        const temp = this.state.messages;
+                        temp.push(message);
+
+                        // check if user's scroll is at the bottom
+                        let isScrollAtBottom = false;
+                        const chat = document.getElementById("chat-bubbles");
+                        if (chat && (chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) || chat.scrollTop >= (chat.scrollHeight - chat.offsetHeight) * 0.8)) {
+                            isScrollAtBottom = true;
+                        }
+
+                        // update to display the newest messages
+                        this.setState({
+                            messages: temp,
+                        }, () => {
+                            // set messages to read only when the chat
+                            // is scrolled all the way down or close to that
+                            const chat = document.getElementById("chat-bubbles");
+                            if (chat) {
+                                // automatically scroll down if user's scroll is around the bottom
+                                if (isScrollAtBottom) {
+                                    chat.scrollTop = chat.scrollHeight;
+                                    this.setMessagesToRead(message.conversationId);
+                                }
+                                // scroll not around the bottom, add 1 to unread and update conversation
+                                else {
+                                    this.setState({
+                                        totalUnreadCount: this.state.totalUnreadCount + 1
+                                    });
+                                    this.updateConversation(message.conversationId, false);
+                                }
+                            }
+                        });
+                    }
+                    // user is not opening the conversation from message's conversationid
+                    else {
+                        this.getAllUnreadCount();
+                    }
+                }
+                // user is not opening chat panel
+                else {
+                    if (this.state.conversationId) {
+                        this.getMessages(message.conversationId);
+                    }
+                    this.setState({
+                        totalUnreadCount: this.state.totalUnreadCount + 1
+                    });
+                }
+            });
+
+            // user clicked on "Chat with user" button
+            socket.on("receivechatWithUserRequest", data => {
+                // open chat panel
+                if (!this.state.chatOpened) {
+                    this.setState({ chatOpened: true });
+                    const panel = document.getElementById("chat-panel");
+                    panel.classList.remove("HideChatPanel");
+                    panel.classList.add("ShowChatPanel");
+
+                    // store in local storage to keep track
+                    // when users go to another page
+                    localStorage.chatOpened = true;
+                }
+
+                // conversation not found, create conversation
+                ChatService.postConversation(
+                    data.user,
+                    data.receiver
+                ).then(() => {
+                    ChatService.getConversationsRequest(this.state.currentUser.id)
+                        .then(
+                            response => {
+                                const temp = response.data.conversations;
+                                const conversationList = [];
+                                temp.map((obj,) => {
+                                    obj.members.map((user) => {
+                                        if (user._id != this.state.currentUser.id) {
+                                            conversationList.push({
+                                                _id: obj._id,
+                                                user: user,
+                                                updatedAt: obj.updatedAt,
+                                                unreadCount: obj.unreadCount
+                                            });
+                                        }
+                                    });
+                                });
+
+                                // sort from newest date to oldest
+                                conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+                                this.setState({
+                                    conversations: conversationList
+                                }, () => {
+                                    this.getAllUnreadCount();
+                                    this.setChatPanelState();
+                                    const conversation = this.state.conversations[0];
+                                    this.setChatTarget(conversation);
+                                    this.setState({ receiver: conversation.user._id });
+                                });
+                            })
+                        .catch((error) => {
+                            if (error.response && error.response.status != 500) {
+                                console.log(error.response.data.message);
+                            } else {
+                                console.log(error);
+                            }
+                            this.setChatPanelState();
+                        });
+                }).catch((error) => {
+                    // conversation already exists
+                    if (error.response && error.response.status == 401) {
+                        // has conversation with this user already,
+                        // switch chat target to this conversation
+                        const temp = error.response.data.conversation;
+                        let otherUser = null;
+                        temp.members.map((user) => {
+                            if (user != this.state.currentUser.id) {
+                                otherUser = user;
+                            }
+                        });
+
+                        const conversation = {
+                            _id: temp._id,
+                            user: otherUser,
+                            updatedAt: temp.updatedAt
+                        };
+
+                        this.setChatTarget(conversation);
+                        this.setState({ receiver: conversation.user });
+                    } else if (error.response && error.response.status != 500) {
+                        console.log(error.response.data.message);
+                    } else {
+                        console.log(error);
+                    }
+                });
+            });
+        } else {
+            this.setChatPanelState();
+        }
+    }
+
+    load = () => {
+        ChatService.getConversations(this.state.currentUser.id)
+            .then((response) => {
+                const temp = response.data.conversations;
+                const conversationList = [];
+                temp.map((obj,) => {
+                    obj.members.map((user) => {
+                        if (user._id != this.state.currentUser.id) {
+                            conversationList.push({
+                                _id: obj._id,
+                                user: user,
+                                updatedAt: obj.updatedAt,
+                                unreadCount: obj.unreadCount
+                            });
+                        }
+                    });
+                });
+
+                // sort from newest date to oldest
+                conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+                this.setState({
+                    conversations: conversationList,
+                    conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
+                }, () => {
+                    this.getAllUnreadCount();
+                    this.setChatPanelState();
+                    // has conversation id, get messages and set receiver id
+                    if (this.state.conversationId) {
+                        this.getMessages(this.state.conversationId);
+
+                        // set receiver id
+                        for (const conversation of conversationList) {
+                            if (conversation._id == this.state.conversationId) {
+                                this.setState({ receiver: conversation.user._id });
+                                break;
+                            }
+                        }
+                    }
+                    if (localStorage.getItem("chatOpened") == "true") {
+                        this.setMessagesToRead(this.state.conversationId);
+                    }
+                });
+            }).catch((error) => {
+                if (error.response && error.response.status != 500) {
+                    console.log(error.response.data.message);
+                } else {
+                    console.log(error);
+                }
+                this.setChatPanelState();
+            });
+    }
+
     onScrollSetToRead = () => {
         if (this.openingChat) return;
         // set messages to read when user scrolls in chat
@@ -175,7 +381,7 @@ export default class Chat extends Component {
         this.waitTime = 0;
     }
 
-    getUnreadCount = () => {
+    getAllUnreadCount = () => {
         // get total unread count for user
         ChatService.getUserUnreadMessages(
             this.state.currentUser.id,
@@ -189,27 +395,6 @@ export default class Chat extends Component {
             } else {
                 console.log(error);
             }
-        });
-
-        // get unread count for each conversation
-        const temp = this.state.conversations;
-        temp.map((conversation) => {
-            ChatService.getUserConversationUnreadMessages(
-                conversation._id,
-                this.state.currentUser.id
-            ).then((response) => {
-                conversation.unreadCount = response.data.total
-            }).catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-            });
-        });
-
-        this.setState({
-            conversations: temp
         });
     }
 
@@ -225,7 +410,8 @@ export default class Chat extends Component {
                         temp = {
                             _id: response.data._id,
                             user: user,
-                            updatedAt: response.data.updatedAt
+                            updatedAt: response.data.updatedAt,
+                            unreadCount: response.data.unreadCount
                         };
                     }
                 });
@@ -234,9 +420,6 @@ export default class Chat extends Component {
                 tempList.map((conversation) => {
                     if (conversation._id == temp._id) {
                         conversation.updatedAt = temp.updatedAt;
-                        if (!read) {
-                            conversation.unreadCount += 1;
-                        }
                     }
                 });
                 this.setState({ conversations: tempList });
@@ -246,211 +429,6 @@ export default class Chat extends Component {
                 } else {
                     console.log(error);
                 }
-            });
-    }
-
-    componentDidMount = () => {
-        window.scrollTo(0, 0); // automatically scroll to top
-        if (AuthService.isLoggedIn()) {
-            this.getConversations();
-
-            // when user receives a message
-            socket.on("receiveMessage", message => {
-                // user has chat panel opened
-                if (document.getElementById("chat-panel").classList.contains("ShowChatPanel")) {
-                    // user is chatting with the person/opening the chat box
-                    // that has same conversation id as message sent
-                    if (this.state.conversationId == message.conversationId) {
-                        // push message 
-                        const temp = this.state.messages;
-                        temp.push(message);
-
-                        // check if user's scroll is at the bottom
-                        let isScrollAtBottom = false;
-                        const chat = document.getElementById("chat-bubbles");
-                        if (chat && (chat.scrollTop == (chat.scrollHeight - chat.offsetHeight) || chat.scrollTop >= (chat.scrollHeight - chat.offsetHeight) * 0.8)) {
-                            isScrollAtBottom = true;
-                        }
-
-                        // update to display the newest messages
-                        this.setState({
-                            messages: temp,
-                        }, () => {
-                            // set messages to read only when the chat
-                            // is scrolled all the way down or close to that
-                            const chat = document.getElementById("chat-bubbles");
-                            if (chat) {
-                                // automatically scroll down if user's scroll is around the bottom
-                                if (isScrollAtBottom) {
-                                    chat.scrollTop = chat.scrollHeight;
-                                    this.setMessagesToRead(message.conversationId);
-                                }
-                                // scroll not around the bottom, add 1 to unread and update conversation
-                                else {
-                                    this.setState({
-                                        totalUnreadCount: this.state.totalUnreadCount + 1
-                                    });
-                                    this.updateConversation(message.conversationId, false);
-                                }
-                            }
-                        });
-                    }
-                    // user is not opening the conversation from message's conversationid
-                    else {
-                        this.getUnreadCount();
-                    }
-                }
-                // user is not opening chat panel
-                else {
-                    this.updateConversation(message.conversationId);
-                    if (this.state.conversationId) {
-                        this.getMessages(message.conversationId);
-                    }
-                    this.setState({
-                        totalUnreadCount: this.state.totalUnreadCount + 1
-                    });
-                }
-            });
-
-            // user clicked on "Chat with user" button
-            socket.on("receivechatWithUserRequest", data => {
-                // open chat panel
-                if (!this.state.chatOpened) {
-                    this.setState({ chatOpened: true });
-                    const panel = document.getElementById("chat-panel");
-                    panel.classList.remove("HideChatPanel");
-                    panel.classList.add("ShowChatPanel");
-
-                    // store in local storage to keep track
-                    // when users go to another page
-                    localStorage.chatOpened = true;
-                }
-
-                // conversation not found, create conversation
-                ChatService.postConversation(
-                    data.user,
-                    data.receiver
-                ).then(() => {
-                    ChatService.getConversationsRequest(this.state.currentUser.id)
-                        .then(
-                            response => {
-                                const temp = response.data.conversations;
-                                const conversationList = [];
-                                temp.map((obj,) => {
-                                    obj.members.map((user) => {
-                                        if (user._id != this.state.currentUser.id) {
-                                            conversationList.push({
-                                                _id: obj._id,
-                                                user: user,
-                                                updatedAt: obj.updatedAt
-                                            });
-                                        }
-                                    });
-                                });
-
-                                // sort from newest date to oldest
-                                conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
-                                this.setState({
-                                    conversations: conversationList
-                                }, () => {
-                                    this.getUnreadCount();
-                                    this.setChatPanelState();
-                                    const conversation = this.state.conversations[0];
-                                    this.setChatTarget(conversation);
-                                    this.setState({ receiver: conversation.user._id });
-                                });
-                            })
-                        .catch((error) => {
-                            if (error.response && error.response.status != 500) {
-                                console.log(error.response.data.message);
-                            } else {
-                                console.log(error);
-                            }
-                            this.setChatPanelState();
-                        });
-                }).catch((error) => {
-                    // conversation already exists
-                    if (error.response && error.response.status == 401) {
-                        // has conversation with this user already,
-                        // switch chat target to this conversation
-                        const temp = error.response.data.conversation;
-                        let otherUser = null;
-                        temp.members.map((user) => {
-                            if (user != this.state.currentUser.id) {
-                                otherUser = user;
-                            }
-                        });
-
-                        const conversation = {
-                            _id: temp._id,
-                            user: otherUser,
-                            updatedAt: temp.updatedAt
-                        };
-
-                        this.setChatTarget(conversation);
-                        this.setState({ receiver: conversation.user });
-                    } else if (error.response && error.response.status != 500) {
-                        console.log(error.response.data.message);
-                    } else {
-                        console.log(error);
-                    }
-                });
-            });
-        } else {
-            this.setChatPanelState();
-        }
-    }
-
-    getConversations = () => {
-        ChatService.getConversations(this.state.currentUser.id)
-            .then((response) => {
-                const temp = response.data.conversations;
-                const conversationList = [];
-                temp.map((obj,) => {
-                    obj.members.map((user) => {
-                        if (user._id != this.state.currentUser.id) {
-                            conversationList.push({
-                                _id: obj._id,
-                                user: user,
-                                updatedAt: obj.updatedAt
-                            });
-                        }
-                    });
-                });
-
-                // sort from newest date to oldest
-                conversationList.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
-                this.setState({
-                    conversations: conversationList,
-                    conversationId: localStorage.getItem("conversationId") ? localStorage.getItem("conversationId") : null
-                }, () => {
-                    this.getUnreadCount();
-                    this.setChatPanelState();
-                    // has conversation id, get messages and set receiver id
-                    if (this.state.conversationId) {
-                        this.getMessages(this.state.conversationId);
-
-                        // set receiver id
-                        for (const conversation of conversationList) {
-                            if (conversation._id == this.state.conversationId) {
-                                this.setState({ receiver: conversation.user._id });
-                                break;
-                            }
-                        }
-                    }
-                    if (localStorage.getItem("chatOpened") == "true") {
-                        this.setMessagesToRead(this.state.conversationId);
-                    }
-                });
-            }).catch((error) => {
-                if (error.response && error.response.status != 500) {
-                    console.log(error.response.data.message);
-                } else {
-                    console.log(error);
-                }
-                this.setChatPanelState();
             });
     }
 
@@ -586,7 +564,7 @@ export default class Chat extends Component {
                 conversationId,
                 this.state.currentUser.id
             ).then(() => {
-                this.getUnreadCount();
+                this.getAllUnreadCount();
             }).catch((error) => {
                 if (error.response && error.response.status != 500) {
                     console.log(error.response.data.message);
