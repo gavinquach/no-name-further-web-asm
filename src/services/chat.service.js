@@ -1,16 +1,9 @@
-import { axiosTokenHeader } from "./AxiosInstance"
-import socket from './socket';
+import { axiosTokenHeader } from "./AxiosInstance";
 const API_URL = require("./index");
 
 class ChatService {
     postMessage(messageObj) {
-        return axiosTokenHeader.post(API_URL + "message", messageObj)
-            .then(response => {
-                socket.emit("sendMessage", response.data);
-                return response;
-            }).catch((error) => {
-                return error;
-            });
+        return axiosTokenHeader.post(API_URL + "message", messageObj);
     }
 
     getMessages(conversationId, sort, page, limit) {

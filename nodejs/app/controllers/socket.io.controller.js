@@ -42,5 +42,9 @@ module.exports = (io) => {
         socket.on("requestReloadNotifications", (user) => {
             io.to(users[user]).emit("receiveNotificationsReloadRequest", user);
         });
+
+        socket.on("messageRead", (user) => {
+            io.to(users[user]).emit("receiveMessageRead", user);
+        });
     });
 }

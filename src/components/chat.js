@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCommentDots, faTimes, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faCommentDots, faTimes, faPaperPlane, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import "../css/Chat.css"
 
@@ -54,7 +54,8 @@ export default class Chat extends Component {
             currentUser: AuthService.isLoggedIn() ? AuthService.getCurrentUser() : null,
             page: 1,
             totalPages: 0,
-            totalUnreadCount: 0
+            totalUnreadCount: 0,
+            status: ""
         };
     }
 
@@ -68,6 +69,18 @@ export default class Chat extends Component {
         window.scrollTo(0, 0); // automatically scroll to top
         if (AuthService.isLoggedIn()) {
             this.load();
+
+            // when the other user has read the message
+            socket.on("receiveMessageRead", user => {
+                if (user == this.state.currentUser.id) {
+                    // add delay to not instantly update the
+                    // the status and act like the message really
+                    // got after a period of processing
+                    setTimeout(() => {
+                        this.setState({ status: "read" });
+                    }, 500);
+                }
+            });
 
             // when user receives a message
             socket.on("receiveMessage", message => {
@@ -597,6 +610,7 @@ export default class Chat extends Component {
                 conversationId,
                 this.state.currentUser.id
             ).then(() => {
+                socket.emit("messageRead", this.state.receiver);
                 this.getAllUnreadCount();
             }).catch((error) => {
                 if (error.response && error.response.status != 500) {
@@ -620,6 +634,12 @@ export default class Chat extends Component {
             const messages = response.data.messages.sort((a, b) =>
                 new Date(a.createdAt) - new Date(b.createdAt)
             );
+
+            if (messages[messages.length - 1].read) {
+                this.setState({ status: "read" });
+            } else {
+                this.setState({ status: "sent" });
+            }
 
             this.setState({
                 messages: messages,
@@ -676,7 +696,10 @@ export default class Chat extends Component {
 
         ChatService.postMessage(message)
             .then((response) => {
-                // push message 
+                // sent request to update the chat box on the other side
+                socket.emit("sendMessage", response.data);
+
+                // push message to the chat box
                 const temp = this.state.messages;
                 temp.push(message);
 
@@ -684,8 +707,21 @@ export default class Chat extends Component {
                 this.setState({
                     conversationId: response.data.conversationId,
                     message: "",
-                    messages: temp
+                    messages: temp,
+                    status: ""
                 }, () => {
+                    // add delay to not instantly update the
+                    // the status and act like the message really
+                    // got after a period of processing
+                    setTimeout(() => {
+                        this.setState({ status: "sent" });
+
+                        // automatically scroll chat to bottom again
+                        // after status message is set
+                        const chat = document.getElementById("chat-bubbles");
+                        chat.scrollTop = chat.scrollHeight;
+                    }, 500);
+
                     // automatically scroll chat to bottom
                     const chat = document.getElementById("chat-bubbles");
                     chat.scrollTop = chat.scrollHeight;
@@ -803,13 +839,32 @@ export default class Chat extends Component {
                                             {message.text}
                                         </li>
                                     ) : (
-                                        // format and display current user's message
-                                        <li key={`${index}-${message.sender}`}
-                                            className={"ChatBubble SentMessages ".concat(
-                                                this.formatBubble(this.state.messages, message, index, "sent")
-                                            )}>
-                                            {message.text}
-                                        </li>
+                                        <span>
+                                            {/* format and display current user's message */}
+                                            <li key={`${index}-${message.sender}`}
+                                                className={"ChatBubble SentMessages ".concat(
+                                                    this.formatBubble(this.state.messages, message, index, "sent")
+                                                )}>
+                                                {message.text}
+                                            </li>
+                                            {(index == this.state.messages.length - 1) && (
+                                                <span>
+                                                    {this.state.status == "read" && (
+                                                        <div className="ChatBubble SentMessageCheckMarks">
+                                                            <FontAwesomeIcon icon={faCheck} />
+                                                            {this.state.status}
+                                                        </div>
+                                                    )}
+                                                    {this.state.status == "sent" && (
+                                                        <span>
+                                                            <div className="ChatBubble SentMessageCheckMarks">
+                                                                {this.state.status}
+                                                            </div>
+                                                        </span>
+                                                    )}
+                                                </span>
+                                            )}
+                                        </span>
                                     )
                                 ))
                                 }
